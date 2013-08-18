@@ -336,6 +336,10 @@ vmCvar_t	cg_g2Marks;
 vmCvar_t	fx_expensivePhysics;
 vmCvar_t	cg_debugHealthBars;
 
+vmCvar_t	cg_rgb_saber_red;
+vmCvar_t	cg_rgb_saber_blue;
+vmCvar_t	cg_rgb_saber_green;
+
 typedef struct {
 	vmCvar_t	*vmCvar;
 	const char	*cvarName;
@@ -447,6 +451,13 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_g2Marks, "cg_g2Marks", "1", CVAR_ARCHIVE },
 	{ &fx_expensivePhysics, "fx_expensivePhysics", "1", CVAR_ARCHIVE },
 	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
+	
+	{ &cg_rgb_saber_red,	"cg_rgb_saber_red",	"255", CVAR_ARCHIVE },
+	{ &cg_rgb_saber_blue,	"cg_rgb_saber_blue",	"255", CVAR_ARCHIVE },
+	{ &cg_rgb_saber_green,	"cg_rgb_saber_green",	"255", CVAR_ARCHIVE },
+
+
+
 };
 
 static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );

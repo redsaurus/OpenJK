@@ -47,6 +47,8 @@ static qhandle_t blueSaberGlowShader;
 static qhandle_t blueSaberCoreShader;
 static qhandle_t purpleSaberGlowShader;
 static qhandle_t purpleSaberCoreShader;
+static qhandle_t rgbSaberGlowShader;
+static qhandle_t rgbSaberCoreShader;
 void UI_CacheSaberGlowGraphics( void )
 {//FIXME: these get fucked by vid_restarts
 	redSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/red_glow" );
@@ -61,6 +63,8 @@ void UI_CacheSaberGlowGraphics( void )
 	blueSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/blue_line" );
 	purpleSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/purple_glow" );
 	purpleSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/purple_line" );
+	rgbSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/rgb_glow" );
+	rgbSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/rgb_line" );
 }
 
 qboolean UI_ParseLiteral( const char **data, const char *string ) 
@@ -382,6 +386,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+		case SABER_RGB:
+			glow = rgbSaberGlowShader;
+			blade = rgbSaberCoreShader;
+			VectorSet( rgb, 1.0f, 1.0f, 1.0f );
+			break;
 	}
 
 	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
@@ -422,6 +431,11 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	saber.customShader = glow;
 	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
 	//saber.renderfx = rfx;
+	
+	if (color == SABER_RGB)
+	{
+		
+	}
 
 	DC->addRefEntityToScene( &saber );
 
@@ -466,6 +480,10 @@ saber_colors_t TranslateSaberColor( const char *name )
 	if ( !Q_stricmp( name, "random" ) ) 
 	{
 		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
+	}
+	if ( !Q_stricmp( name, "rgb" ) )
+	{
+		return SABER_RGB;
 	}
 	return SABER_BLUE;
 }

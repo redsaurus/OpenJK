@@ -38,6 +38,11 @@ extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeN
 extern void WP_SaberSwingSound( gentity_t *ent, int saberNum, swingType_t swingType );
 
 extern vmCvar_t	cg_debugHealthBars;
+
+extern vmCvar_t	cg_rgb_saber_red;
+extern vmCvar_t	cg_rgb_saber_green;
+extern vmCvar_t	cg_rgb_saber_blue;
+
 /*
 
 player entities generate a great deal of information from implicit ques
@@ -5646,6 +5651,9 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_PURPLE:
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
+		case SABER_RGB:
+			VectorSet( rgb, cg_rgb_saber_red.integer/255.0f, cg_rgb_saber_green.integer/255.0f, cg_rgb_saber_blue.integer/255.0f );
+			break;
 	}
 }
 
@@ -5763,6 +5771,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 	}
 }
 
+#if 1
 static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight )
 {
 	vec3_t		mid;
@@ -5805,6 +5814,10 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 			glow = cgs.media.purpleSaberGlowShader;
 			blade = cgs.media.purpleSaberCoreShader;
 			break;
+		case SABER_RGB:
+			glow = cgs.media.rgbSaberGlowShader;
+			blade = cgs.media.rgbSaberCoreShader;
+			break;
 	}
 
 	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
@@ -5845,6 +5858,13 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 	saber.customShader = glow;
 	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
 	saber.renderfx = rfx;
+	
+	if (color == SABER_RGB)
+	{
+		saber.shaderRGBA[0] = cg_rgb_saber_red.integer;
+		saber.shaderRGBA[1] = cg_rgb_saber_green.integer;
+		saber.shaderRGBA[2] = cg_rgb_saber_blue.integer;
+	}
 
 	cgi_R_AddRefEntityToScene( &saber );
 
@@ -5859,6 +5879,110 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 
 	cgi_R_AddRefEntityToScene( &saber );
 }
+#else
+static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight )
+{
+	vec3_t		mid;
+	qhandle_t	blade = 0, glow = 0;
+	refEntity_t saber;
+	float radiusmult;
+	
+	if ( length < MIN_SABERBLADE_DRAW_LENGTH )
+	{
+		// if the thing is so short, just forget even adding me.
+		return;
+	}
+	
+	// Find the midpoint of the saber for lighting purposes
+	VectorMA( origin, length * 0.5f, dir, mid );
+	
+	switch( color )
+	{
+		case SABER_RED:
+			glow = cgs.media.redSaberGlowShader;
+			break;
+		case SABER_ORANGE:
+			glow = cgs.media.orangeSaberGlowShader;
+			break;
+		case SABER_YELLOW:
+			glow = cgs.media.yellowSaberGlowShader;
+			break;
+		case SABER_GREEN:
+			glow = cgs.media.greenSaberGlowShader;
+			break;
+		case SABER_BLUE:
+			glow = cgs.media.blueSaberGlowShader;
+			break;
+		case SABER_PURPLE:
+			glow = cgs.media.purpleSaberGlowShader;
+			break;
+		case SABER_RGB:
+			glow = cgs.media.rgbSaberGlowShader;
+			break;
+	}
+	
+	VectorMA( blade_muz, blade_len * 0.5f, blade_dir, mid );
+	
+	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
+	if ( doLight )
+	{//FIXME: RGB combine all the colors of the sabers you're using into one averaged color!
+		vec3_t rgb={1,1,1};
+		CG_RGBForSaberColor( color, rgb );
+		cgi_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+	}
+	
+	memset( &saber, 0, sizeof( refEntity_t ));
+	
+	// Saber glow is it's own ref type because it uses a ton of sprites, otherwise it would eat up too many
+	//	refEnts to do each glow blob individually
+	saber.saberLength = length;
+	
+	// Jeff, I did this because I foolishly wished to have a bright halo as the saber is unleashed.
+	// It's not quite what I'd hoped tho.  If you have any ideas, go for it!  --Pat
+	if (length < lengthMax )
+	{
+		radiusmult = 1.0 + (2.0 / length);		// Note this creates a curve, and length cannot be < 0.5.
+	}
+	else
+	{
+		radiusmult = 1.0;
+	}
+	
+	float radiusRange = radius * 0.075f;
+	float radiusStart = radius-radiusRange;
+	
+	saber.radius = (radiusStart + crandom() * radiusRange)*radiusmult;
+	//saber.radius = (2.8f + crandom() * 0.2f)*radiusmult;
+	
+	
+	VectorCopy( origin, saber.origin );
+	VectorCopy( dir, saber.axis[0] );
+	saber.reType = RT_SABER_GLOW;
+	saber.customShader = glow;
+	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
+	saber.renderfx = rfx;
+	
+	if (color == SABER_RGB)
+	{
+		saber.shaderRGBA[0] = cg_rgb_saber_red.integer;
+		saber.shaderRGBA[1] = cg_rgb_saber_green.integer;
+		saber.shaderRGBA[2] = cg_rgb_saber_blue.integer;
+	}
+	
+	cgi_R_AddRefEntityToScene( &saber );
+	
+	// Do the hot core
+	VectorMA( origin, length, dir, saber.origin );
+	VectorMA( origin, -1, dir, saber.oldorigin );
+	saber.customShader = blade;
+	saber.reType = RT_LINE;
+	radiusStart = radius/3.0f;
+	saber.radius = (radiusStart + crandom() * radiusRange)*radiusmult;
+	//	saber.radius = (1.0 + crandom() * 0.2f)*radiusmult;
+	
+	cgi_R_AddRefEntityToScene( &saber );
+}
+#endif
 
 #define	MAX_MARK_FRAGMENTS	128
 #define	MAX_MARK_POINTS		384
@@ -6635,6 +6759,9 @@ Ghoul2 Insert End
 							break;
 						case SABER_PURPLE:
 							VectorSet( rgb1, 220.0f, 0.0f, 255.0f );
+							break;
+						case SABER_RGB:
+							VectorSet( rgb1, cg_rgb_saber_red.value, cg_rgb_saber_green.value, cg_rgb_saber_blue.value );
 							break;
 					}
 				}

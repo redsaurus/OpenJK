@@ -164,6 +164,8 @@ typedef struct {
 	qhandle_t	blueSaberCoreShader;
 	qhandle_t	purpleSaberGlowShader;
 	qhandle_t	purpleSaberCoreShader;
+	qhandle_t	rgbSaberGlowShader;
+	qhandle_t	rgbSaberCoreShader;
 
 	qhandle_t	explosionModel;
 	qhandle_t	surfaceExplosionShader;
