@@ -6095,7 +6095,21 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 	if (cent->currentState.eType == ET_NPC)
 	{
-		scolor = client->saber[saberNum].blade[bladeNum].color;
+		if (cent->currentState.boltToPlayer)
+		{
+			if (saberNum == 0)
+			{
+				scolor = (cent->currentState.boltToPlayer & 0x07) - 1;
+			}
+			else
+			{
+				scolor = ((cent->currentState.boltToPlayer & 0x38) >> 3) - 1;
+			}
+		}
+		else
+		{
+			scolor = client->saber[saberNum].blade[bladeNum].color;
+		}
 	}
 	else
 	{
