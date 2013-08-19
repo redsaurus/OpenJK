@@ -75,6 +75,8 @@ This file is part of Jedi Academy.
 #define RDF_doFullbright	64		// Light Amp goggles
 #define RDF_ForceSightOn	128		// using force sight
 
+#define MAX_NEW_ENT_RGB		2
+
 
 extern int	skyboxportal;
 extern int	drawskyboxportal;
@@ -163,6 +165,7 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+	byte		newShaderRGBA[MAX_NEW_ENT_RGB][4];		// colors used by colorSrc=vertex shaders
 
 } refEntity_t;
 

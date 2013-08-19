@@ -239,6 +239,7 @@ typedef enum {
 	CGEN_FOG,				// standard fog
 	CGEN_CONST,				// fixed color
 	CGEN_LIGHTMAPSTYLE,
+	CGEN_ENTITY_NEW,
 } colorGen_t;
 
 typedef enum {
@@ -403,6 +404,9 @@ typedef struct {
 
 	// Whether this object emits a glow or not.
 	bool			glow;
+	
+	// Which rgbGen entity index stage corresponds to.
+	unsigned int	rgbGenEntIndex;
 } shaderStage_t;
 
 struct shaderCommands_s;
@@ -1711,6 +1715,7 @@ void	RB_CalcFogTexCoords( float *dstTexCoords );
 void	RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *dstTexCoords );
 
 void	RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors );
+void	RB_CalcColorFromEntityNew( unsigned char *dstColors, int index );
 void	RB_CalcColorFromEntity( unsigned char *dstColors );
 void	RB_CalcColorFromOneMinusEntity( unsigned char *dstColors );
 void	RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors );

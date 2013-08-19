@@ -610,6 +610,26 @@ COLORS
 ====================================================================
 */
 
+/*
+ ** RB_CalcColorFromEntity
+ */
+
+void RB_CalcColorFromEntityNew( unsigned char *dstColors, int index )
+{
+	int	i;
+	int *pColors = ( int * ) dstColors;
+	int c;
+	
+	if ( !backEnd.currentEntity )
+		return;
+	
+	c = * ( int * ) backEnd.currentEntity->e.newShaderRGBA[index];
+	
+	for ( i = 0; i < tess.numVertexes; i++, pColors++ )
+	{
+		*pColors = c;
+	}
+}
 
 /*
 ** RB_CalcColorFromEntity
