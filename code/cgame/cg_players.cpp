@@ -4659,6 +4659,14 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	ent->shaderRGBA[1] = gent->client->renderInfo.customRGBA[1];
 	ent->shaderRGBA[2] = gent->client->renderInfo.customRGBA[2];
 	ent->shaderRGBA[3] = gent->client->renderInfo.customRGBA[3];
+	
+	for (int index = 0; index < MAX_NEW_ENT_RGB; index++)
+	{
+		ent->newShaderRGBA[index][0] = gent->client->renderInfo.newCustomRGBA[index][0];
+		ent->newShaderRGBA[index][1] = gent->client->renderInfo.newCustomRGBA[index][1];
+		ent->newShaderRGBA[index][2] = gent->client->renderInfo.newCustomRGBA[index][2];
+		ent->newShaderRGBA[index][3] = gent->client->renderInfo.newCustomRGBA[index][3];
+	}
 
 	// If certain states are active, we don't want to add in the regular body
 	if ( !gent->client->ps.powerups[PW_CLOAKED] && 

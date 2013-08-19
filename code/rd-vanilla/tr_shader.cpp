@@ -1621,7 +1621,7 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text )
 				{
 					stage->rgbGen = CGEN_ENTITY_NEW;
 					stage->rgbGenEntIndex = atoi( token );
-					if (stage->rgbGenEntIndex > MAX_NEW_ENT_RGB)
+					if (stage->rgbGenEntIndex >= MAX_NEW_ENT_RGB)
 					{
 						stage->rgbGenEntIndex = MAX_NEW_ENT_RGB - 1;
 					}

@@ -1440,6 +1440,23 @@ qboolean	ConsoleCommand( void ) {
 			}
 		}
 	}
+	
+	if ( Q_stricmp( cmd, "newPlayerTint" ) == 0 )
+	{
+		
+		if ( gi.argc() == 5 && ((unsigned int)atoi(gi.argv(1)) < MAX_NEW_ENT_RGB))
+		{
+			unsigned int tintIndex = atoi(gi.argv(1));
+			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][0] = atoi(gi.argv(2));
+			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][1] = atoi(gi.argv(3));
+			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][2] = atoi(gi.argv(4));
+		}
+		else
+		{
+			gi.Printf( S_COLOR_RED"USAGE: newPlayerTint <index 0 - 1> <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n" );
+		}
+		return qtrue;
+	}
 
 	return qfalse;
 }
