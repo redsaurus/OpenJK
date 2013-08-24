@@ -1660,7 +1660,20 @@ static qboolean ParseStage( shaderStage_t *stage, const char **text )
 				{
 					VID_Printf( PRINT_ERROR, "ERROR: rgbGen lightingDiffuseEntity used on a misc_model! in shader '%s'\n", shader.name );
 				}
-				stage->rgbGen = CGEN_LIGHTING_DIFFUSE_ENTITY;
+				token = COM_ParseExt( text, qfalse );
+				if ( token[0] == 0 )
+				{
+					stage->rgbGen = CGEN_LIGHTING_DIFFUSE_ENTITY;
+				}
+				else
+				{
+					stage->rgbGen = CGEN_LIGHTING_DIFFUSE_ENTITY_NEW;
+					stage->rgbGenEntIndex = atoi( token );
+					if (stage->rgbGenEntIndex >= MAX_NEW_ENT_RGB)
+					{
+						stage->rgbGenEntIndex = MAX_NEW_ENT_RGB - 1;
+					}
+				}
 			}
 			else if ( !Q_stricmp( token, "oneMinusVertex" ) )
 			{

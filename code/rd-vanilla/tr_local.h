@@ -240,6 +240,7 @@ typedef enum {
 	CGEN_CONST,				// fixed color
 	CGEN_LIGHTMAPSTYLE,
 	CGEN_ENTITY_NEW,
+	CGEN_LIGHTING_DIFFUSE_ENTITY_NEW,
 } colorGen_t;
 
 typedef enum {
@@ -1728,6 +1729,7 @@ void	RB_CalcModulateRGBAsByFog( unsigned char *dstColors );
 
 void	RB_CalcDiffuseColor( unsigned char *colors );
 void	RB_CalcDiffuseEntityColor( unsigned char *colors );
+void	RB_CalcDiffuseEntityColorNew( unsigned char *colors, int index );
 void	RB_CalcDisintegrateColors( unsigned char *colors, colorGen_t rgbGen );
 void	RB_CalcDisintegrateVertDeform( void );
 /*
