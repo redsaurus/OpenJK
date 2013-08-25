@@ -1463,8 +1463,20 @@ qboolean	ConsoleCommand( void ) {
 	{
 		if ( gi.argc() == 2 )
 		{
+			//this is debug type option!
 			G_ChangeHeadModel(&g_entities[0], gi.argv(1));
 		}
+		else if ( gi.argc() == 3 )
+		{
+			gi.cvar_set("g_char_head_model", gi.argv(1) );
+			gi.cvar_set("g_char_head_skin", gi.argv(2) );
+			G_InitPlayerFromCvars( &g_entities[0] );
+		}
+		else
+		{
+			gi.Printf( S_COLOR_RED"USAGE: headPlayerModel <g2model>" );
+		}
+		return qtrue;
 	}
 
 	return qfalse;

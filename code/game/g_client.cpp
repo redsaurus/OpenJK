@@ -47,6 +47,9 @@ extern cvar_t	*g_saber_color;
 extern cvar_t	*g_saber2_color;
 extern cvar_t	*g_saberDarkSideSaberColor;
 
+extern cvar_t	*g_char_head_model;
+extern cvar_t	*g_char_head_skin;
+
 // g_client.c -- client functions that don't happen every frame
 
 float DEFAULT_MINS_0 = -16;
@@ -1988,6 +1991,11 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	//set model based on cvars
 	G_ChangePlayerModel( ent, va("%s|%s|%s|%s", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string) );
 
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		G_ChangeHeadModel( ent, va("%s|%s", g_char_head_model->string, g_char_head_skin->string) );
+	}
+	
 	//FIXME: parse these 2 from some cvar or require playermodel to be in a *.npc?
 	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
 		gi.Free(ent->NPC_type);
@@ -2039,15 +2047,40 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 	
 	G_RemoveHeadModel( ent );
 	
+	char *p = strchr(newModel, '|');
+	
+	if ( p )
+	{
+		*p = 0;
+		p++;
+	}
+	
 	char	skinName[MAX_QPATH];
 	vec3_t	angles = {0,0,0};
 	
-	Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", newModel );
+	if ( p && p[0] )
+	{
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", newModel, p );
+	}
+	else
+	{
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", newModel );
+	}
+	
 	int skin = gi.RE_RegisterSkin( skinName );
-	assert(skin);
+	
+	if (!skin) {
+		return;
+	}
+	
 	//now generate the ghoul2 model this client should be.
 		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
 	ent->headModel = gi.G2API_InitGhoul2Model( ent->ghoul2, va("models/players/%s/model.glm", newModel), G_ModelIndex( va("models/players/%s/model.glm", newModel) ), G_SkinIndex( skinName ), NULL_HANDLE, 0, 0 );
+	
+	if (ent->headModel == -1)
+	{
+		return;
+	}
 	
 	gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );//this is going to set the surfs on/off matching the skin file
 	
