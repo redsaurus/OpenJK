@@ -1841,6 +1841,15 @@ void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const cha
 Ghoul2 Insert End
 */
 
+void G_RemoveHeadModel( gentity_t *ent )
+{
+	if ( ent->headModel >= 0 && ent->ghoul2.size() )
+	{
+		gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->headModel );
+		ent->headModel = -1;
+	}
+}
+
 void G_RemovePlayerModel( gentity_t *ent )
 {
 	if ( ent->playerModel >= 0 && ent->ghoul2.size() )
@@ -1889,6 +1898,7 @@ void G_AddWeaponModels( gentity_t *ent )
 extern saber_colors_t TranslateSaberColor( const char *name );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
+void G_ChangeHeadModel( gentity_t *ent, const char *newModel );
 void G_SetSabersFromCVars( gentity_t *ent )
 {
 	if ( g_saber->string
@@ -2020,6 +2030,63 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	}
 }
 
+void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
+{
+	if ( !newModel )
+	{
+		return;
+	}
+		
+	char	skinName[MAX_QPATH];
+	vec3_t	angles = {0,0,0};
+	
+	Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", newModel );
+	int skin = gi.RE_RegisterSkin( skinName );
+	assert(skin);
+	//now generate the ghoul2 model this client should be.
+		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
+	ent->headModel = gi.G2API_InitGhoul2Model( ent->ghoul2, va("models/players/%s/model.glm", newModel), G_ModelIndex( va("models/players/%s/model.glm", newModel) ), G_SkinIndex( skinName ), NULL_HANDLE, 0, 0 );
+	
+	gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );//this is going to set the surfs on/off matching the skin file
+	
+//	int getBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->headModel], "cranium");
+	gi.G2API_SetRootSurface(ent->ghoul2, ent->headModel, "head");
+//	gi.G2API_AttachG2Model(&ent->ghoul2[ent->headModel], &ent->ghoul2[ent->playerModel], ent->motionBone, ent->playerModel);
+	
+	ent->headRootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "model_root", qtrue );
+	
+	ent->headMotionBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "Motion", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headMotionBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, NULL, 0, 0 );
+	
+	ent->headLowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "lower_lumbar", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headLowerLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headFaceBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "face", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headFaceBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headHipsBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "pelvis", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headHipsBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headUpperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "upper_lumbar", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headUpperLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headCraniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "cranium", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headCraniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headCervicalBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "cervical", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headCervicalBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headThoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "thoracic", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headThoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+
+
+//	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "hips", G2SURFACEFLAG_NODESCENDANTS);
+//	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head", 0x0);
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head", G2SURFACEFLAG_NODESCENDANTS);
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "torso_cap_head", 0x00);
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head_cap_torso", 0x00);//show caps so don't get such bad seams
+}
+
 void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 {
 	if ( !ent || !ent->client || !newModel )
@@ -2028,9 +2095,12 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 	}
 	
 	G_RemovePlayerModel( ent );
+	G_RemoveHeadModel( ent );
+	
 	if ( Q_stricmp( "player", newModel ) == 0 )
 	{
 		G_InitPlayerFromCvars( ent );
+		G_ChangeHeadModel(ent, "kyle");
 		return;
 	}
 

@@ -364,11 +364,18 @@ void PM_IKUpdate( gentity_t *ent )
 
 
 void BG_G2SetBoneAngles( centity_t *cent, gentity_t *gent, int boneIndex, const vec3_t angles, const int flags,
-							 const Eorientations up, const Eorientations right, const Eorientations forward, qhandle_t *modelList )
+							 const Eorientations up, const Eorientations right, const Eorientations forward, qhandle_t *modelList, qboolean isHead )
 {
 	if (boneIndex!=-1)
 	{
-		gi.G2API_SetBoneAnglesIndex( &cent->gent->ghoul2[0], boneIndex, angles, flags, up, right, forward, modelList, 0, 0 ); 
+		if (isHead && cent->gent->headModel > 0)
+		{
+			gi.G2API_SetBoneAnglesIndex( &cent->gent->ghoul2[cent->gent->headModel], boneIndex, angles, flags, up, right, forward, modelList, 0, 0 );
+		}
+		else
+		{
+			gi.G2API_SetBoneAnglesIndex( &cent->gent->ghoul2[0], boneIndex, angles, flags, up, right, forward, modelList, 0, 0 );
+		}
 	}
 }
 

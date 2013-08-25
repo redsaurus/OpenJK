@@ -9872,9 +9872,24 @@ void PM_SetAnimFrame( gentity_t *gent, int frame, qboolean torso, qboolean legs 
 				frame, frame+1, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1, actualTime, frame, 150 );
 		}
 	}
+	if ( torso && gent->headModel > 0 && gent->headLowerLumbarBone != -1)
+	{
+		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headLowerLumbarBone, //gent->upperLumbarBone
+								  frame, frame+1, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1, actualTime, frame, 150 );
+		if ( gent->motionBone != -1 )
+		{
+			gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headMotionBone, //gent->upperLumbarBone
+									  frame, frame+1, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1, actualTime, frame, 150 );
+		}
+	}
 	if ( legs && gent->rootBone != -1 )
 	{
 		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->rootBone, 
+			frame, frame+1, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1, actualTime, frame, 150 );
+	}
+	if ( legs && gent->headModel > 0 && gent->headRootBone != -1 )
+	{
+		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headRootBone,
 			frame, frame+1, BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND, 1, actualTime, frame, 150 );
 	}
 }

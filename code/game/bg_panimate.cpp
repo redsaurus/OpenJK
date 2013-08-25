@@ -4958,7 +4958,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 		{
 			animCurrent = torsCurrent;
 		}
-
+		
 		gi.G2API_SetAnimIndex(&gent->ghoul2[gent->playerModel], curAnim.glaIndex);
 		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], torsBone, 
 			animStart, 
@@ -4971,7 +4971,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 
 		if (gent->motionBone!=-1)
 		{
-			gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->motionBone, 
+			gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], gent->motionBone,
 				animStart, 
 				animEnd, 
 				(torsOnAnimNow && !animRestart)?(animFlags&~BONE_ANIM_BLEND):(animFlags), 
@@ -4980,6 +4980,33 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 				animCurrent, 
 				blendTime);
 		}
+		
+		if (gent->headModel > 0)
+		{
+			gi.G2API_SetAnimIndex(&gent->ghoul2[gent->headModel], curAnim.glaIndex);
+			gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headLowerLumbarBone,
+									  animStart,
+									  animEnd,
+									  (torsOnAnimNow && !animRestart)?(animFlags&~BONE_ANIM_BLEND):(animFlags),
+									  animSpeed,
+									  actualTime,
+									  animCurrent,
+									  blendTime);
+			
+			if (gent->headMotionBone!=-1)
+			{
+				gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headMotionBone,
+										  animStart,
+										  animEnd,
+										  (torsOnAnimNow && !animRestart)?(animFlags&~BONE_ANIM_BLEND):(animFlags),
+										  animSpeed, 
+										  actualTime, 
+										  animCurrent, 
+										  blendTime);
+			}
+
+		}
+
 
 		animCurrent = oldAnimCurrent;
 
@@ -5001,7 +5028,7 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 		{
 			animCurrent = bodyCurrent;
 		}
-
+		
 		gi.G2API_SetAnimIndex(&gent->ghoul2[gent->playerModel], curAnim.glaIndex);
 		gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->playerModel], bodyBone, 
 			animStart, 
@@ -5011,6 +5038,21 @@ void PM_SetAnimFinal(int *torsoAnim,int *legsAnim,
 			actualTime, 
 			animCurrent, 
 			blendTime);
+		
+		if (gent->headModel > 0)
+		{
+			gi.G2API_SetAnimIndex(&gent->ghoul2[gent->headModel], curAnim.glaIndex);
+			
+			gi.G2API_SetBoneAnimIndex(&gent->ghoul2[gent->headModel], gent->headRootBone,
+									  animStart,
+									  animEnd,
+									  (bodyOnAnimNow && !animRestart)?(animFlags&~BONE_ANIM_BLEND):(animFlags),
+									  animSpeed,
+									  actualTime,
+									  animCurrent, 
+									  blendTime);
+
+		}
 
 		// If This Animation Is To Be Locked And Held, Calculate The Duration And Set The Timer
 		//--------------------------------------------------------------------------------------
