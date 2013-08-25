@@ -92,7 +92,10 @@ This file is part of Jedi Academy.
 #define FEEDER_COLORCHOICES					0x14			// special hack to feed text/actions from playerchoice.txt in species folder
 #define FEEDER_MOVES						0x15			// moves for the data pad moves screen
 #define FEEDER_MOVES_TITLES					0x16			// move titles for the data pad moves screen
-#define FEEDER_LANGUAGES					0x17			// the list of languages 
+#define FEEDER_LANGUAGES					0x17			// the list of languages
+#ifdef EXTRA_COLOURS
+#define FEEDER_COLORCHOICES2				0x18			// more text/actions from playerchoice2.txt!
+#endif
 
 
 #define UI_VERSION				200

@@ -132,6 +132,13 @@ typedef struct {
 	char		ColorShader[MAX_PLAYERMODELS][64];
 	int			ColorCount;
 	char		ColorActionText[MAX_PLAYERMODELS][128];
+#ifdef EXTRA_COLOURS
+	char		Color2Shader[MAX_PLAYERMODELS][64];
+	int			Color2Count;
+	char		Color2ActionText[MAX_PLAYERMODELS][128];
+#endif
+	char		HeadSwapModel[MAX_PLAYERMODELS][32];
+	char		HeadSwapSkin[MAX_PLAYERMODELS][16];
 } playerSpeciesInfo_t;
 
 typedef struct {
