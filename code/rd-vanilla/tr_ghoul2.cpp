@@ -2637,7 +2637,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				cust_shader = NULL;
 				// figure out the custom skin thing
-				if (ghoul2[i].mCustomSkin)
+				if (ent->e.customSkin&& ghoul2[i].mCustomSkin)
 				{
 					skin = R_GetSkinByHandle(ghoul2[i].mCustomSkin );
 				}
