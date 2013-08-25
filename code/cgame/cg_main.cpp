@@ -2222,6 +2222,8 @@ void CG_Init( int serverCommandSequence ) {
 	cgi_AddCommand ("use_seeker");
 	cgi_AddCommand ("use_lightamp_goggles");
 	cgi_AddCommand ("use_sentry");
+	
+	cgi_AddCommand ("headplayermodel");
 
 	cg.weaponPickupTextTime = 0;
 

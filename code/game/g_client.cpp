@@ -1843,7 +1843,7 @@ Ghoul2 Insert End
 
 void G_RemoveHeadModel( gentity_t *ent )
 {
-	if ( ent->headModel >= 0 && ent->ghoul2.size() )
+	if ( ent->headModel >= 0 && ent->headModel != ent->playerModel && ent->ghoul2.size() )
 	{
 		gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->headModel );
 		ent->headModel = -1;
@@ -2032,11 +2032,13 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 
 void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 {
-	if ( !newModel )
+	if ( !ent || !ent->client || !newModel )
 	{
 		return;
 	}
-		
+	
+	G_RemoveHeadModel( ent );
+	
 	char	skinName[MAX_QPATH];
 	vec3_t	angles = {0,0,0};
 	
@@ -2100,7 +2102,6 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 	if ( Q_stricmp( "player", newModel ) == 0 )
 	{
 		G_InitPlayerFromCvars( ent );
-		G_ChangeHeadModel(ent, "kyle");
 		return;
 	}
 

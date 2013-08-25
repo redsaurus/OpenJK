@@ -28,6 +28,7 @@ This file is part of Jedi Academy.
 
 extern void G_NextTestAxes( void );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
+extern void G_ChangeHeadModel( gentity_t *ent, const char *newModel );
 extern void G_InitPlayerFromCvars( gentity_t *ent );
 extern void Q3_SetViewEntity(int entID, const char *name);
 extern qboolean G_ClearViewEntity( gentity_t *ent );
@@ -1456,6 +1457,14 @@ qboolean	ConsoleCommand( void ) {
 			gi.Printf( S_COLOR_RED"USAGE: newPlayerTint <index 0 - 1> <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n" );
 		}
 		return qtrue;
+	}
+	
+	if (Q_stricmp( cmd, "headPlayerModel") == 0)
+	{
+		if ( gi.argc() == 2 )
+		{
+			G_ChangeHeadModel(&g_entities[0], gi.argv(1));
+		}
 	}
 
 	return qfalse;
