@@ -47,7 +47,7 @@ extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
 extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
-extern qboolean ItemParse_asset_model_go_head( itemDef_t *item, const char *name );
+extern qboolean ItemParse_asset_model_go_head( itemDef_t *item, const char *name, qboolean cleanuponly );
 extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
 extern qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel );
 extern qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin );
@@ -6230,6 +6230,7 @@ static void UI_ResetSaberCvars ( void )
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
 extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
 extern qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName );
+extern void ItemParse_swapheads( itemDef_t *item );
 static void UI_UpdateCharacterSkin( void )
 {
 	menuDef_t *menu;
@@ -6249,6 +6250,18 @@ static void UI_UpdateCharacterSkin( void )
 	{
 		Com_Error( ERR_FATAL, "UI_UpdateCharacterSkin: Could not find item (character) in menu (%s)", menu->window.name);
 	}
+	
+	
+	if (Cvar_VariableString( "ui_char_head_model" )[0])
+	{
+		Com_sprintf( skin, sizeof( skin ), "models/players/%s/model.glm", Cvar_VariableString ( "ui_char_head_model" ) );
+		ItemParse_asset_model_go_head( item, skin, qfalse );
+	}
+	else
+	{
+		ItemParse_asset_model_go_head( item, NULL, qtrue );
+	}
+
 
 	Com_sprintf( skin, sizeof( skin ), "models/players/%s/|%s|%s|%s", 
 										Cvar_VariableString ( "ui_char_model"), 
@@ -6267,14 +6280,16 @@ static void UI_UpdateCharacterSkin( void )
 		}
 		else
 		{
-			Com_sprintf( skin, sizeof( skin), "models/players/%s/model_default.skin", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+			Com_sprintf( skin, sizeof( skin), "models/players/%s/model_default.skin", Cvar_VariableString("ui_char_head_model"));
 		}
 		ItemParse_model_g2skin_go_head( item, skin );
 	}
 	
+	if (Cvar_VariableString( "ui_char_head_model" )[0])
+	{
+		ItemParse_swapheads( item );
+	}
 }
-
-extern void ItemParse_swapheads( itemDef_t *item );
 
 static void UI_UpdateCharacter( qboolean changedModel )
 {
@@ -6301,12 +6316,6 @@ static void UI_UpdateCharacter( qboolean changedModel )
 	Com_sprintf( modelPath, sizeof( modelPath ), "models/players/%s/model.glm", Cvar_VariableString ( "ui_char_model" ) );
 	ItemParse_asset_model_go( item, modelPath );
 	
-	if (Cvar_VariableString( "ui_char_head_model" )[0])
-	{
-		Com_sprintf( modelPath, sizeof( modelPath ), "models/players/%s/model.glm", Cvar_VariableString ( "ui_char_head_model" ) );
-		ItemParse_asset_model_go_head( item, modelPath );
-	}
-
 	if ( changedModel )
 	{//set all skins to first skin since we don't know you always have all skins
 		//FIXME: could try to keep the same spot in each list as you swtich models
@@ -6319,11 +6328,6 @@ static void UI_UpdateCharacter( qboolean changedModel )
 #endif
 	}
 	UI_UpdateCharacterSkin();
-	
-	if (Cvar_VariableString( "ui_char_head_model" )[0])
-	{
-		ItemParse_swapheads( item );
-	}
 }
 
 void UI_UpdateSaberType( void )

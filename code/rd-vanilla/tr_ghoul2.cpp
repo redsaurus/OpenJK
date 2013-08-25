@@ -2637,7 +2637,11 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				cust_shader = NULL;
 				// figure out the custom skin thing
-				if (ent->e.customSkin)
+				if (ghoul2[i].mCustomSkin)
+				{
+					skin = R_GetSkinByHandle(ghoul2[i].mCustomSkin );
+				}
+				else if (ent->e.customSkin)
 				{
 					skin = R_GetSkinByHandle(ent->e.customSkin );
 				}

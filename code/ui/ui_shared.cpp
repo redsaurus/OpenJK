@@ -3066,7 +3066,7 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name )
 	{ //it's a ghoul2 model then
 		if ( item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0)
 		{
-			if ( item->ghoul2[1].mModelindex >= 0)
+			if ( item->ghoul2.size() > 1 && item->ghoul2[1].mModelindex >= 0)
 			{
 				DC->g2_RemoveGhoul2Model( item->ghoul2, 1 );
 			}
@@ -3096,26 +3096,40 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name )
 	return qtrue;
 }
 
-qboolean ItemParse_asset_model_go_head( itemDef_t *item, const char *name )
+qboolean ItemParse_asset_model_go_head( itemDef_t *item, const char *name, qboolean cleanuponly )
 {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = (modelDef_t*)item->typeData;
 	
+	//Cleanup also done in ItemParse_asset_model_go
+	if ( item->ghoul2.size() > 1 && item->ghoul2[1].mModelindex >= 0 )
+	{
+		DC->g2_RemoveGhoul2Model( item->ghoul2, 1 );
+	}
+	
+	if ( cleanuponly )
+	{
+		return qtrue;
+	}
+	
 	if (!Q_stricmp(&name[strlen(name) - 4], ".glm"))
 	{ //it's a ghoul2 model then
-		//Cleanup done in ItemParse_asset_model_go, not here.
 		int g2Model = DC->g2_InitGhoul2Model(item->ghoul2, name, 0, 0, 0, 0, 0);
+		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
+
 		if (g2Model >= 0)
 		{
 			if (modelPtr->g2anim)
 			{ //does the menu request this model be playing an animation?
 				DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qfalse);
+				//need to sync the head and body!
+				DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qfalse);
 			}
-//			if ( modelPtr->g2skin )
-//			{
-//				DC->g2_SetSkin( &item->ghoul2[1], 0, modelPtr->g2skin );//this is going to set the surfs on/off matching the skin file
-//			}
+			if ( modelPtr->g2skin2 )
+			{
+				DC->g2_SetSkin( &item->ghoul2[1], modelPtr->g2skin2, modelPtr->g2skin2 );//this is going to set the surfs on/off matching the skin file
+			}
 		}
 	}
 	return qtrue;
@@ -3322,29 +3336,40 @@ qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 
 qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName )
 {
-//	modelDef_t *modelPtr;
-//
-//	Item_ValidateTypeData(item);
-//	modelPtr = (modelDef_t*)item->typeData;
-//
-//	modelPtr->g2skin = DC->registerSkin(skinName);
-	int theSkin =  DC->registerSkin(skinName);
-	if ( item->ghoul2.IsValid() && item->ghoul2[1].mModelindex >= 0 )
-	{
-		DC->g2_SetSkin( &item->ghoul2[1], 0, theSkin );//this is going to set the surfs on/off matching the skin file
+	modelDef_t *modelPtr;
+
+	Item_ValidateTypeData(item);
+	modelPtr = (modelDef_t*)item->typeData;
+	
+	if (!skinName || !skinName[0])
+	{ //it was parsed cor~rectly so still return true.
+		modelPtr->g2skin2 = 0;
+		DC->g2_SetSkin( &item->ghoul2[1], -1, 0 );//turn off custom skin
+		return qtrue;
 	}
+
+	modelPtr->g2skin2 = DC->registerSkin(skinName);
+	Com_Printf("loaded skin %d\n", modelPtr->g2skin2);
+	if ( item->ghoul2.IsValid() && item->ghoul2.size() > 1 &&  item->ghoul2[1].mModelindex >= 0 )
+	{
+		DC->g2_SetSkin( &item->ghoul2[1], modelPtr->g2skin2, modelPtr->g2skin2 );//this is going to set the surfs on/off matching the skin file
+	}
+	Com_Printf("forced skin %d\n", item->ghoul2[1].mCustomSkin);
 	
 	return qtrue;
 }
 
 void ItemParse_swapheads( itemDef_t *item )
 {
-	if ( item->ghoul2.IsValid() && item->ghoul2[1].mModelindex >= 0 )
+	if ( item->ghoul2.IsValid() )
 	{
-		DC->g2_SetRootSurface( item->ghoul2, 1, "head");
 		DC->g2_SetSurfaceOnOff( &item->ghoul2[0], "head", G2SURFACEFLAG_NODESCENDANTS);
 		DC->g2_SetSurfaceOnOff( &item->ghoul2[0], "torso_cap_head", 0x00);
-		DC->g2_SetSurfaceOnOff( &item->ghoul2[1], "head_cap_torso", 0x00);//show caps so don't get such bad seams
+		if (item->ghoul2[1].mValid && item->ghoul2[1].mModelindex >= 0)
+		{
+			DC->g2_SetRootSurface( item->ghoul2, 1, "head");
+			DC->g2_SetSurfaceOnOff( &item->ghoul2[1], "head_cap_torso", 0x00);//show caps so don't get such bad seams
+		}
 	}
 }
 

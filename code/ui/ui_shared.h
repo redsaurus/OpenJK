@@ -354,6 +354,7 @@ typedef struct modelDef_s {
 //Transition extras
 	vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
 	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
+	int g2skin2;
 } modelDef_t;
 
 #define ITF_G2VALID			0x0001					// indicates whether or not g2 instance is valid.
