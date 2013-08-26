@@ -29,11 +29,20 @@ This file is part of Jedi Knight 2.
 //#endif
 
 #if !defined(TEAMS_H_INC)
-	#include "../game/Teams.h"
+	#include "../game/teams.h"
 #endif
 
 //#if !defined(IGINTERFACE_H_INC)
 //	#include "../game/IGInterface.h"
 //#endif
+
+#ifdef _NO_PCH // (mrw) not sure how to make cmake use PCH, so they can be deactivated
+#include "../game/b_local.h"
+#include "../game/g_functions.h"
+#include "../game/g_nav.h"
+#include "../game/g_navigator.h"
+#include "../cgame/cg_camera.h"	// Just for AI_Rancor
+#include "../cgame/cg_local.h"	// Evil? Maybe. Necessary? Absolutely.
+#endif
 
 #endif // G_HEADERS_H_INC
