@@ -44,6 +44,10 @@ extern vmCvar_t	ui_char_color_red;
 extern vmCvar_t	ui_char_color_green;
 extern vmCvar_t	ui_char_color_blue;
 
+extern vmCvar_t	ui_char_color_2_red;
+extern vmCvar_t	ui_char_color_2_green;
+extern vmCvar_t	ui_char_color_2_blue;
+
 void *UI_Alloc( int size );
 
 void		Controls_GetConfig( void );
@@ -7372,6 +7376,10 @@ void Item_Model_Paint(itemDef_t *item)
 			ent.shaderRGBA[1] = ui_char_color_green.integer;
 			ent.shaderRGBA[2] = ui_char_color_blue.integer;
 			ent.shaderRGBA[3] = 255;
+			ent.newShaderRGBA[0][0] = ui_char_color_2_red.integer;
+			ent.newShaderRGBA[0][1] = ui_char_color_2_green.integer;
+			ent.newShaderRGBA[0][2] = ui_char_color_2_blue.integer;
+			ent.newShaderRGBA[0][3] = 255;
 			UI_TalkingHead(item);
 		}
 		if ( item->flags&ITF_ISANYSABER )

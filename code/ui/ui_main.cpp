@@ -370,6 +370,10 @@ vmCvar_t	ui_PrecacheModels;
 vmCvar_t	ui_char_head_model;
 vmCvar_t	ui_char_head_skin;
 
+vmCvar_t	ui_char_color_2_red;
+vmCvar_t	ui_char_color_2_green;
+vmCvar_t	ui_char_color_2_blue;
+
 //JLFCALLOUT MPMOVED
 vmCvar_t	ui_hideAcallout;
 vmCvar_t	ui_hideBcallout;
@@ -403,6 +407,10 @@ static cvarTable_t cvarTable[] =
 	
 	{ &ui_char_head_model,			"ui_char_head_model",		"",0},	//these are filled in by the "g_*" versions on load
 	{ &ui_char_head_skin,		"ui_char_head_skin",	"",0},	//the "g_*" versions are initialized in UI_Init, ui_atoms.cpp
+	
+	{ &ui_char_color_2_red,		"ui_char_color_2_red",	"", 0},
+	{ &ui_char_color_2_green,		"ui_char_color_2_green",	"", 0},
+	{ &ui_char_color_2_blue,		"ui_char_color_2_blue",	"", 0},
 //JLFCALLOUT MPMOVED
 	{ &ui_hideAcallout,		"ui_hideAcallout",	"", 0}, 
 	{ &ui_hideBcallout,		"ui_hideBcallout",	"", 0}, 
@@ -4376,8 +4384,13 @@ static void UI_UpdateCharacterCvars ( void )
 	Cvar_Set ( "g_char_color_red", Cvar_VariableString ( "ui_char_color_red" ) );
 	Cvar_Set ( "g_char_color_green", Cvar_VariableString ( "ui_char_color_green" ) );
 	Cvar_Set ( "g_char_color_blue", Cvar_VariableString ( "ui_char_color_blue" ) );
+	
 	Cvar_Set ( "g_char_head_model", Cvar_VariableString ( "ui_char_head_model" ) );
 	Cvar_Set ( "g_char_head_skin", Cvar_VariableString ( "ui_char_head_skin" ) );
+	
+	Cvar_Set ( "g_char_color_2_red", Cvar_VariableString ( "ui_char_color_2_red" ) );
+	Cvar_Set ( "g_char_color_2_green", Cvar_VariableString ( "ui_char_color_2_green" ) );
+	Cvar_Set ( "g_char_color_2_blue", Cvar_VariableString ( "ui_char_color_2_blue" ) );
 }
 
 static void UI_GetCharacterCvars ( void )
@@ -4391,6 +4404,10 @@ static void UI_GetCharacterCvars ( void )
 
 	Cvar_Set ( "ui_char_head_model", Cvar_VariableString ( "g_char_head_model" ) );
 	Cvar_Set ( "ui_char_head_skin", Cvar_VariableString ( "g_char_head_skin" ) );
+	
+	Cvar_Set ( "ui_char_color_2_red", Cvar_VariableString ( "g_char_color_2_red" ) );
+	Cvar_Set ( "ui_char_color_2_green", Cvar_VariableString ( "g_char_color_2_green" ) );
+	Cvar_Set ( "ui_char_color_2_blue", Cvar_VariableString ( "g_char_color_2_blue" ) );
 
 	const char* model = Cvar_VariableString ( "g_char_model" );
 	Cvar_Set ( "ui_char_model", model );

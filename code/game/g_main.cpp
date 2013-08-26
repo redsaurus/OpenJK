@@ -205,6 +205,10 @@ cvar_t	*g_saberDarkSideSaberColor;
 cvar_t	*g_char_head_model;
 cvar_t	*g_char_head_skin;
 
+cvar_t	*g_char_color_2_red;
+cvar_t	*g_char_color_2_green;
+cvar_t	*g_char_color_2_blue;
+
 // kef -- used with DebugTraceForNPC
 cvar_t	*g_npcdebug;
 
@@ -689,6 +693,11 @@ void G_InitCvars( void ) {
 
 	g_char_head_model = gi.cvar( "g_char_head_model", "", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	g_char_head_skin = gi.cvar( "g_char_head_skin", "", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	
+	g_char_color_2_red = gi.cvar( "g_char_color_2_red", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	g_char_color_2_green = gi.cvar( "g_char_color_2_green", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	g_char_color_2_blue = gi.cvar( "g_char_color_2_blue", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+
 
 	g_broadsword = gi.cvar( "broadsword", "1", 0);
 

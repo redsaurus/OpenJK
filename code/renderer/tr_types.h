@@ -75,7 +75,7 @@ This file is part of Jedi Academy.
 #define RDF_doFullbright	64		// Light Amp goggles
 #define RDF_ForceSightOn	128		// using force sight
 
-#define MAX_NEW_ENT_RGB		2
+#define MAX_NEW_ENT_RGB		1
 
 
 extern int	skyboxportal;

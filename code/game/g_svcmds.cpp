@@ -1451,10 +1451,16 @@ qboolean	ConsoleCommand( void ) {
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][0] = atoi(gi.argv(2));
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][1] = atoi(gi.argv(3));
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][2] = atoi(gi.argv(4));
+			if (tintIndex == 0)
+			{
+				gi.cvar_set("g_char_color_2_red", gi.argv(2) );
+				gi.cvar_set("g_char_color_2_green", gi.argv(3) );
+				gi.cvar_set("g_char_color_2_blue", gi.argv(4) );
+			}
 		}
 		else
 		{
-			gi.Printf( S_COLOR_RED"USAGE: newPlayerTint <index 0 - 1> <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n" );
+			gi.Printf( S_COLOR_RED"USAGE: newPlayerTint <index 0 - 0> <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n" );
 		}
 		return qtrue;
 	}

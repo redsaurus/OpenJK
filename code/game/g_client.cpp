@@ -50,6 +50,10 @@ extern cvar_t	*g_saberDarkSideSaberColor;
 extern cvar_t	*g_char_head_model;
 extern cvar_t	*g_char_head_skin;
 
+extern cvar_t	*g_char_color_2_red;
+extern cvar_t	*g_char_color_2_green;
+extern cvar_t	*g_char_color_2_blue;
+
 // g_client.c -- client functions that don't happen every frame
 
 float DEFAULT_MINS_0 = -16;
@@ -937,6 +941,16 @@ static void G_SetSkin( gentity_t *ent )
 		ent->client->renderInfo.customRGBA[1] = g_char_color_green->integer;
 		ent->client->renderInfo.customRGBA[2] = g_char_color_blue->integer;
 		ent->client->renderInfo.customRGBA[3] = 255;
+	}
+	
+	if ( g_char_color_2_red->integer
+		|| g_char_color_2_green->integer
+		|| g_char_color_2_blue->integer )
+	{
+		ent->client->renderInfo.newCustomRGBA[0][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[0][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[0][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[0][3] = 255;
 	}
 }
 
@@ -2035,6 +2049,16 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 		ent->client->renderInfo.customRGBA[1] = g_char_color_green->integer;
 		ent->client->renderInfo.customRGBA[2] = g_char_color_blue->integer;
 		ent->client->renderInfo.customRGBA[3] = 255;
+	}
+	
+	if ( g_char_color_2_red->integer
+		|| g_char_color_2_green->integer
+		|| g_char_color_2_blue->integer )
+	{
+		ent->client->renderInfo.newCustomRGBA[0][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[0][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[0][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[0][3] = 255;
 	}
 }
 
