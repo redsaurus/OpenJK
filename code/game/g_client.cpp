@@ -2086,11 +2086,11 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 	
 	if ( p && p[0] )
 	{
-		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", newModel, p );
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", name, p );
 	}
 	else
 	{
-		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", newModel );
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", name );
 	}
 	
 	int skin = gi.RE_RegisterSkin( skinName );
@@ -2101,7 +2101,7 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 	
 	//now generate the ghoul2 model this client should be.
 		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
-	ent->headModel = gi.G2API_InitGhoul2Model( ent->ghoul2, va("models/players/%s/model.glm", newModel), G_ModelIndex( va("models/players/%s/model.glm", newModel) ), G_SkinIndex( skinName ), NULL_HANDLE, 0, 0 );
+	ent->headModel = gi.G2API_InitGhoul2Model( ent->ghoul2, va("models/players/%s/model.glm", name), G_ModelIndex( va("models/players/%s/model.glm", name) ), G_SkinIndex( skinName ), NULL_HANDLE, 0, 0 );
 	
 	if (ent->headModel == -1)
 	{
