@@ -2047,7 +2047,9 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 	
 	G_RemoveHeadModel( ent );
 	
-	char *p = strchr(newModel, '|');
+	char name[MAX_QPATH];
+	strcpy(name, newModel);
+	char *p = strchr(name, '|');
 	
 	if ( p )
 	{
