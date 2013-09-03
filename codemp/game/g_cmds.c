@@ -677,7 +677,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	specState = SPECTATOR_NOT;
 	if ( !Q_stricmp( s, "scoreboard" ) || !Q_stricmp( s, "score" )  ) {
 		team = TEAM_SPECTATOR;
-		specState = SPECTATOR_SCOREBOARD;
+		specState = SPECTATOR_FREE; // SPECTATOR_SCOREBOARD disabling this for now since it is totally broken on client side
 	} else if ( !Q_stricmp( s, "follow1" ) ) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FOLLOW;
@@ -980,6 +980,8 @@ void StopFollowing( gentity_t *ent ) {
 	ent->client->ps.jetpackFuel = 100; // so that fuel goes away after stop following them
 	ent->health = ent->client->ps.stats[STAT_HEALTH] = 100; // so that you don't keep dead angles if you were spectating a dead person
 	ent->client->ps.bobCycle = 0;
+	ent->client->ps.pm_type = PM_SPECTATOR;
+	ent->client->ps.eFlags &= ~EF_DISINTEGRATION;
 	for ( i=0; i<PW_NUM_POWERUPS; i++ )
 		ent->client->ps.powerups[i] = 0;
 }
@@ -1384,6 +1386,11 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	int		i;
 	char	arg[MAX_TOKEN_CHARS];
 
+	if ( ent->client->sess.spectatorState == SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
+		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) );
+		return;
+	}
+
 	if ( trap->Argc() != 2 ) {
 		if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
 			StopFollowing( ent );
@@ -1421,6 +1428,9 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	// first set them to spectator
 	if ( ent->client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		SetTeam( ent, "spectator" );
+		// fix: update team switch time only if team change really happend
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+			ent->client->switchTeamTime = level.time + 5000;
 	}
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
@@ -1437,6 +1447,11 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		original;
 	qboolean	looped = qfalse;
 
+	if ( ent->client->sess.spectatorState == SPECTATOR_NOT && ent->client->switchTeamTime > level.time ) {
+		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOSWITCH")) );
+		return;
+	}
+
 	// if they are playing a tournement game, count as a loss
 	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)
 		&& ent->client->sess.sessionTeam == TEAM_FREE ) {\
@@ -1446,6 +1461,9 @@ void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	// first set them to spectator
 	if ( ent->client->sess.spectatorState == SPECTATOR_NOT ) {
 		SetTeam( ent, "spectator" );
+		// fix: update team switch time only if team change really happend
+		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
+			ent->client->switchTeamTime = level.time + 5000;
 	}
 
 	if ( dir != 1 && dir != -1 ) {

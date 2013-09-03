@@ -134,342 +134,7 @@ int LongSwap( int l );
 float FloatSwap( const float *f );
 
 
-// for windows fastcall option
-#define QDECL
-#define QCALL
-
-// Win64
-#if defined(_WIN64) || defined(__WIN64__)
-
-	#define idx64
-
-	#undef QDECL
-	#define QDECL __cdecl
-
-	#undef QCALL
-	#define QCALL __stdcall
-
-	#if defined(_MSC_VER)
-		#define OS_STRING "win_msvc64"
-	#elif defined(__MINGW64__)
-		#define OS_STRING "win_mingw64"
-	#endif
-
-	#define QINLINE __inline
-	#define PATH_SEP '\\'
-
-	#if defined(__WIN64__)
-		#define ARCH_STRING "x84_64"
-	#elif defined(_M_ALPHA)
-		#define ARCH_STRING "AXP"
-	#endif
-
-	#define Q3_LITTLE_ENDIAN
-
-	#define DLL_EXT ".dll"
-#endif
-
-// Win32
-#ifdef WIN32
-
-	#undef QDECL
-	#define	QDECL __cdecl
-
-	#undef QCALL
-	#define QCALL __stdcall
-
-	#if defined(_MSC_VER)
-		#define OS_STRING "win_msvc"
-	#elif defined(__MINGW32__)
-		#define OS_STRING "win_mingw"
-	#endif
-
-	#define QINLINE __inline
-	#define PATH_SEP '\\'
-
-	#if defined(_M_IX86) || defined(__i386__)
-		#define ARCH_STRING "x86"
-	#elif defined _M_ALPHA
-		#define ARCH_STRING "AXP"
-	#endif
-
-	#define Q3_LITTLE_ENDIAN
-
-	#define DLL_EXT ".dll"
-
-#endif
-
-
-// ================================================================
-//
-// MAC OS X DEFINES
-//
-// ================================================================
-
-#ifdef MACOS_X
-
-	#include <sys/mman.h>
-    #include <unistd.h>
-
-	#define __cdecl
-	#define __declspec(x)
-	#define stricmp strcasecmp
-	#define QINLINE /*inline*/ 
-
-    #define OS_STRING "MacOSX"
-
-	#ifdef __ppc__
-		#define CPUSTRING "MacOSX-ppc"
-	#elif defined __i386__
-		#define CPUSTRING "MacOSX-i386"
-	#else
-		#define CPUSTRING "MacOSX-other"
-	#endif
-
-	#define	PATH_SEP	'/'
-
-	#define __rlwimi(out, in, shift, maskBegin, maskEnd) asm("rlwimi %0,%1,%2,%3,%4" : "=r" (out) : "r" (in), "i" (shift), "i" (maskBegin), "i" (maskEnd))
-	#define __dcbt(addr, offset) asm("dcbt %0,%1" : : "b" (addr), "r" (offset))
-
-	static inline unsigned int __lwbrx(register void *addr, register int offset) {
-		register unsigned int word;
-
-		asm("lwbrx %0,%2,%1" : "=r" (word) : "r" (addr), "b" (offset));
-		return word;
-	}
-
-	static inline unsigned short __lhbrx(register void *addr, register int offset) {
-		register unsigned short halfword;
-
-		asm("lhbrx %0,%2,%1" : "=r" (halfword) : "r" (addr), "b" (offset));
-		return halfword;
-	}
-
-	static inline float __fctiw(register float f) {
-		register float fi;
-
-		asm("fctiw %0,%1" : "=f" (fi) : "f" (f));
-		return fi;
-	}
-
-    #if defined(__i386__)
-        #define ARCH_STRING "i386"
-    #elif defined(__x86_64__)
-        #define idx64
-        #define ARCH_STRING "x86_64"
-    #elif defined(__powerpc64__)
-        #define ARCH_STRING "ppc64"
-    #elif defined(__powerpc__)
-        #define ARCH_STRING "ppc"
-    #endif
-
-    #define DLL_EXT ".dylib"
-
-#if BYTE_ORDER == BIG_ENDIAN
-#define Q3_BIG_ENDIAN
-#else
-#define Q3_LITTLE_ENDIAN
-#endif
-
-
-#endif // MACOS_X
-
-
-// ================================================================
-//
-// MAC DEFINES
-//
-// ================================================================
-
-#ifdef __MACOS__
-
-	#include <MacTypes.h>
-	#define QINLINE inline 
-
-	#define	CPUSTRING "MacOS-PPC"
-
-	#define	PATH_SEP ':'
-
-	void Sys_PumpEvents( void );
-
-	#define BigShort
-	static inline short LittleShort( short l ) { return ShortSwap( l ); }
-	#define BigLong
-	static inline int LittleLong( int l ) { return LongSwap( l ); }
-	#define BigFloat
-	static inline float LittleFloat( const float l ) { return FloatSwap( &l ); }
-
-	#define DLL_EXT ".dylib"
-
-#endif // __MACOS__
-
-
-// ================================================================
-//
-// LINUX DEFINES
-//
-// ================================================================
-
-#ifdef __linux__
-
-	#include <sys/mman.h>
-	#include <unistd.h>
-
-	// bk001205 - from Makefile
-	#define stricmp strcasecmp
-
-	#define	PATH_SEP '/'
-	#define RAND_MAX 2147483647
-
-	#if defined(__linux__)
-		#define OS_STRING "linux"
-	#else
-		#define OS_STRING "kFreeBSD"
-	#endif
-
-	#ifdef __clang__
-		#define QINLINE static inline
-	#else
-		#define QINLINE /*inline*/
-	#endif
-
-	#define PATH_SEP '/'
-
-	#if defined(__i386__)
-		#define ARCH_STRING "i386"
-	#elif defined(__x86_64__)
-		#define idx64
-		#define ARCH_STRING "x86_64"
-	#elif defined(__powerpc64__)
-		#define ARCH_STRING "ppc64"
-	#elif defined(__powerpc__)
-		#define ARCH_STRING "ppc"
-	#elif defined(__s390__)
-		#define ARCH_STRING "s390"
-	#elif defined(__s390x__)
-		#define ARCH_STRING "s390x"
-	#elif defined(__ia64__)
-		#define ARCH_STRING "ia64"
-	#elif defined(__alpha__)
-		#define ARCH_STRING "alpha"
-	#elif defined(__sparc__)
-		#define ARCH_STRING "sparc"
-	#elif defined(__arm__)
-		#define ARCH_STRING "arm"
-	#elif defined(__cris__)
-		#define ARCH_STRING "cris"
-	#elif defined(__hppa__)
-		#define ARCH_STRING "hppa"
-	#elif defined(__mips__)
-		#define ARCH_STRING "mips"
-	#elif defined(__sh__)
-		#define ARCH_STRING "sh"
-	#endif
-
-	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
-		#define Q3_BIG_ENDIAN
-	#else
-		#define Q3_LITTLE_ENDIAN
-	#endif
-
-	#define DLL_EXT ".so"
-
-#endif
-
-	// BSD
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-
-	#include <sys/types.h>
-	#include <machine/endian.h>
-	
-	#ifndef __BSD__
-		#define __BSD__
-	#endif
-	
-	#if defined(__FreeBSD__)
-		#define OS_STRING "freebsd"
-	#elif defined(__OpenBSD__)
-		#define OS_STRING "openbsd"
-	#elif defined(__NetBSD__)
-		#define OS_STRING "netbsd"
-	#endif
-	
-	#define QINLINE inline
-	#define PATH_SEP '/'
-	
-	#if defined(__i386__)
-		#define ARCH_STRING "i386"
-	#elif defined(__amd64__)
-		#define idx64
-		#define ARCH_STRING "amd64"
-	#elif defined(__axp__)
-		#define ARCH_STRING "alpha"
-	#endif
-	
-	#if BYTE_ORDER == BIG_ENDIAN
-		#define Q3_BIG_ENDIAN
-	#else
-		#define Q3_LITTLE_ENDIAN
-	#endif
-	
-	#define DLL_EXT ".so"
-
-#endif
-// catch missing defines in above blocks
-#if !defined(OS_STRING)
-	#error "Operating system not supported"
-#endif
-#if !defined(ARCH_STRING)
-	#error "Architecture not supported"
-#endif
-#if !defined(DLL_EXT)
-	#error "DLL_EXT not defined"
-#endif
-#if !defined(QINLINE)
-	#error "QINLINE not defined"
-#endif
-#if !defined(PATH_SEP)
-	#error "PATH_SEP not defined"
-#endif
-
-// endianness
-void CopyShortSwap( void *dest, void *src );
-void CopyLongSwap( void *dest, void *src );
-short ShortSwap( short l );
-int LongSwap( int l );
-float FloatSwap( const float *f );
-
-#if defined(Q3_BIG_ENDIAN) && defined(Q3_LITTLE_ENDIAN)
-	#error "Endianness defined as both big and little"
-#elif defined(Q3_BIG_ENDIAN)
-	#define CopyLittleShort( dest, src )	CopyShortSwap( dest, src )
-	#define CopyLittleLong( dest, src )		CopyLongSwap( dest, src )
-	#define LittleShort( x )				ShortSwap( x )
-	#define LittleLong( x )					LongSwap( x )
-	#define LittleFloat( x )				FloatSwap( &x )
-	#define BigShort
-	#define BigLong
-	#define BigFloat
-#elif defined( Q3_LITTLE_ENDIAN )
-	#define CopyLittleShort( dest, src )	Com_Memcpy(dest, src, 2)
-	#define CopyLittleLong( dest, src )		Com_Memcpy(dest, src, 4)
-	#define LittleShort
-	#define LittleLong
-	#define LittleFloat
-	#define BigShort( x )					ShortSwap( x )
-	#define BigLong( x )					LongSwap( x )
-	#define BigFloat( x )					FloatSwap( &x )
-#else
-	#error "Endianness not defined"
-#endif
-
-
-// platform string
-#if defined(NDEBUG)
-	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
-#else
-	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING "-debug"
-#endif
+#include "qcommon/q_platform.h"
 
 // ================================================================
 // TYPE DEFINITIONS
@@ -1447,58 +1112,58 @@ void ByteToDir( int b, vec3_t dir );
 #define DEG2RAD( deg ) ( ((deg)*M_PI) / 180.0f )
 #define RAD2DEG( rad ) ( ((rad)*180.0f) / M_PI )
 
-extern QINLINE void		VectorAdd( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
-extern QINLINE void		VectorSubtract( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
-extern QINLINE void		VectorScale( const vec3_t vecIn, vec_t scale, vec3_t vecOut );
-extern QINLINE void		VectorScale4( const vec4_t vecIn, vec_t scale, vec4_t vecOut );
-extern QINLINE void		VectorMA( const vec3_t vec1, float scale, const vec3_t vec2, vec3_t vecOut );
-extern QINLINE vec_t		VectorLength( const vec3_t vec );
-extern QINLINE vec_t		VectorLengthSquared( const vec3_t vec );
-extern QINLINE vec_t		Distance( const vec3_t p1, const vec3_t p2 );
-extern QINLINE vec_t		DistanceSquared( const vec3_t p1, const vec3_t p2 );
-extern QINLINE void		VectorNormalizeFast( vec3_t vec );
-extern QINLINE vec_t		VectorNormalize( vec3_t vec );
-extern QINLINE vec_t		VectorNormalize2( const vec3_t vec, vec3_t vecOut );
-extern QINLINE void		VectorCopy( const vec3_t vecIn, vec3_t vecOut );
-extern QINLINE void		VectorCopy4( const vec4_t vecIn, vec4_t vecOut );
-extern QINLINE void		VectorSet( vec3_t vec, vec_t x, vec_t y, vec_t z );
-extern QINLINE void		VectorSet4( vec4_t vec, vec_t x, vec_t y, vec_t z, vec_t w );
-extern QINLINE void		VectorSet5( vec5_t vec, vec_t x, vec_t y, vec_t z, vec_t w, vec_t u );
-extern QINLINE void		VectorClear( vec3_t vec );
-extern QINLINE void		VectorClear4( vec4_t vec );
-extern QINLINE void		VectorInc( vec3_t vec );
-extern QINLINE void		VectorDec( vec3_t vec );
-extern QINLINE void		VectorInverse( vec3_t vec );
-extern QINLINE void		CrossProduct( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
-extern QINLINE vec_t		DotProduct( const vec3_t vec1, const vec3_t vec2 );
-extern QINLINE qboolean	VectorCompare( const vec3_t vec1, const vec3_t vec2 );
-extern QINLINE void		SnapVector( float *v );
+void		VectorAdd( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
+void		VectorSubtract( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
+void		VectorScale( const vec3_t vecIn, vec_t scale, vec3_t vecOut );
+void		VectorScale4( const vec4_t vecIn, vec_t scale, vec4_t vecOut );
+void		VectorMA( const vec3_t vec1, float scale, const vec3_t vec2, vec3_t vecOut );
+vec_t		VectorLength( const vec3_t vec );
+vec_t		VectorLengthSquared( const vec3_t vec );
+vec_t		Distance( const vec3_t p1, const vec3_t p2 );
+vec_t		DistanceSquared( const vec3_t p1, const vec3_t p2 );
+void		VectorNormalizeFast( vec3_t vec );
+vec_t		VectorNormalize( vec3_t vec );
+vec_t		VectorNormalize2( const vec3_t vec, vec3_t vecOut );
+void		VectorCopy( const vec3_t vecIn, vec3_t vecOut );
+void		VectorCopy4( const vec4_t vecIn, vec4_t vecOut );
+void		VectorSet( vec3_t vec, vec_t x, vec_t y, vec_t z );
+void		VectorSet4( vec4_t vec, vec_t x, vec_t y, vec_t z, vec_t w );
+void		VectorSet5( vec5_t vec, vec_t x, vec_t y, vec_t z, vec_t w, vec_t u );
+void		VectorClear( vec3_t vec );
+void		VectorClear4( vec4_t vec );
+void		VectorInc( vec3_t vec );
+void		VectorDec( vec3_t vec );
+void		VectorInverse( vec3_t vec );
+void		CrossProduct( const vec3_t vec1, const vec3_t vec2, vec3_t vecOut );
+vec_t		DotProduct( const vec3_t vec1, const vec3_t vec2 );
+qboolean	VectorCompare( const vec3_t vec1, const vec3_t vec2 );
+void		SnapVector( float *v );
 
-#define				VectorAddM( vec1, vec2, vecOut )		((vecOut)[0]=(vec1)[0]+(vec2)[0], (vecOut)[1]=(vec1)[1]+(vec2)[1], (vecOut)[2]=(vec1)[2]+(vec2)[2])
-#define				VectorSubtractM( vec1, vec2, vecOut )	((vecOut)[0]=(vec1)[0]-(vec2)[0], (vecOut)[1]=(vec1)[1]-(vec2)[1], (vecOut)[2]=(vec1)[2]-(vec2)[2])
-#define				VectorScaleM( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale))
-#define				VectorScale4M( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale), (vecOut)[3]=(vecIn)[3]*(scale))
-#define				VectorMAM( vec1, scale, vec2, vecOut )	((vecOut)[0]=(vec1)[0]+(vec2)[0]*(scale), (vecOut)[1]=(vec1)[1]+(vec2)[1]*(scale), (vecOut)[2]=(vec1)[2]+(vec2)[2]*(scale))
-#define				VectorLengthM( vec )					VectorLength( vec )
-#define				VectorLengthSquaredM( vec )				VectorLengthSquared( vec )
-#define				DistanceM( vec )						Distance( vec )
-#define				DistanceSquaredM( p1, p2 )				DistanceSquared( p1, p2 )
-#define				VectorNormalizeFastM( vec )				VectorNormalizeFast( vec )
-#define				VectorNormalizeM( vec )					VectorNormalize( vec )
-#define				VectorNormalize2M( vec, vecOut )		VectorNormalize2( vec, vecOut )
-#define				VectorCopyM( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2])
-#define				VectorCopy4M( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2], (vecOut)[3]=(vecIn)[3])
-#define				VectorSetM( vec, x, y, z )				((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z))
-#define				VectorSet4M( vec, x, y, z, w )			((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w))
-#define				VectorSet5M( vec, x, y, z, w, u )		((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w), (vec)[4]=(u))
-#define				VectorClearM( vec )						((vec)[0]=(vec)[1]=(vec)[2]=0)
-#define				VectorClear4M( vec )					((vec)[0]=(vec)[1]=(vec)[2]=(vec)[3]=0)
-#define				VectorIncM( vec )						((vec)[0]+=1.0f, (vec)[1]+=1.0f, (vec)[2]+=1.0f)
-#define				VectorDecM( vec )						((vec)[0]-=1.0f, (vec)[1]-=1.0f, (vec)[2]-=1.0f)
-#define				VectorInverseM( vec )					((vec)[0]=-(vec)[0], (vec)[1]=-(vec)[1], (vec)[2]=-(vec)[2])
-#define				CrossProductM( vec1, vec2, vecOut )		((vecOut)[0]=((vec1)[1]*(vec2)[2])-((vec1)[2]*(v2)[1]), (vecOut)[1]=((vec1)[2]*(vec2)[0])-((vec1)[0]*(vec2)[2]), (vecOut)[2]=((vec1)[0]*(vec2)[1])-((vec1)[1]*(vec2)[0]))
-#define				DotProductM( x, y )						((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
-#define				VectorCompareM( vec1, vec2 )			(!!((vec1)[0]==(vec2)[0] && (vec1)[1]==(vec2)[1] && (vec1)[2]==(vec2)[2]))
+#define		VectorAddM( vec1, vec2, vecOut )		((vecOut)[0]=(vec1)[0]+(vec2)[0], (vecOut)[1]=(vec1)[1]+(vec2)[1], (vecOut)[2]=(vec1)[2]+(vec2)[2])
+#define		VectorSubtractM( vec1, vec2, vecOut )	((vecOut)[0]=(vec1)[0]-(vec2)[0], (vecOut)[1]=(vec1)[1]-(vec2)[1], (vecOut)[2]=(vec1)[2]-(vec2)[2])
+#define		VectorScaleM( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale))
+#define		VectorScale4M( vecIn, scale, vecOut )	((vecOut)[0]=(vecIn)[0]*(scale), (vecOut)[1]=(vecIn)[1]*(scale), (vecOut)[2]=(vecIn)[2]*(scale), (vecOut)[3]=(vecIn)[3]*(scale))
+#define		VectorMAM( vec1, scale, vec2, vecOut )	((vecOut)[0]=(vec1)[0]+(vec2)[0]*(scale), (vecOut)[1]=(vec1)[1]+(vec2)[1]*(scale), (vecOut)[2]=(vec1)[2]+(vec2)[2]*(scale))
+#define		VectorLengthM( vec )					VectorLength( vec )
+#define		VectorLengthSquaredM( vec )				VectorLengthSquared( vec )
+#define		DistanceM( vec )						Distance( vec )
+#define		DistanceSquaredM( p1, p2 )				DistanceSquared( p1, p2 )
+#define		VectorNormalizeFastM( vec )				VectorNormalizeFast( vec )
+#define		VectorNormalizeM( vec )					VectorNormalize( vec )
+#define		VectorNormalize2M( vec, vecOut )		VectorNormalize2( vec, vecOut )
+#define		VectorCopyM( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2])
+#define		VectorCopy4M( vecIn, vecOut )			((vecOut)[0]=(vecIn)[0], (vecOut)[1]=(vecIn)[1], (vecOut)[2]=(vecIn)[2], (vecOut)[3]=(vecIn)[3])
+#define		VectorSetM( vec, x, y, z )				((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z))
+#define		VectorSet4M( vec, x, y, z, w )			((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w))
+#define		VectorSet5M( vec, x, y, z, w, u )		((vec)[0]=(x), (vec)[1]=(y), (vec)[2]=(z), (vec)[3]=(w), (vec)[4]=(u))
+#define		VectorClearM( vec )						((vec)[0]=(vec)[1]=(vec)[2]=0)
+#define		VectorClear4M( vec )					((vec)[0]=(vec)[1]=(vec)[2]=(vec)[3]=0)
+#define		VectorIncM( vec )						((vec)[0]+=1.0f, (vec)[1]+=1.0f, (vec)[2]+=1.0f)
+#define		VectorDecM( vec )						((vec)[0]-=1.0f, (vec)[1]-=1.0f, (vec)[2]-=1.0f)
+#define		VectorInverseM( vec )					((vec)[0]=-(vec)[0], (vec)[1]=-(vec)[1], (vec)[2]=-(vec)[2])
+#define		CrossProductM( vec1, vec2, vecOut )		((vecOut)[0]=((vec1)[1]*(vec2)[2])-((vec1)[2]*(v2)[1]), (vecOut)[1]=((vec1)[2]*(vec2)[0])-((vec1)[0]*(vec2)[2]), (vecOut)[2]=((vec1)[0]*(vec2)[1])-((vec1)[1]*(vec2)[0]))
+#define		DotProductM( x, y )						((x)[0]*(y)[0]+(x)[1]*(y)[1]+(x)[2]*(y)[2])
+#define		VectorCompareM( vec1, vec2 )			(!!((vec1)[0]==(vec2)[0] && (vec1)[1]==(vec2)[1] && (vec1)[2]==(vec2)[2]))
 
 // TODO
 #define VectorScaleVector(a,b,c)		(((c)[0]=(a)[0]*(b)[0]),((c)[1]=(a)[1]*(b)[1]),((c)[2]=(a)[2]*(b)[2]))
@@ -1567,10 +1232,10 @@ void NormalToLatLong( const vec3_t normal, byte bytes[2] ); //rwwRMG - added
 
 //=============================================
 
-extern QINLINE int Com_Clampi( int min, int max, int value ); //rwwRMG - added
-extern QINLINE float Com_Clamp( float min, float max, float value );
-extern QINLINE int Com_AbsClampi( int min, int max, int value );
-extern QINLINE float Com_AbsClamp( float min, float max, float value );
+int Com_Clampi( int min, int max, int value ); //rwwRMG - added
+float Com_Clamp( float min, float max, float value );
+int Com_AbsClampi( int min, int max, int value );
+float Com_AbsClamp( float min, float max, float value );
 
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );

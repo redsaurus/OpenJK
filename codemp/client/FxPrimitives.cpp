@@ -6,10 +6,6 @@
 #include "cl_cgameapi.h"
 #include "FxScheduler.h"
 
-#ifdef VV_LIGHTING
-#include "renderer/tr_lightmanager.h"
-#endif
-
 extern int		drawnFx;
 
 //--------------------------
@@ -417,7 +413,7 @@ inline int VectorToInt(vec3_t vec)
 {
 	int retval = 0;
 	// FIXME: unix compatibility needed
-#ifdef _WIN32
+#if defined(_MSC_VER) && !defined(idx64)
 	int			tmp;
 	_asm
 	{
@@ -525,7 +521,7 @@ void CParticle::UpdateRGB(void)
 	res[1] = Com_Clamp(0.0f, 1.0f, res[1]) * 255.0f;
 	res[2] = Com_Clamp(0.0f, 1.0f, res[2]) * 255.0f;
 
-#ifdef _WIN32
+#if defined(_MSC_VER) && !defined(idx64)
 	*(int *)mRefEnt.shaderRGBA = VectorToInt(res);
 #else
     mRefEnt.shaderRGBA[0] = (char)res[0];
@@ -1496,11 +1492,7 @@ void CEmitter::UpdateAngles(void)
 //----------------------------
 void CLight::Draw(void)
 {
-#ifdef VV_LIGHTING
-	VVLightMan.RE_AddLightToScene( mOrigin1, mRefEnt.radius, mRefEnt.origin[0], mRefEnt.origin[1], mRefEnt.origin[2] );
-#else
 	theFxHelper.AddLightToScene( mOrigin1, mRefEnt.radius, mRefEnt.origin[0], mRefEnt.origin[1], mRefEnt.origin[2] );
-#endif
 	drawnFx++;	
 }
 

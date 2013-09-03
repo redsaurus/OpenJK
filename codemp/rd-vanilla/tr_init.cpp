@@ -278,7 +278,7 @@ void R_Splash()
 {
 	image_t *pImage;
 /*	const char* s = ri->Cvar_VariableString("se_language");
-	if (stricmp(s,"english"))
+	if (Q_stricmp(s,"english"))
 	{
 		pImage = R_FindImageFile( "menu/splash_eur", qfalse, qfalse, qfalse, GL_CLAMP);
 	}
@@ -1088,6 +1088,13 @@ void R_AtiHackToggle_f(void)
 	g_bTextureRectangleHack = !g_bTextureRectangleHack;
 }
 
+#ifdef _DEBUG
+#define MIN_PRIMITIVES -1
+#else
+#define MIN_PRIMITIVES 0
+#endif
+#define MAX_PRIMITIVES 3
+
 /*
 ===============
 R_Register
@@ -1169,7 +1176,7 @@ void R_Register( void )
 	r_roofCullCeilDist					= ri->Cvar_Get( "r_roofCullCeilDist",				"256",						CVAR_CHEAT ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_roofCullFloorDist					= ri->Cvar_Get( "r_roofCeilFloorDist",				"128",						CVAR_CHEAT ); //attempted smart method of culling out upwards facing surfaces on roofs for automap shots -rww
 	r_primitives						= ri->Cvar_Get( "r_primitives",						"0",						CVAR_ARCHIVE );
-	ri->Cvar_CheckRange( r_primitives, -1, 3, qtrue );
+	ri->Cvar_CheckRange( r_primitives, MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
 	r_ambientScale						= ri->Cvar_Get( "r_ambientScale",					"0.6",						CVAR_CHEAT );
 	r_directedScale						= ri->Cvar_Get( "r_directedScale",					"1",						CVAR_CHEAT );
 	r_autoMap							= ri->Cvar_Get( "r_autoMap",						"0",						CVAR_ARCHIVE ); //automap renderside toggle for debugging -rww
@@ -1577,10 +1584,9 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.AddPolyToScene						= RE_AddPolyToScene;
 	re.AddDecalToScene						= RE_AddDecalToScene;
 	re.LightForPoint						= R_LightForPoint;
-#ifndef VV_LIGHTING
 	re.AddLightToScene						= RE_AddLightToScene;
 	re.AddAdditiveLightToScene				= RE_AddAdditiveLightToScene;
-#endif
+
 	re.RenderScene							= RE_RenderScene;
 	re.SetColor								= RE_SetColor;
 	re.DrawStretchPic						= RE_StretchPic;

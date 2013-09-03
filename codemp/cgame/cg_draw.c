@@ -20,7 +20,6 @@ void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist );
 
 // used for scoreboard
 extern displayContextDef_t cgDC;
-menuDef_t *menuScoreboard = NULL;
 
 int sortedTeamPlayers[TEAM_MAXOVERLAY];
 int	numSortedTeamPlayers;
@@ -6483,62 +6482,30 @@ static void CG_DrawVote(void) {
 		sec = 0;
 	}
 
-	if (strncmp(cgs.voteString, "map_restart", 11)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_RESTART_MAP", sCmd, sizeof(sCmd) );
+	if ( !Q_strncmp( cgs.voteString, "map_restart", 11 ) )
+		trap->SE_GetStringTextString( "MENUS_RESTART_MAP", sCmd, sizeof( sCmd ) );
+	else if ( !Q_strncmp( cgs.voteString, "vstr nextmap", 12 ) )
+		trap->SE_GetStringTextString( "MENUS_NEXT_MAP", sCmd, sizeof( sCmd ) );
+	else if ( !Q_strncmp( cgs.voteString, "g_doWarmup", 10 ) )
+		trap->SE_GetStringTextString( "MENUS_WARMUP", sCmd, sizeof( sCmd ) );
+	else if ( !Q_strncmp( cgs.voteString, "g_gametype", 10 ) ) {
+		trap->SE_GetStringTextString( "MENUS_GAME_TYPE", sCmd, sizeof( sCmd ) );
+
+			 if ( !Q_stricmp( "Free For All", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "FREE_FOR_ALL" );
+		else if ( !Q_stricmp( "Duel", cgs.voteString+11 ) )						sParm = CG_GetStringEdString( "MENUS", "DUEL" );
+		else if ( !Q_stricmp( "Holocron FFA", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" );
+		else if ( !Q_stricmp( "Power Duel", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" );
+		else if ( !Q_stricmp( "Team FFA", cgs.voteString+11 ) ) 				sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" );
+		else if ( !Q_stricmp( "Siege", cgs.voteString+11 ) )					sParm = CG_GetStringEdString( "MENUS", "SIEGE" );
+		else if ( !Q_stricmp( "Capture the Flag", cgs.voteString+11 )  )		sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" );
+		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.voteString+11 ) )	sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" );
 	}
-	else if (strncmp(cgs.voteString, "vstr nextmap", 12)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_NEXT_MAP", sCmd, sizeof(sCmd) );
-	}
-	else if (strncmp(cgs.voteString, "g_doWarmup", 10)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_WARMUP", sCmd, sizeof(sCmd) );
-	}
-	else if (strncmp(cgs.voteString, "g_gametype", 10)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_GAME_TYPE", sCmd, sizeof(sCmd) );
-		if      ( stricmp("Free For All", cgs.voteString+11)==0 ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");
-		}
-		else if ( stricmp("Duel", cgs.voteString+11)==0 ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "DUEL");
-		}
-		else if ( stricmp("Holocron FFA", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");
-		}
-		else if ( stricmp("Power Duel", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "POWERDUEL");
-		}
-		else if ( stricmp("Team FFA", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "TEAM_FFA");
-		}
-		else if ( stricmp("Siege", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "SIEGE");
-		}
-		else if ( stricmp("Capture the Flag", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");
-		}
-		else if ( stricmp("Capture the Ysalamiri", cgs.voteString+11)==0  ) 
-		{
-			sParm = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");
-		} 
-	}
-	else if (strncmp(cgs.voteString, "map", 3)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_NEW_MAP", sCmd, sizeof(sCmd) );
+	else if ( !Q_strncmp( cgs.voteString, "map", 3 ) ) {
+		trap->SE_GetStringTextString( "MENUS_NEW_MAP", sCmd, sizeof( sCmd ) );
 		sParm = cgs.voteString+4;
 	}
-	else if (strncmp(cgs.voteString, "kick", 4)==0)
-	{
-		trap->SE_GetStringTextString("MENUS_KICK_PLAYER", sCmd, sizeof(sCmd) );
+	else if ( !Q_strncmp( cgs.voteString, "kick", 4 ) ) {
+		trap->SE_GetStringTextString( "MENUS_KICK_PLAYER", sCmd, sizeof( sCmd ) );
 		sParm = cgs.voteString+5;
 	}
 	else
@@ -6548,20 +6515,16 @@ static void CG_DrawVote(void) {
 
 
 
-	trap->SE_GetStringTextString("MENUS_VOTE", sVote, sizeof(sVote) );
-	trap->SE_GetStringTextString("MENUS_YES", sYes, sizeof(sYes) );
-	trap->SE_GetStringTextString("MENUS_NO",  sNo,  sizeof(sNo) );
+	trap->SE_GetStringTextString( "MENUS_VOTE", sVote, sizeof( sVote ) );
+	trap->SE_GetStringTextString( "MENUS_YES", sYes, sizeof( sYes ) );
+	trap->SE_GetStringTextString( "MENUS_NO", sNo, sizeof( sNo ) );
 
 	if (sParm && sParm[0])
-	{
-		s = va("%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.voteYes, sNo, cgs.voteNo);
-	}
+		s = va( "%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.voteYes, sNo, cgs.voteNo);
 	else
-	{
-		s = va("%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.voteYes, sNo, cgs.voteNo);
-	}
+		s = va( "%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.voteYes, sNo, cgs.voteNo);
 	CG_DrawSmallString( 4, 58, s, 1.0F );
-	s = CG_GetStringEdString("MP_INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE");	//	s = "or press ESC then click Vote";
+	s = CG_GetStringEdString( "MP_INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE" );	//	s = "or press ESC then click Vote";
 	CG_DrawSmallString( 4, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
 }
 
@@ -6640,70 +6603,6 @@ static void CG_DrawTeamVote(void) {
 
 static qboolean CG_DrawScoreboard() {
 	return CG_DrawOldScoreboard();
-#if 0
-	static qboolean firstTime = qtrue;
-	float fade, *fadeColor;
-
-	if (menuScoreboard) {
-		menuScoreboard->window.flags &= ~WINDOW_FORCED;
-	}
-	if (cg_paused.integer) {
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
-	}
-
-	// should never happen in Team Arena
-	if (cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
-		cg.deferredPlayerLoading = 0;
-		firstTime = qtrue;
-		return qfalse;
-	}
-
-	// don't draw scoreboard during death while warmup up
-	if ( cg.warmup && !cg.showScores ) {
-		return qfalse;
-	}
-
-	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD || cg.predictedPlayerState.pm_type == PM_INTERMISSION ) {
-		fade = 1.0;
-		fadeColor = colorWhite;
-	} else {
-		fadeColor = CG_FadeColor( cg.scoreFadeTime, FADE_TIME );
-		if ( !fadeColor ) {
-			// next time scoreboard comes up, don't print killer
-			cg.deferredPlayerLoading = 0;
-			cg.killerName[0] = 0;
-			firstTime = qtrue;
-			return qfalse;
-		}
-		fade = *fadeColor;
-	}																					  
-
-
-	if (menuScoreboard == NULL) {
-		if ( cgs.gametype >= GT_TEAM ) {
-			menuScoreboard = Menus_FindByName("teamscore_menu");
-		} else {
-			menuScoreboard = Menus_FindByName("score_menu");
-		}
-	}
-
-	if (menuScoreboard) {
-		if (firstTime) {
-			CG_SetScoreSelection(menuScoreboard);
-			firstTime = qfalse;
-		}
-		Menu_Paint(menuScoreboard, qtrue);
-	}
-
-	// load any models that have been deferred
-	if ( ++cg.deferredPlayerLoading > 10 ) {
-		CG_LoadDeferredPlayers();
-	}
-
-	return qtrue;
-#endif
 }
 
 /*
