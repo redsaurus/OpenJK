@@ -177,6 +177,7 @@ const char *types [] = {
 "ITEM_TYPE_MULTI",
 "ITEM_TYPE_BIND",
 "ITEM_TYPE_TEXTSCROLL",
+"ITEM_TYPE_SLIDER_INTEGER",
 NULL
 };
 
@@ -4353,6 +4354,7 @@ qboolean ItemParse_cvar( itemDef_t *item)
 			case ITEM_TYPE_YESNO:
 			case ITEM_TYPE_BIND:
 			case ITEM_TYPE_SLIDER:
+			case ITEM_TYPE_SLIDER_INTEGER:
 			case ITEM_TYPE_TEXT:
 			case ITEM_TYPE_TEXTSCROLL:
 				editPtr = (editFieldDef_t*)item->typeData;
@@ -4754,7 +4756,7 @@ void Item_ValidateTypeData(itemDef_t *item)
 		item->typeData = UI_Alloc(sizeof(listBoxDef_t));
 		memset(item->typeData, 0, sizeof(listBoxDef_t));
 	} 
-	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT) 
+	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_SLIDER_INTEGER || item->type == ITEM_TYPE_TEXT)
 	{
 		item->typeData = UI_Alloc(sizeof(editFieldDef_t));
 		memset(item->typeData, 0, sizeof(editFieldDef_t));
@@ -8429,6 +8431,7 @@ static qboolean Item_Paint(itemDef_t *item, qboolean bDraw)
 			Item_Bind_Paint(item);
 			break;
 		case ITEM_TYPE_SLIDER:
+		case ITEM_TYPE_SLIDER_INTEGER:
 			Item_Slider_Paint(item);
 			break;
 		default:
@@ -10693,6 +10696,45 @@ int Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 }
 
 /*
+ =================
+ Scroll_Slider_Integer_ThumbFunc
+ =================
+ */
+static void Scroll_Slider_Integer_ThumbFunc(void *p)
+{
+	float x, value, cursorx;
+	int intValue;
+	scrollInfo_t *si = (scrollInfo_t*)p;
+	editFieldDef_t *editDef = (struct editFieldDef_s *) si->item->typeData;
+	
+	if (si->item->text)
+	{
+		x = si->item->textRect.x + si->item->textRect.w + 8;
+	}
+	else
+	{
+		x = si->item->window.rect.x;
+	}
+	
+	cursorx = DC->cursorx;
+	
+	if (cursorx < x)
+	{
+		cursorx = x;
+	}
+	else if (cursorx > x + SLIDER_WIDTH)
+	{
+		cursorx = x + SLIDER_WIDTH;
+	}
+	value = cursorx - x;
+	value /= SLIDER_WIDTH;
+	value *= (editDef->maxVal - editDef->minVal);
+	value += editDef->minVal;
+	intValue = (int) value;
+	DC->setCVar(si->item->cvar, va("%d", intValue));
+}
+
+/*
 =================
 Scroll_Slider_ThumbFunc
 =================
@@ -10806,6 +10848,21 @@ void Item_StartCapture(itemDef_t *item, int key)
 				scrollInfo.yStart = DC->cursory;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_Slider_ThumbFunc;
+				itemCapture = item;
+			}
+			break;
+		}
+		case ITEM_TYPE_SLIDER_INTEGER:
+		{
+			flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
+			if (flags & WINDOW_LB_THUMB)
+			{
+				scrollInfo.scrollKey = key;
+				scrollInfo.item = item;
+				scrollInfo.xStart = DC->cursorx;
+				scrollInfo.yStart = DC->cursory;
+				captureData = &scrollInfo;
+				captureFunc = &Scroll_Slider_Integer_ThumbFunc;
 				itemCapture = item;
 			}
 			break;
@@ -11094,6 +11151,64 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down)
 }
 
 /*
+ =================
+ Item_Slider_HandleKey
+ =================
+ */
+qboolean Item_Slider_Integer_HandleKey(itemDef_t *item, int key, qboolean down)
+{
+	//DC->Print("slider handle key\n");
+	//JLF MPMOVED
+	
+	float x, value, width, work;
+	
+	if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+	{
+		
+		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+		{
+			editFieldDef_t *editDef = (editFieldDef_s *) item->typeData;
+			if (editDef)
+			{
+				rectDef_t testRect;
+				width = SLIDER_WIDTH;
+				if (item->text)
+				{
+					x = item->textRect.x + item->textRect.w + 8;
+				}
+				else
+				{
+					x = item->window.rect.x;
+				}
+				
+				testRect = item->window.rect;
+				testRect.x = x;
+				value = (float)SLIDER_THUMB_WIDTH / 2;
+				testRect.x -= value;
+				//DC->Print("slider x: %f\n", testRect.x);
+				testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
+				//DC->Print("slider w: %f\n", testRect.w);
+				if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory))
+				{
+					work = DC->cursorx - x;
+					value = work / width;
+					value *= (editDef->maxVal - editDef->minVal);
+					// vm fuckage
+					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
+					value += editDef->minVal;
+					int intValue = (int) value;
+					DC->setCVar(item->cvar, va("%d", intValue));
+					return qtrue;
+				}
+			}
+		}
+	}
+	
+	//DC->Print("slider handle key exit\n");
+	return qfalse;
+}
+
+/*
 =================
 Item_HandleKey
 =================
@@ -11160,6 +11275,9 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down)
 			break;
 		case ITEM_TYPE_SLIDER:
 			return Item_Slider_HandleKey(item, key, down);
+			break;
+		case ITEM_TYPE_SLIDER_INTEGER:
+			return Item_Slider_Integer_HandleKey(item, key, down);
 			break;
 //JLF MPMOVED
 		case ITEM_TYPE_TEXT:
@@ -11428,7 +11546,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down)
 	should just process the action and not support the accept functionality.
 */
 //JLFACCEPT
-				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER)
+				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_SLIDER_INTEGER )
 				{
 
 					if (Item_HandleAccept(item))
