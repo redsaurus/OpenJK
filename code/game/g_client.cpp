@@ -2062,6 +2062,15 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	}
 }
 
+void G_SetHeadSurfaceOnOff( gentity_t *ent )
+{
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head", G2SURFACEFLAG_NODESCENDANTS);
+		gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "torso_cap_head", 0x00);
+	}
+}
+
 void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 {
 	if ( !ent || !ent->client || !newModel )
@@ -2143,8 +2152,7 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 
 //	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "hips", G2SURFACEFLAG_NODESCENDANTS);
 //	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head", 0x0);
-	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head", G2SURFACEFLAG_NODESCENDANTS);
-	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "torso_cap_head", 0x00);
+	G_SetHeadSurfaceOnOff( ent );
 	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head_cap_torso", 0x00);//show caps so don't get such bad seams
 }
 
@@ -2340,6 +2348,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		{
 			G_LoadAnimFileSet( ent, ent->NPC_type );
 			G_SetSkin( ent );
+			G_SetHeadSurfaceOnOff( ent );
 		}
 
 		//setup sabers
@@ -2540,6 +2549,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 			{
 				G_LoadAnimFileSet( ent, ent->NPC_type );
 				G_SetSkin( ent );
+				G_SetHeadSurfaceOnOff( ent );
 			}
 			G_ReloadSaberData( ent );
 			//force power levels should already be set
