@@ -29,7 +29,7 @@ This file is part of Jedi Academy.
 	#include "tr_local.h"
 #endif
 
-#include "matcomp.h"
+#include "qcommon/matcomp.h"
 #if !defined(_QCOMMON_H_)
 	#include "../qcommon/qcommon.h"
 #endif
@@ -39,10 +39,6 @@ This file is part of Jedi Academy.
 
 #ifdef _G2_GORE
 #include "../ghoul2/ghoul2_gore.h"
-#endif
-
-#ifdef VV_LIGHTING
-#include "tr_lightmanager.h"
 #endif
 
 #define	LL(x) x=LittleLong(x)
@@ -2285,9 +2281,7 @@ void RenderSurfaces(CRenderSurface &RS)
 		//using z-fail now so can do personal models -rww
 		if ( /*!RS.personalModel
 			&& */r_shadows->integer == 2 
-#ifndef VV_LIGHTING
 //			&& RS.fogNum == 0
-#endif
 			&& (RS.renderfx & RF_SHADOW_PLANE )
 			&& !(RS.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) ) 
 			&& shader->sort == SS_OPAQUE ) 
@@ -2593,13 +2587,8 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	modelList[31]=548;
 
 	// set up lighting now that we know we aren't culled
-#ifdef VV_LIGHTING
-	if ( !personalModel ) {
-		VVLightMan.R_SetupEntityLighting( &tr.refdef, ent );
-#else
 	if ( !personalModel || r_shadows->integer > 1 ) {
 		R_SetupEntityLighting( &tr.refdef, ent );
-#endif
 	}
 
 	// see if we are in a fog volume
@@ -2899,13 +2888,6 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 	mdxmSurface_t	*surface = surf->surfaceData;
 
 	CBoneCache *bones = surf->boneCache;
-
-
-#ifdef VV_LIGHTING
-	// Set any dynamic lighting needed
-	if(backEnd.currentEntity->dlightBits)
-		tess.dlightBits = backEnd.currentEntity->dlightBits;
-#endif
 
 	// first up, sanity check our numbers
 	RB_CheckOverflow( surface->numVerts, surface->numTriangles );
@@ -3519,7 +3501,7 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 #ifdef _DEBUG
 		Com_Error( ERR_DROP,       "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #else
-		VID_Printf( PRINT_WARNING, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
+		ri.Printf( PRINT_WARNING, "R_LoadMDXM: %s has wrong version (%i should be %i)\n", mod_name, version, MDXM_VERSION);
 #endif
 		return qfalse;
 	}
@@ -3588,7 +3570,7 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 
 	if (!mdxm->animIndex) 
 	{
-		VID_Printf( PRINT_WARNING, "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
+		ri.Printf( PRINT_WARNING, "R_LoadMDXM: missing animation file %s for mesh %s\n", mdxm->animName, mdxm->name);
 		return qfalse;
 	}
 	else
@@ -3598,14 +3580,14 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		{
 			if ( isAnOldModelFile )
 			{
-				VID_Printf( PRINT_WARNING, "R_LoadMDXM: converting jk2 model %s\n", mod_name);
+				ri.Printf( PRINT_WARNING, "R_LoadMDXM: converting jk2 model %s\n", mod_name);
 			}
 			else
 			{
 #ifdef _DEBUG
 				Com_Error( ERR_DROP,       "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
 #else
-				VID_Printf( PRINT_WARNING, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
+				ri.Printf( PRINT_WARNING, "R_LoadMDXM: %s has different bones than anim (%i != %i)\n", mod_name, mdxm->numBones, tr.models[mdxm->animIndex]->mdxa->numBones);
 #endif
 			}
 			if ( !isAnOldModelFile )
@@ -3810,7 +3792,7 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	}
 	
 	if (version != MDXA_VERSION) {
-		VID_Printf( PRINT_WARNING, "R_LoadMDXA: %s has wrong version (%i should be %i)\n",
+		ri.Printf( PRINT_WARNING, "R_LoadMDXA: %s has wrong version (%i should be %i)\n",
 				 mod_name, version, MDXA_VERSION);
 		return qfalse;
 	}
@@ -3845,7 +3827,7 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	}
 
  	if ( mdxa->numFrames < 1 ) {
-		VID_Printf( PRINT_WARNING, "R_LoadMDXA: %s has no frames\n", mod_name );
+		ri.Printf( PRINT_WARNING, "R_LoadMDXA: %s has no frames\n", mod_name );
 		return qfalse;
 	}
 

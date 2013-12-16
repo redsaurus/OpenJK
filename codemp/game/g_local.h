@@ -385,7 +385,7 @@ typedef enum {
 	TEAM_ACTIVE		// Now actively playing
 } playerTeamStateState_t;
 
-typedef struct {
+typedef struct playerTeamState_s {
 	playerTeamStateState_t	state;
 
 	int			location;
@@ -412,9 +412,9 @@ typedef struct {
 // this is achieved by writing all the data to cvar strings at game shutdown
 // time and reading them back at connection time.  Anything added here
 // MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
-typedef struct {
+typedef struct clientSession_s {
 	team_t		sessionTeam;
-	int			spectatorTime;		// for determining next-in-line to play
+	int			spectatorNum;		// for determining next-in-line to play
 	spectatorState_t	spectatorState;
 	int			spectatorClient;	// for chasecam and follow mode
 	int			wins, losses;		// tournament stats
@@ -441,7 +441,7 @@ typedef struct {
 
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
-typedef struct {
+typedef struct clientPersistant_s {
 	clientConnected_t	connected;	
 	usercmd_t	cmd;				// we would lose angles if not persistant
 	qboolean	localClient;		// true if "ip" info key is "localhost"
@@ -449,6 +449,7 @@ typedef struct {
 	qboolean	predictItemPickup;	// based on cg_predictItems userinfo
 	qboolean	pmoveFixed;			//
 	char		netname[MAX_NETNAME];
+	char		netname_nocolor[MAX_NETNAME];
 	int			netnameTime;				// Last time the name was changed
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
@@ -819,8 +820,7 @@ typedef struct alertEvent_s
 //
 // this structure is cleared as each map is entered
 //
-typedef struct
-{
+typedef struct waypointData_s {
 	char	targetname[MAX_QPATH];
 	char	target[MAX_QPATH];
 	char	target2[MAX_QPATH];
@@ -829,7 +829,7 @@ typedef struct
 	int		nodeID;
 } waypointData_t;
 
-typedef struct {
+typedef struct level_locals_s {
 	struct gclient_s	*clients;		// [maxclients]
 
 	struct gentity_s	*gentities;
@@ -875,6 +875,7 @@ typedef struct {
 	char		voteDisplayString[MAX_STRING_CHARS];
 	int			voteTime;				// level.time vote was called
 	int			voteExecuteTime;		// time the vote is executed
+	int			voteExecuteDelay;		// set per-vote
 	int			voteYes;
 	int			voteNo;
 	int			numVotingClients;		// set by CalculateRanks
@@ -884,7 +885,10 @@ typedef struct {
 
 	// team voting state
 	char		teamVoteString[2][MAX_STRING_CHARS];
+	char		teamVoteStringClean[2][MAX_STRING_CHARS];
+	char		teamVoteDisplayString[2][MAX_STRING_CHARS];
 	int			teamVoteTime[2];		// level.time vote was called
+	int			teamVoteExecuteTime[2];		// time the vote is executed
 	int			teamVoteYes[2];
 	int			teamVoteNo[2];
 	int			numteamVotingClients[2];// set by CalculateRanks
@@ -943,6 +947,16 @@ typedef struct {
 		fileHandle_t	log;
 	} security;
 
+	struct {
+		int num;
+		char *infos[MAX_BOTS];
+	} bots;
+
+	struct {
+		int num;
+		char *infos[MAX_ARENAS];
+	} arenas;
+
 	gametype_t	gametype;
 } level_locals_t;
 
@@ -997,15 +1011,10 @@ void G_CheckTeamItems( void );
 void G_RunItem( gentity_t *ent );
 void RespawnItem( gentity_t *ent );
 
-void UseHoldableItem( gentity_t *ent );
-void PrecacheItem (gitem_t *it);
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle );
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity );
-void SetRespawn (gentity_t *ent, float delay);
 void G_SpawnItem (gentity_t *ent, gitem_t *item);
 void FinishSpawningItem( gentity_t *ent );
-void Think_Weapon (gentity_t *ent);
-int ArmorIndex (gentity_t *ent);
 void	Add_Ammo (gentity_t *ent, int weapon, int count);
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
 
@@ -1217,9 +1226,9 @@ int TeamCount( int ignoreClientNum, team_t team );
 int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
 void SetClientViewAngle( gentity_t *ent, vec3_t angle );
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team );
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, qboolean isbot );
 void MaintainBodyQueue(gentity_t *ent);
-void respawn (gentity_t *ent);
+void ClientRespawn (gentity_t *ent);
 void BeginIntermission (void);
 void InitBodyQue (void);
 void ClientSpawn( gentity_t *ent );
@@ -1273,6 +1282,7 @@ void FindIntermissionPoint( void );
 void SetLeader(int team, int client);
 void CheckTeamLeader( int team );
 void G_RunThink (gentity_t *ent);
+void AddTournamentQueue(gclient_t *client);
 void QDECL G_LogPrintf( const char *fmt, ... );
 void QDECL G_SecurityLogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );

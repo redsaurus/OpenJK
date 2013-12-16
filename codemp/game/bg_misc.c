@@ -2141,8 +2141,7 @@ qboolean BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 		if (item->giTag == WP_THERMAL || item->giTag == WP_TRIP_MINE || item->giTag == WP_DET_PACK)
 		{ //check to see if full on ammo for this, if so, then..
 			int ammoIndex = weaponData[item->giTag].ammoIndex;
-			//JAC: Only restrict pickups on full ammo if the player already has this weapon.
-			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max && ps->stats[STAT_WEAPONS] & ( 1 << item->giTag ) )
+			if (ps->ammo[ammoIndex] >= ammoData[ammoIndex].max)
 			{ //don't need it
 				return qfalse;
 			}
@@ -2537,13 +2536,7 @@ void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerSta
 
 		if (!isRegistered)
 		{
-		#ifdef _GAME
 			trap->Cvar_Register(&showEvents, "showevents", "0", 0);
-		#elif _CGAME
-			trap->Cvar_Register(&showEvents, "showevents", "0", 0);
-		#elif _UI
-			trap->Cvar_Register(&showEvents, "showevents", "0", 0);
-		#endif
 			isRegistered = qtrue;
 		}
 
@@ -2567,10 +2560,6 @@ BG_TouchJumpPad
 ========================
 */
 void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
-	vec3_t	angles;
-	float p;
-	int effectNum;
-
 	// spectators don't use jump pads
 	if ( ps->pm_type != PM_NORMAL && ps->pm_type != PM_JETPACK && ps->pm_type != PM_FLOAT ) {
 		return;
@@ -2578,16 +2567,17 @@ void BG_TouchJumpPad( playerState_t *ps, entityState_t *jumppad ) {
 
 	// if we didn't hit this same jumppad the previous frame
 	// then don't play the event sound again if we are in a fat trigger
+	/*
 	if ( ps->jumppad_ent != jumppad->number ) {
+		vec3_t angles;
+		float p;
 
 		vectoangles( jumppad->origin2, angles);
 		p = fabs( AngleNormalize180( angles[PITCH] ) );
-		if( p < 45 ) {
-			effectNum = 0;
-		} else {
-			effectNum = 1;
-		}
+		effectNum =  (p<45) ? 0 : 1;
 	}
+	*/
+
 	// remember hitting this jumppad this frame
 	ps->jumppad_ent = jumppad->number;
 	ps->jumppad_frame = ps->pmove_framecount;

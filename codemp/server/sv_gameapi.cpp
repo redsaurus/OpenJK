@@ -515,17 +515,17 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 static qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 	int		leafnum, cluster;
-	int		area1, area2;
+//	int		area1, area2;
 	byte	*mask;
 
 	leafnum = CM_PointLeafnum( p1 );
 	cluster = CM_LeafCluster( leafnum );
-	area1 = CM_LeafArea( leafnum );
+//	area1 = CM_LeafArea( leafnum );
 	mask = CM_ClusterPVS( cluster );
 
 	leafnum = CM_PointLeafnum( p2 );
 	cluster = CM_LeafCluster( leafnum );
-	area2 = CM_LeafArea( leafnum );
+//	area2 = CM_LeafArea( leafnum );
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
 		return qfalse;
@@ -1235,10 +1235,6 @@ static void SV_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
 	SV_ClientThink( &svs.clients[clientNum], ucmd );
 }
 
-static void SV_BotUpdateWaypoints( int wpnum, wpobject_t **wps ) {
-	SV_BotUpdateWaypoints( wpnum, wps );
-}
-
 static int SV_AAS_EnableRoutingArea( int areanum, int enable ) {
 	return botlib_export->aas.AAS_EnableRoutingArea( areanum, enable );
 }
@@ -1723,6 +1719,12 @@ static void SV_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelInde
 	strcpy( fillBuf, tmp );
 }
 
+static void GVM_Cvar_Set( const char *var_name, const char *value ) {
+	Cvar_VM_Set( var_name, value, VM_GAME );
+}
+
+// legacy syscall
+
 intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	switch( args[0] ) {
 
@@ -1810,7 +1812,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return 0;
 
 	case G_CVAR_SET:
-		Cvar_Set( (const char *)VMA(1), (const char *)VMA(2) );
+		Cvar_VM_Set( (const char *)VMA(1), (const char *)VMA(2), VM_GAME );
 		return 0;
 
 	case G_CVAR_VARIABLE_INTEGER_VALUE:
@@ -1835,7 +1837,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 		return FS_FOpenFileByMode( (const char *)VMA(1), (int *)VMA(2), (fsMode_t)args[3] );
 
 	case G_FS_READ:
-		FS_Read2( VMA(1), args[2], args[3] );
+		FS_Read( VMA(1), args[2], args[3] );
 		return 0;
 
 	case G_FS_WRITE:
@@ -2882,12 +2884,12 @@ void SV_BindGame( void ) {
 	static gameImport_t gi;
 	gameExport_t		*ret;
 	GetGameAPI_t		GetGameAPI;
-	char				dllName[MAX_OSPATH] = "game"ARCH_STRING DLL_EXT;
+	char				dllName[MAX_OSPATH] = "jampgame"ARCH_STRING DLL_EXT;
 
 	memset( &gi, 0, sizeof( gi ) );
 
 	gvm = VM_Create( VM_GAME );
-	if ( gvm ) {
+	if ( gvm && !gvm->isLegacy ) {
 		gi.Print								= Com_Printf;
 		gi.Error								= Com_Error;
 		gi.Milliseconds							= Com_Milliseconds;
@@ -2899,7 +2901,7 @@ void SV_BindGame( void ) {
 		gi.TrueFree								= VM_Shifted_Free;
 		gi.SnapVector							= Sys_SnapVector;
 		gi.Cvar_Register						= Cvar_Register;
-		gi.Cvar_Set								= Cvar_Set;
+		gi.Cvar_Set								= GVM_Cvar_Set;
 		gi.Cvar_Update							= Cvar_Update;
 		gi.Cvar_VariableIntegerValue			= Cvar_VariableIntegerValue;
 		gi.Cvar_VariableStringBuffer			= Cvar_VariableStringBuffer;
@@ -3206,6 +3208,8 @@ void SV_BindGame( void ) {
 			Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		}
 		ge = ret;
+
+		return;
 	}
 
 	// fall back to legacy syscall/vm_call api
@@ -3225,13 +3229,13 @@ void SV_UnbindGame( void ) {
 void SV_RestartGame( void ) {
 	GVM_ShutdownGame( qtrue );
 
-#if 0
 	gvm = VM_Restart( gvm );
+	SV_BindGame();
 	if ( !gvm ) {
+		svs.gameStarted = qfalse;
 		Com_Error( ERR_DROP, "VM_Restart on game failed" );
 		return;
 	}
-#endif
 	
 	SV_InitGame( qtrue );
 }

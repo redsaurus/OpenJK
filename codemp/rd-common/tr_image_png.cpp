@@ -2,7 +2,7 @@
 #include <png.h>
 
 void user_write_data( png_structp png_ptr, png_bytep data, png_size_t length ) {
-	fileHandle_t fp = (fileHandle_t)(intptr_t)png_get_io_ptr( png_ptr );
+	fileHandle_t fp = *(fileHandle_t*)png_get_io_ptr( png_ptr );
 	ri->FS_Write( data, length, fp );
 }
 void user_flush_data( png_structp png_ptr ) {
@@ -25,7 +25,7 @@ int RE_SavePNG( const char *filename, byte *buf, size_t width, size_t height, in
 	*/
 	int depth = 8;
 
-	fp = ri->FS_FOpenFileWrite( filename );
+	fp = ri->FS_FOpenFileWrite( filename, qtrue );
 	if ( !fp ) {
 		goto fopen_failed;
 	}

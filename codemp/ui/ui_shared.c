@@ -14,6 +14,26 @@
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 extern void UI_UpdateCharacterSkin( void );
 
+const char *HolocronIcons[NUM_FORCE_POWERS] = {
+	"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
+	"gfx/mp/f_icon_levitation",		//FP_LEVITATION,
+	"gfx/mp/f_icon_speed",			//FP_SPEED,
+	"gfx/mp/f_icon_push",			//FP_PUSH,
+	"gfx/mp/f_icon_pull",			//FP_PULL,
+	"gfx/mp/f_icon_lt_telepathy",	//FP_TELEPATHY,
+	"gfx/mp/f_icon_dk_grip",		//FP_GRIP,
+	"gfx/mp/f_icon_dk_l1",			//FP_LIGHTNING,
+	"gfx/mp/f_icon_dk_rage",		//FP_RAGE,
+	"gfx/mp/f_icon_lt_protect",		//FP_PROTECT,
+	"gfx/mp/f_icon_lt_absorb",		//FP_ABSORB,
+	"gfx/mp/f_icon_lt_healother",	//FP_TEAM_HEAL,
+	"gfx/mp/f_icon_dk_forceother",	//FP_TEAM_FORCE,
+	"gfx/mp/f_icon_dk_drain",		//FP_DRAIN,
+	"gfx/mp/f_icon_sight",			//FP_SEE,
+	"gfx/mp/f_icon_saber_attack",	//FP_SABER_OFFENSE,
+	"gfx/mp/f_icon_saber_defend",	//FP_SABER_DEFENSE,
+	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
+};
 
 #define SCROLL_TIME_START					500
 #define SCROLL_TIME_ADJUST					150
@@ -32,11 +52,6 @@ typedef struct scrollInfo_s {
 } scrollInfo_t;
 
 #ifdef _UI // Defined in ui_main.c, not in the namespace
-	extern vmCvar_t	ui_char_color_red;
-	extern vmCvar_t	ui_char_color_green;
-	extern vmCvar_t	ui_char_color_blue;
-	extern vmCvar_t	se_language;
-	
 	// Some extern functions hoisted from the middle of this file to get all the non-cgame,
 	// non-namespace stuff together
 	extern void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles );
@@ -650,7 +665,7 @@ Initializes a window structure ( windowDef_t ) with defaults
  
 ==================
 */
-void Window_Init(Window *w) {
+void Window_Init(windowDef_t *w) {
 	memset(w, 0, sizeof(windowDef_t));
 	w->borderSize = 1;
 	w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
@@ -681,7 +696,7 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboo
 
 
 
-void Window_Paint(Window *w, float fadeAmount, float fadeClamp, float fadeCycle) 
+void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeCycle) 
 {
 	//float bordersize = 0;
 	vec4_t color;
@@ -1592,7 +1607,6 @@ qboolean Script_Close(itemDef_t *item, char **args)
 	return qtrue;
 }
 
-//void Menu_TransitionItemByName(menuDef_t *menu, const char *p, rectDef_t rectFrom, rectDef_t rectTo, int time, float amt) 
 void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *rectFrom, const rectDef_t *rectTo, int time, float amt) 
 {
 	itemDef_t *item;
@@ -2464,12 +2478,7 @@ int Item_TextScroll_ThumbDrawPosition ( itemDef_t *item )
 int Item_TextScroll_OverLB ( itemDef_t *item, float x, float y ) 
 {
 	rectDef_t		r;
-	textScrollDef_t *scrollPtr;
 	int				thumbstart;
-	int				count;
-
-	scrollPtr = (textScrollDef_t*)item->typeData;
-	count     = scrollPtr->iLineCount;
 
 	r.x = item->window.rect.x + item->window.rect.w - SCROLLBAR_SIZE;
 	r.y = item->window.rect.y;
@@ -2790,9 +2799,7 @@ int Item_ListBox_OverLB(itemDef_t *item, float x, float y)
 	rectDef_t r;
 	listBoxDef_t *listPtr;
 	int thumbstart;
-	int count;
 
-	count = DC->feederCount(item->special);
 	listPtr = (listBoxDef_t*)item->typeData;
 	if (item->window.flags & WINDOW_HORIZONTAL) 
 	{
@@ -3642,13 +3649,13 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 				return qtrue;
 			}
 
-			if ( key == A_HOME || key == A_KP_7) {// || ( tolower(key) == 'a' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == A_HOME || key == A_KP_7) {// || ( tolower(key) == 'a' && trap->Key_IsDown( K_CTRL ) ) ) {
 				item->cursorPos = 0;
 				editPtr->paintOffset = 0;
 				return qtrue;
 			}
 
-			if ( key == A_END || key == A_KP_1)  {// ( tolower(key) == 'e' && trap_Key_IsDown( K_CTRL ) ) ) {
+			if ( key == A_END || key == A_KP_1)  {// ( tolower(key) == 'e' && trap->Key_IsDown( K_CTRL ) ) ) {
 				item->cursorPos = len;
 				if(item->cursorPos > editPtr->maxPaintChars) {
 					editPtr->paintOffset = len - editPtr->maxPaintChars;
@@ -4402,7 +4409,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 						item->cursorPos = 0;
 						g_editingField = qtrue;
 						g_editItem = item;
-						DC->setOverstrikeMode(qtrue);
+						//DC->setOverstrikeMode(qtrue);
 					}
 				}
 				
@@ -4471,7 +4478,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 					item->cursorPos = 0;
 					g_editingField = qtrue;
 					g_editItem = item;
-					DC->setOverstrikeMode(qtrue);
+					//DC->setOverstrikeMode(qtrue);
 				} else {
 						Item_Action(item);
 				}
@@ -4905,7 +4912,7 @@ void Item_Multi_Paint(itemDef_t *item) {
 }
 
 
-typedef struct {
+typedef struct bind_s {
 	char	*command;
 	int		id;
 	int		defaultbind1;
@@ -4914,8 +4921,7 @@ typedef struct {
 	int		bind2;
 } bind_t;
 
-typedef struct
-{
+typedef struct configcvar_s {
 	char*	name;
 	float	defaultvalue;
 	float	value;	
@@ -5023,11 +5029,9 @@ static bind_t g_bindings[] =
 	{"automap_button",	-1,					-1,		-1,	-1},
 	{"automap_toggle",	-1,					-1,		-1,	-1},
 	{"voicechat",		-1,					-1,		-1,	-1},
-
 };
 
-
-static const int g_bindCount = sizeof(g_bindings) / sizeof(bind_t);
+static const size_t g_bindCount = ARRAY_LEN(g_bindings);// sizeof(g_bindings) / sizeof(bind_t);
 
 /*
 =================
@@ -5066,27 +5070,17 @@ Controls_GetConfig
 */
 void Controls_GetConfig( void )
 {
-	int		i;
+	size_t	i;
 	int		twokeys[2];
 
 	// iterate each command, get its numeric binding
 	for (i=0; i < g_bindCount; i++)
 	{
-
 		Controls_GetKeyAssignment(g_bindings[i].command, twokeys);
 
 		g_bindings[i].bind1 = twokeys[0];
 		g_bindings[i].bind2 = twokeys[1];
 	}
-
-	//s_controls.invertmouse.curvalue  = DC->getCVarValue( "m_pitch" ) < 0;
-	//s_controls.smoothmouse.curvalue  = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "m_filter" ) );
-	//s_controls.alwaysrun.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_run" ) );
-	//s_controls.autoswitch.curvalue   = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cg_autoswitch" ) );
-	//s_controls.sensitivity.curvalue  = UI_ClampCvar( 2, 30, Controls_GetCvarValue( "sensitivity" ) );
-	//s_controls.joyenable.curvalue    = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "in_joystick" ) );
-	//s_controls.joythreshold.curvalue = UI_ClampCvar( 0.05, 0.75, Controls_GetCvarValue( "joy_threshold" ) );
-	//s_controls.freelook.curvalue     = UI_ClampCvar( 0, 1, Controls_GetCvarValue( "cl_freelook" ) );
 }
 
 /*
@@ -5096,7 +5090,7 @@ Controls_SetConfig
 */
 void Controls_SetConfig(qboolean restart)
 {
-	int		i;
+	size_t	i;
 
 	// iterate each command, get its numeric binding
 	for (i=0; i < g_bindCount; i++)
@@ -5113,8 +5107,8 @@ void Controls_SetConfig(qboolean restart)
 
 
 int BindingIDFromName(const char *name) {
-	int i;
-  for (i=0; i < g_bindCount; i++)
+	size_t i;
+	for (i=0; i < g_bindCount; i++)
 	{
 		if (Q_stricmp(name, g_bindings[i].command) == 0) {
 			return i;
@@ -5127,9 +5121,9 @@ char g_nameBind1[32];
 char g_nameBind2[32];
 
 void BindingFromName(const char *cvar) {
-	int		i, b1, b2;
+	size_t	i;
+	int		b1, b2;
 	char	sOR[32];
-
 
 	// iterate each command, set its default binding
 	for (i=0; i < g_bindCount; i++)
@@ -5161,10 +5155,8 @@ void BindingFromName(const char *cvar) {
 
 void Item_Slider_Paint(itemDef_t *item) {
 	vec4_t newColor, lowLight;
-	float x, y, value;
+	float x, y;
 	menuDef_t *parent = (menuDef_t*)item->parent;
-
-	value = (item->cvar) ? DC->getCVarValue(item->cvar) : 0;
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		lowLight[0] = 0.8 * parent->focusColor[0]; 
@@ -5270,7 +5262,6 @@ qboolean Display_KeyBindPending() {
 
 qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 	int			id;
-	int			i;
 
 	if (key == A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey)
 	{
@@ -5334,10 +5325,10 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 
 	if (key != -1)
 	{
+		size_t	i;
 
 		for (i=0; i < g_bindCount; i++)
 		{
-
 			if (g_bindings[i].bind2 == key) {
 				g_bindings[i].bind2 = -1;
 			}
@@ -5700,8 +5691,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	qhandle_t optionalImage1, optionalImage2, optionalImage3;
 	listBoxDef_t *listPtr = (listBoxDef_t*)item->typeData;
 //JLF MPMOVED
-	int numlines;
-
 
 	// the listbox is horizontal or vertical and has a fixed size scroll bar going either direction
 	// elements are enumerated from the DC and either text or image handles are acquired from the DC as well
@@ -5824,9 +5813,6 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	// A vertical list box
 	else 
 	{
-//JLF MPMOVED
-		numlines = item->window.rect.h / listPtr->elementHeight;
-//JLFEND
 		//JLF new variable (code idented with if)
 		if (!listPtr->scrollhidden)
 		{
@@ -6063,12 +6049,10 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 
 void Item_OwnerDraw_Paint(itemDef_t *item) {
-  menuDef_t *parent;
 
 	if (item == NULL) {
 		return;
 	}
-  parent = (menuDef_t*)item->parent;
 
 	if (DC->ownerDrawItem) {
 		vec4_t color, lowLight;
@@ -6775,7 +6759,7 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
 	}
 }
 
-qboolean Menus_AnyFullScreenVisible() {
+qboolean Menus_AnyFullScreenVisible( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen) {
@@ -7014,7 +6998,7 @@ typedef struct keywordHash_s
 	struct keywordHash_s *next;
 } keywordHash_t;
 
-int KeywordHash_Key(char *keyword) {
+static int KeywordHash_Key(char *keyword) {
 	int register hash, i;
 
 	hash = 0;
@@ -7028,7 +7012,7 @@ int KeywordHash_Key(char *keyword) {
 	return hash;
 }
 
-void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key) {
+static void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key) {
 	int hash;
 
 	hash = KeywordHash_Key(key->keyword);
@@ -7041,7 +7025,7 @@ void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key) {
 	table[hash] = key;
 }
 
-keywordHash_t *KeywordHash_Find(keywordHash_t *table[], char *keyword)
+static keywordHash_t *KeywordHash_Find(keywordHash_t *table[], char *keyword)
 {
 	keywordHash_t *key;
 	int hash;
@@ -7336,12 +7320,10 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTim
 
 qboolean ItemParse_asset_model( itemDef_t *item, int handle ) {
 	const char *temp;
-	modelDef_t *modelPtr;
 	int animRunLength;
 	pc_token_t token;
 
 	Item_ValidateTypeData(item);
-	modelPtr = (modelDef_t*)item->typeData;
 
 	if (!trap->PC_ReadToken(handle, &token)) {
 		return qfalse;
@@ -8525,10 +8507,6 @@ qboolean ItemParse_isSaber( itemDef_t *item, int handle  )
 #endif
 	return qfalse;
 }
-
-//extern void UI_SaberLoadParms( void );
-//extern qboolean ui_saber_parms_parsed;
-//extern void UI_CacheSaberGlowGraphics( void );
 
 qboolean ItemParse_isSaber2( itemDef_t *item, int handle  )
 {

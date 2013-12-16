@@ -114,7 +114,7 @@ void SV_DirectConnect( netadr_t from ) {
 	char		userinfo[MAX_INFO_STRING];
 	int			i;
 	client_t	*cl, *newcl;
-	MAC_STATIC client_t	temp;
+	client_t	temp;
 	sharedEntity_t *ent;
 	int			clientNum;
 	int			version;
@@ -1282,7 +1282,7 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 	GVM_ClientUserinfoChanged( cl - svs.clients );
 }
 
-typedef struct {
+typedef struct ucmd_s {
 	const char	*name;
 	void	(*func)( client_t *cl );
 } ucmd_t;

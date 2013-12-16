@@ -461,7 +461,7 @@ Ghoul2 Insert Start
 			// add weapon ready sound
 			cent->pe.lightningFiring = qfalse;
 			if ( ( cent->currentState.eFlags & EF_FIRING ) && weapon->firingSound ) {
-				// lightning gun and guantlet make a different sound when fire is held down
+				// lightning gun and gauntlet make a different sound when fire is held down
 				trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, weapon->firingSound );
 				cent->pe.lightningFiring = qtrue;
 			} else if ( weapon->readySound ) {
@@ -848,10 +848,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		hand.frame = hand.oldframe = cg_debugGun.integer;
 		hand.backlerp = 0;
 	} else {
-		float currentFrame, animSpeed;
-#ifndef SIL_IS_A_COOL_CAT
-		int startFrame, endFrame, flags;
-#endif
+		float currentFrame;
 		// get clientinfo for animation map
 		if (cent->currentState.eType == ET_NPC)
 		{
@@ -867,11 +864,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 			ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 		}
 
-#ifdef SIL_IS_A_COOL_CAT
 		trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, cgs.gameModels, 0);
-#else
-		trap->G2API_GetBoneAnim(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, cgs.gameModels, 0);
-#endif
 		hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil( currentFrame ), ps->torsoAnim );
 		hand.oldframe = CG_MapTorsoToWeaponFrame( ci, floor( currentFrame ), ps->torsoAnim );
 		hand.backlerp = 1.0f - (currentFrame-floor(currentFrame));
@@ -911,7 +904,7 @@ WEAPON SELECTION
 
 void CG_DrawIconBackground(void)
 {
-	int				height,xAdd,x2,y2,t;
+	int				/*height, xAdd, x2, y2,*/ t;
 //	int				prongLeftX,prongRightX;
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
@@ -930,8 +923,8 @@ void CG_DrawIconBackground(void)
 		return;
 	}
 
-	x2 = 30;
-	y2 = SCREEN_HEIGHT-70;
+//	x2 = 30;
+//	y2 = SCREEN_HEIGHT-70;
 
 	//prongLeftX =x2+37; 
 	//prongRightX =x2+544; 
@@ -967,16 +960,16 @@ void CG_DrawIconBackground(void)
 				cg.iconHUDPercent=0;
 			}
 
-			xAdd = (int) 8*cg.iconHUDPercent;
+		//	xAdd = (int) 8*cg.iconHUDPercent;
 
-			height = (int) (60.0f*cg.iconHUDPercent);
+		//	height = (int) (60.0f*cg.iconHUDPercent);
 			//CG_DrawPic( x2+60, y2+30+yOffset, 460, -height, drawType);	// Top half
 			//CG_DrawPic( x2+60, y2+30-2+yOffset, 460, height, drawType);	// Bottom half
 
 		}
 		else
 		{
-			xAdd = 0;
+		//	xAdd = 0;
 		}
 
 		return;
@@ -1091,7 +1084,7 @@ void CG_DrawWeaponSelect( void ) {
 	int				holdX,x,y,pad;
 	int				sideLeftIconCnt,sideRightIconCnt;
 	int				sideMax,holdCount,iconCnt;
-	int				height;
+//	int				height;
 	int		yOffset = 0;
 	qboolean drewConc = qfalse;
 
@@ -1192,7 +1185,7 @@ void CG_DrawWeaponSelect( void ) {
 	trap->R_SetColor(colorTable[CT_WHITE]);
 	// Work backwards from current icon
 	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
-	height = smallIconSize * 1;//cg.iconHUDPercent;
+//	height = smallIconSize * 1;//cg.iconHUDPercent;
 	drewConc = qfalse;
 
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -1232,9 +1225,9 @@ void CG_DrawWeaponSelect( void ) {
 
 		if (cgs.media.weaponIcons[i])
 		{
-			weaponInfo_t	*weaponInfo;
+		//	weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );	
-			weaponInfo = &cg_weapons[i];
+		//	weaponInfo = &cg_weapons[i];
 
 			trap->R_SetColor(colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
@@ -1256,12 +1249,12 @@ void CG_DrawWeaponSelect( void ) {
 	}
 
 	// Current Center Icon
-	height = bigIconSize * cg.iconHUDPercent;
+//	height = bigIconSize * cg.iconHUDPercent;
 	if (cgs.media.weaponIcons[cg.weaponSelect])
 	{
-		weaponInfo_t	*weaponInfo;
+	//	weaponInfo_t	*weaponInfo;
 		CG_RegisterWeapon( cg.weaponSelect );	
-		weaponInfo = &cg_weapons[cg.weaponSelect];
+	//	weaponInfo = &cg_weapons[cg.weaponSelect];
 
 		trap->R_SetColor( colorTable[CT_WHITE]);
 		if (!CG_WeaponCheck(cg.weaponSelect))
@@ -1290,7 +1283,7 @@ void CG_DrawWeaponSelect( void ) {
 	// Right side ICONS
 	// Work forwards from current icon
 	holdX = x + (bigIconSize/2) + pad;
-	height = smallIconSize * cg.iconHUDPercent;
+//	height = smallIconSize * cg.iconHUDPercent;
 	for (iconCnt=1;iconCnt<(sideRightIconCnt+1);i++)
 	{
 		if ( i == WP_CONCUSSION )
@@ -1326,9 +1319,9 @@ void CG_DrawWeaponSelect( void ) {
 
 		if (/*weaponData[i].weaponIcon[0]*/cgs.media.weaponIcons[i])
 		{
-			weaponInfo_t	*weaponInfo;
+		//	weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );	
-			weaponInfo = &cg_weapons[i];
+		//	weaponInfo = &cg_weapons[i];
 			// No ammo for this weapon?
 			trap->R_SetColor( colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
@@ -1361,11 +1354,11 @@ void CG_DrawWeaponSelect( void ) {
 
 		if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 		{
-			UI_DrawProportionalString(320, y+45+yOffset, text, UI_CENTER|UI_SMALLFONT, textColor);
+			CG_DrawProportionalString(320, y+45+yOffset, text, UI_CENTER|UI_SMALLFONT, textColor);
 		}
 		else
 		{
-			UI_DrawProportionalString(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER|UI_SMALLFONT, textColor);
+			CG_DrawProportionalString(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER|UI_SMALLFONT, textColor);
 		}
 	}
 

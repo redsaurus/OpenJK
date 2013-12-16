@@ -15,15 +15,13 @@ This file is part of Jedi Academy.
     along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
 */
 // Copyright 2001-2013 Raven Software
-
-// leave this line at the top for all g_xxxx.cpp files...
-#include "g_headers.h"
-
-
 #include "g_local.h"
 #include "objectives.h"
 #include "wp_saber.h"
 #include "g_vehicles.h"
+#include "g_functions.h"
+#include "../cgame/cg_local.h"
+#include "b_local.h"
 
 extern	bool		in_camera;
 extern stringID_table_t SaberStyleTable[];
@@ -1112,7 +1110,11 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			}
 			break;
 		case TAUNT_BOW:
-			if ( ent->client->ps.saber[0].bowAnim != -1 )
+			if ( ent->client->ps.weapon != WP_SABER )
+			{
+				anim = BOTH_BOW;
+			}
+			else if ( ent->client->ps.saber[0].bowAnim != -1 )
 			{
 				anim = ent->client->ps.saber[0].bowAnim;
 			}
@@ -1125,18 +1127,25 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			{
 				anim = BOTH_BOW;
 			}
-			if ( ent->client->ps.saber[1].Active() )
-			{//turn off second saber
-				G_Sound( ent, ent->client->ps.saber[1].soundOff );
+			if ( ent->client->ps.weapon == WP_SABER )
+			{
+				if ( ent->client->ps.saber[1].Active() )
+				{//turn off second saber
+					G_Sound( ent, ent->client->ps.saber[1].soundOff );
+				}
+				else if ( ent->client->ps.saber[0].Active() )
+				{//turn off first
+					G_Sound( ent, ent->client->ps.saber[0].soundOff );
+				}
+				ent->client->ps.SaberDeactivate();
 			}
-			else if ( ent->client->ps.saber[0].Active() )
-			{//turn off first
-				G_Sound( ent, ent->client->ps.saber[0].soundOff );
-			}
-			ent->client->ps.SaberDeactivate();
 			break;
 		case TAUNT_MEDITATE:
-			if ( ent->client->ps.saber[0].meditateAnim != -1 )
+			if ( ent->client->ps.weapon != WP_SABER )
+			{
+				anim = BOTH_MEDITATE;
+			}
+			else if ( ent->client->ps.saber[0].meditateAnim != -1 )
 			{
 				anim = ent->client->ps.saber[0].meditateAnim;
 			}
@@ -1149,15 +1158,18 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			{
 				anim = BOTH_MEDITATE;
 			}
-			if ( ent->client->ps.saber[1].Active() )
-			{//turn off second saber
-				G_Sound( ent, ent->client->ps.saber[1].soundOff );
+			if ( ent->client->ps.weapon == WP_SABER )
+			{
+				if ( ent->client->ps.saber[1].Active() )
+				{//turn off second saber
+					G_Sound( ent, ent->client->ps.saber[1].soundOff );
+				}
+				else if ( ent->client->ps.saber[0].Active() )
+				{//turn off first
+					G_Sound( ent, ent->client->ps.saber[0].soundOff );
+				}
+				ent->client->ps.SaberDeactivate();
 			}
-			else if ( ent->client->ps.saber[0].Active() )
-			{//turn off first
-				G_Sound( ent, ent->client->ps.saber[0].soundOff );
-			}
-			ent->client->ps.SaberDeactivate();
 			break;
 		case TAUNT_FLOURISH:
 			if ( ent->client->ps.weapon == WP_SABER )
@@ -1198,39 +1210,42 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			}
 			break;
 		case TAUNT_GLOAT:
-			if ( ent->client->ps.saber[0].gloatAnim != -1 )
+			if ( ent->client->ps.weapon == WP_SABER )
 			{
-				anim = ent->client->ps.saber[0].gloatAnim;
-			}
-			else if ( ent->client->ps.dualSabers
-				&& ent->client->ps.saber[1].gloatAnim != -1 )
-			{
-				anim = ent->client->ps.saber[1].gloatAnim;
-			}
-			else
-			{
-				switch ( ent->client->ps.saberAnimLevel )
+				if ( ent->client->ps.saber[0].gloatAnim != -1 )
 				{
-				case SS_FAST:
-				case SS_TAVION:
-					anim = BOTH_VICTORY_FAST;
-					break;
-				case SS_MEDIUM:
-					anim = BOTH_VICTORY_MEDIUM;
-					break;
-				case SS_STRONG:
-				case SS_DESANN:
-					ent->client->ps.SaberActivate();
-					anim = BOTH_VICTORY_STRONG;
-					break;
-				case SS_DUAL:
-					ent->client->ps.SaberActivate();
-					anim = BOTH_VICTORY_DUAL;
-					break;
-				case SS_STAFF:
-					ent->client->ps.SaberActivate();
-					anim = BOTH_VICTORY_STAFF;
-					break;
+					anim = ent->client->ps.saber[0].gloatAnim;
+				}
+				else if ( ent->client->ps.dualSabers
+					&& ent->client->ps.saber[1].gloatAnim != -1 )
+				{
+					anim = ent->client->ps.saber[1].gloatAnim;
+				}
+				else
+				{
+					switch ( ent->client->ps.saberAnimLevel )
+					{
+					case SS_FAST:
+					case SS_TAVION:
+						anim = BOTH_VICTORY_FAST;
+						break;
+					case SS_MEDIUM:
+						anim = BOTH_VICTORY_MEDIUM;
+						break;
+					case SS_STRONG:
+					case SS_DESANN:
+						ent->client->ps.SaberActivate();
+						anim = BOTH_VICTORY_STRONG;
+						break;
+					case SS_DUAL:
+						ent->client->ps.SaberActivate();
+						anim = BOTH_VICTORY_DUAL;
+						break;
+					case SS_STAFF:
+						ent->client->ps.SaberActivate();
+						anim = BOTH_VICTORY_STAFF;
+						break;
+					}
 				}
 			}
 			break;

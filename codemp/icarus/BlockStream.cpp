@@ -371,7 +371,7 @@ CBlock *CBlock::Duplicate( void )
 	newblock->Create( m_id );
 
 	//Duplicate entire block and return the cc
-	for ( mi = m_members.begin(); mi != m_members.end(); mi++ )
+	for ( mi = m_members.begin(); mi != m_members.end(); ++mi )
 	{
 		newblock->AddMember( (*mi)->Duplicate() );
 	}
@@ -545,8 +545,8 @@ int CBlockStream::Create( char *filename )
 		return false;
 	}
 
-	fwrite( id_header, 1, sizeof(id_header), m_fileHandle );
-	fwrite( &version, 1, sizeof(version), m_fileHandle );
+	fwrite( id_header, IBI_HEADER_ID_LENGTH, 1, m_fileHandle );
+	fwrite( &version, sizeof(version), 1, m_fileHandle );
 
 	return true;
 }

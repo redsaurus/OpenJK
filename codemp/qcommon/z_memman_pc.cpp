@@ -121,15 +121,13 @@ void Z_Validate(void)
 //
 #pragma pack(push)
 #pragma pack(1)
-typedef struct
-{
+typedef struct StaticZeroMem_s {
 	zoneHeader_t	Header;	
 //	byte mem[0];
 	zoneTail_t		Tail;
 } StaticZeroMem_t;
 
-typedef struct
-{
+typedef struct StaticMem_s {
 	zoneHeader_t	Header;	
 	byte mem[2];
 	zoneTail_t		Tail;
@@ -731,8 +729,8 @@ qboolean Hunk_CheckMark( void ) {
 	return qfalse;
 }
 
-void CL_ShutdownCGame( qboolean delayFreeVM );
-void CL_ShutdownUI( qboolean delayFreeVM );
+void CL_ShutdownCGame( void );
+void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
 
 /*
@@ -750,8 +748,8 @@ void G2_DEBUG_ReportLeaks(void);
 void Hunk_Clear( void ) {
 
 #ifndef DEDICATED
-	CL_ShutdownCGame(qfalse);
-	CL_ShutdownUI(qfalse);
+	CL_ShutdownCGame();
+	CL_ShutdownUI();
 #endif
 	SV_ShutdownGameProgs();
 

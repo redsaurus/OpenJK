@@ -355,7 +355,7 @@ bounds.  This does NOT mean that they actually touch in the case of bmodels.
 ============================================================================
 */
 
-typedef struct {
+typedef struct areaParms_s {
 	const float	*mins;
 	const float	*maxs;
 	int			*list;
@@ -433,7 +433,7 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 //===========================================================================
 
 
-typedef struct {
+typedef struct moveclip_s {
 	vec3_t		boxmins, boxmaxs;// enclose the test object along entire move
 	const float	*mins;
 	const float *maxs;	// size of the moving object
@@ -874,7 +874,6 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			i, num;
 	int			contents, c2;
 	clipHandle_t	clipHandle;
-	float		*angles;
 
 	// get base contents from world
 	contents = CM_PointContents( p, 0 );
@@ -889,10 +888,6 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 		hit = SV_GentityNum( touch[i] );
 		// might intersect, so do an exact clip
 		clipHandle = SV_ClipHandleForEntity( hit );
-		angles = hit->s.angles;
-		if ( !hit->r.bmodel ) {
-			angles = vec3_origin;	// boxes don't rotate
-		}
 
 		c2 = CM_TransformedPointContents (p, clipHandle, hit->s.origin, hit->s.angles);
 

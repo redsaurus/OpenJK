@@ -175,11 +175,13 @@ static void CG_CalcVrect (void) {
 		size = 100;
 	} else {
 		// bound normal viewsize
-		if (cg_viewsize.integer < 30) {
-			trap->Cvar_Set ("cg_viewsize","30");
+		if ( cg_viewsize.integer < 30 ) {
+			trap->Cvar_Set( "cg_viewsize", "30" );
+			trap->Cvar_Update( &cg_viewsize );
 			size = 30;
-		} else if (cg_viewsize.integer > 100) {
-			trap->Cvar_Set ("cg_viewsize","100");
+		} else if ( cg_viewsize.integer > 100 ) {
+			trap->Cvar_Set( "cg_viewsize", "100" );
+			trap->Cvar_Update( &cg_viewsize );
 			size = 100;
 		} else {
 			size = cg_viewsize.integer;
@@ -1682,15 +1684,12 @@ extern float cg_skyOriScale;
 extern qboolean cg_noFogOutsidePortal;
 void CG_DrawSkyBoxPortal(const char *cstr)
 {
-	static float lastfov;
 	refdef_t backuprefdef;
 	float fov_x;
 	float fov_y;
 	float x;
 	char *token;
 	float f = 0;
-
-	lastfov = zoomFov;	// for transitions back from zoomed in modes
 
 	backuprefdef = cg.refdef;
 
@@ -1735,56 +1734,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
 	}
-	else 
-	{
-		vec4_t	fogColor;
-		int		fogStart, fogEnd;
-
-		if(atoi(token))
-		{	// this camera has fog
-			token = COM_ParseExt(&cstr, qfalse);
-
-			if (!token || !token[0])
-			{
-				trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[0]\n");
-			}
-			fogColor[0] = atof(token);
-
-			token = COM_ParseExt(&cstr, qfalse);
-			if (!token || !token[0])
-			{
-				trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[1]\n");
-			}
-			fogColor[1] = atof(token);
-
-			token = COM_ParseExt(&cstr, qfalse);
-			if (!token || !token[0])
-			{
-				trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog[2]\n");
-			}
-			fogColor[2] = atof(token);
-
-			token = COM_ParseExt(&cstr, qfalse);
-			if (!token || !token[0])
-			{
-				fogStart = 0;
-			}
-			else
-			{
-				fogStart = atoi(token);
-			}
-
-			token = COM_ParseExt(&cstr, qfalse);
-			if (!token || !token[0])
-			{
-				fogEnd = 0;
-			}
-			else
-			{
-				fogEnd = atoi(token);
-			}
-		}
-	}
 
 	if ( cg.predictedPlayerState.pm_type == PM_INTERMISSION )
 	{
@@ -1817,7 +1766,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 			} else {
 				fov_x = fov_x + f * ( zoomFov - fov_x );
 			}
-			lastfov = fov_x;
 		}
 		else
 		{ //zooming out
@@ -2416,7 +2364,7 @@ qboolean CG_CullPoint( vec3_t pt ) {
 	return( qfalse );
 }
 
-qboolean CG_CullPointAndRadius( const vec3_t pt, vec_t radius ) {
+qboolean CG_CullPointAndRadius( const vec3_t pt, float radius ) {
 	int i;
 	plane_t *frust;
 

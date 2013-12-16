@@ -7,51 +7,27 @@
 **********************************************************************/
 #include "ui_local.h"
 
-qboolean		m_entersound;		// after a frame, so caching won't disrupt the sound
+#define NUM_UI_ARGSTRS (4)
+#define UI_ARGSTR_MASK (NUM_UI_ARGSTRS-1)
+static char tempArgStrs[NUM_UI_ARGSTRS][MAX_STRING_CHARS];
 
-qboolean newUI = qfalse;
-
-
-/*
-=================
-UI_ClampCvar
-=================
-*/
-float UI_ClampCvar( float min, float max, float value )
-{
-	if ( value < min ) return min;
-	if ( value > max ) return max;
-	return value;
+static char *UI_Argv( int arg ) {
+	static int index=0;
+	char *s = tempArgStrs[index++ & UI_ARGSTR_MASK];
+	trap->Cmd_Argv( arg, s, MAX_STRING_CHARS );
+	return s;
 }
 
-/*
-=================
-UI_StartDemoLoop
-=================
-*/
-void UI_StartDemoLoop( void ) {
-	trap->Cmd_ExecuteText( EXEC_APPEND, "d1\n" );
+#define NUM_UI_CVARSTRS (4)
+#define UI_CVARSTR_MASK (NUM_UI_CVARSTRS-1)
+static char tempCvarStrs[NUM_UI_CVARSTRS][MAX_CVAR_VALUE_STRING];
+
+char *UI_Cvar_VariableString( const char *name ) {
+	static int index=0;
+	char *s = tempCvarStrs[index++ & UI_ARGSTR_MASK];
+	trap->Cvar_VariableStringBuffer( name, s, MAX_CVAR_VALUE_STRING );
+	return s;
 }
-
-
-char *UI_Argv( int arg ) {
-	static char	buffer[MAX_STRING_CHARS];
-
-	trap->Cmd_Argv( arg, buffer, sizeof( buffer ) );
-
-	return buffer;
-}
-
-
-char *UI_Cvar_VariableString( const char *var_name ) {
-	static char	buffer[MAX_STRING_CHARS];
-
-	trap->Cvar_VariableStringBuffer( var_name, buffer, sizeof( buffer ) );
-
-	return buffer;
-}
-
-
 
 void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
 	trap->Cvar_Set( "ui_scoreAccuracy",		va( "%i%%", newInfo->accuracy ) );
@@ -69,7 +45,7 @@ void UI_SetBestScores(postGameInfo_t *newInfo, qboolean postGame) {
 	trap->Cvar_Set( "ui_scoreShutoutBonus",	va( "%i", newInfo->shutoutBonus ) );
 	trap->Cvar_Set( "ui_scoreTime",			va( "%02i:%02i", newInfo->time / 60, newInfo->time % 60 ) );
 	trap->Cvar_Set( "ui_scoreCaptures",		va( "%i", newInfo->captures ) );
-  if (postGame) {
+	if (postGame) {
 		trap->Cvar_Set( "ui_scoreAccuracy2",		va( "%i%%", newInfo->accuracy ) );
 		trap->Cvar_Set( "ui_scoreImpressives2",	va( "%i", newInfo->impressives ) );
 		trap->Cvar_Set( "ui_scoreExcellents2", 	va( "%i", newInfo->excellents ) );
@@ -117,7 +93,7 @@ void UI_LoadBestScores(const char *map, int game) {
 UI_ClearScores
 ===============
 */
-void UI_ClearScores() {
+void UI_ClearScores( void ) {
 	char	gameList[4096];
 	char *gameFile;
 	int		i, len, count, size;
@@ -143,28 +119,24 @@ void UI_ClearScores() {
 	}
 	
 	UI_SetBestScores(&newInfo, qfalse);
-
 }
 
-
-
-static void	UI_Cache_f() {
-	int i;
+static void	UI_Cache_f( void ) {
 	Display_CacheAll();
-	if (trap->Cmd_Argc() == 2) {
-		for (i = 0; i < uiInfo.q3HeadCount; i++)
-		{
-			trap->Print( va("model %s\n", uiInfo.q3HeadNames[i]) );
+	if ( trap->Cmd_Argc() == 2 ) {
+		int i;
+		for ( i=0; i<uiInfo.q3HeadCount; i++ ) {
+			trap->Print( "model %s\n", uiInfo.q3HeadNames[i] );
 		}
 	}
 }
 
 /*
 =======================
-UI_CalcPostGameStats
+UI_CalcPostGameStats_f
 =======================
 */
-static void UI_CalcPostGameStats() {
+static void UI_CalcPostGameStats_f( void ) {
 	char		map[MAX_QPATH];
 	char		fileName[MAX_QPATH];
 	char		info[MAX_INFO_STRING];
@@ -227,7 +199,7 @@ static void UI_CalcPostGameStats() {
 	newInfo.score *= newInfo.skillBonus;
 
 	// see if the score is higher for this one
-	newHigh = (newInfo.redScore > newInfo.blueScore && newInfo.score > oldInfo.score);
+	newHigh = (qboolean)(newInfo.redScore > newInfo.blueScore && newInfo.score > oldInfo.score);
 
 	if  (newHigh) {
 		// if so write out the new one
@@ -256,113 +228,69 @@ static void UI_CalcPostGameStats() {
 
 	UI_SetBestScores(&newInfo, qtrue);
 	UI_ShowPostGame(newHigh);
-
-
 }
 
+static void UI_OpenMenu_f( void ) {
+	Menus_CloseAll();
+	if ( Menus_ActivateByName( UI_Argv( 1 ) ) )
+		trap->Key_SetCatcher( KEYCATCH_UI );
+}
+
+static void UI_OpenSiegeMenu_f( void ) {
+	if ( trap->Cvar_VariableValue( "g_gametype" ) == GT_SIEGE ) {
+		Menus_CloseAll();
+		if ( Menus_ActivateByName( UI_Argv( 1 ) ) )
+			trap->Key_SetCatcher( KEYCATCH_UI );
+	}
+}
+
+static void UI_Test_f( void ) {
+	UI_ShowPostGame(qtrue);
+}
+
+typedef struct consoleCommand_s {
+	const char	*cmd;
+	void		(*func)(void);
+} consoleCommand_t;
+
+int cmdcmp( const void *a, const void *b ) {
+	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );
+}
+
+/* This array MUST be sorted correctly by alphabetical name field */
+static consoleCommand_t	commands[] = {
+	{ "postgame",			UI_CalcPostGameStats_f },
+	{ "ui_cache",			UI_Cache_f },
+	{ "ui_load",			UI_Load },
+	{ "ui_openmenu",		UI_OpenMenu_f },
+	{ "ui_opensiegemenu",	UI_OpenSiegeMenu_f },
+	{ "ui_report",			UI_Report },
+	{ "ui_test",			UI_Test_f },
+};
+
+static const size_t numCommands = ARRAY_LEN( commands );
 
 /*
 =================
 UI_ConsoleCommand
+
+The string has been tokenized and can be retrieved with
+Cmd_Argc() / Cmd_Argv()
 =================
 */
 qboolean UI_ConsoleCommand( int realTime ) {
-	char	*cmd;
+	consoleCommand_t *command = NULL;
 
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realTime;
 
-	cmd = UI_Argv( 0 );
+	command = (consoleCommand_t *)bsearch( UI_Argv( 0 ), commands, numCommands, sizeof( commands[0] ), cmdcmp );
 
-	// ensure minimum menu data is available
-	//Menu_Cache();
+	if ( !command )
+		return qfalse;
 
-	if ( Q_stricmp (cmd, "ui_test") == 0 ) {
-		UI_ShowPostGame(qtrue);
-	}
-
-	if ( Q_stricmp (cmd, "ui_report") == 0 ) {
-		UI_Report();
-		return qtrue;
-	}
-	
-	if ( Q_stricmp (cmd, "ui_load") == 0 ) {
-		UI_Load();
-		return qtrue;
-	}
-
-	if ( Q_stricmp (cmd, "ui_opensiegemenu" ) == 0 ) 
-	{
-		if ( trap->Cvar_VariableValue ( "g_gametype" ) == GT_SIEGE )
-		{
-			Menus_CloseAll();
-			if (Menus_ActivateByName(UI_Argv(1)))
-			{
-				trap->Key_SetCatcher( KEYCATCH_UI );
-			}
-		}
-		return qtrue;
-	}
-
-	if ( Q_stricmp (cmd, "ui_openmenu" ) == 0 ) 
-	{
-		//if ( trap->Cvar_VariableValue ( "developer" ) )
-		{
-			Menus_CloseAll();
-			if (Menus_ActivateByName(UI_Argv(1)))
-			{
-				trap->Key_SetCatcher( KEYCATCH_UI );
-			}
-			return qtrue;
-		}
-	}
-
-	/*
-	if ( Q_stricmp (cmd, "remapShader") == 0 ) {
-		if (trap->Argc() == 4) {
-			char shader1[MAX_QPATH];
-			char shader2[MAX_QPATH];
-			Q_strncpyz(shader1, UI_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, UI_Argv(2), sizeof(shader2));
-			trap->R_RemapShader(shader1, shader2, UI_Argv(3));
-			return qtrue;
-		}
-	}
-	*/
-
-	if ( Q_stricmp (cmd, "postgame") == 0 ) {
-		UI_CalcPostGameStats();
-		return qtrue;
-	}
-
-	if ( Q_stricmp (cmd, "ui_cache") == 0 ) {
-		UI_Cache_f();
-		return qtrue;
-	}
-
-	if ( Q_stricmp (cmd, "ui_teamOrders") == 0 ) {
-		//UI_TeamOrdersMenu_f();
-		return qtrue;
-	}
-
-
-	return qfalse;
-}
-
-/*
-=================
-UI_Shutdown
-=================
-*/
-void UI_Shutdown( void ) {
-}
-
-
-void UI_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
-	qhandle_t	hShader;
-
-	hShader = trap->R_RegisterShaderNoMip( picname );
-	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 1, 1, hShader );
+	command->func();
+	return qtrue;
 }
 
 void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
@@ -430,30 +358,4 @@ void UI_DrawRect( float x, float y, float width, float height, const float *colo
 	UI_DrawSides(x, y, width, height);
 
 	trap->R_SetColor( NULL );
-}
-
-void UI_SetColor( const float *rgba ) {
-	trap->R_SetColor( rgba );
-}
-
-void UI_UpdateScreen( void ) {
-	trap->UpdateScreen();
-}
-
-
-void UI_DrawTextBox (int x, int y, int width, int lines)
-{
-	UI_FillRect( x + BIGCHAR_WIDTH/2, y + BIGCHAR_HEIGHT/2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorBlack );
-	UI_DrawRect( x + BIGCHAR_WIDTH/2, y + BIGCHAR_HEIGHT/2, ( width + 1 ) * BIGCHAR_WIDTH, ( lines + 1 ) * BIGCHAR_HEIGHT, colorWhite );
-}
-
-qboolean UI_CursorInRect (int x, int y, int width, int height)
-{
-	if (uiInfo.uiDC.cursorx < x ||
-		uiInfo.uiDC.cursory < y ||
-		uiInfo.uiDC.cursorx > x+width ||
-		uiInfo.uiDC.cursory > y+height)
-		return qfalse;
-
-	return qtrue;
 }

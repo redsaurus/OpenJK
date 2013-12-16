@@ -157,6 +157,12 @@ void Con_Dump_f (void)
 	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof( filename ) );
 	COM_DefaultExtension( filename, sizeof( filename ), ".txt" );
 
+	if(!COM_CompareExtension(filename, ".txt"))
+	{
+		Com_Printf( "Con_Dump_f: Only the \".txt\" extension is supported by this command!\n" );
+		return;
+	}
+
 	f = FS_FOpenFileWrite( filename );
 	if (!f)
 	{
@@ -237,7 +243,7 @@ If the line width has changed, reformat the buffer.
 void Con_CheckResize (void)
 {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	MAC_STATIC short	tbuf[CON_TEXTSIZE];
+	short	tbuf[CON_TEXTSIZE];
 
 //	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
 	width = (cls.glconfig.vidWidth / SMALLCHAR_WIDTH) - 2;

@@ -772,9 +772,8 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 	// fix: captures after timelimit hit could 
 	// cause game ending with tied score
-	if ( level.intermissionQueued ) {
+	if (level.intermissionQueued)
 		return 0;
-	}
 
 	// check for enemy closer to grab the flag
 	VectorSubtract( ent->s.pos.trBase, minFlagRange, mins );
@@ -782,20 +781,21 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 
 	num = trap->EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
 
-	dist = Distance(ent->s.pos.trBase, other->client->ps.origin);
+	dist = Distance( ent->s.pos.trBase, other->client->ps.origin );
 		
-	if (other->client->sess.sessionTeam == TEAM_RED){
+	if (other->client->sess.sessionTeam == TEAM_RED)
 		enemyTeam = TEAM_BLUE;
-	} else {
+	else
 		enemyTeam = TEAM_RED;
-	}	
 
-	for ( j=0 ; j<num ; j++ ) {
+	for (j = 0; j < num; j++) {
 		enemy = (g_entities + touch[j]);
 
-		if (!enemy || !enemy->inuse || !enemy->client){
+		if (!enemy || !enemy->inuse || !enemy->client)
 			continue;
-		}
+
+		if (enemy->client->pers.connected != CON_CONNECTED)
+			continue;
 
 		//check if its alive
 		if (enemy->health < 1)
@@ -812,8 +812,8 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 		}
 			
 		//check if enemy is closer to our flag than us
-		enemyDist = Distance(ent->s.pos.trBase,enemy->client->ps.origin);
-		if (enemyDist < dist){
+		enemyDist = Distance(ent->s.pos.trBase, enemy->client->ps.origin);
+		if (enemyDist < dist) {
 			// possible recursion is hidden in this, but 
 			// infinite recursion wont happen, because we cant 
 			// have a < b and b < a at the same time
@@ -1047,7 +1047,7 @@ qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
 
 /*
 ================
-SelectRandomDeathmatchSpawnPoint
+SelectRandomTeamSpawnPoint
 
 go to a random point that doesn't telefrag
 ================
@@ -1136,7 +1136,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClas
 		if (classCount > 0)
 		{ //found at least one
 			selection = rand() % classCount;
-			return spots[ selection ];
+			return classSpots[ selection ];
 		}
 	}
 
@@ -1151,13 +1151,13 @@ SelectCTFSpawnPoint
 
 ============
 */
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
+gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot ) {
 	gentity_t	*spot;
 
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team, -1 );
 
 	if (!spot) {
-		return SelectSpawnPoint( vec3_origin, origin, angles, team );
+		return SelectSpawnPoint( vec3_origin, origin, angles, team, isbot );
 	}
 
 	VectorCopy (spot->s.origin, origin);
@@ -1173,13 +1173,13 @@ SelectSiegeSpawnPoint
 
 ============
 */
-gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, int teamstate, vec3_t origin, vec3_t angles ) {
+gentity_t *SelectSiegeSpawnPoint ( int siegeClass, team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot ) {
 	gentity_t	*spot;
 
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team, siegeClass );
 
 	if (!spot) {
-		return SelectSpawnPoint( vec3_origin, origin, angles, team );
+		return SelectSpawnPoint( vec3_origin, origin, angles, team, isbot );
 	}
 
 	VectorCopy (spot->s.origin, origin);

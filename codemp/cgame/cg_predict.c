@@ -430,7 +430,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 CG_InterpolatePlayerState
 
 Generates cg.predictedPlayerState by interpolating between
-cg.snap->player_state and cg.nextFrame->player_state
+cg.snap->ps and cg.nextFrame->ps
 ========================
 */
 static void CG_InterpolatePlayerState( qboolean grabAngles ) {
@@ -994,7 +994,7 @@ void CG_PredictPlayerState( void ) {
 	else {
 		cg_pmove.tracemask = MASK_PLAYERSOLID;
 	}
-	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
+	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR || cg.snap->ps.pm_type == PM_SPECTATOR ) {
 		cg_pmove.tracemask &= ~CONTENTS_BODY;	// spectators can fly through bodies
 	}
 	cg_pmove.noFootsteps = ( cgs.dmflags & DF_NO_FOOTSTEPS ) > 0;

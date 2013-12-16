@@ -22,8 +22,8 @@ This file is part of Jedi Academy.
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qfiles.h"
-#include "../renderer/tr_public.h"
-#include "../renderer/mdx_format.h"
+#include "../rd-common/tr_public.h"
+#include "../rd-common/mdx_format.h"
 #ifdef _WIN32
 #include "qgl.h"
 #include "glext.h"
@@ -94,10 +94,8 @@ typedef struct {
 	int			num_entities;
 	trRefEntity_t	*entities;
 
-#ifndef VV_LIGHTING
 	int			num_dlights;
 	struct dlight_s	*dlights;
-#endif
 
 	int			numPolys;
 	struct srfPoly_s	*polys;
@@ -378,10 +376,6 @@ typedef struct {
 typedef struct {
 	bool			active;
 	bool			isDetail;
-#ifdef VV_LIGHTING
-	byte			isSpecular;
-	byte			isBumpMap;
-#endif 
 	byte			index;						// index of stage
 	byte			lightmapStyle;
 	
@@ -395,7 +389,7 @@ typedef struct {
 
 	byte			constantColor[4];			// for CGEN_CONST and AGEN_CONST
 
-	unsigned int	stateBits;					// GLS_xxxx mask
+	uint32_t		stateBits;					// GLS_xxxx mask
 
 	acff_t			adjustColorsForFog;
 
@@ -461,8 +455,6 @@ typedef struct shader_s {
 										// the same name, we don't try looking for it again
 	bool		explicitlyDefined;		// found in a .shader file
 	bool		entityMergable;			// merge across entites optimizable (smoke, blood)
-
-	bool		isBumpMap;
 
 	skyParms_t	*sky;
 	fogParms_t	*fogParms;
@@ -916,7 +908,7 @@ typedef struct {
 	qboolean	finishCalled;
 	int			texEnv[2];
 	int			faceCulling;
-	unsigned long	glStateBits;
+	uint32_t	glStateBits;
 } glstate_t;
 
 
@@ -1235,15 +1227,14 @@ extern	cvar_t	*r_noGhoul2;
 /*
 Ghoul2 Insert End
 */
+
+extern	cvar_t	*r_environmentMapping;
 //====================================================================
 
 // Point sprite stuff.
 extern cvar_t	*r_ext_point_parameters;
 extern cvar_t	*r_ext_nv_point_sprite;
 
-
-float R_NoiseGet4f( float x, float y, float z, float t );
-void  R_NoiseInit( void );
 
 void R_SwapBuffers( int );
 
@@ -1269,17 +1260,11 @@ void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fo
 void R_LocalNormalToWorld (const vec3_t local, vec3_t world);
 void R_LocalPointToWorld (const vec3_t local, vec3_t world);
 void R_WorldNormalToEntity (const vec3_t localVec, vec3_t world); 
-//void R_WorldPointToEntity (const vec3_t localVec, vec3_t world);
 int R_CullLocalBox (const vec3_t bounds[2]);
 int R_CullPointAndRadius( const vec3_t pt, float radius );
 int R_CullLocalPointAndRadius( const vec3_t pt, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
-
-#ifdef VV_LIGHTING
-void R_SetupEntityLightingGrid( trRefEntity_t *ent );
-void R_AddWorldSurface( msurface_t *surf, int dlightBits, qboolean noViewCount = qfalse );
-#endif
 
 /*
 ** GL wrapper/helper functions
@@ -1289,7 +1274,7 @@ void	GL_SetDefaultState (void);
 void	GL_SelectTexture( int unit );
 void	GL_TextureMode( const char *string );
 void	GL_CheckErrors( void );
-void	GL_State( unsigned long stateVector );
+void	GL_State( uint32_t stateVector );
 void	GL_TexEnv( int env );
 void	GL_Cull( int cullType );
 
@@ -1347,13 +1332,10 @@ void		RE_Shutdown( qboolean destroyWindow );
 void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload, qboolean bAllowScreenDissolve);
 void		RE_RegisterMedia_LevelLoadEnd(void);
 int			RE_RegisterMedia_GetLevel(void);
-//
-//void		RE_RegisterModels_LevelLoadBegin(const char *psMapName);
 qboolean	RE_RegisterModels_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel = qfalse );
 void*		RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag);
 void		RE_RegisterModels_StoreShaderRequest(const char *psModelFileName, const char *psShaderName, const int *piShaderIndexPoke);
 void		RE_RegisterModels_Info_f(void);
-//void		RE_RegisterImages_LevelLoadBegin(const char *psMapName);
 qboolean	RE_RegisterImages_LevelLoadEnd(void);
 void		RE_RegisterImages_Info_f(void);
 
@@ -1600,7 +1582,7 @@ SCENE GENERATION
 ============================================================
 */
 
-void R_ToggleSmpFrame( void );
+void R_InitNextFrame( void );
 
 void RE_ClearScene( void );
 void RE_AddRefEntityToScene( const refEntity_t *ent );
@@ -1621,8 +1603,6 @@ ANIMATED MODELS
 =============================================================
 */
 
-void R_MakeAnimModel( model_t *model );
-void R_AddAnimSurfaces( trRefEntity_t *ent );
 /*
 Ghoul2 Insert Start
 */
@@ -1740,7 +1720,6 @@ RENDERER BACK END FUNCTIONS
 =============================================================
 */
 
-void RB_RenderThread( void );
 void RB_ExecuteRenderCommands( const void *data );
 
 /*
@@ -1845,13 +1824,10 @@ typedef enum {
 #define	MAX_POLYVERTS	( MAX_POLYS * 4 )
 
 // all of the information needed by the back end must be
-// contained in a backEndData_t.  left over from SMP duplications, 
-// could optimize to point directly at frontend data instead of copying?
+// contained in a backEndData_t.
 typedef struct {
 	drawSurf_t	drawSurfs[MAX_DRAWSURFS];
-#ifndef VV_LIGHTING
 	dlight_t	dlights[MAX_DLIGHTS];
-#endif
 	trRefEntity_t	entities[MAX_ENTITIES];
 	srfPoly_t	polys[MAX_POLYS];
 	polyVert_t	polyVerts[MAX_POLYVERTS];
@@ -1887,7 +1863,7 @@ qboolean	RE_InitDissolve(qboolean bForceCircularExtroWipe);
 
 
 long generateHashValue( const char *fname );
-void R_LoadImage( const char *name, byte **pic, int *width, int *height, GLenum *format );
+void R_LoadImage( const char *name, byte **pic, int *width, int *height );
 void		RE_InsertModelIntoHash(const char *name, model_t *mod);
 qboolean R_FogParmsMatch( int fog1, int fog2 );
 

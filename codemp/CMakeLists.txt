@@ -142,9 +142,6 @@ if(BuildMPEngine OR BuildMPDed)
 		set(MPEngineAndDedIncludeDirectories ${MPEngineAndDedIncludeDirectories} ${ZLIB_INCLUDE_DIR})
 		set(MPEngineAndDedLibraries ${MPEngineAndDedLibraries} ${ZLIB_LIBRARY})
 	endif(UseInternalZlib)
-
-	file(GLOB_RECURSE J_SRC "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
-	source_group("jpeg-8c" FILES ${J_SRC})
 	
 	set(MPEngineAndDedCgameFiles
 		"${MPDir}/cgame/cg_public.h"
@@ -197,8 +194,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/common.cpp"
 		"${MPDir}/qcommon/cvar.cpp"
 		"${MPDir}/qcommon/disablewarnings.h"
-		"${MPDir}/qcommon/files_common.cpp"
-		"${MPDir}/qcommon/files_pc.cpp"
+		"${MPDir}/qcommon/files.cpp"
 		"${MPDir}/qcommon/game_version.h"
 		"${MPDir}/qcommon/GenericParser2.cpp"
 		"${MPDir}/qcommon/GenericParser2.h"
@@ -400,11 +396,6 @@ if(BuildMPEngine)
 	
 	#    Source Files
 	
-	# TODO: Allow for use of external library
-	file(GLOB_RECURSE MPEngineJpegFiles "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
-	source_group("jpeg-8c" FILES ${MPEngineJpegFiles})
-	set(MPEngineFiles ${MPEngineFiles} ${MPEngineJpegFiles})
-	
 	set(MPEngineClientFiles
 		"${MPDir}/client/cl_avi.cpp"
 		"${MPDir}/client/cl_cgame.cpp"
@@ -453,7 +444,6 @@ if(BuildMPEngine)
 		"${MPDir}/qcommon/CNetProfile.cpp"
 		"${MPDir}/qcommon/exe_headers.cpp"
 		"${MPDir}/qcommon/exe_headers.h"
-		"${MPDir}/qcommon/files.h"
 		"${MPDir}/qcommon/hstring.cpp"
 		"${MPDir}/qcommon/hstring.h"
 		"${MPDir}/qcommon/INetProfile.h"

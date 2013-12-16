@@ -96,8 +96,7 @@ typedef enum {
 	F_PARM16			// Special case for parms
 } fieldtype_t;
 
-typedef struct
-{
+typedef struct field_s {
 	char	*name;
 	int		ofs;
 	fieldtype_t	type;
@@ -181,18 +180,37 @@ field_t fields[] = {
 	{ "target5",				FOFS( target5 ),						F_STRING },
 	{ "target6",				FOFS( target6 ),						F_STRING },
 	{ "targetname",				FOFS( targetname ),						F_STRING },
+	{ "targetshadername",		FOFS( targetShaderName ),				F_STRING },
+	{ "targetshadernewname",	FOFS( targetShaderNewName ),			F_STRING },
 	{ "team",					FOFS( team ),							F_STRING },
 	{ "teamnodmg",				FOFS( teamnodmg ),						F_INT },
 	{ "teamowner",				FOFS( s.teamowner ),					F_INT },
 	{ "teamuser",				FOFS( alliedTeam ),						F_INT },
-	{ "targetshadername",		FOFS( targetShaderName ),				F_STRING },
-	{ "targetshadernewname",	FOFS( targetShaderNewName ),			F_STRING },
 	{ "usescript",				FOFS( behaviorSet[BSET_USE] ),			F_STRING },//name of script to run
 	{ "victoryscript",			FOFS( behaviorSet[BSET_VICTORY] ),		F_STRING },//name of script to run
 	{ "wait",					FOFS( wait ),							F_FLOAT },
 };
 
-typedef struct {
+static int sortfield( const void *a, const void *b ) {
+	return Q_stricmp( ((field_t*)a)->name, ((field_t*)b)->name );
+}
+
+void G_CheckFields( void ) {
+	field_t sorted[ARRAY_LEN(fields)];
+	int i;
+
+	for ( i = 0 ; i < ARRAY_LEN(fields) ; i++ ) {
+		sorted[i] = fields[i];
+	}
+
+	qsort( sorted, ARRAY_LEN(sorted), sizeof( sorted[0] ), sortfield );
+
+	for ( i = 0; i < ARRAY_LEN(fields) ; i++ ) {
+		trap->Print("%s%s %s\n", Q_stricmp(fields[i].name, sorted[i].name) != 0 ? "*" : "", fields[i].name, sorted[i].name);
+	}
+}
+
+typedef struct spawn_s {
 	char	*name;
 	void	(*spawn)(gentity_t *ent);
 } spawn_t;
@@ -495,7 +513,6 @@ spawn_t	spawns[] = {
 	{ "fx_snow",							SP_CreateSnow },
 	{ "fx_spacedust",						SP_CreateSpaceDust },
 	{ "gametype_item",						SP_gametype_item },
-	{ "item_botroam",						SP_item_botroam },
 	{ "info_camp",							SP_info_camp },
 	{ "info_jedimaster_start",				SP_info_jedimaster_start },
 	{ "info_notnull",						SP_info_notnull }, // use target_position instead
@@ -515,6 +532,7 @@ spawn_t	spawns[] = {
 	{ "info_siege_decomplete",				SP_info_siege_decomplete },
 	{ "info_siege_objective",				SP_info_siege_objective },
 	{ "info_siege_radaricon",				SP_info_siege_radaricon },
+	{ "item_botroam",						SP_item_botroam },
 	{ "light",								SP_light },
 	{ "misc_ammo_floor_unit",				SP_misc_ammo_floor_unit },
 	{ "misc_bsp",							SP_misc_bsp },
@@ -662,6 +680,25 @@ spawn_t	spawns[] = {
 	{ "waypoint_navgoal_8",					SP_waypoint_navgoal_8 },
 	{ "waypoint_small",						SP_waypoint_small },
 };
+
+static int sortspawn( const void *a, const void *b ) {
+	return Q_stricmp( ((spawn_t*)a)->name, ((spawn_t*)b)->name );
+}
+
+void G_CheckSpawns( void ) {
+	spawn_t sorted[ARRAY_LEN(spawns)];
+	int i;
+
+	for ( i = 0 ; i < ARRAY_LEN(spawns) ; i++ ) {
+		sorted[i] = spawns[i];
+	}
+
+	qsort( sorted, ARRAY_LEN(sorted), sizeof( sorted[0] ), sortspawn );
+
+	for ( i = 0; i < ARRAY_LEN(spawns) ; i++ ) {
+		trap->Print("%s%s %s\n", Q_stricmp(spawns[i].name, sorted[i].name) != 0 ? "*" : "", sorted[i].name, spawns[i].name, sorted[i].name);
+	}
+}
 
 /*
 ===============

@@ -9,8 +9,7 @@ set(JK2SPGameIncludeDirectories "${JK2SPDir}/game")
 if(WIN32)
 	set(JK2SPGameLibraries "winmm")
 endif(WIN32)
-# TODO do we actually want _IMMERSION? I thought we don't have those files?
-set(JK2SPGameDefines ${SharedDefines} "_IMMERSION" "_NO_PCH" )
+
 set(JK2SPGameFiles
 	"${JK2SPDir}/game/AI_Atst.cpp"
 	"${JK2SPDir}/game/AI_Default.cpp"
@@ -45,7 +44,6 @@ set(JK2SPGameFiles
 	"${JK2SPDir}/game/NPC_utils.cpp"
 	"${JK2SPDir}/game/Q3_Interface.cpp"
 	"${JK2SPDir}/game/Q3_Registers.cpp"
-	"${JK2SPDir}/game/bg_lib.cpp"
 	"${JK2SPDir}/game/bg_misc.cpp"
 	"${JK2SPDir}/game/bg_pangles.cpp"
 	"${JK2SPDir}/game/bg_panimate.cpp"
@@ -60,7 +58,6 @@ set(JK2SPGameFiles
 	"${JK2SPDir}/game/g_combat.cpp"
 	"${JK2SPDir}/game/g_functions.cpp"
 	"${JK2SPDir}/game/g_fx.cpp"
-	"${JK2SPDir}/game/g_headers.cpp"
 	"${JK2SPDir}/game/g_inventory.cpp"
 	"${JK2SPDir}/game/g_itemLoad.cpp"
 	"${JK2SPDir}/game/g_items.cpp"
@@ -72,6 +69,7 @@ set(JK2SPGameFiles
 	"${JK2SPDir}/game/g_mover.cpp"
 	"${JK2SPDir}/game/g_nav.cpp"
 	"${JK2SPDir}/game/g_navnew.cpp"
+	"${JK2SPDir}/game/g_navigator.cpp"
 	"${JK2SPDir}/game/g_object.cpp"
 	"${JK2SPDir}/game/g_objectives.cpp"
 	"${JK2SPDir}/game/g_ref.cpp"
@@ -88,8 +86,6 @@ set(JK2SPGameFiles
 	"${JK2SPDir}/game/g_weapon.cpp"
 	"${JK2SPDir}/game/g_weaponLoad.cpp"
 	"${JK2SPDir}/game/genericparser2.cpp"
-	"${JK2SPDir}/game/q_math.cpp" #TODO should be using shared qcommon
-	"${JK2SPDir}/game/q_shared.cpp"  #TODO should be using shared qcommon
 	"${JK2SPDir}/game/wp_atst.cpp"
 	"${JK2SPDir}/game/wp_blaster_rifle.cpp"
 	"${JK2SPDir}/game/wp_bot_laser.cpp"
@@ -137,7 +133,6 @@ set(JK2SPGameFiles
 	"${JK2SPDir}/game/ghoul2_shared.h"
 	"${JK2SPDir}/game/npc_headers.h"
 	"${JK2SPDir}/game/objectives.h"
-	"${JK2SPDir}/game/q_shared.h"
 	"${JK2SPDir}/game/say.h"
 	"${JK2SPDir}/game/statindex.h"
 	"${JK2SPDir}/game/surfaceflags.h"
@@ -159,8 +154,6 @@ set(JK2SPGameCGameFiles
 	"${JK2SPDir}/cgame/FX_Flechette.cpp"
 	"${JK2SPDir}/cgame/FX_HeavyRepeater.cpp"
 	"${JK2SPDir}/cgame/FX_RocketLauncher.cpp"
-	"${JK2SPDir}/cgame/FxParsing.cpp"
-	"${JK2SPDir}/cgame/FxParsing.h"
 	"${JK2SPDir}/cgame/FxPrimitives.cpp"
 	"${JK2SPDir}/cgame/FxPrimitives.h"
 	"${JK2SPDir}/cgame/FxScheduler.cpp"
@@ -180,8 +173,6 @@ set(JK2SPGameCGameFiles
 	"${JK2SPDir}/cgame/cg_effects.cpp"
 	"${JK2SPDir}/cgame/cg_ents.cpp"
 	"${JK2SPDir}/cgame/cg_event.cpp"
-	"${JK2SPDir}/cgame/cg_headers.cpp"
-	"${JK2SPDir}/cgame/cg_headers.h"
 	"${JK2SPDir}/cgame/cg_info.cpp"
 	"${JK2SPDir}/cgame/cg_lights.cpp"
 	"${JK2SPDir}/cgame/cg_lights.h"
@@ -201,28 +192,25 @@ set(JK2SPGameCGameFiles
 	"${JK2SPDir}/cgame/cg_text.cpp"
 	"${JK2SPDir}/cgame/cg_view.cpp"
 	"${JK2SPDir}/cgame/cg_weapons.cpp"
-	"${JK2SPDir}/cgame/common_headers.h"
 	"${JK2SPDir}/cgame/strip_objectives.h"
 	)
 source_group("cgame" FILES ${JK2SPGameCGameFiles})
 set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameCGameFiles})
 
 set(JK2SPGameUIFiles
-	"${JK2SPDir}/ui/gameinfo.cpp"
-	"${JK2SPDir}/ui/gameinfo.h"
+	"${SPDir}/ui/gameinfo.cpp"
+	"${SPDir}/ui/gameinfo.h"
 	)
 source_group("ui" FILES ${JK2SPGameUIFiles})
 set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameUIFiles})
 
 set(JK2SPGameCommonFiles
-	"${JK2SPDir}/qcommon/tri_coll_test.cpp"
-	"${JK2SPDir}/qcommon/sstring.h"
-	"${JK2SPDir}/qcommon/tags.h"
-	# JK2 doesn't have these here yet
-	#"${JK2SPDir}/qcommon/timing.h"
-	#"${JK2SPDir}/qcommon/q_math.cpp"
-	#"${JK2SPDir}/qcommon/q_shared.cpp"
-	#"${JK2SPDir}/qcommon/q_shared.h"
+	#We only have JKA qcommon files now.
+	"${SPDir}/qcommon/tri_coll_test.cpp"
+	"${SPDir}/qcommon/q_math.cpp"
+	"${SPDir}/qcommon/q_shared.cpp"
+	"${SPDir}/qcommon/q_shared.h"
+	"${SPDir}/qcommon/q_platform.h"
 	)
 source_group("common" FILES ${JK2SPGameCommonFiles})
 set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameCommonFiles})
@@ -232,38 +220,19 @@ set(JK2SPGameIcarusFiles
 	"${JK2SPDir}/icarus/Sequence.cpp"
 	"${JK2SPDir}/icarus/Sequencer.cpp"
 	"${JK2SPDir}/icarus/TaskManager.cpp"
+	"${JK2SPDir}/icarus/Instance.cpp"
 	"${JK2SPDir}/icarus/blockstream.h"
 	"${JK2SPDir}/icarus/sequence.h"
 	"${JK2SPDir}/icarus/sequencer.h"
 	"${JK2SPDir}/icarus/taskmanager.h"
+	"${JK2SPDir}/icarus/instance.h"
 	)
 source_group("icarus" FILES ${JK2SPGameIcarusFiles})
 set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameIcarusFiles})
 
-set(JK2SPGameG2Files
-	"${JK2SPDir}/ghoul2/G2.h"
-	#"${JK2SPDir}/ghoul2/ghoul2_gore.h"
-	)
-source_group("ghoul2" FILES ${JK2SPGameG2Files})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameG2Files})
-
-set(JK2SPGameRendererFiles
-	"${JK2SPDir}/renderer/mdx_format.h"
-	"${JK2SPDir}/renderer/tr_types.h"
-	)
-source_group("renderer" FILES ${JK2SPGameRendererFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2JK2SPGameRendererFiles})
-
-set(JK2SPGameClientFiles
-	"${JK2SPDir}/client/vmachine.h"
-	)
-source_group("client" FILES ${JK2SPGameClientFiles})
-set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameClientFiles})
-
 if(WIN32)
 	set(JK2SPGameWin32Files
-		"${JK2SPDir}/win32/game.rc"
-		"${JK2SPDir}/game/game.def")
+		"${JK2SPDir}/win32/game.rc")
 	source_group("win32" FILES ${JK2SPGameWin32Files})
 	set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameWin32Files})
 endif(WIN32)

@@ -24,12 +24,6 @@ This file is part of Jedi Academy.
 
 #include "tr_local.h"
 
-#ifdef VV_LIGHTING
-#include "tr_lightmanager.h"
-#include "../win32/glw_win_dx8.h"
-#include "../win32/win_lighteffects.h"
-#endif
-
 /*
 
   THIS ENTIRE FILE IS BACK END
@@ -497,84 +491,6 @@ static void DrawMultitextured( shaderCommands_t *input, int stage ) {
 	GL_SelectTexture( 0 );
 }
 
-
-#ifdef VV_LIGHTING
-static void BuildTangentVectors( void ) {
-
-	memset(tess.tangent, 0, sizeof(vec4_t) * SHADER_MAX_VERTEXES);
-
-	for(int i = 0; i < tess.numIndexes; i += 3)
-	{
-		vec3_t vec1, vec2, du, dv, cp;
-
-		vec1[0] = tess.xyz[tess.indexes[i+1]][0] - tess.xyz[tess.indexes[i]][0];
-		vec1[1] = tess.svars.texcoords[0][tess.indexes[i+1]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec1[2] = tess.svars.texcoords[0][tess.indexes[i+1]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		vec2[0] = tess.xyz[tess.indexes[i+2]][0] - tess.xyz[tess.indexes[i]][0];
-		vec2[1] = tess.svars.texcoords[0][tess.indexes[i+2]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec2[2] = tess.svars.texcoords[0][tess.indexes[i+2]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		CrossProduct(vec1, vec2, cp);
-
-		if(cp[0] == 0.0f)
-			cp[0] = 0.001f;
-
-		du[0] = -cp[1] / cp[0];
-		dv[0] = -cp[2] / cp[0];
-
-		vec1[0] = tess.xyz[tess.indexes[i+1]][1] - tess.xyz[tess.indexes[i]][1];
-		vec1[1] = tess.svars.texcoords[0][tess.indexes[i+1]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec1[2] = tess.svars.texcoords[0][tess.indexes[i+1]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		vec2[0] = tess.xyz[tess.indexes[i+2]][1] - tess.xyz[tess.indexes[i]][1];
-		vec2[1] = tess.svars.texcoords[0][tess.indexes[i+2]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec2[2] = tess.svars.texcoords[0][tess.indexes[i+2]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		CrossProduct(vec1, vec2, cp);
-
-		if(cp[0] == 0.0f)
-			cp[0] = 0.001f;
-
-		du[1] = -cp[1] / cp[0];
-		dv[1] = -cp[2] / cp[0];
-
-		vec1[0] = tess.xyz[tess.indexes[i+1]][2] - tess.xyz[tess.indexes[i]][2];
-		vec1[1] = tess.svars.texcoords[0][tess.indexes[i+1]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec1[2] = tess.svars.texcoords[0][tess.indexes[i+1]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		vec2[0] = tess.xyz[tess.indexes[i+2]][2] - tess.xyz[tess.indexes[i]][2];
-		vec2[1] = tess.svars.texcoords[0][tess.indexes[i+2]][0] - tess.svars.texcoords[0][tess.indexes[i]][0];
-		vec2[2] = tess.svars.texcoords[0][tess.indexes[i+2]][1] - tess.svars.texcoords[0][tess.indexes[i]][1];
-
-		CrossProduct(vec1, vec2, cp);
-
-		if(cp[0] == 0.0f)
-			cp[0] = 0.001f;
-
-		du[2] = -cp[1] / cp[0];
-		dv[2] = -cp[2] / cp[0];
-
-		tess.tangent[tess.indexes[i]][0] += du[0];
-		tess.tangent[tess.indexes[i]][1] += du[1];
-		tess.tangent[tess.indexes[i]][2] += du[2];
-
-		tess.tangent[tess.indexes[i+1]][0] += du[0];
-		tess.tangent[tess.indexes[i+1]][1] += du[1];
-		tess.tangent[tess.indexes[i+1]][2] += du[2];
-
-		tess.tangent[tess.indexes[i+2]][0] += du[0];
-		tess.tangent[tess.indexes[i+2]][1] += du[1];
-		tess.tangent[tess.indexes[i+2]][2] += du[2];
-	}
-	
-	for(i = 0; i < tess.numVertexes; i++)
-	{
-		VectorNormalizeFast(tess.tangent[i]);
-	}
-}
-#endif // VV_LIGHTING
-
 //--EF_old dlight code...reverting back to Quake III dlight to see if people like that better
 // Lifted the whole function because someone hacked the heck out of this and it doesn't seem to
 //	be a case where it's as easy as just changing the blend mode....
@@ -592,7 +508,7 @@ static void ProjectDlightTexture( void ) {
 	float	*texCoords;
 	byte	*colors;
 	byte	clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float	texCoordsArray[SHADER_MAX_VERTEXES][2];
+	float	texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte	colorArray[SHADER_MAX_VERTEXES][4];
 	unsigned	hitIndexes[SHADER_MAX_INDEXES];
 
@@ -737,14 +653,13 @@ ProjectDlightTexture
 Perform dynamic lighting with another rendering pass
 ===================
 */
-#ifndef VV_LIGHTING
 static void ProjectDlightTexture2( void ) {
 	int		i, l;
 	vec3_t	origin;
 	byte	clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float	texCoordsArray[SHADER_MAX_VERTEXES][2];
-	MAC_STATIC float	oldTexCoordsArray[SHADER_MAX_VERTEXES][2];
-	MAC_STATIC float	vertCoordsArray[SHADER_MAX_VERTEXES][4];
+	float	texCoordsArray[SHADER_MAX_VERTEXES][2];
+	float	oldTexCoordsArray[SHADER_MAX_VERTEXES][2];
+	float	vertCoordsArray[SHADER_MAX_VERTEXES][4];
 	unsigned int		colorArray[SHADER_MAX_VERTEXES];
 	glIndex_t	hitIndexes[SHADER_MAX_INDEXES];
 	int		numIndexes;
@@ -1063,7 +978,7 @@ static void ProjectDlightTexture( void ) {
 	float	*texCoords;
 	byte	*colors;
 	byte	clipBits[SHADER_MAX_VERTEXES];
-	MAC_STATIC float	texCoordsArray[SHADER_MAX_VERTEXES][2];
+	float	texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte	colorArray[SHADER_MAX_VERTEXES][4];
 	glIndex_t	hitIndexes[SHADER_MAX_INDEXES];
 	int		numIndexes;
@@ -1388,8 +1303,6 @@ static void ProjectDlightTexture( void ) {
 		backEnd.pc.c_dlightIndexes += numIndexes;
 	}
 }
-#endif // VV_LIGHTING
-
 
 /*
 ===================
@@ -1793,7 +1706,10 @@ static void ComputeTexCoords( shaderStage_t *pStage ) {
 			RB_CalcFogTexCoords( ( float * ) tess.svars.texcoords[b] );
 			break;
 		case TCGEN_ENVIRONMENT_MAPPED:
-			RB_CalcEnvironmentTexCoords( ( float * ) tess.svars.texcoords[b] );
+			if ( r_environmentMapping->integer )
+				RB_CalcEnvironmentTexCoords( (float *)tess.svars.texcoords[b] );
+			else
+				memset( tess.svars.texcoords[b], 0, sizeof( float ) * 2 * tess.numVertexes );
 			break;
 		case TCGEN_BAD:
 			return;
@@ -2029,58 +1945,6 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			}
 		}
 
-#ifdef VV_LIGHTING
-		if(pStage->rgbGen == CGEN_LIGHTING_DIFFUSE ||
-			pStage->rgbGen == CGEN_LIGHTING_DIFFUSE_ENTITY)
-		{
-            qglEnableClientState( GL_NORMAL_ARRAY );
-			qglNormalPointer(GL_FLOAT, 16, tess.normal );
-		}
-
-		if(pStage->isSpecular)
-		{
-			qglEnableClientState( GL_NORMAL_ARRAY );
-			qglNormalPointer(GL_FLOAT, 16, tess.normal );
-			if(!tess.setTangents)
-                BuildTangentVectors();
-			qglTexCoordPointer( 2, GL_FLOAT, 0, input->svars.texcoords[0] );
-			R_BindAnimatedImage( &pStage->bundle[0] );
-			GL_State( stateBits );
-			glw_state->lightEffects->RenderSpecular();
-			qglDisableClientState( GL_NORMAL_ARRAY );
-			continue;
-		}
-		if(pStage->isEnvironment)
-		{
-			qglEnableClientState( GL_NORMAL_ARRAY );
-			qglNormalPointer( GL_FLOAT, 16, tess.normal );
-			R_BindAnimatedImage( &pStage->bundle[0] );
-			GL_State( stateBits );
-			glw_state->lightEffects->RenderEnvironment();
-			qglDisableClientState( GL_NORMAL_ARRAY );
-			continue;
-		}
-		if(pStage->isBumpMap)
-		{
-			qglEnableClientState( GL_NORMAL_ARRAY );
-			qglNormalPointer( GL_FLOAT, 16, tess.normal );
-			if(!tess.setTangents)
-                BuildTangentVectors();
-			GL_SelectTexture( 0 );
-			R_BindAnimatedImage( &pStage->bundle[0] );
-			GL_SelectTexture( 1 );
-			qglEnable( GL_TEXTURE_2D );
-			qglEnableClientState( GL_TEXTURE_COORD_ARRAY );
-			R_BindAnimatedImage( &pStage->bundle[1] );
-			GL_State( stateBits );
-			glw_state->lightEffects->RenderBump();
-			qglDisable( GL_TEXTURE_2D );
-			qglDisableClientState( GL_TEXTURE_COORD_ARRAY );
-			GL_SelectTexture( 0 );
-			qglDisableClientState( GL_NORMAL_ARRAY );
-			continue;
-		}
-#endif // VV_LIGHTING
 		//
 		// do multitexture
 		//
@@ -2144,12 +2008,6 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 				qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 			}
 		}
-
-#ifdef VV_LIGHTING
-		// Lighting may have been turned on above
-		qglDisable(GL_LIGHTING);
-		qglDisableClientState( GL_NORMAL_ARRAY );
-#endif
 	}
 	if (FogColorChange)
 	{
@@ -2244,14 +2102,6 @@ void RB_StageIteratorGeneric( void )
 	//
 	if ( tess.dlightBits && tess.shader->sort <= SS_OPAQUE
 		&& !(tess.shader->surfaceFlags & (SURF_NODLIGHT | SURF_SKY) ) ) {
-#ifdef VV_LIGHTING
-		qglEnableClientState( GL_NORMAL_ARRAY );
-		qglNormalPointer(GL_FLOAT, 16, tess.normal );
-		if(!tess.setTangents)
-            BuildTangentVectors();
-		glw_state->lightEffects->RenderDynamicLights();
-		qglDisableClientState( GL_NORMAL_ARRAY );
-#else
 		if (r_dlightStyle->integer>0)
 		{
 			ProjectDlightTexture2();
@@ -2260,7 +2110,6 @@ void RB_StageIteratorGeneric( void )
 		{
 			ProjectDlightTexture();
 		}
-#endif
 	}
 
 	//

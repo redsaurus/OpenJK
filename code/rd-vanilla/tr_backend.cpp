@@ -23,10 +23,6 @@ This file is part of Jedi Academy.
 
 #include "tr_local.h"
 
-#ifdef VV_LIGHTING
-#include "tr_lightmanager.h"
-#endif
-
 backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
@@ -61,7 +57,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		VID_Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
+		ri.Printf( PRINT_WARNING, "GL_Bind: NULL image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -208,9 +204,9 @@ void GL_TexEnv( int env )
 ** This routine is responsible for setting the most commonly changed state
 ** in Q3.
 */
-void GL_State( unsigned long stateBits )
+void GL_State( uint32_t stateBits )
 {
-	unsigned long diff = stateBits ^ glState.glStateBits;
+	uint32_t diff = stateBits ^ glState.glStateBits;
 
 	if ( !diff )
 	{
@@ -657,15 +653,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	trRefEntity_t	*curEnt;
 	postRender_t	*pRender;
 	bool			didShadowPass = false;
-#ifdef __MACOS__
-	int				macEventTime;
-
-	Sys_PumpEvents();		// crutch up the mac's limited buffer queue size
-
-	// we don't want to pump the event loop too often and waste time, so
-	// we are going to check every shader change
-	macEventTime = ri.Milliseconds() + MAC_EVENT_PUMP_MSEC;
-#endif
 
 	if (g_bRenderGlowingObjects)
 	{ //only shadow on initial passes
@@ -768,15 +755,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			|| ( entityNum != oldEntityNum && !shader->entityMergable ) )
 		{
 			if (oldShader != NULL) {
-#ifdef __MACOS__	// crutch up the mac's limited buffer queue size
-				int		t;
-
-				t = ri.Milliseconds();
-				if ( t > macEventTime ) {
-					macEventTime = t + MAC_EVENT_PUMP_MSEC;
-					Sys_PumpEvents();
-				}
-#endif
 				RB_EndSurface();
 
 				if (!didShadowPass && shader && shader->sort > SS_BANNER)
@@ -806,11 +784,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 				// set up the dynamic lighting if needed
 				if ( backEnd.currentEntity->needDlights ) {
-#ifdef VV_LIGHTING
-					VVLightMan.R_TransformDlights( &backEnd.ori );
-#else
 					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-#endif
 				}
 
 				if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
@@ -825,11 +799,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				backEnd.currentEntity = &tr.worldEntity;
 				backEnd.refdef.floatTime = originalTime;
 				backEnd.ori = backEnd.viewParms.world;
-#ifdef VV_LIGHTING
-				VVLightMan.R_TransformDlights( &backEnd.ori );
-#else
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-#endif
 			}
 
 			qglLoadMatrixf( backEnd.ori.modelMatrix );
@@ -896,11 +866,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			// set up the dynamic lighting if needed
 			if ( backEnd.currentEntity->needDlights )
 			{
-#ifdef VV_LIGHTING
-				VVLightMan.R_TransformDlights( &backEnd.ori );
-#else
 				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-#endif
 			}
 
 			qglLoadMatrixf( backEnd.ori.modelMatrix );
@@ -989,10 +955,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 // add light flares on lights that aren't obscured
 //	RB_RenderFlares();
-
-#ifdef __MACOS__
-	Sys_PumpEvents();		// crutch up the mac's limited buffer queue size
-#endif
 }
 
 
@@ -1483,7 +1445,7 @@ void RB_ShowImages( void ) {
 	qglFinish();
 
 	//end = ri.Milliseconds();
-	//VID_Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
+	//ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
 }
 
 

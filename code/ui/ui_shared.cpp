@@ -245,11 +245,6 @@ void PC_SourceError(int handle, char *format, ...)
 PC_ParseStringMem
 =================
 */
-//static vector<string> RetryPool;
-//void AddMenuPackageRetryKey(const char *psSPPackage)
-//{
-//	RetryPool.push_back(psSPPackage);
-//}
 qboolean PC_ParseStringMem(const char **out) 
 {
 	const char *temp;
@@ -1447,7 +1442,7 @@ void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow)
 
 	if (!count)
 	{
-		Com_Printf(S_COLOR_YELLOW"WARNING: Menu_ShowItemByName - unable to locate any items named :%s\n",p);
+		Com_Printf(S_COLOR_YELLOW"WARNING: Menu_ShowItemByName - unable to locate any items named: \"%s\"\n",p);
 	}
 
 	for (i = 0; i < count; i++) 
@@ -5374,7 +5369,7 @@ menuDef_t *Menus_ActivateByName(const char *p)
 		}
 		else
 		{
-			Com_Printf(S_COLOR_YELLOW"WARNING: Menus_ActivateByName: Unable to find menu '%s'\n",p);
+			Com_Printf(S_COLOR_YELLOW"WARNING: Menus_ActivateByName: Unable to find menu \"%s\"\n",p);
 		}
 	}
 	
@@ -10232,7 +10227,7 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, qboolean down)
 			{
 				Menu_RunCloseScript(menu);
 				menu->window.flags &= ~(WINDOW_HASFOCUS | WINDOW_VISIBLE);
-				Menus_Activate(&Menus[i]);
+			//	Menus_Activate(&Menus[i]);
 				Menu_HandleMouseMove(&Menus[i], DC->cursorx, DC->cursory);
 				Menu_HandleKey(&Menus[i], key, down);
 			}

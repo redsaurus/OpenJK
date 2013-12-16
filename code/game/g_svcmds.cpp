@@ -16,15 +16,12 @@ This file is part of Jedi Academy.
 */
 // Copyright 2001-2013 Raven Software
 
-// leave this line at the top for all g_xxxx.cpp files...
-#include "g_headers.h"
-
-
-
+#include "../cgame/cg_local.h"
 #include "Q3_Interface.h"
 
 #include "g_local.h"
 #include "wp_saber.h"
+#include "g_functions.h"
 
 extern void G_NextTestAxes( void );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
@@ -64,8 +61,8 @@ void	Svcmd_EntityList_f (void) {
 	int			e;
 	gentity_t		*check;
 
-	check = g_entities+1;
-	for (e = 1; e < globals.num_entities ; e++, check++) {
+	check = g_entities;
+	for (e = 0; e < globals.num_entities ; e++, check++) {
 		if ( !check->inuse ) {
 			continue;
 		}
@@ -195,6 +192,18 @@ static void Svcmd_Saber_f()
 {
 	const char *saber = gi.argv(1);
 	const char *saber2 = gi.argv(2);
+	char name[MAX_CVAR_VALUE_STRING] = {0};
+
+	if ( gi.argc() < 2 )
+	{
+		gi.Printf( "Usage: saber <saber1> <saber2>\n" );
+		gi.Cvar_VariableStringBuffer( "g_saber", name, sizeof(name) );
+		gi.Printf("g_saber is set to %s\n", name);
+		gi.Cvar_VariableStringBuffer( "g_saber2", name, sizeof(name) );
+		if ( name[0] )
+			gi.Printf("g_saber2 is set to %s\n", name);
+		return;
+	}
 
 	if ( !g_entities[0].client || !saber || !saber[0] )
 	{
@@ -1047,7 +1056,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_Nav_f ();
 		return qtrue;
@@ -1058,7 +1067,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_NPC_f ();
 		return qtrue;
@@ -1069,7 +1078,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_Use_f ();
 		return qtrue;
@@ -1080,7 +1089,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 
 		Quake3Game()->Svcmd();
@@ -1093,7 +1102,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_SaberColor_f();
 		return qtrue;
@@ -1104,7 +1113,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_Saber_f();
 		return qtrue;
@@ -1115,7 +1124,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		Svcmd_SaberBlade_f();
 		return qtrue;
@@ -1207,7 +1216,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 
 		Svcmd_ForceJump_f();
@@ -1242,7 +1251,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		const char *cmd2 = gi.argv(1);
 
@@ -1280,7 +1289,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		const char	*cmd2 = gi.argv(1);
 		int		n;
@@ -1322,7 +1331,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		const char	*cmd2 = gi.argv(1);
 		if ( !*cmd2 || !cmd2[0] )
@@ -1344,7 +1353,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		const char	*cmd2 = gi.argv(1);
 		if ( !*cmd2 || !cmd2[0] )
@@ -1366,7 +1375,7 @@ qboolean	ConsoleCommand( void ) {
 		if ( !g_cheats->integer ) 
 		{
 			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
-			return qfalse;
+			return qtrue;
 		}
 		G_Knockdown( &g_entities[0], &g_entities[0], vec3_origin, 300, qtrue );
 		return qtrue;
@@ -1426,6 +1435,12 @@ qboolean	ConsoleCommand( void ) {
 	
 	if (Q_stricmp (cmd, "iknowkungfu") == 0)
 	{
+		if ( !g_cheats->integer ) 
+		{
+			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
+			return qtrue;
+		}
+
 		gi.cvar_set( "g_debugMelee", "1" );
 		G_SetWeapon( &g_entities[0], WP_MELEE );
 		for ( int i = FP_FIRST; i < NUM_FORCE_POWERS; i++ )

@@ -7,7 +7,7 @@
 #define	MAX_CMD_BUFFER	128*1024
 #define	MAX_CMD_LINE	1024
 
-typedef struct {
+typedef struct cmd_s {
 	byte	*data;
 	int		maxsize;
 	int		cursize;
@@ -470,7 +470,7 @@ Cmd_TokenizeString
 
 Parses the given string into command line tokens.
 The text is copied to a seperate buffer and 0 characters
-are inserted in the apropriate place, The argv array
+are inserted in the appropriate place, The argv array
 will point into this temporary buffer.
 ============
 */

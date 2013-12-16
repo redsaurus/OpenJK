@@ -344,15 +344,7 @@ void IN_AutoMapButton(void)
 extern cvar_t *r_autoMap;
 void IN_AutoMapToggle(void)
 {
-
-	if (Cvar_VariableIntegerValue("cg_drawRadar"))
-	{
-		Cvar_Set("cg_drawRadar", "0");
-	}
-	else
-	{
-		Cvar_Set("cg_drawRadar", "1");
-	}
+	Cvar_User_SetValue("cg_drawRadar", !Cvar_VariableValue("cg_drawRadar"));
 	/*
 	if (r_autoMap && r_autoMap->integer)
 	{ //automap off, radar on
@@ -1387,7 +1379,7 @@ qboolean CL_ReadyToSendPacket( void ) {
 	}
 
 	// send every frame for LAN
-	if ( Sys_IsLANAddress( clc.netchan.remoteAddress ) ) {
+	if ( cl_lanForcePackets->integer && Sys_IsLANAddress( clc.netchan.remoteAddress ) ) {
 		return qtrue;
 	}
 

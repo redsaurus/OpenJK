@@ -12,7 +12,7 @@
 // these are the functions exported by the refresh module
 //
 
-typedef struct {
+typedef struct refexport_s {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = qfalse,
 	// which will keep the screen from flashing to the desktop.
@@ -79,10 +79,6 @@ typedef struct {
 	int					(*LerpTag)								( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
 	void				(*ModelBounds)							( qhandle_t model, vec3_t mins, vec3_t maxs );
 	void				(*ModelBoundsRef)						( refEntity_t *model, vec3_t mins, vec3_t maxs );
-
-#ifdef __USEA3D
-	void				(*A3D_RenderGeometry)					(void *pVoidA3D, void *pVoidGeom, void *pVoidMat, void *pVoidGeomStatus);
-#endif
 
 	qhandle_t			(*RegisterFont)							( const char *fontName );
 	int					(*Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
@@ -234,7 +230,7 @@ typedef struct {
 //
 // these are the functions imported by the refresh module
 //
-typedef struct {
+typedef struct refimport_s {
 	void			(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *Error)						( int errorLevel, const char *fmt, ...) __attribute__ ((noreturn, format (printf, 2, 3)));
 	void			(QDECL *OPrintf)					( const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -258,9 +254,9 @@ typedef struct {
 	void			(*Cmd_ArgsBuffer)					( char *buffer, int bufferLength );
 	void			(*Cmd_AddCommand)					( const char *cmd_name, xcommand_t function );
 	void			(*Cmd_RemoveCommand)				( const char *cmd_name );
-	void			(*Cvar_Set)							( const char *var_name, const char *value );
+	cvar_t *		(*Cvar_Set)							( const char *var_name, const char *value );
 	cvar_t *		(*Cvar_Get)							( const char *var_name, const char *value, int flags );
-	void			(*Cvar_SetValue)					( const char *name, float value );
+	cvar_t *		(*Cvar_SetValue)					( const char *name, float value );
 	void			(*Cvar_CheckRange)					( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 	void			(*Cvar_VariableStringBuffer)		( const char *var_name, char *buffer, int bufsize );
 	char *			(*Cvar_VariableString)				( const char *var_name );
@@ -271,10 +267,10 @@ typedef struct {
 	void			(*FS_FreeFile)						( void *buffer );
 	void			(*FS_FreeFileList)					( char **fileList );
 	int				(*FS_Read)							( void *buffer, int len, fileHandle_t f );
-	int				(*FS_ReadFile)						( const char *qpath, void **buffer );
+	long				(*FS_ReadFile)						( const char *qpath, void **buffer );
 	void			(*FS_FCloseFile)					( fileHandle_t f );
-	int				(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
-	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath );
+	long				(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, qboolean uniqueFILE );
+	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath, qboolean safe );
 	int				(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_t mode );
 	qboolean		(*FS_FileExists)					( const char *file );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );

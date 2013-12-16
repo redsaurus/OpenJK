@@ -9,10 +9,11 @@ set(MPUIIncludeDirectories "${MPDir}")
 if(WIN32)
 	set(MPUILibraries "odbc32" "odbccp32") # what are these even?
 endif(WIN32)
-set(MPUIDefines ${MPSharedDefines} "_UI" "_USRDLL")
+set(MPUIDefines ${MPSharedDefines} "_UI")
 
 set(MPUIGameFiles
 	"${MPDir}/game/bg_misc.c"
+	"${MPDir}/game/bg_saberLoad.c"
 	"${MPDir}/game/bg_saga.c"
 	"${MPDir}/game/bg_vehicleLoad.c"
 	"${MPDir}/game/bg_weapons.c"
@@ -41,6 +42,7 @@ set(MPUIFiles ${MPUIFiles} ${MPUICommonFiles})
 
 set(MPUIUIFiles
 	"${MPDir}/ui/ui_atoms.c"
+	"${MPDir}/ui/ui_cvar.c"
 	"${MPDir}/ui/ui_force.c"
 	"${MPDir}/ui/ui_gameinfo.c"
 	"${MPDir}/ui/ui_main.c"
@@ -53,6 +55,7 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_local.h"
 	"${MPDir}/ui/ui_public.h"
 	"${MPDir}/ui/ui_shared.h"
+	"${MPDir}/ui/ui_xcvar.h"
 	)
 source_group("ui" FILES ${MPUIUIFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIUIFiles})
