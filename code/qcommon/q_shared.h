@@ -1454,8 +1454,8 @@ typedef struct
 	int		inAction;	// controls whether should we even consider starting one
 	int		duration;	// how long each trail seg stays in existence
 	int		lastTime;	// time a saber segement was last stored
-	vec3_t	base;
-	vec3_t	tip;
+	vec3_t	base, dualbase;
+	vec3_t	tip, dualtip;
 
 	// Marks stuff
 	qboolean	haveOldPos[2];
