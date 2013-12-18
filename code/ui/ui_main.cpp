@@ -374,6 +374,11 @@ vmCvar_t	ui_char_color_2_red;
 vmCvar_t	ui_char_color_2_green;
 vmCvar_t	ui_char_color_2_blue;
 
+vmCvar_t	ui_rgb_saber_red;
+vmCvar_t	ui_rgb_saber_green;
+vmCvar_t	ui_rgb_saber_blue;
+
+
 //JLFCALLOUT MPMOVED
 vmCvar_t	ui_hideAcallout;
 vmCvar_t	ui_hideBcallout;
@@ -411,6 +416,10 @@ static cvarTable_t cvarTable[] =
 	{ &ui_char_color_2_red,		"ui_char_color_2_red",	"", 0},
 	{ &ui_char_color_2_green,		"ui_char_color_2_green",	"", 0},
 	{ &ui_char_color_2_blue,		"ui_char_color_2_blue",	"", 0},
+	
+	{ &ui_rgb_saber_red,		"ui_rgb_saber_red",	"", 0},
+	{ &ui_rgb_saber_blue,		"ui_rgb_saber_blue",	"", 0},
+	{ &ui_rgb_saber_green,		"ui_rgb_saber_green",	"", 0},
 //JLFCALLOUT MPMOVED
 	{ &ui_hideAcallout,		"ui_hideAcallout",	"", 0}, 
 	{ &ui_hideBcallout,		"ui_hideBcallout",	"", 0}, 
@@ -4415,6 +4424,11 @@ static void UI_UpdateSaberCvars ( void )
 	Cvar_Set ( "g_saber2", Cvar_VariableString ( "ui_saber2" ) );
 	Cvar_Set ( "g_saber_color", Cvar_VariableString ( "ui_saber_color" ) );
 	Cvar_Set ( "g_saber2_color", Cvar_VariableString ( "ui_saber2_color" ) );
+	
+	Cvar_Set ( "cg_rgb_saber_red", Cvar_VariableString( "ui_rgb_saber_red" ) );
+	Cvar_Set ( "cg_rgb_saber_green", Cvar_VariableString( "ui_rgb_saber_green" ) );
+	Cvar_Set ( "cg_rgb_saber_blue", Cvar_VariableString( "ui_rgb_saber_blue" ) );
+	
 }
 
 static void UI_UpdateFightingStyleChoices ( void )
@@ -6215,7 +6229,12 @@ static void UI_GetSaberCvars ( void )
 	Cvar_Set ( "ui_saber2", Cvar_VariableString ( "g_saber2" ) );
 	Cvar_Set ( "ui_saber_color", Cvar_VariableString ( "g_saber_color" ) );
 	Cvar_Set ( "ui_saber2_color", Cvar_VariableString ( "g_saber2_color" ) );
-
+	Cvar_Set ( "ui_saber2_color", Cvar_VariableString ( "g_saber2_color" ) );
+	
+	Cvar_Set ( "ui_rgb_saber_red", Cvar_VariableString( "cg_rgb_saber_red" ) );
+	Cvar_Set ( "ui_rgb_saber_green", Cvar_VariableString( "cg_rgb_saber_green" ) );
+	Cvar_Set ( "ui_rgb_saber_blue", Cvar_VariableString( "cg_rgb_saber_blue" ) );
+	
 	Cvar_Set ( "ui_newfightingstyle", "0");
 
 }

@@ -35,6 +35,10 @@ USER INTERFACE SABER LOADING & DISPLAY CODE
 char	SaberParms[MAX_SABER_DATA_SIZE];
 qboolean	ui_saber_parms_parsed = qfalse;
 
+extern vmCvar_t	ui_rgb_saber_red;
+extern vmCvar_t	ui_rgb_saber_green;
+extern vmCvar_t	ui_rgb_saber_blue;
+
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
@@ -389,7 +393,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 		case SABER_RGB:
 			glow = rgbSaberGlowShader;
 			blade = rgbSaberCoreShader;
-			VectorSet( rgb, 1.0f, 1.0f, 1.0f );
+			VectorSet( rgb, ui_rgb_saber_red.integer/255.0f, ui_rgb_saber_green.integer/255.0f, ui_rgb_saber_blue.integer/255.0f );
 			break;
 	}
 
@@ -434,7 +438,9 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	
 	if (color == SABER_RGB)
 	{
-		
+		saber.shaderRGBA[0] = ui_rgb_saber_red.integer;
+		saber.shaderRGBA[1] = ui_rgb_saber_green.integer;
+		saber.shaderRGBA[2] = ui_rgb_saber_blue.integer;
 	}
 
 	DC->addRefEntityToScene( &saber );
