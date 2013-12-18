@@ -332,6 +332,8 @@ vmCvar_t	cg_rgb_saber_red;
 vmCvar_t	cg_rgb_saber_blue;
 vmCvar_t	cg_rgb_saber_green;
 
+vmCvar_t	cg_SFXSabers;
+
 vmCvar_t	cg_smoothCamera;
 vmCvar_t	cg_speedTrail;
 vmCvar_t	cg_fovViewmodel;
@@ -452,6 +454,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_rgb_saber_red,	"cg_rgb_saber_red",	"255", CVAR_ARCHIVE },
 	{ &cg_rgb_saber_blue,	"cg_rgb_saber_blue",	"255", CVAR_ARCHIVE },
 	{ &cg_rgb_saber_green,	"cg_rgb_saber_green",	"255", CVAR_ARCHIVE },
+	
+	{ &cg_SFXSabers,	"cg_SFXSabers",	"0", CVAR_ARCHIVE },
 
 
 
