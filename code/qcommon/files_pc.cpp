@@ -1638,7 +1638,6 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	searchpath_t	*sp;
 	int				i;
 	searchpath_t	*search;
-    searchpath_t	*thedir;
 	pack_t			*pak;
 	char			*pakfile;
 	int				numfiles;
@@ -1665,8 +1664,6 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 	Q_strncpyz( search->dir->gamedir, dir, sizeof( search->dir->gamedir ) );
 	search->next = fs_searchpaths;
 	fs_searchpaths = search;
-
-    thedir = search;
 
 	Z_Label(search, path);
 	Z_Label(search->dir, dir);
@@ -1695,24 +1692,8 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 		search = (searchpath_t*)Z_Malloc(sizeof(searchpath_t), TAG_FILESYS, qtrue );
 		search->pack = pak;
 		search->dir = 0;
-        
-        if (fs_dirbeforepak && fs_dirbeforepak->integer && thedir)
-		{
-			searchpath_t *oldnext = thedir->next;
-			thedir->next = search;
-            
-			while (oldnext)
-			{
-				search->next = oldnext;
-				search = search->next;
-				oldnext = oldnext->next;
-			}
-		}
-		else
-		{
-			search->next = fs_searchpaths;
-			fs_searchpaths = search;
-		}
+		search->next = fs_searchpaths;
+		fs_searchpaths = search;		
 	}
 
 	// done
@@ -1742,8 +1723,6 @@ void FS_Startup( const char *gameName ) {
 	}
 	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT );
 	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO );
-    
-    fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", CVAR_INIT);
 	//Cvar_Get( "com_demo", "", CVAR_INIT );
 
 	// add search path elements in reverse priority order
