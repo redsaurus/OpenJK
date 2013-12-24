@@ -1110,7 +1110,7 @@ static CMiniHeap *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;
 }
 
-#define DEFAULT_RENDER_LIBRARY	"rdsp-vanilla"	// NOTENOTE: If you change the output name of rd-vanilla, change this define too!
+#define DEFAULT_RENDER_LIBRARY	"rdcustomsp-vanilla"	// NOTENOTE: If you change the output name of rd-vanilla, change this define too!
 
 void CL_InitRef( void ) {
 	refexport_t	*ret;

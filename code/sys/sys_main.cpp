@@ -174,7 +174,7 @@ void *Sys_GetGameAPI (void *parms)
 	}
 	else
 	{
-		gamename = "jagame" ARCH_STRING DLL_EXT;
+		gamename = "jacustomgame" ARCH_STRING DLL_EXT;
 	}
 	
 	if (game_library)

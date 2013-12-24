@@ -52,7 +52,7 @@ This file is part of Jedi Academy.
 //rww - conveniently toggle "gore" code, for model decals and stuff.
 #define _G2_GORE
 
-#define PRODUCT_NAME			"openjk_sp"
+#define PRODUCT_NAME			"openjk_customsp"
 
 #define CLIENT_WINDOW_TITLE "OpenJK (SP)"
 #define CLIENT_CONSOLE_TITLE "OpenJK Console (SP)"
