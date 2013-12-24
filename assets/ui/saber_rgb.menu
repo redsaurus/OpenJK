@@ -20,8 +20,6 @@
 		onOpen
 		{ 
 			uiScript  			"getsabercvars"
-//			uiScript  			"updatefightingstylechoices"
-//			setfocus			new_fightingstyle_button
 			uiScript  			"saber_hilt"
 		}
 									
@@ -41,54 +39,6 @@
 			style				WINDOW_STYLE_SHADER
 			rect				0 0 640 480
 			background			"gfx/menus/sabermenu_back"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				styleboxleft
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				127 53 198 40
-			background			"gfx/menus/sabermenu_stylebox_left"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				styleboxright
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				325 53 198 40
-			background			"gfx/menus/sabermenu_stylebox_right"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				styleboxleft
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				127 118 198 40
-			background			"gfx/menus/sabermenu_stylebox_left"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				styleboxright
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				325 118 198 40
-			background			"gfx/menus/sabermenu_stylebox_right"
 			forecolor			1 1 1 1
 			visible				1
 			decoration
@@ -130,84 +80,15 @@
 		}
 
 //----------------------------------------------------------------------------------------------
-//	SABER COMBAT STYLES
+//	RGB SLIDERS
 //----------------------------------------------------------------------------------------------
-		// Current fighting style
-		itemDef 
-		{
-			name				fightingstylebutton1
-			group				none
-			text				@MENUS_CURRENT_STYLE
-			descText			@MENUS_ADDFIGHTINGSTYLE
-			type				ITEM_TYPE_MULTI
-			style				WINDOW_STYLE_EMPTY
-			rect				140 60 0 0
-			font				3
-			textscale			1
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			textaligny			0
-			forecolor			.549 .854 1 1
-			
-			cvar				"ui_currentfightingstyle"
-			cvarStrList
-			{
-				@MENUS_COMBATSTYLEFAST     "0"
-				@MENUS_COMBATSTYLEMEDIUM   "1"
-				@MENUS_COMBATSTYLEHEAVY    "2"
-			}
-
-			visible				1			 
-		}
-		
-		itemDef 
-		{
-			name				new_fightingstyle_button
-			group				none
-			text				@MENUS_NEW_STYLE
-			descText			@MENUS_ADDFIGHTINGSTYLE
-			type				ITEM_TYPE_MULTI
-			style				WINDOW_STYLE_EMPTY
-			rect				140 125 380 24
-			font				3
-			textscale			1
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			textaligny			0
-			forecolor			.615 .615 .956 1
-			
-			cvar				"ui_newfightingstyle"
-			cvarStrList
-			{
-				@MENUS_COMBATSTYLEFAST     "0"
-				@MENUS_COMBATSTYLEHEAVY    "2"
-			}
-
-			visible				1
-			 
-			mouseEnter 
-			{ 
-				show			button_glow
-				setitemrect		button_glow	180 124 380 26
-			}
-			mouseExit 
-			{ 
-				hide			button_glow
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav" 
-			}
-		}
 
 		itemDef 
 		{
 			name				briefing_background
 			group				none
 			style				WINDOW_STYLE_FILLED
-			rect				127 160 395 64
+			rect				127 60 395 164
 			backcolor			0 0 .35 .7
 			forecolor			1 1 1 1
 			border				1
@@ -215,57 +96,148 @@
 			visible				1
 			decoration
 		}
+
+		itemDef
+		{
+			name	colorred
+			group	tints
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Red:"
+			cvar	"ui_rgb_saber_red"
+			rect	230 104 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
 		
 		itemDef 
 		{
-			name				new_fightingstyle_desc
-			group				none
-			type				ITEM_TYPE_TEXTSCROLL
-			text				@SP_INGAME_FAST_STYLE
-			style				WINDOW_STYLE_EMPTY
-			rect				130 162 392 60
-			font				4
-			textscale			1
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
+			name				colorredslider
+			group				tints
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_rgb_saber_red" 255 0 255
+			rect				305 104 292 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
 			textaligny			0
-			forecolor			1 1 1 1			
-			cvartest			"ui_newfightingstyle"
-			showcvar
-			{
-				"0"
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
 			}
-			lineHeight			14
-			visible				1			 
-			autowrapped
+
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
 		}
 
+		itemDef
+		{
+			name	colorgreen
+			group	tints
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Green:"
+			cvar	"ui_rgb_saber_green"
+			rect	230 135 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
+		
 		itemDef 
 		{
-			name				new_fightingstyle_desc
-			group				none
-			type				ITEM_TYPE_TEXTSCROLL
-			text				@SP_INGAME_STRONG_STYLE
-			style				WINDOW_STYLE_EMPTY
-			rect				130 162 392 60
-			font				4
-			textscale			1
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
+			name				colorgreenslider
+			group				tints
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_rgb_saber_green" 255 0 255
+			rect				305 135 292 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
 			textaligny			0
-			forecolor			1 1 1 1			
-			cvartest			"ui_newfightingstyle"
-			showcvar
-			{
-				"2"
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
 			}
 
-			lineHeight			14
-			visible				1			 
-			autowrapped
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
 		}
+
+		itemDef
+		{
+			name	colorblue
+			group	tints
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Blue:"
+			cvar	"ui_rgb_saber_blue"
+			rect	230 166 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
+		
+		itemDef 
+		{
+			name				colorblueslider
+			group				tints
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_rgb_saber_blue" 255 0 255
+			rect				305 166 292 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
+
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
+		}
+		
 
 //----------------------------------------------------------------------------------------------
 //SABER MODELS
@@ -295,8 +267,8 @@
 		{
 			name				continue
 			group				none
-			text				@MENUS_CONTINUE
-			descText			@MENUS_NEW_MISSION_DESC
+			text				@MENUS_BACK
+			descText			@MENUS_BACKUP_ONE_MENU
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
 			rect				455 444 130 24 

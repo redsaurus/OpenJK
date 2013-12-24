@@ -5918,6 +5918,9 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		case SABER_PURPLE:
 			glow = cgs.media.purpleSaberGlowShader;
 			break;
+		case SABER_BLUE:
+			glow = cgs.media.blueSaberGlowShader;
+			break;
 		case SABER_RGB:
 			glow = cgs.media.rgbSaberGlowShader;
 			break;

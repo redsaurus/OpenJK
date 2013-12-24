@@ -3349,12 +3349,12 @@ qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName )
 	}
 
 	modelPtr->g2skin2 = DC->registerSkin(skinName);
-	Com_Printf("loaded skin %d\n", modelPtr->g2skin2);
+//	Com_Printf("loaded skin %d\n", modelPtr->g2skin2);
 	if ( item->ghoul2.IsValid() && item->ghoul2.size() > 1 &&  item->ghoul2[1].mModelindex >= 0 )
 	{
 		DC->g2_SetSkin( &item->ghoul2[1], modelPtr->g2skin2, modelPtr->g2skin2 );//this is going to set the surfs on/off matching the skin file
 	}
-	Com_Printf("forced skin %d\n", item->ghoul2[1].mCustomSkin);
+//	Com_Printf("forced skin %d\n", item->ghoul2[1].mCustomSkin);
 	
 	return qtrue;
 }

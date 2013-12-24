@@ -1139,7 +1139,6 @@
 			action 
 			{
 				play			"sound/interface/choose_blade.wav"
-				//uiScript  		"saber_color"
 				setcvar "ui_saber_color" "rgb"
 				uiScript		 "updatesabercvars"
 				close			all
@@ -1395,8 +1394,10 @@
 			action 
 			{
 				play			"sound/interface/choose_blade.wav"
-				//uiScript  		"saber_color"
 				setcvar "ui_saber2_color" "rgb"
+				uiScript		 "updatesabercvars"
+				close			all
+				open			saber_rgb
 			}
 		}
 
