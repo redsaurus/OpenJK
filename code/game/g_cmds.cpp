@@ -605,8 +605,8 @@ UserSpawn
 */
 
 extern qboolean G_CallSpawn( gentity_t *ent );
-
-void UserSpawn( gentity_t *ent, const char *name )
+extern void G_ParseField( const char *key, const char *value, gentity_t *ent );
+void UserSpawn( gentity_t *ent, const char *name, int numargs )
 {
 	vec3_t		origin;
 	vec3_t		vf;
@@ -615,6 +615,14 @@ void UserSpawn( gentity_t *ent, const char *name )
 	
 	//Spawn the ent
 	ent2 = G_Spawn();
+	
+	int numSpawnVars = numargs / 2;
+	
+	//entity keys now supported
+	for ( int i = 0 ; i < numSpawnVars ; i++ ) {
+		G_ParseField( gi.argv(2 + i * 2), gi.argv(3 + i * 2), ent2 );
+	}
+
 	ent2->classname = G_NewString( name );
 
 	//TODO: This should ultimately make sure this is a safe spawn!
@@ -648,13 +656,23 @@ Cmd_Spawn
 
 void Cmd_Spawn( gentity_t *ent )
 {
+	int numArgs;
 	char	*name;
-
-	name = ConcatArgs( 1 );
-
+	
+	numArgs = gi.argc();
+	
+	if (numArgs > 1)
+	{
+		name = gi.argv(1);
+	}
+	else
+	{
+		name = "";
+	}
+	
 	gi.SendServerCommand( ent-g_entities, "print \"Spawning '%s'\n\"", name );
 
-	UserSpawn( ent, name );
+	UserSpawn( ent, name, numArgs - 2 );
 }
 
 /*
