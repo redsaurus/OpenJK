@@ -38,6 +38,9 @@ qboolean	ui_saber_parms_parsed = qfalse;
 extern vmCvar_t	ui_rgb_saber_red;
 extern vmCvar_t	ui_rgb_saber_green;
 extern vmCvar_t	ui_rgb_saber_blue;
+extern vmCvar_t	ui_rgb_saber2_red;
+extern vmCvar_t	ui_rgb_saber2_green;
+extern vmCvar_t	ui_rgb_saber2_blue;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
@@ -342,7 +345,7 @@ void UI_SaberLoadParms( void )
 	}
 }
 
-void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color )
+void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int whichSaber )
 {
 	vec3_t		mid, rgb={1,1,1};
 	qhandle_t	blade = 0, glow = 0;
@@ -393,7 +396,14 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 		default:
 			glow = rgbSaberGlowShader;
 			blade = rgbSaberCoreShader;
-			VectorSet( rgb, ui_rgb_saber_red.integer/255.0f, ui_rgb_saber_green.integer/255.0f, ui_rgb_saber_blue.integer/255.0f );
+			if (whichSaber == 0)
+			{
+				VectorSet( rgb, ui_rgb_saber_red.integer/255.0f, ui_rgb_saber_green.integer/255.0f, ui_rgb_saber_blue.integer/255.0f );
+			}
+			else
+			{
+				VectorSet( rgb, ui_rgb_saber2_red.integer/255.0f, ui_rgb_saber2_green.integer/255.0f, ui_rgb_saber2_blue.integer/255.0f );
+			}
 			break;
 	}
 
@@ -554,7 +564,8 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 {
 	char bladeColorString[MAX_QPATH];
 	vec3_t	angles={0};
-
+	int whichSaber = 0;
+	
 	if ( item->flags&(ITF_ISANYSABER) && item->flags&(ITF_ISCHARACTER) )
 	{	//it's bolted to a dude!
 		angles[YAW] = curYaw;
@@ -572,9 +583,18 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 
 	if ( (item->flags&ITF_ISSABER) && saberModel < 2 )
 	{
-		DC->getCVarString( "ui_saber_color", bladeColorString, sizeof(bladeColorString) );
+		whichSaber = 0;
 	}
 	else//if ( item->flags&ITF_ISSABER2 ) - presumed
+	{
+		whichSaber = 1;
+	}
+	
+	if ( whichSaber == 0 )
+	{
+		DC->getCVarString( "ui_saber_color", bladeColorString, sizeof(bladeColorString) );
+	}
+	else//if ( whichSaber == 1 ) - presumed
 	{
 		DC->getCVarString( "ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
 	}
@@ -773,7 +793,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 		return;
 	}
 
-	UI_DoSaber( bladeOrigin, axis[0], bladeLength, bladeLength, bladeRadius, bladeColor );
+	UI_DoSaber( bladeOrigin, axis[0], bladeLength, bladeLength, bladeRadius, bladeColor, whichSaber );
 }
 
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
