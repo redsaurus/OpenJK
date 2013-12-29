@@ -293,11 +293,14 @@ saber_colors_t TranslateSaberColor( const char *name )
 	{
 		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
 	}
-	if ( !Q_stricmp( name, "rgb" ) )
+	float colors[3];
+	Q_parseSaberColor(name, colors);
+	int colourArray[3];
+	for (int i = 0; i < 3; i++)
 	{
-		return SABER_RGB;
+		colourArray[i] = (int)(colors[i] * 255);
 	}
-	return SABER_BLUE;
+	return (saber_colors_t)((colourArray[0]) + (colourArray[1] << 8) + (colourArray[2] << 16) + (1 << 24));
 }
 
 /* static int MethodNameToNumber( const char *name ) {

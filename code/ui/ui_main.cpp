@@ -4417,6 +4417,8 @@ static void UI_GetCharacterCvars ( void )
 	}
 }
 
+extern saber_colors_t TranslateSaberColor( const char *name );
+
 static void UI_UpdateSaberCvars ( void )
 {
 	Cvar_Set ( "g_saber_type", Cvar_VariableString ( "ui_saber_type" ) );
@@ -4425,10 +4427,14 @@ static void UI_UpdateSaberCvars ( void )
 	Cvar_Set ( "g_saber_color", Cvar_VariableString ( "ui_saber_color" ) );
 	Cvar_Set ( "g_saber2_color", Cvar_VariableString ( "ui_saber2_color" ) );
 	
-	Cvar_Set ( "cg_rgb_saber_red", Cvar_VariableString( "ui_rgb_saber_red" ) );
-	Cvar_Set ( "cg_rgb_saber_green", Cvar_VariableString( "ui_rgb_saber_green" ) );
-	Cvar_Set ( "cg_rgb_saber_blue", Cvar_VariableString( "ui_rgb_saber_blue" ) );
-	
+	if (TranslateSaberColor(Cvar_VariableString("ui_saber_color")) >= SABER_RGB)
+	{
+		char rgbColor[8];
+		Com_sprintf(rgbColor, 8, "x%02x%02x%02x", Cvar_VariableIntegerValue("ui_rgb_saber_red"),
+					(Cvar_VariableIntegerValue("ui_rgb_saber_green")),
+					(Cvar_VariableIntegerValue("ui_rgb_saber_blue")));
+		Cvar_Set( "g_saber_color", rgbColor );
+	}
 }
 
 static void UI_UpdateFightingStyleChoices ( void )
@@ -6231,9 +6237,15 @@ static void UI_GetSaberCvars ( void )
 	Cvar_Set ( "ui_saber2_color", Cvar_VariableString ( "g_saber2_color" ) );
 	Cvar_Set ( "ui_saber2_color", Cvar_VariableString ( "g_saber2_color" ) );
 	
-	Cvar_Set ( "ui_rgb_saber_red", Cvar_VariableString( "cg_rgb_saber_red" ) );
-	Cvar_Set ( "ui_rgb_saber_green", Cvar_VariableString( "cg_rgb_saber_green" ) );
-	Cvar_Set ( "ui_rgb_saber_blue", Cvar_VariableString( "cg_rgb_saber_blue" ) );
+	saber_colors_t saberColour = TranslateSaberColor(Cvar_VariableString( "ui_saber_color" ));
+	
+	if (saberColour >= SABER_RGB)
+	{
+		
+		Cvar_SetValue ( "ui_rgb_saber_red", (saberColour & 0xff) );
+		Cvar_SetValue ( "ui_rgb_saber_green", ((saberColour >> 8) & 0xff) );
+		Cvar_SetValue ( "ui_rgb_saber_blue", ((saberColour >> 16) & 0xff) );
+	}
 	
 	Cvar_Set ( "ui_newfightingstyle", "0");
 

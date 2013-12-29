@@ -525,8 +525,7 @@ typedef enum
 	SABER_GREEN,
 	SABER_BLUE,
 	SABER_PURPLE,
-	SABER_RGB
-
+	SABER_RGB = (1 << 24)
 } saber_colors_t;
 
 #define MAX_BATTERIES	2500
@@ -1057,6 +1056,8 @@ void	Q_strncpyz( char *dest, const char *src, int destsize, qboolean bBarfIfTooL
 void	Q_strncpyz( char *dest, const char *src, int destsize, qboolean bBarfIfTooLong );
 #endif
 void	Q_strcat( char *dest, int size, const char *src );
+
+int Q_parseSaberColor( const char *p, float *color );
 
 const char *Q_stristr( const char *s, const char *find );
 

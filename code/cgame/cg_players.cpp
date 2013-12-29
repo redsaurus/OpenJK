@@ -38,10 +38,6 @@ extern void WP_SaberSwingSound( gentity_t *ent, int saberNum, swingType_t swingT
 
 extern vmCvar_t	cg_debugHealthBars;
 
-extern vmCvar_t	cg_rgb_saber_red;
-extern vmCvar_t	cg_rgb_saber_green;
-extern vmCvar_t	cg_rgb_saber_blue;
-
 extern vmCvar_t	cg_SFXSabers;
 
 /*
@@ -5751,8 +5747,8 @@ static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
 		case SABER_PURPLE:
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
-		case SABER_RGB:
-			VectorSet( rgb, cg_rgb_saber_red.integer/255.0f, cg_rgb_saber_green.integer/255.0f, cg_rgb_saber_blue.integer/255.0f );
+		default://SABER_RGB
+			VectorSet( rgb, ((color) & 0xff)/255.0f, ((color >> 8) & 0xff)/255.0f, ((color >> 16) & 0xff)/255.0f );
 			break;
 	}
 }
@@ -5921,10 +5917,7 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		case SABER_BLUE:
 			glow = cgs.media.blueSaberGlowShader;
 			break;
-		case SABER_RGB:
-			glow = cgs.media.rgbSaberGlowShader;
-			break;
-		default:
+		default://SABER_RGB
 			glow = cgs.media.rgbSaberGlowShader;
 			break;
 	}
@@ -6035,11 +6028,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 			saber.shaderRGBA[2] = 0xff * effectalpha;
 			saber.shaderRGBA[3] = 0xff * effectalpha;
 			
-			if (color == SABER_RGB)
+			if (color >= SABER_RGB)
 			{
-				saber.shaderRGBA[0] = cg_rgb_saber_red.integer * effectalpha;
-				saber.shaderRGBA[1] = cg_rgb_saber_green.integer * effectalpha;
-				saber.shaderRGBA[2] = cg_rgb_saber_blue.integer * effectalpha;
+				saber.shaderRGBA[0] = ((color) & 0xff) * effectalpha;
+				saber.shaderRGBA[1] = ((color >> 8) & 0xff) * effectalpha;
+				saber.shaderRGBA[2] = ((color >> 16) & 0xff) * effectalpha;
 			}
 			
 			cgi_R_AddRefEntityToScene( &saber );
@@ -6075,11 +6068,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 			saber.shaderRGBA[2] = 0xff * effectalpha;
 			saber.shaderRGBA[3] = 0xff * effectalpha;
 			
-			if (color == SABER_RGB)
+			if (color >= SABER_RGB)
 			{
-				saber.shaderRGBA[0] = cg_rgb_saber_red.integer * effectalpha;
-				saber.shaderRGBA[1] = cg_rgb_saber_green.integer * effectalpha;
-				saber.shaderRGBA[2] = cg_rgb_saber_blue.integer * effectalpha;
+				saber.shaderRGBA[0] = ((color) & 0xff) * effectalpha;
+				saber.shaderRGBA[1] = ((color >> 8) & 0xff) * effectalpha;
+				saber.shaderRGBA[2] = ((color >> 16) & 0xff) * effectalpha;
 			}
 			
 			cgi_R_AddRefEntityToScene( &saber );
@@ -6119,11 +6112,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 			saber.shaderRGBA[2] = 0xff * effectalpha;
 			saber.shaderRGBA[3] = 0xff * effectalpha;
 			
-			if (color == SABER_RGB)
+			if (color >= SABER_RGB)
 			{
-				saber.shaderRGBA[0] = cg_rgb_saber_red.integer * effectalpha;
-				saber.shaderRGBA[1] = cg_rgb_saber_green.integer * effectalpha;
-				saber.shaderRGBA[2] = cg_rgb_saber_blue.integer * effectalpha;
+				saber.shaderRGBA[0] = ((color) & 0xff) * effectalpha;
+				saber.shaderRGBA[1] = ((color >> 8) & 0xff) * effectalpha;
+				saber.shaderRGBA[2] = ((color >> 16) & 0xff) * effectalpha;
 			}
 			
 			cgi_R_AddRefEntityToScene( &saber );
@@ -6196,11 +6189,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 			saber.shaderRGBA[2] = 0xff * effectalpha;
 			saber.shaderRGBA[3] = 0xff * effectalpha;
 			
-			if (color == SABER_RGB)
+			if (color >= SABER_RGB)
 			{
-				saber.shaderRGBA[0] = cg_rgb_saber_red.integer * effectalpha;
-				saber.shaderRGBA[1] = cg_rgb_saber_green.integer * effectalpha;
-				saber.shaderRGBA[2] = cg_rgb_saber_blue.integer * effectalpha;
+				saber.shaderRGBA[0] = ((color) & 0xff) * effectalpha;
+				saber.shaderRGBA[1] = ((color >> 8) & 0xff) * effectalpha;
+				saber.shaderRGBA[2] = ((color >> 16) & 0xff) * effectalpha;
 			}
 
 			cgi_R_AddRefEntityToScene( &saber );
@@ -6285,7 +6278,7 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 			glow = cgs.media.purpleSaberGlowShader;
 			blade = cgs.media.purpleSaberCoreShader;
 			break;
-		case SABER_RGB:
+		default://SABER_RGB
 			glow = cgs.media.rgbSaberGlowShader;
 			blade = cgs.media.rgbSaberCoreShader;
 			break;
@@ -6330,11 +6323,11 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
 	saber.renderfx = rfx;
 	
-	if (color == SABER_RGB)
+	if (color >= SABER_RGB)
 	{
-		saber.shaderRGBA[0] = cg_rgb_saber_red.integer;
-		saber.shaderRGBA[1] = cg_rgb_saber_green.integer;
-		saber.shaderRGBA[2] = cg_rgb_saber_blue.integer;
+		saber.shaderRGBA[0] = ((color) & 0xff);
+		saber.shaderRGBA[1] = ((color >> 8) & 0xff);
+		saber.shaderRGBA[2] = ((color >> 16) & 0xff);
 	}
 
 	cgi_R_AddRefEntityToScene( &saber );
@@ -7138,9 +7131,12 @@ if (cg_SFXSabers.integer == 0)
 						case SABER_PURPLE:
 							VectorSet( rgb1, 220.0f, 0.0f, 255.0f );
 							break;
-						case SABER_RGB:
-							VectorSet( rgb1, cg_rgb_saber_red.value, cg_rgb_saber_green.value, cg_rgb_saber_blue.value );
+						default://SABER_RGB
+							VectorSet( rgb1, ((client->ps.saber[saberNum].blade[bladeNum].color) & 0xff),
+									  ((client->ps.saber[saberNum].blade[bladeNum].color >> 8) & 0xff),
+									  ((client->ps.saber[saberNum].blade[bladeNum].color >> 16) & 0xff) );
 							break;
+
 					}
 				}
 
@@ -7337,11 +7333,13 @@ else
 			case SABER_PURPLE:
 				VectorSet( rgb1, 196.0f, 0.0f, 196.0f );
 				break;
-			case SABER_RGB:
-				VectorSet( rgb1, cg_rgb_saber_red.value, cg_rgb_saber_green.value, cg_rgb_saber_blue.value );
-				break;
-			default:
+			case SABER_BLUE:
 				VectorSet( rgb1, 0.0f, 0.0f, 255.0f );
+				break;
+			default://SABER_RGB
+				VectorSet( rgb1, ((client->ps.saber[saberNum].blade[bladeNum].color) & 0xff),
+						  ((client->ps.saber[saberNum].blade[bladeNum].color >> 8) & 0xff),
+						  ((client->ps.saber[saberNum].blade[bladeNum].color >> 16) & 0xff) );
 				break;
 		}
 		

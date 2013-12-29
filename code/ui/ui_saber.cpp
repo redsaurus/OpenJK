@@ -390,7 +390,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			blade = purpleSaberCoreShader;
 			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
 			break;
-		case SABER_RGB:
+		default:
 			glow = rgbSaberGlowShader;
 			blade = rgbSaberCoreShader;
 			VectorSet( rgb, ui_rgb_saber_red.integer/255.0f, ui_rgb_saber_green.integer/255.0f, ui_rgb_saber_blue.integer/255.0f );
@@ -436,7 +436,7 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
 	//saber.renderfx = rfx;
 	
-	if (color == SABER_RGB)
+	if (color >= SABER_RGB)
 	{
 		saber.shaderRGBA[0] = ui_rgb_saber_red.integer;
 		saber.shaderRGBA[1] = ui_rgb_saber_green.integer;
@@ -487,11 +487,14 @@ saber_colors_t TranslateSaberColor( const char *name )
 	{
 		return ((saber_colors_t)(Q_irand( SABER_ORANGE, SABER_PURPLE )));
 	}
-	if ( !Q_stricmp( name, "rgb" ) )
+	float colors[3];
+	Q_parseSaberColor(name, colors);
+	int colourArray[3];
+	for (int i = 0; i < 3; i++)
 	{
-		return SABER_RGB;
+		colourArray[i] = (int)(colors[i] * 255);
 	}
-	return SABER_BLUE;
+	return (saber_colors_t)((colourArray[0]) + (colourArray[1] << 8) + (colourArray[2] << 16) + (1 << 24));
 }
 
 saberType_t TranslateSaberType( const char *name ) 
