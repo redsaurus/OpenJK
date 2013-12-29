@@ -28,7 +28,7 @@ This file is part of Jedi Academy.
 #include "ui_public.h"
 #include "ui_shared.h"
 
-#define MAX_PLAYERMODELS 32
+#define MAX_PLAYERMODELS 512 //32
 #define MAX_DEFERRED_SCRIPT		1024
 
 //
