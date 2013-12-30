@@ -812,16 +812,33 @@ void Svcmd_SaberAttackCycle_f( void )
 						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[1].soundOff );
 					}
 				}
+				if (!self->client->ps.saber[1].Active())
+				{
+					G_RemoveWeaponModels( self );
+					if ( !self->client->ps.saberInFlight )
+					{
+						WP_SaberAddG2SaberModels( self, qfalse );
+					}
+				}
 			}
 			else if ( !self->client->ps.saber[0].ActiveManualOnly() )
 			{//first one is off, too, so just turn that one on
 				if ( !self->client->ps.saberInFlight )
 				{//but only if it's in your hand!
+					if (!self->client->ps.saber[1].Active())
+					{
+						G_RemoveWeaponModels( self );
+						if ( !self->client->ps.saberInFlight )
+						{
+							WP_SaberAddG2SaberModels( self, qfalse );
+						}
+					}
 					self->client->ps.saber[0].Activate();
 				}
 			}
 			else
 			{//turn on the second one
+				WP_SaberAddG2SaberModels( self, qtrue );
 				self->client->ps.saber[1].Activate();
 			}
 			return;
