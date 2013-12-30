@@ -212,6 +212,8 @@ cvar_t	*g_navSafetyChecks;
 
 cvar_t	*g_broadsword;
 
+cvar_t	*g_MPmovement;
+
 qboolean	stop_icarus = qfalse;
 
 extern char *G_GetLocationForEnt( gentity_t *ent );
@@ -699,6 +701,8 @@ void G_InitCvars( void ) {
 	gi.cvar( "ui_prisonerobj_maxtotal", "0", CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
 
 	gi.cvar( "g_clearstats", "1", CVAR_ROM|CVAR_NORESTART);
+	
+	g_MPmovement = gi.cvar( "g_MPmovement", "0", CVAR_ARCHIVE );//use +forcefocus to pull off all the special moves
 
 }
 /*

@@ -142,6 +142,7 @@ extern cvar_t	*g_debugMelee;
 extern cvar_t	*g_saberNewControlScheme;
 extern cvar_t	*g_stepSlideFix;
 extern cvar_t	*g_saberAutoBlocking;
+extern cvar_t	*g_MPmovement;
 
 static void PM_SetWaterLevelAtPoint( vec3_t org, int *waterlevel, int *watertype );
 
@@ -3583,6 +3584,11 @@ int PM_GetLandingAnim( void )
 {
 	int anim = pm->ps->legsAnim;
 	
+	float landingStickyFactor = 0.5f;
+	if ( g_MPmovement && g_MPmovement->integer > 0 )
+	{
+		landingStickyFactor = 1.0f;
+	}
 	//special cases:
 	if ( anim == BOTH_FLIP_ATTACK7
 		|| anim == BOTH_FLIP_HOLD7 )
@@ -3592,8 +3598,8 @@ int PM_GetLandingAnim( void )
 	else if ( anim == BOTH_FLIP_LAND )
 	{
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		return BOTH_LAND1;
 	}
 	else if ( PM_InAirKickingAnim( anim ) )
@@ -3625,57 +3631,57 @@ int PM_GetLandingAnim( void )
 	case BOTH_FORCEINAIRLEFT1:
 		anim = BOTH_FORCELANDLEFT1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_FORCEJUMPRIGHT1:
 	case BOTH_FORCEINAIRRIGHT1:
 		anim = BOTH_FORCELANDRIGHT1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_FORCEJUMP1:
 	case BOTH_FORCEINAIR1:
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		anim = BOTH_FORCELAND1;
 		break;
 	case BOTH_FORCEJUMPBACK1:
 	case BOTH_FORCEINAIRBACK1:
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		anim = BOTH_FORCELANDBACK1;
 		break;
 	case BOTH_JUMPLEFT1:
 	case BOTH_INAIRLEFT1:
 		anim = BOTH_LANDLEFT1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_JUMPRIGHT1:
 	case BOTH_INAIRRIGHT1:
 		anim = BOTH_LANDRIGHT1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_JUMP1:
 	case BOTH_INAIR1:
 		anim = BOTH_LAND1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_JUMPBACK1:
 	case BOTH_INAIRBACK1:
 		anim = BOTH_LANDBACK1;
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	case BOTH_BUTTERFLY_LEFT:
 	case BOTH_BUTTERFLY_RIGHT:
@@ -3738,8 +3744,8 @@ int PM_GetLandingAnim( void )
 			anim = BOTH_LAND1;
 		}
 		//stick landings some
-		pm->ps->velocity[0] *= 0.5f;
-		pm->ps->velocity[1] *= 0.5f;
+		pm->ps->velocity[0] *= landingStickyFactor;
+		pm->ps->velocity[1] *= landingStickyFactor;
 		break;
 	}
 	return anim;
@@ -3939,6 +3945,11 @@ static void PM_CrashLand( void )
 {
 	float		delta = 0;
 	qboolean	forceLanding = qfalse;
+	float		landingStickyFactor = 0.5f;
+	if ( g_MPmovement && g_MPmovement->integer > 0 )
+	{
+		landingStickyFactor = 1.0f;
+	}
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_VEHICLE )
 	{
@@ -4074,8 +4085,8 @@ static void PM_CrashLand( void )
 				pm->ps->saberMove = LS_READY;
 				pm->ps->weaponTime = 0;
 				//stick landings some
-				pm->ps->velocity[0] *= 0.5f;
-				pm->ps->velocity[1] *= 0.5f;
+				pm->ps->velocity[0] *= landingStickyFactor;
+				pm->ps->velocity[1] *= landingStickyFactor;
 			}
 		}
 		else if ( pm->gent 
