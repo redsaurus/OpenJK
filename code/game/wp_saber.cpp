@@ -401,11 +401,11 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
 			vec3_t gunAngles;
 			gunAngles[PITCH] = 180.0f;
-			gunAngles[YAW] = 180.0f;
-			gunAngles[ROLL] = 0.0f;
+			gunAngles[YAW] = 0.0f;
+			gunAngles[ROLL] = 180.0f;
 			if (g_flippedHolsters && g_flippedHolsters->integer > 0)
 			{
-				gunAngles[ROLL] = 180.0f;
+				gunAngles[YAW] = 180.0f;
 			}
 			gi.G2API_SetBoneAngles(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0);
 			gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*flash");
