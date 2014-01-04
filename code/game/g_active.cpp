@@ -1668,6 +1668,7 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 				//FIXME: AddSound/Sight Event
 				int numSabers = WP_SaberInitBladeData( ent );
 				WP_SaberAddG2SaberModels( ent );
+				G_RemoveHolsterModels( ent );
 				for ( int saberNum = 0; saberNum < numSabers; saberNum++ )
 				{
 					//G_CreateG2AttachedWeaponModel( ent, ent->client->ps.saber[saberNum].model, ent->handRBolt, 0 );
@@ -1684,6 +1685,7 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 			else
 			{
 				G_CreateG2AttachedWeaponModel( ent, weaponData[newWeap].weaponMdl, ent->handRBolt, 0 );
+				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 		}
 	}

@@ -354,6 +354,62 @@ stringID_table_t SaberStyleTable[] =
 
 //SABER INITIALIZATION======================================================================
 
+void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum )
+{
+	if (!psWeaponModel)
+	{
+		assert (psWeaponModel);
+		return;
+	}
+	if ( ent->playerModel == -1 )
+	{
+		return;
+	}
+	if ( boltNum == -1 )
+	{
+		return;
+	}
+	
+	if ( weaponNum < 0 || weaponNum >= MAX_INHAND_WEAPONS )
+	{
+		return;
+	}
+	char weaponModel[64];
+	
+	strcpy (weaponModel, psWeaponModel);
+	if (char *spot = strstr(weaponModel, ".md3") ) {
+		*spot = 0;
+		spot = strstr(weaponModel, "_w");//i'm using the in view weapon array instead of scanning the item list, so put the _w back on
+		if (!spot&&!strstr(weaponModel, "noweap"))
+		{
+			strcat (weaponModel, "_w");
+		}
+		strcat (weaponModel, ".glm");	//and change to ghoul2
+	}
+		
+	// give us a saber model
+	int wModelIndex = G_ModelIndex( weaponModel );
+	if ( wModelIndex )
+	{
+		ent->holsterModel[weaponNum] = gi.G2API_InitGhoul2Model(ent->ghoul2, weaponModel, wModelIndex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
+		if ( ent->holsterModel[weaponNum] != -1 )
+		{
+			// attach it to the hand
+			gi.G2API_AttachG2Model(&ent->ghoul2[ent->holsterModel[weaponNum]], &ent->ghoul2[ent->playerModel],
+								   boltNum, ent->playerModel);
+			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
+			vec3_t gunAngles;
+			gunAngles[PITCH] = 180.0f;
+			gunAngles[YAW] = 180.0f;
+			gunAngles[ROLL] = 180.0f;
+			gi.G2API_SetBoneAngles(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0);
+			gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*flash");
+	  		//gi.G2API_SetLodBias( &ent->ghoul2[ent->weaponModel[weaponNum]], 0 );
+		}
+	}
+	
+}
+
 void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum )
 {
 	if (!psWeaponModel)
@@ -465,6 +521,66 @@ void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum )
 				// put it in the config strings
 				// and set the ghoul2 model to use it
 				gi.G2API_SetSkin( &ent->ghoul2[ent->weaponModel[saberNum]], G_SkinIndex( ent->client->ps.saber[saberNum].skin ), saberSkin );
+			}
+		}
+	}
+}
+
+void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
+{
+	int saberNum = 0, maxSaber = 1;
+	if (!(ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER )))
+	{
+		return;
+	}
+	if ( specificSaberNum != -1 && specificSaberNum <= maxSaber )
+	{
+		saberNum = maxSaber = specificSaberNum;
+	}
+	for ( ; saberNum <= maxSaber; saberNum++ )
+	{
+		if ( ent->holsterModel[saberNum] > 0 )
+		{//we already have a weapon model in this slot
+			//remove it
+			gi.G2API_SetSkin( &ent->ghoul2[ent->holsterModel[saberNum]], -1, 0 );
+			gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->holsterModel[saberNum] );
+			ent->holsterModel[saberNum] = -1;
+		}
+		if ( saberNum > 0 )
+		{//second saber
+			if ( !ent->client->ps.dualSabers )
+			{//only have one saber or riding a vehicle and can only use one saber
+				return;
+			}
+		}
+		else if ( saberNum == 0 )
+		{//first saber
+			if ( ent->client->ps.saberInFlight )
+			{//it's still out there somewhere, don't add it
+				//FIXME: call it back?
+				continue;
+			}
+		}
+		int handBolt = -1;
+		if ( saberNum == 0 )
+		{
+			handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_r" );
+		}
+		else
+		{
+			handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+		}
+		G_CreateG2HolsteredWeaponModel( ent, ent->client->ps.saber[saberNum].model, handBolt, saberNum );
+		
+		if ( ent->client->ps.saber[saberNum].skin != NULL )
+		{//if this saber has a customSkin, use it
+			// lets see if it's out there
+			int saberSkin = gi.RE_RegisterSkin( ent->client->ps.saber[saberNum].skin );
+			if ( saberSkin )
+			{
+				// put it in the config strings
+				// and set the ghoul2 model to use it
+				gi.G2API_SetSkin( &ent->ghoul2[ent->holsterModel[saberNum]], G_SkinIndex( ent->client->ps.saber[saberNum].skin ), saberSkin );
 			}
 		}
 	}

@@ -815,10 +815,12 @@ void Svcmd_SaberAttackCycle_f( void )
 				if (!self->client->ps.saber[1].Active())
 				{
 					G_RemoveWeaponModels( self );
+					G_RemoveHolsterModels( self );
 					if ( !self->client->ps.saberInFlight )
 					{
 						WP_SaberAddG2SaberModels( self, qfalse );
 					}
+					WP_SaberAddHolsteredG2SaberModels( self, qtrue );
 				}
 			}
 			else if ( !self->client->ps.saber[0].ActiveManualOnly() )
@@ -828,16 +830,19 @@ void Svcmd_SaberAttackCycle_f( void )
 					if (!self->client->ps.saber[1].Active())
 					{
 						G_RemoveWeaponModels( self );
+						G_RemoveHolsterModels( self );
 						if ( !self->client->ps.saberInFlight )
 						{
 							WP_SaberAddG2SaberModels( self, qfalse );
 						}
+						WP_SaberAddHolsteredG2SaberModels( self, qtrue );
 					}
 					self->client->ps.saber[0].Activate();
 				}
 			}
 			else
 			{//turn on the second one
+				G_RemoveHolsterModels( self );
 				WP_SaberAddG2SaberModels( self, qtrue );
 				self->client->ps.saber[1].Activate();
 			}

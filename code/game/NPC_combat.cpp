@@ -1030,10 +1030,12 @@ void NPC_ChangeWeapon( int newWeapon )
 		if ( NPC->client->ps.weapon == WP_SABER )
 		{
 			WP_SaberAddG2SaberModels( NPC );
+			G_RemoveHolsterModels( NPC );
 		}
 		else
 		{
 			G_CreateG2AttachedWeaponModel( NPC, weaponData[NPC->client->ps.weapon].weaponMdl, NPC->handRBolt, 0 );
+			WP_SaberAddHolsteredG2SaberModels( NPC );
 		}
 	}
 }

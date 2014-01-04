@@ -8983,6 +8983,8 @@ static void PM_FinishWeaponChange( void ) {
 		if ( pm->gent )
 		{// remove gun if we had it.
 			G_RemoveWeaponModels( pm->gent );
+			//and remove holstered saber models
+			G_RemoveHolsterModels( pm->gent );
 		}
 
 		if ( !pm->ps->saberInFlight || pm->ps->dualSabers )
@@ -9033,6 +9035,8 @@ static void PM_FinishWeaponChange( void ) {
 		{
 			// remove the sabre if we had it.
 			G_RemoveWeaponModels( pm->gent );
+			//holster sabers
+			WP_SaberAddHolsteredG2SaberModels( pm->gent );
 			if (weaponData[weapon].weaponMdl[0]) {	//might be NONE, so check if it has a model
 				G_CreateG2AttachedWeaponModel( pm->gent, weaponData[weapon].weaponMdl, pm->gent->handRBolt, 0 );
 			}

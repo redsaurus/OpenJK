@@ -1891,6 +1891,23 @@ void G_RemoveWeaponModels( gentity_t *ent )
 	}
 }
 
+void G_RemoveHolsterModels( gentity_t *ent )
+{
+	if ( ent->ghoul2.size() )
+	{
+		if ( ent->holsterModel[0] > 0 )
+		{
+			gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->holsterModel[0] );
+			ent->holsterModel[0] = -1;
+		}
+		if ( ent->holsterModel[1] > 0 )
+		{
+			gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->holsterModel[1] );
+			ent->holsterModel[1] = -1;
+		}
+	}
+}
+
 void G_AddWeaponModels( gentity_t *ent )
 {
 	if ( !ent || !ent->client )
@@ -1902,10 +1919,12 @@ void G_AddWeaponModels( gentity_t *ent )
 		if ( ent->client->ps.weapon == WP_SABER )
 		{
 			WP_SaberAddG2SaberModels( ent );
+			G_RemoveHolsterModels( ent );
 		}
 		else if ( ent->client->ps.weapon != WP_NONE )
 		{
 			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 	}
 }
@@ -2601,11 +2620,13 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 				&& ent->client->ps.weapon == WP_SABER )//current weapon is saber
 			{//add the proper models
 				WP_SaberAddG2SaberModels( ent );
+				G_RemoveHolsterModels( ent );
 			}
 		}
 		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != WP_NONE )
 		{
 			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 
 		{

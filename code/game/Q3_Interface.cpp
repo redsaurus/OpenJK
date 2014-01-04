@@ -3273,10 +3273,12 @@ void G_SetWeapon( gentity_t *self, int wp )
 			WP_SaberInitBladeData( self );
 		}
 		WP_SaberAddG2SaberModels( self );
+		G_RemoveHolsterModels( self );
 	}
 	else
 	{
 		G_CreateG2AttachedWeaponModel( self, weaponData[wp].weaponMdl, self->handRBolt, 0 );
+		WP_SaberAddHolsteredG2SaberModels( self );
 	}
 }
 

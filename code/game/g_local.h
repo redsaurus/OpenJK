@@ -421,6 +421,7 @@ void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 void AddScore( gentity_t *ent, int score );
 qboolean SpotWouldTelefrag( gentity_t *spot, team_t checkteam );
 void G_RemoveWeaponModels( gentity_t *ent );
+void G_RemoveHolsterModels( gentity_t *ent );
 
 //
 // g_svcmds.c

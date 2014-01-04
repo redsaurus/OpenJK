@@ -523,6 +523,7 @@ typedef struct
 
 #define MAX_FAILED_NODES 8
 #define MAX_INHAND_WEAPONS	2
+#define MAX_HOLSTER_WEAPONS 2
 
 
 typedef struct centity_s centity_t;
@@ -734,6 +735,7 @@ Ghoul2 Insert End
 	short			headLowerLumbarBone;
 	short			headHipsBone;
 	short			headFaceBone;
+	short			holsterModel[MAX_HOLSTER_WEAPONS];
 	short			playerModel;
 	short			weaponModel[MAX_INHAND_WEAPONS];
 	short			handRBolt;

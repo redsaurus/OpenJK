@@ -1029,10 +1029,12 @@ extern void CG_ChangeWeapon( int num );
 			if ( ent->client->ps.weapon == WP_SABER )
 			{
 				WP_SaberAddG2SaberModels( ent );
+				G_RemoveHolsterModels( ent );
 			}
 			else
 			{
 				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 
 			if ( ent->s.number < MAX_CLIENTS )
