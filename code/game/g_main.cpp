@@ -213,6 +213,7 @@ cvar_t	*g_navSafetyChecks;
 cvar_t	*g_broadsword;
 
 cvar_t	*g_MPmovement;
+cvar_t	*g_flippedHolsters;
 
 qboolean	stop_icarus = qfalse;
 
@@ -703,7 +704,8 @@ void G_InitCvars( void ) {
 	gi.cvar( "g_clearstats", "1", CVAR_ROM|CVAR_NORESTART);
 	
 	g_MPmovement = gi.cvar( "g_MPmovement", "0", CVAR_ARCHIVE );//use +forcefocus to pull off all the special moves
-
+	
+	g_flippedHolsters = gi.cvar( "g_flippedHolsters", "0", CVAR_ARCHIVE );//if 1, saber faces up when holstered not down
 }
 /*
 ============

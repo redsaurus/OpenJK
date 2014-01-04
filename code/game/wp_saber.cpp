@@ -159,6 +159,7 @@ extern cvar_t	*g_saberAutoBlocking;
 extern cvar_t	*g_saberRealisticCombat;
 extern cvar_t	*g_saberDamageCapping;
 extern cvar_t	*g_saberNewControlScheme;
+extern cvar_t	*g_flippedHolsters;
 extern int g_crosshairEntNum;
 
 qboolean g_saberNoEffects = qfalse;
@@ -401,7 +402,11 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			vec3_t gunAngles;
 			gunAngles[PITCH] = 180.0f;
 			gunAngles[YAW] = 180.0f;
-			gunAngles[ROLL] = 180.0f;
+			gunAngles[ROLL] = 0.0f;
+			if (g_flippedHolsters && g_flippedHolsters->integer > 0)
+			{
+				gunAngles[ROLL] = 180.0f;
+			}
 			gi.G2API_SetBoneAngles(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0);
 			gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*flash");
 	  		//gi.G2API_SetLodBias( &ent->ghoul2[ent->weaponModel[weaponNum]], 0 );
