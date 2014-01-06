@@ -1780,6 +1780,8 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &amount);
 			UI_GiveInventory(atoi(inventoryIndex),atoi(amount));
 		}
+<<<<<<< HEAD
+=======
 		else if (Q_stricmp(name, "addinventoryselection") == 0)
 		{
 			const char *inventoryIndex;
@@ -1857,6 +1859,7 @@ static qboolean UI_RunMenuScript ( const char **args )
 		{
 			UI_InitInventorySelect();
 		}
+>>>>>>> 4cdc28c... [SP] [UI] Inventory menu code
 		else if (Q_stricmp(name, "updatefightingstyle") == 0)
 		{
 			UI_UpdateFightingStyle();
