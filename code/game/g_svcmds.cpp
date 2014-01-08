@@ -37,6 +37,8 @@ extern saber_colors_t TranslateSaberColor( const char *name );
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
 
+extern void G_SetSabersFromCVars( gentity_t *ent );
+
 extern void G_SetWeapon( gentity_t *self, int wp );
 extern stringID_table_t WPTable[];
 
@@ -1518,6 +1520,38 @@ qboolean	ConsoleCommand( void ) {
 		else
 		{
 			gi.Printf( S_COLOR_RED"USAGE: headPlayerModel <g2model>" );
+		}
+		return qtrue;
+	}
+	
+	if ( Q_stricmp( cmd, "customSaber" ) == 0 )
+	{
+		if ( gi.argc() == 1 )
+		{
+			gi.Printf( S_COLOR_RED"USAGE: customSaber <sabernum> <skin> <skin> <skin>\n" );
+		}
+		else if ( gi.argc() == 5 )
+		{
+			if (atoi(gi.argv(1)) == 1)
+			{
+				gi.cvar_set("g_saber2_skin_1", gi.argv(2) );
+				gi.cvar_set("g_saber2_skin_2", gi.argv(3) );
+				gi.cvar_set("g_saber2_skin_3", gi.argv(4) );
+			}
+			else
+			{
+				gi.cvar_set("g_saber_skin_1", gi.argv(2) );
+				gi.cvar_set("g_saber_skin_2", gi.argv(3) );
+				gi.cvar_set("g_saber_skin_3", gi.argv(4) );
+			}
+			
+			G_SetSabersFromCVars(&g_entities[0]);
+
+			if ((&g_entities[0])->client->ps.weapon == WP_SABER)
+			{
+				WP_SaberAddG2SaberModels(&g_entities[0]);
+			}
+
 		}
 		return qtrue;
 	}

@@ -52,6 +52,9 @@ extern cvar_t	*g_char_color_2_red;
 extern cvar_t	*g_char_color_2_green;
 extern cvar_t	*g_char_color_2_blue;
 
+extern cvar_t	*g_saber_skin[MAX_SABER_PARTS];
+extern cvar_t	*g_saber2_skin[MAX_SABER_PARTS];
+
 // g_client.c -- client functions that don't happen every frame
 
 float DEFAULT_MINS_0 = -16;
@@ -1949,6 +1952,37 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].singleBladeStyle;
 		}
+		//Custom saber stuff!
+		if (Q_stristr(ent->client->ps.saber[0].name, "saberbuilder"))
+		{
+			char skinRoot[MAX_QPATH] = {0};
+			Q_strncpyz(skinRoot, ent->client->ps.saber[0].model, MAX_QPATH);
+			int l = strlen(skinRoot);
+			while (l > 0 && skinRoot[l] != '/')
+			{ //parse back to first /
+				l--;
+			}
+			
+			if (skinRoot[l] == '/')
+			{
+				l++;
+				skinRoot[l] = 0;
+				
+				for (int j = 0; j < MAX_SABER_PARTS; j++)
+				{
+					Q_strcat(skinRoot, MAX_QPATH, "|");
+					if (g_saber_skin[j] && g_saber_skin[j]->string && g_saber_skin[j]->string[0])
+					{
+						Q_strcat(skinRoot, MAX_QPATH, g_saber_skin[j]->string);
+					}
+				}
+				
+				if(ent->client->ps.saber[0].skin && gi.bIsFromZone(ent->client->ps.saber[0].skin, TAG_G_ALLOC) ) {
+					gi.Free(ent->client->ps.saber[0].skin);
+				}
+				ent->client->ps.saber[0].skin = G_NewString(skinRoot);
+			}
+		}
 	}
 
 	if ( player 
@@ -1970,7 +2004,8 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			ent->client->ps.saber[0].blade[n].color = color;
 		}
 	}
-	if ( g_saber2->string 
+		
+	if ( g_saber2->string
 		&& g_saber2->string[0]
 		&& Q_stricmp( "none", g_saber2->string )
 		&& Q_stricmp( "NULL", g_saber2->string ) )
@@ -1986,6 +2021,39 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			{
 				ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].singleBladeStyle;
 			}
+			
+			//Custom saber stuff!
+			if (Q_stristr(ent->client->ps.saber[1].name, "saberbuilder"))
+			{
+				char skinRoot[MAX_QPATH] = {0};
+				Q_strncpyz(skinRoot, ent->client->ps.saber[1].model, MAX_QPATH);
+				int l = strlen(skinRoot);
+				while (l > 0 && skinRoot[l] != '/')
+				{ //parse back to first /
+					l--;
+				}
+				
+				if (skinRoot[l] == '/')
+				{
+					l++;
+					skinRoot[l] = 0;
+					
+					for (int j = 0; j < MAX_SABER_PARTS; j++)
+					{
+						Q_strcat(skinRoot, MAX_QPATH, "|");
+						if (g_saber2_skin[j] && g_saber2_skin[j]->string && g_saber2_skin[j]->string[0])
+						{
+							Q_strcat(skinRoot, MAX_QPATH, g_saber2_skin[j]->string);
+						}
+					}
+					
+					if(ent->client->ps.saber[1].skin && gi.bIsFromZone(ent->client->ps.saber[1].skin, TAG_G_ALLOC) ) {
+						gi.Free(ent->client->ps.saber[1].skin);
+					}
+					ent->client->ps.saber[1].skin = G_NewString(skinRoot);
+				}
+			}
+
 			if ( (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
 			{//tsk tsk, can't use a twoHanded saber as second saber
 				WP_RemoveSaber( ent, 1 );

@@ -204,6 +204,10 @@ cvar_t	*g_char_color_2_red;
 cvar_t	*g_char_color_2_green;
 cvar_t	*g_char_color_2_blue;
 
+cvar_t	*g_saber_skin[MAX_SABER_PARTS];
+cvar_t	*g_saber2_skin[MAX_SABER_PARTS];
+
+
 // kef -- used with DebugTraceForNPC
 cvar_t	*g_npcdebug;
 
@@ -691,7 +695,13 @@ void G_InitCvars( void ) {
 	g_char_color_2_red = gi.cvar( "g_char_color_2_red", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	g_char_color_2_green = gi.cvar( "g_char_color_2_green", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	g_char_color_2_blue = gi.cvar( "g_char_color_2_blue", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-
+	
+	for (int i = 0; i < MAX_SABER_PARTS; i++)
+	{
+		g_saber_skin[i] = gi.cvar( va("g_saber_skin_%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+		g_saber2_skin[i] = gi.cvar( va("g_saber2_skin_%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	}
+	
 
 	g_broadsword = gi.cvar( "broadsword", "1", 0);
 
