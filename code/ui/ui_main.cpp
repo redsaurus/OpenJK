@@ -382,6 +382,13 @@ vmCvar_t	ui_rgb_saber2_red;
 vmCvar_t	ui_rgb_saber2_green;
 vmCvar_t	ui_rgb_saber2_blue;
 
+vmCvar_t	ui_saber_skin1;
+vmCvar_t	ui_saber_skin2;
+vmCvar_t	ui_saber_skin3;
+vmCvar_t	ui_saber2_skin1;
+vmCvar_t	ui_saber2_skin2;
+vmCvar_t	ui_saber2_skin3;
+
 
 //JLFCALLOUT MPMOVED
 vmCvar_t	ui_hideAcallout;
@@ -427,6 +434,14 @@ static cvarTable_t cvarTable[] =
 	{ &ui_rgb_saber2_red,		"ui_rgb_saber2_red",	"", 0},
 	{ &ui_rgb_saber2_blue,		"ui_rgb_saber2_blue",	"", 0},
 	{ &ui_rgb_saber2_green,		"ui_rgb_saber2_green",	"", 0},
+	
+	{ &ui_saber_skin1,		"ui_saber_skin1",	"", 0},
+	{ &ui_saber_skin2,		"ui_saber_skin2",	"", 0},
+	{ &ui_saber_skin3,		"ui_saber_skin3",	"", 0},
+	{ &ui_saber2_skin1,		"ui_saber2_skin1",	"", 0},
+	{ &ui_saber2_skin2,		"ui_saber2_skin2",	"", 0},
+	{ &ui_saber2_skin3,		"ui_saber2_skin3",	"", 0},
+
 //JLFCALLOUT MPMOVED
 	{ &ui_hideAcallout,		"ui_hideAcallout",	"", 0}, 
 	{ &ui_hideBcallout,		"ui_hideBcallout",	"", 0}, 
@@ -4451,6 +4466,14 @@ static void UI_UpdateSaberCvars ( void )
 					(Cvar_VariableIntegerValue("ui_rgb_saber2_blue")));
 		Cvar_Set( "g_saber2_color", rgbColor );
 	}
+	
+	Cvar_Set ( "g_saber_skin1", Cvar_VariableString ( "ui_saber_skin1" ) );
+	Cvar_Set ( "g_saber_skin2", Cvar_VariableString ( "ui_saber_skin2" ) );
+	Cvar_Set ( "g_saber_skin3", Cvar_VariableString ( "ui_saber_skin3" ) );
+	
+	Cvar_Set ( "g_saber2_skin1", Cvar_VariableString ( "ui_saber2_skin1" ) );
+	Cvar_Set ( "g_saber2_skin2", Cvar_VariableString ( "ui_saber2_skin2" ) );
+	Cvar_Set ( "g_saber2_skin3", Cvar_VariableString ( "ui_saber2_skin3" ) );
 
 }
 
@@ -6275,6 +6298,14 @@ static void UI_GetSaberCvars ( void )
 	}
 	
 	Cvar_Set ( "ui_newfightingstyle", "0");
+	
+	Cvar_Set ( "ui_saber_skin1", Cvar_VariableString ( "g_saber_skin1" ) );
+	Cvar_Set ( "ui_saber_skin2", Cvar_VariableString ( "g_saber_skin2" ) );
+	Cvar_Set ( "ui_saber_skin3", Cvar_VariableString ( "g_saber_skin3" ) );
+	
+	Cvar_Set ( "ui_saber2_skin1", Cvar_VariableString ( "g_saber2_skin1" ) );
+	Cvar_Set ( "ui_saber2_skin2", Cvar_VariableString ( "g_saber2_skin2" ) );
+	Cvar_Set ( "ui_saber2_skin3", Cvar_VariableString ( "g_saber2_skin3" ) );
 
 }
 

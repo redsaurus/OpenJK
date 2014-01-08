@@ -42,6 +42,14 @@ extern vmCvar_t	ui_rgb_saber2_red;
 extern vmCvar_t	ui_rgb_saber2_green;
 extern vmCvar_t	ui_rgb_saber2_blue;
 
+extern vmCvar_t	ui_saber_skin1;
+extern vmCvar_t	ui_saber_skin2;
+extern vmCvar_t	ui_saber_skin3;
+extern vmCvar_t	ui_saber2_skin1;
+extern vmCvar_t	ui_saber2_skin2;
+extern vmCvar_t	ui_saber2_skin3;
+
+
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
@@ -56,6 +64,7 @@ static qhandle_t purpleSaberGlowShader;
 static qhandle_t purpleSaberCoreShader;
 static qhandle_t rgbSaberGlowShader;
 static qhandle_t rgbSaberCoreShader;
+
 void UI_CacheSaberGlowGraphics( void )
 {//FIXME: these get fucked by vid_restarts
 	redSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/red_glow" );
@@ -185,6 +194,48 @@ qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
 
 qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 {
+	if (Q_stristr(saberName, "saberbuilder"))
+	{
+		char skinRoot[MAX_QPATH];
+		if (!UI_SaberModelForSaber(saberName, skinRoot))
+		{
+			return qfalse;
+		}
+		
+		int l = strlen(skinRoot);
+		while (l > 0 && skinRoot[l] != '/')
+		{ //parse back to first /
+			l--;
+		}
+		
+		if (skinRoot[l] == '/')
+		{
+			l++;
+			skinRoot[l] = 0;
+			
+			{
+				Q_strcat(skinRoot, MAX_QPATH, "|");
+				if (ui_saber_skin1.string && ui_saber_skin1.string[0])
+				{
+					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin1.string);
+				}
+				Q_strcat(skinRoot, MAX_QPATH, "|");
+				if (ui_saber_skin2.string && ui_saber_skin2.string[0])
+				{
+					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin2.string);
+				}
+				Q_strcat(skinRoot, MAX_QPATH, "|");
+				if (ui_saber_skin3.string && ui_saber_skin3.string[0])
+				{
+					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin3.string);
+				}
+
+			}
+			Q_strncpyz(saberSkin, skinRoot, MAX_QPATH);
+
+		}
+		
+	}
 	return UI_SaberParseParm( saberName, "customSkin", saberSkin );
 }
 
