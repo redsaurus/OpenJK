@@ -499,9 +499,18 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	
 	if (color >= SABER_RGB)
 	{
-		saber.shaderRGBA[0] = ui_rgb_saber_red.integer;
-		saber.shaderRGBA[1] = ui_rgb_saber_green.integer;
-		saber.shaderRGBA[2] = ui_rgb_saber_blue.integer;
+		if (whichSaber == 0)
+		{
+			saber.shaderRGBA[0] = ui_rgb_saber_red.integer;
+			saber.shaderRGBA[1] = ui_rgb_saber_green.integer;
+			saber.shaderRGBA[2] = ui_rgb_saber_blue.integer;
+		}
+		else
+		{
+			saber.shaderRGBA[0] = ui_rgb_saber2_red.integer;
+			saber.shaderRGBA[1] = ui_rgb_saber2_green.integer;
+			saber.shaderRGBA[2] = ui_rgb_saber2_blue.integer;
+		}
 	}
 
 	DC->addRefEntityToScene( &saber );
