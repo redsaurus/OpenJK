@@ -140,6 +140,16 @@ typedef struct {
 } playerSpeciesInfo_t;
 
 typedef struct {
+	char		Name[64];
+	int			Skin1Count;
+	char		Skin1Names[MAX_PLAYERMODELS][16];
+	int			Skin2Count;
+	char		Skin2Names[MAX_PLAYERMODELS][16];
+	int			Skin3Count;
+	char		Skin3Names[MAX_PLAYERMODELS][16];
+} customSaberInfo_t;
+
+typedef struct {
 	displayContextDef_t uiDC;
 
 	int effectsColor;
@@ -152,6 +162,10 @@ typedef struct {
 	int					playerSpeciesCount;
 	playerSpeciesInfo_t	playerSpecies[MAX_PLAYERMODELS];
 	int					playerSpeciesIndex;
+	
+	int					customSabersCount;
+	customSaberInfo_t	customSabers[MAX_PLAYERMODELS];
+	int					customSabersIndex;
 
 
 	char		deferredScript [ MAX_DEFERRED_SCRIPT ];

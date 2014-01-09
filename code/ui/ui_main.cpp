@@ -128,7 +128,7 @@ static void		UI_ForcePowerWeaponsButton(qboolean activeFlag);
 static void		UI_UpdateCharacterSkin( void );
 static void		UI_UpdateCharacter( qboolean changedModel );
 static void		UI_UpdateSaberType( void );
-static void		UI_UpdateSaberHilt( qboolean secondSaber );
+static void		UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel );
 //static void		UI_UpdateSaberColor( qboolean secondSaber );
 static void		UI_InitWeaponSelect( void );
 static void		UI_WeaponHelpActive( void );
@@ -729,6 +729,30 @@ const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *
 			return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Shader[index];
 		}
 	}
+	else if (feederID == FEEDER_SABER_SKIN_1)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Count)
+		{
+			*handle =  ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Names[index]));
+			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Names[index];
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_2)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Count)
+		{
+			*handle =  ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Names[index]));
+			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Names[index];
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_3)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
+		{
+			*handle =  ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index]));
+			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index];
+		}
+	}
 	else if (feederID == FEEDER_MODS)
 	{
 		if (index >= 0 && index < uiInfo.modCount) 
@@ -785,6 +809,27 @@ qhandle_t UI_FeederItemImage(float feederID, int index)
 		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count)
 		{
 			return ui.R_RegisterShaderNoMip( uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Shader[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_1)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Count)
+		{
+			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Names[index]));
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_2)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Count)
+		{
+			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Names[index]));
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_3)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
+		{
+			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].Name, uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index]));
 		}
 	}
 /*	else if (feederID == FEEDER_ALLMAPS || feederID == FEEDER_MAPS)
@@ -1233,17 +1278,25 @@ static qboolean UI_RunMenuScript ( const char **args )
 		}
 		else if (Q_stricmp(name, "saber_hilt") == 0) 
 		{
-			UI_UpdateSaberHilt( qfalse );
+			UI_UpdateSaberHilt( qfalse, qtrue );
 		}
-		else if (Q_stricmp(name, "saber_color") == 0) 
+		else if (Q_stricmp(name, "saber_hilt_nochange") == 0)
+		{
+			UI_UpdateSaberHilt( qfalse, qfalse );
+		}
+		else if (Q_stricmp(name, "saber_color") == 0)
 		{
 //			UI_UpdateSaberColor( qfalse );
 		}
 		else if (Q_stricmp(name, "saber2_hilt") == 0) 
 		{
-			UI_UpdateSaberHilt( qtrue );
+			UI_UpdateSaberHilt( qtrue, qtrue );
 		}
-		else if (Q_stricmp(name, "saber2_color") == 0) 
+		else if (Q_stricmp(name, "saber2_hilt_nochange") == 0)
+		{
+			UI_UpdateSaberHilt( qtrue, qfalse );
+		}
+		else if (Q_stricmp(name, "saber2_color") == 0)
 		{
 //			UI_UpdateSaberColor( qtrue );
 		}
@@ -1848,6 +1901,18 @@ static int UI_FeederCount(float feederID)
 	{
 		return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count;
 	}
+	else if (feederID == FEEDER_SABER_SKIN_1)
+	{
+		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Count;
+	}
+	else if (feederID == FEEDER_SABER_SKIN_2)
+	{
+		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Count;
+	}
+	else if (feederID == FEEDER_SABER_SKIN_3)
+	{
+		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count;
+	}
 
 	return 0;
 }
@@ -2035,6 +2100,27 @@ extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count)
 		{
 			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2ActionText[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_1)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Count)
+		{
+			Cvar_Set("ui_saber_skin1", uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Names[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_2)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Count)
+		{
+			Cvar_Set("ui_saber_skin2", uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Names[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_3)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
+		{
+			Cvar_Set("ui_saber_skin3", uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index]);
 		}
 	}
 /*	else if (feederID == FEEDER_CINEMATICS)
@@ -6432,7 +6518,7 @@ void UI_UpdateSaberType( void )
 	}
 }
 
-static void UI_UpdateSaberHilt( qboolean secondSaber )
+static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 {
 	menuDef_t *menu;
 	itemDef_t *item;
@@ -6466,6 +6552,14 @@ static void UI_UpdateSaberHilt( qboolean secondSaber )
 		Com_Error( ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
 	}
 	DC->getCVarString( saberCvarName, model, sizeof(model) );
+	
+	if (changedModel)
+	{
+		UI_FeederSelection(FEEDER_SABER_SKIN_1, 0, item);	//fixme, this is not really the right item!!
+		UI_FeederSelection(FEEDER_SABER_SKIN_2, 0, item);
+		UI_FeederSelection(FEEDER_SABER_SKIN_3, 0, item);
+	}
+
 	//read this from the sabers.cfg
 	if ( UI_SaberModelForSaber( model, modelPath ) )
 	{//successfully found a model
