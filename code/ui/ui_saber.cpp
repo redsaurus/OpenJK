@@ -232,6 +232,7 @@ qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 
 			}
 			Q_strncpyz(saberSkin, skinRoot, MAX_QPATH);
+			return qtrue;
 
 		}
 		

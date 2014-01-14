@@ -97,8 +97,8 @@ This file is part of Jedi Academy.
 #define FEEDER_COLORCHOICES2				0x18			// more text/actions from playerchoice2.txt!
 
 #define FEEDER_SABER_SKIN_1					0x19
-#define FEEDER_SABER_SKIN_2					0x20
-#define FEEDER_SABER_SKIN_3					0x21
+#define FEEDER_SABER_SKIN_2					0x1a
+#define FEEDER_SABER_SKIN_3					0x1b
 
 
 #define UI_VERSION				200
