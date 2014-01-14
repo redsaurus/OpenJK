@@ -6456,6 +6456,18 @@ static void UI_UpdateCharacterSkin( void )
 		if (Cvar_VariableString( "ui_char_head_skin" )[0])
 		{
 			Com_sprintf( skin, sizeof( skin), "models/players/%s/model_%s.skin", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+			if (!DC->registerSkin( skin ))
+			{
+				//What if it's a 3-parter or one part of a 3-parter?
+				if (strchr(Cvar_VariableString( "ui_char_head_skin" ), '|'))
+				{
+					Com_sprintf( skin, sizeof( skin ), "models/players/%s/|%s", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+				}
+				else
+				{
+					Com_sprintf( skin, sizeof( skin ), "models/players/%s/%s.skin", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+				}
+			}
 		}
 		else
 		{
