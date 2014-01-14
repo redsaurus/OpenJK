@@ -2150,6 +2150,47 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	}
 }
 
+static void G_SetHeadSkin( gentity_t *ent )
+{
+	char	skinName[MAX_QPATH];
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		if (g_char_head_skin->string && g_char_head_skin->string[0])
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", g_char_head_model->string, g_char_head_skin->string );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", g_char_head_model->string );
+		}
+	
+	}
+	
+	// lets see if it's out there
+	int skin = gi.RE_RegisterSkin( skinName );
+	
+	//What if it's a 3-parter or one part of a 3-parter?
+	if (!skin && g_char_head_skin->string && g_char_head_skin->string[0])
+	{
+		if (strchr(g_char_head_skin->string, '|'))
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/|%s", g_char_head_model->string, g_char_head_skin->string );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/%s.skin", g_char_head_model->string, g_char_head_skin->string );
+		}
+		skin = gi.RE_RegisterSkin( skinName );
+	}
+
+	if ( skin )
+	{//what if this returns 0 because *one* part of a multi-skin didn't load?
+		// put it in the config strings
+		// and set the ghoul2 model to use it
+		gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );
+	}
+}
+
 void G_SetHeadSurfaceOnOff( gentity_t *ent )
 {
 	if (g_char_head_model->string && g_char_head_model->string[0])
@@ -2191,6 +2232,20 @@ void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
 	}
 	
 	int skin = gi.RE_RegisterSkin( skinName );
+	
+	//What if it's a 3-parter or one part of a 3-parter?
+	if (!skin && p && p[0])
+	{
+		if (strchr(p, '|'))
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/|%s", name, p );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/%s.skin", name, p );
+		}
+		skin = gi.RE_RegisterSkin( skinName );
+	}
 	
 	if (!skin) {
 		return;
@@ -2440,6 +2495,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 			G_LoadAnimFileSet( ent, ent->NPC_type );
 			G_SetSkin( ent );
 			G_SetHeadSurfaceOnOff( ent );
+			G_SetHeadSkin( ent );
 		}
 
 		//setup sabers
@@ -2641,6 +2697,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 				G_LoadAnimFileSet( ent, ent->NPC_type );
 				G_SetSkin( ent );
 				G_SetHeadSurfaceOnOff( ent );
+				G_SetHeadSkin( ent );
 			}
 			G_ReloadSaberData( ent );
 			//force power levels should already be set

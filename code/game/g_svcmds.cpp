@@ -1519,7 +1519,7 @@ qboolean	ConsoleCommand( void ) {
 		}
 		else
 		{
-			gi.Printf( S_COLOR_RED"USAGE: headPlayerModel <g2model>" );
+			gi.Printf( S_COLOR_RED"USAGE: headPlayerModel <g2model> <skin>\n" );
 		}
 		return qtrue;
 	}
