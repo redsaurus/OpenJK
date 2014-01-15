@@ -215,19 +215,19 @@ qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 			
 			{
 				Q_strcat(skinRoot, MAX_QPATH, "|");
-				if (ui_saber_skin1.string && ui_saber_skin1.string[0])
+				if (Cvar_VariableString("ui_saber_skin1") && Cvar_VariableString("ui_saber_skin1")[0])
 				{
-					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin1.string);
+					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin1"));
 				}
 				Q_strcat(skinRoot, MAX_QPATH, "|");
-				if (ui_saber_skin2.string && ui_saber_skin2.string[0])
+				if (Cvar_VariableString("ui_saber_skin2") && Cvar_VariableString("ui_saber_skin2")[0])
 				{
-					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin2.string);
+					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin2"));
 				}
 				Q_strcat(skinRoot, MAX_QPATH, "|");
-				if (ui_saber_skin3.string && ui_saber_skin3.string[0])
+				if (Cvar_VariableString("ui_saber_skin3") && Cvar_VariableString("ui_saber_skin3")[0])
 				{
-					Q_strcat(skinRoot, MAX_QPATH, ui_saber_skin3.string);
+					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin3"));
 				}
 
 			}
