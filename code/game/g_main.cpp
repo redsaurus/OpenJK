@@ -698,8 +698,8 @@ void G_InitCvars( void ) {
 	
 	for (int i = 0; i < MAX_SABER_PARTS; i++)
 	{
-		g_saber_skin[i] = gi.cvar( va("g_saber_skin_%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
-		g_saber2_skin[i] = gi.cvar( va("g_saber2_skin_%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+		g_saber_skin[i] = gi.cvar( va("g_saber_skin%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+		g_saber2_skin[i] = gi.cvar( va("g_saber2_skin%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	}
 	
 

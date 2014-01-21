@@ -32,10 +32,14 @@
 			uiScript  			"resetsabercvardefaults"
 			uiScript  			"getsabercvars"
 			uiScript  			"updatefightingstylechoices"
+			hide				heads
+			show				torso
+			hide				lower
 			uiScript  			"saber_hilt"
 			uiScript  			"saber_color"
 			uiScript  			"saber2_hilt"
 			uiScript  			"saber2_color"
+			uiScript			"correctsaberlist"
 			setitemcolor			typebut_single forecolor .65 .65 1 1
 			setitemcolor			typebut_dual forecolor .65 .65 1 1
 			setitemcolor			typebut_staff forecolor .65 .65 1 1
@@ -1690,6 +1694,257 @@
 			hideCvar			{ "single" "staff" }
 
 			decoration
+		}
+
+//----------------------------------------------------------------------------------------------
+//	CUSTOM SABER STUFF!
+//----------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------
+//	APPEARANCE TABS
+//----------------------------------------------------------------------------------------------
+
+		// HEAD BUTTON
+		itemDef 
+		{
+			name				skin1but_glow
+			group				none
+			style				WINDOW_STYLE_SHADER
+			rect				400 280 70 16
+			background			"gfx/menus/menu_buttonback"
+			forecolor			1 1 1 1
+			visible			0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				skin1but
+			group				none
+			text				@MENUS_HEAD
+			descText			@MENUS_SELECT_HEAD
+			type				ITEM_TYPE_BUTTON
+			style				WINDOW_STYLE_EMPTY
+			rect				400 280 70 16
+			font				2
+			textscale			.9
+			textaligny			-5
+			textalign			ITEM_ALIGN_LEFT
+			textstyle			1
+			textalignx			0
+			backcolor			0 0 0 0
+			forecolor			1 .682 0 1
+			visible			1
+			 
+			mouseEnter 
+			{ 
+				show			skin1but_glow 
+			}
+			mouseExit 
+			{ 
+				hide			skin1but_glow 
+			}	  	  
+			action 
+			{
+				play			"sound/interface/button1.wav"
+				show			heads
+				hide			torso
+				hide			lower
+				
+				setitemcolor		skin3but forecolor 1 .682 0 1
+				setitemcolor		skin2but forecolor 1 .682 0 1
+				setitemcolor		skin1but forecolor 1 1 1 1
+	
+			}
+		}
+
+
+		// TORSO BUTTON
+		itemDef 
+		{
+			name				skin2but_glow
+			group				none
+			style				WINDOW_STYLE_SHADER
+			rect				480 280 70 16
+			background			"gfx/menus/menu_buttonback"
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				skin2but
+			group				none
+			text				@MENUS_TORSO
+			descText			@MENUS_SELECT_TORSO
+			type				ITEM_TYPE_BUTTON
+			style				WINDOW_STYLE_EMPTY
+			rect				480 280 70 16
+			font				2
+			textscale			.9
+			textaligny			-5
+			textalign			ITEM_ALIGN_LEFT
+			textstyle			1
+			textalignx			0
+			backcolor			0 0 0 0
+			forecolor			1 1 1 1
+			visible			1
+
+			mouseEnter 
+			{ 
+				show			skin2but_glow 
+			}
+			mouseExit 
+			{ 
+				hide			skin2but_glow 
+			}	  	  
+			action 
+			{
+				play			"sound/interface/button1.wav"
+				show			torso
+				hide			heads
+				hide			lower
+				
+				setitemcolor		skin3but forecolor 1 .682 0 1
+				setitemcolor		skin2but forecolor 1 1 1 1
+				setitemcolor		skin1but forecolor 1 .682 0 1
+			}
+		}
+
+		// LEGS BUTTON
+		itemDef 
+		{
+			name				skin3but_glow
+			group				none
+			style				WINDOW_STYLE_SHADER
+			rect				560 280 70 16
+			background			"gfx/menus/menu_buttonback"
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				skin3but
+			group				none
+			text				@MENUS_LEGS
+			descText			@MENUS_SELECT_LEGS
+			type				ITEM_TYPE_BUTTON
+			style				WINDOW_STYLE_EMPTY
+			rect				560 280 70 16
+			font				2
+			textscale			.9
+			textaligny			-5
+			textalign			ITEM_ALIGN_LEFT
+			textstyle			1
+			textalignx			0
+			backcolor			0 0 0 0
+			forecolor			1 .682 0 1
+			visible				1
+			 
+			mouseEnter 
+			{ 
+				show			skin3but_glow 
+			}
+			mouseExit 
+			{ 
+				hide			skin3but_glow 
+			}	  	  
+			action 
+			{
+				play			"sound/interface/button1.wav"
+				show			lower
+				hide			heads
+				hide			torso
+				
+				setitemcolor		skin3but forecolor 1 1 1 1
+				setitemcolor		skin2but forecolor 1 .682 0 1
+				setitemcolor		skin1but forecolor 1 .682 0 1
+			}
+		}
+
+
+//----------------------------------------------------------------------------------------------
+//	APPEARANCE LISTBOXES
+//----------------------------------------------------------------------------------------------
+		itemDef
+		{
+			name				skin1listbox
+			group				heads
+			type				ITEM_TYPE_LISTBOX
+			style				WINDOW_STYLE_FILLED
+			descText			@MENUS_SELECT_HEAD
+			elementwidth			72
+			elementheight			72
+			elementtype			1 			//LISTBOX_IMAGE
+			feeder				25 			//FEEDER_PLAYER_SKIN_HEAD
+			horizontalscroll
+			border				1
+			bordersize			1
+			backcolor			.66 .66 1 .5
+			bordercolor			.66 .66 1 1
+			forecolor			-1			//use playercolor
+			rect				400 306 219 93
+			visible				0
+			action
+			{
+				play			"sound/interface/choose_head.wav"
+				uiScript 		"saber_hilt_nochange"
+			}
+		}
+
+		itemDef
+		{
+			name				skin2listbox
+			group				torso
+			type				ITEM_TYPE_LISTBOX
+			style				WINDOW_STYLE_FILLED
+			descText			@MENUS_SELECT_TORSO
+			elementwidth			72
+			elementheight			72
+			elementtype			1 			//LISTBOX_IMAGE
+			feeder				26 			//FEEDER_PLAYER_SKIN_TORSO
+			horizontalscroll
+			border				1
+			bordersize			1
+			backcolor			.66 .66 1 .5
+			bordercolor			.66 .66 1 1
+			forecolor			-1			//use playercolor
+			rect				400 306 219 93
+			visible				1
+			action
+			{
+				play			"sound/interface/choose_torso.wav"
+				uiScript 		"saber_hilt_nochange"
+			}
+		}
+
+		itemDef
+		{
+			name				skin3listbox
+			group				lower
+			type				ITEM_TYPE_LISTBOX
+			style				WINDOW_STYLE_FILLED
+			descText			@MENUS_SELECT_LEGS
+			elementwidth			72
+			elementheight			72
+			elementtype			1 			//LISTBOX_IMAGE
+			feeder				27 			//FEEDER_PLAYER_SKIN_LEGS
+			horizontalscroll
+			border				1
+			bordersize			1
+			backcolor			.66 .66 1 .5
+			bordercolor			.66 .66 1 1
+			forecolor			-1			//use playercolor
+			rect				400 306 219 93
+			visible				0
+			action
+			{
+				play			"sound/interface/choose_head.wav"
+				uiScript 		"saber_hilt_nochange"
+			}
 		}
 
 //----------------------------------------------------------------------------------------------

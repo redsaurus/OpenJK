@@ -127,6 +127,7 @@ static void		UI_GiveInventory ( const int itemIndex, const int amount );
 static void		UI_ForcePowerWeaponsButton(qboolean activeFlag);
 static void		UI_UpdateCharacterSkin( void );
 static void		UI_UpdateCharacter( qboolean changedModel );
+static void		UI_CorrectSaberList( void );
 static void		UI_UpdateSaberType( void );
 static void		UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel );
 //static void		UI_UpdateSaberColor( qboolean secondSaber );
@@ -1272,7 +1273,11 @@ static qboolean UI_RunMenuScript ( const char **args )
 		{
 			UI_UpdateCharacterSkin();
 		}
-		else if (Q_stricmp(name, "saber_type") == 0) 
+		else if (Q_stricmp(name, "correctsaberlist") == 0)
+		{
+			UI_CorrectSaberList();
+		}
+		else if (Q_stricmp(name, "saber_type") == 0)
 		{
 			UI_UpdateSaberType();
 		}
@@ -6795,6 +6800,78 @@ static void UI_UpdateCharacter( qboolean changedModel )
 	UI_UpdateCharacterSkin();
 }
 
+static void UI_CorrectSaberList ( void )
+{
+	menuDef_t *menu;
+	itemDef_t *item;
+	multiDef_t *multiPtr;
+	
+	menu = Menu_GetFocused();
+	
+	if (!menu)
+	{
+		return;
+	}
+	
+	item = (itemDef_t *) Menu_FindItemByName(menu, "hiltbut" );
+	
+	multiPtr = (multiDef_t*)item->typeData;
+	
+	if (multiPtr->count >= MAX_MULTI_CVARS)
+	{
+		return;
+	}
+	for (int i = 0; i < uiInfo.customSabersCount; i++)
+	{
+		multiPtr->cvarList[multiPtr->count] = uiInfo.customSabers[i].SaberLongName;
+		multiPtr->cvarStr[multiPtr->count] = uiInfo.customSabers[i].SaberName;
+		multiPtr->count++;
+		if (multiPtr->count >= MAX_MULTI_CVARS)
+		{
+			break;
+		}
+	}
+	
+	//TODO: dual sabers / staff saber
+/*	item = (itemDef_t *) Menu_FindItemByName(menu, "hiltbut2" );
+	
+	multiPtr = (multiDef_t*)item->typeData;
+	
+	if (multiPtr->count >= MAX_MULTI_CVARS)
+	{
+		return;
+	}
+	for (int i = 0; i < uiInfo.customSabersCount; i++)
+	{
+		multiPtr->cvarList[multiPtr->count] = uiInfo.customSabers[i].SaberLongName;
+		multiPtr->cvarStr[multiPtr->count] = uiInfo.customSabers[i].SaberName;
+		multiPtr->count++;
+		if (multiPtr->count >= MAX_MULTI_CVARS)
+		{
+			break;
+		}
+	}
+	
+	item = (itemDef_t *) Menu_FindItemByName(menu, "hiltbut_staves" );
+	
+	multiPtr = (multiDef_t*)item->typeData;
+	
+	if (multiPtr->count >= MAX_MULTI_CVARS)
+	{
+		return;
+	}
+	for (int i = 0; i < uiInfo.customSabersCount; i++)
+	{
+		multiPtr->cvarList[multiPtr->count] = uiInfo.customSabers[i].SaberLongName;
+		multiPtr->cvarStr[multiPtr->count] = uiInfo.customSabers[i].SaberName;
+		multiPtr->count++;
+		if (multiPtr->count >= MAX_MULTI_CVARS)
+		{
+			break;
+		}
+	}*/
+}
+
 void UI_UpdateSaberType( void )
 {
 	char sType[MAX_QPATH];
@@ -6856,6 +6933,51 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 		
 		if (uiInfo.customSabersIndex < 0)
 		{
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin2listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin2but");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3but");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but_glow");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin2but_glow");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3but_glow");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
 			uiInfo.customSabersIndex = 0;
 		}
 		else
@@ -6864,34 +6986,40 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 			if (listBoxItem)
 			{
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Desc;
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin2listbox");
 			if (listBoxItem)
 			{
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3listbox");
 			if (listBoxItem)
 			{
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Desc;
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but");
 			if (listBoxItem)
 			{
 				listBoxItem->text = uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Name;
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin1Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin2but");
 			if (listBoxItem)
 			{
 				listBoxItem->text = uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Name;
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin2Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3but");
 			if (listBoxItem)
 			{
 				listBoxItem->text = uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Name;
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
 			UI_FeederSelection(FEEDER_SABER_SKIN_1, 0, item);	//fixme, this is not really the right item!!
 			UI_FeederSelection(FEEDER_SABER_SKIN_2, 0, item);
