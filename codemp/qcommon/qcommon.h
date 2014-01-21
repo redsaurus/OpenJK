@@ -93,6 +93,8 @@ NET
 
 #define	MAX_PACKET_USERCMDS		32		// max number of usercmd_t in a packet
 
+#define	MAX_SNAPSHOT_ENTITIES	256
+
 #define	PORT_ANY			-1
 
 #define	MAX_RELIABLE_COMMANDS	128			// max string commands buffered for restransmit
@@ -102,9 +104,7 @@ typedef enum {
 	NA_BOT,
 	NA_LOOPBACK,
 	NA_BROADCAST,
-	NA_IP,
-	NA_IPX,
-	NA_BROADCAST_IPX
+	NA_IP
 } netadrtype_t;
 
 typedef enum {
@@ -116,7 +116,6 @@ typedef struct netadr_s {
 	netadrtype_t	type;
 
 	byte	ip[4];
-	byte	ipx[10];
 
 	unsigned short	port;
 } netadr_t;

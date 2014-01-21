@@ -1389,8 +1389,10 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 				continue;
 			}
 		}
-		else if ( *in < 0x20 ) {
-			outpos--;
+		else if ( (byte)*in < 0x20
+				|| (byte)*in == 0x81 || (byte)*in == 0x8D || (byte)*in == 0x8F || (byte)*in == 0x90 || (byte)*in == 0x9D
+				|| (byte)*in == 0xA0 || (byte)*in == 0xAD )
+		{
 			continue;
 		}
 		else if ( outpos > 0 && out[outpos-1] == Q_COLOR_ESCAPE )
@@ -1957,7 +1959,7 @@ static userinfoValidate_t userinfoFields[] = {
 	UIF( password,			0, 1 ), // optional
 	UIF( teamoverlay,		0, 1 ), // only registered in cgame, not sent when connecting
 };
-static size_t numUserinfoFields = ARRAY_LEN( userinfoFields );
+static const size_t numUserinfoFields = ARRAY_LEN( userinfoFields );
 
 static const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
 	"Size",					// USERINFO_VALIDATION_SIZE

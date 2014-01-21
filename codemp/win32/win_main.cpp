@@ -535,6 +535,9 @@ void * QDECL Sys_LoadLegacyGameDll( const char *name, intptr_t (QDECL **vmMain)(
 
 	if (!Sys_UnpackDLL(filename))
 	{
+		if ( com_developer->integer )
+			Com_Printf ("Sys_LoadLegacyGameDll: Failed to unpack %s" ARCH_STRING DLL_EXT " from PK3.\n", name);
+
 		return NULL;
 	}
 
@@ -568,6 +571,9 @@ void * QDECL Sys_LoadLegacyGameDll( const char *name, intptr_t (QDECL **vmMain)(
 	dllEntry = ( void (QDECL *)( intptr_t (QDECL *)( intptr_t, ... ) ) )GetProcAddress( libHandle, "dllEntry" ); 
 	*vmMain = (intptr_t (QDECL *)(int,...))GetProcAddress( libHandle, "vmMain" );
 	if ( !*vmMain || !dllEntry ) {
+		if ( com_developer->integer )
+			Com_Printf ("Sys_LoadLegacyGameDll: Entry point not found in %s" ARCH_STRING DLL_EXT ". Failed with system error code 0x%X.\n", name, GetLastError());
+
 		FreeLibrary( libHandle );
 		return NULL;
 	}
@@ -586,6 +592,9 @@ void *QDECL Sys_LoadGameDll( const char *name, void *(QDECL **moduleAPI)(int, ..
 
 	if (!Sys_UnpackDLL(filename))
 	{
+		if ( com_developer->integer )
+			Com_Printf ("Sys_LoadGameDll: Failed to unpack %s" ARCH_STRING DLL_EXT " from PK3.\n", name);
+
 		return NULL;
 	}
 
@@ -618,6 +627,9 @@ void *QDECL Sys_LoadGameDll( const char *name, void *(QDECL **moduleAPI)(int, ..
 
 	*moduleAPI = (void *(QDECL *)(int,...))GetProcAddress( libHandle, "GetModuleAPI" );
 	if ( !*moduleAPI ) {
+		if ( com_developer->integer )
+			Com_Printf ("Sys_LoadGameDll: Entry point not found in %s" ARCH_STRING DLL_EXT ". Failed with system error code 0x%X.\n", name, GetLastError());
+
 		FreeLibrary( libHandle );
 		return NULL;
 	}
@@ -804,29 +816,7 @@ void Sys_Init( void ) {
 	if (g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32s)
 		Sys_Error ("This game doesn't run on Win32s");
 
-	if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_NT )
-	{
-		Cvar_Set( "arch", "winnt" );
-	}
-	else if ( g_wv.osversion.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
-	{
-		if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= WIN98_BUILD_NUMBER )
-		{
-			Cvar_Set( "arch", "win98" );
-		}
-		else if ( LOWORD( g_wv.osversion.dwBuildNumber ) >= OSR2_BUILD_NUMBER )
-		{
-			Cvar_Set( "arch", "win95 osr2.x" );
-		}
-		else
-		{
-			Cvar_Set( "arch", "win95" );
-		}
-	}
-	else
-	{
-		Cvar_Set( "arch", "unknown Windows variant" );
-	}
+	Cvar_Set( "arch", OS_STRING " " ARCH_STRING );
 
 	// save out a couple things in rom cvars for the renderer to access
 	Cvar_Get( "win_hinstance", va("%i", (int)g_wv.hInstance), CVAR_ROM );

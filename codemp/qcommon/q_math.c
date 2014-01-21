@@ -442,7 +442,7 @@ void VectorRotate( const vec3_t in, matrix3_t matrix, vec3_t out )
 */
 float Q_rsqrt( float number )
 {
-	floatint_t t;
+	byteAlias_t t;
 	float x2, y;
 	const float threehalfs = 1.5F;
 
@@ -461,7 +461,7 @@ float Q_rsqrt( float number )
 }
 
 float Q_fabs( float f ) {
-	floatint_t fi;
+	byteAlias_t fi;
 	fi.f = f;
 	fi.i &= 0x7FFFFFFF;
 	return fi.f;
@@ -1094,7 +1094,7 @@ float Q_asin(float c)
 // eg the typical tint = (rand() * 255) / 32768
 // becomes tint = irand(0, 255)
 
-static uint32_t	holdrand = 0x89abcdef; // 64 bit support for iojamp
+static uint32_t	holdrand = 0x89abcdef;
 
 void Rand_Init(int seed)
 {

@@ -881,10 +881,8 @@ void CL_RequestMotd( void ) {
 		return;
 	}
 	cls.updateServer.port = BigShort( PORT_UPDATE );
-	Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", UPDATE_SERVER_NAME,
-		cls.updateServer.ip[0], cls.updateServer.ip[1],
-		cls.updateServer.ip[2], cls.updateServer.ip[3],
-		BigShort( cls.updateServer.port ) );
+	Com_Printf( "%s resolved to %s\n", UPDATE_SERVER_NAME,
+		NET_AdrToString( cls.updateServer ) );
 	
 	info[0] = 0;
   // NOTE TTimo xoring against Com_Milliseconds, otherwise we may not have a true randomization
@@ -2953,11 +2951,6 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 					type = 1;
 					break;
 
-				case NA_IPX:
-				case NA_BROADCAST_IPX:
-					type = 2;
-					break;
-
 				default:
 					type = 0;
 					break;
@@ -3130,10 +3123,8 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "%s", s);
 
 	if (serverStatus->print) {
-		Com_Printf( "Server (%i.%i.%i.%i:%i)\n", 
-			serverStatus->address.ip[0], serverStatus->address.ip[1],
-			serverStatus->address.ip[2], serverStatus->address.ip[3],
-			BigShort( serverStatus->address.port ) );
+		Com_Printf( "Server (%s)\n", 
+			NET_AdrToString( serverStatus->address ) );
 		Com_Printf("Server settings:\n");
 		// print cvars
 		while (*s) {
@@ -3234,9 +3225,6 @@ void CL_LocalServers_f( void ) {
 			to.port = BigShort( (short)(PORT_SERVER + j) );
 
 			to.type = NA_BROADCAST;
-			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
-
-			to.type = NA_BROADCAST_IPX;
 			NET_SendPacket( NS_CLIENT, strlen( message ), message, to );
 		}
 	}
