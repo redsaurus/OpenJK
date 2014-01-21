@@ -194,7 +194,16 @@ qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
 
 qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 {
-	if (Q_stristr(saberName, "saberbuilder"))
+	qboolean isCustomSaber = qfalse;
+	for (int i = 0; i < MAX_CUSTOMSABERS; i++)
+	{
+		if (uiInfo.customSabers[i].SaberName && uiInfo.customSabers[i].SaberName[0] && !Q_stricmp(saberName, uiInfo.customSabers[i].SaberName))
+		{
+			isCustomSaber = qtrue;
+			break;
+		}
+	}
+	if (isCustomSaber)
 	{
 		char skinRoot[MAX_QPATH];
 		if (!UI_SaberModelForSaber(saberName, skinRoot))
@@ -229,13 +238,12 @@ qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 				{
 					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin3"));
 				}
-
+				
 			}
 			Q_strncpyz(saberSkin, skinRoot, MAX_QPATH);
 			return qtrue;
-
+			
 		}
-		
 	}
 	return UI_SaberParseParm( saberName, "customSkin", saberSkin );
 }

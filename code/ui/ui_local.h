@@ -29,6 +29,7 @@ This file is part of Jedi Academy.
 #include "ui_shared.h"
 
 #define MAX_PLAYERMODELS 512 //32
+#define MAX_CUSTOMSABERS 32
 #define MAX_DEFERRED_SCRIPT		1024
 
 //
@@ -140,13 +141,21 @@ typedef struct {
 } playerSpeciesInfo_t;
 
 typedef struct {
-	char		Name[64];
+	char		SaberName[64];
+	char		SaberLongName[64];
+	char		FolderName[64];
+	char		Skin1Name[32];
+	char		Skin1Desc[64];
 	int			Skin1Count;
-	char		Skin1Names[MAX_PLAYERMODELS][16];
+	char		Skin1Names[MAX_CUSTOMSABERS][16];
+	char		Skin2Name[32];
+	char		Skin2Desc[64];
 	int			Skin2Count;
-	char		Skin2Names[MAX_PLAYERMODELS][16];
+	char		Skin2Names[MAX_CUSTOMSABERS][16];
+	char		Skin3Name[32];
+	char		Skin3Desc[64];
 	int			Skin3Count;
-	char		Skin3Names[MAX_PLAYERMODELS][16];
+	char		Skin3Names[MAX_CUSTOMSABERS][16];
 } customSaberInfo_t;
 
 typedef struct {
@@ -164,7 +173,7 @@ typedef struct {
 	int					playerSpeciesIndex;
 	
 	int					customSabersCount;
-	customSaberInfo_t	customSabers[MAX_PLAYERMODELS];
+	customSaberInfo_t	customSabers[MAX_CUSTOMSABERS];
 	int					customSabersIndex;
 
 

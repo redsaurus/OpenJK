@@ -1,0 +1,14 @@
+saberbuilder_1 //this is the name that is in the .sab
+{
+	saberlongname "Ashura's Saber" //this is the name shown in the menu
+	foldername	Saberbuilder //this is the name of the folder, i.e. models/weapons2/foldername/
+	skin1	emitter //what .skin files to look for. will search for skin1_blah.skin, skin1_1.skin etc.
+	skin2	pommel //what .skin files to look for. will search for skin2_blah.skin, skin2_1.skin etc.
+	skin3	rest //what .skin files to look for. will search for skin3_blah.skin, skin3_1.skin etc.
+	skin1name	@SPMOD_EMITTER //what to show as header for first category
+	skin1desc	@SPMOD_EMITTER_DESC //what to show as description for first category
+	skin2name	@SPMOD_POMMEL //what to show as header for second category
+	skin2desc	@SPMOD_POMMEL_DESC //what to show as description for second category
+	skin3name	@SPMOD_HILT //what to show as header for third category
+	skin3desc	@SPMOD_HILT_DESC //what to show as description for third category
+}

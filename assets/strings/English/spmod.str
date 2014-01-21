@@ -1,0 +1,36 @@
+// Note to translators:
+// If a sentence is the same in your language then please change it to "#same"
+//
+// eg:
+// LANG_ENGLISH  "HALT"
+// LANG_GERMAN   "#same"
+//
+// (This is so we can tell which strings have been signed-off as ok to be the same words for QA
+//  and because we do not store duplicate strings, which will then get exported again next time
+//  as being untranslated.)
+//
+VERSION             "1"
+CONFIG              "W:\bin\stringed.cfg"
+FILENOTES           "Custom saber specific strings"
+
+REFERENCE           EMITTER
+LANG_ENGLISH        "EMITTER"
+
+REFERENCE           POMMEL
+LANG_ENGLISH        "POMMEL"
+
+REFERENCE           HILT
+LANG_ENGLISH        "HILT"
+
+REFERENCE           EMITTER_DESC
+LANG_ENGLISH        "Choose the emitter."
+
+REFERENCE           POMMEL_DESC
+LANG_ENGLISH        "Choose the pommel."
+
+REFERENCE           HILT_DESC
+LANG_ENGLISH        "Choose the hilt."
+
+ENDMARKER
+
+
