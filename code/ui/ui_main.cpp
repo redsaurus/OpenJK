@@ -2686,6 +2686,7 @@ static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, cha
 				return qfalse;
 			}
 			Q_strncpyz( skin1root, token, 16, qtrue );
+			Q_strcat( skin1root, 16, "_");
 		}
 		if ( !Q_stricmp( token, "skin2" ) )
 		{
@@ -2696,6 +2697,7 @@ static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, cha
 				return qfalse;
 			}
 			Q_strncpyz( skin2root, token, 16, qtrue );
+			Q_strcat( skin2root, 16, "_");
 		}
 		if ( !Q_stricmp( token, "skin3" ) )
 		{
@@ -2706,6 +2708,7 @@ static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, cha
 				return qfalse;
 			}
 			Q_strncpyz( skin3root, token, 16, qtrue );
+			Q_strcat( skin3root, 16, "_");
 		}
 		if ( !Q_stricmp( token, "skin1name" ) )
 		{
