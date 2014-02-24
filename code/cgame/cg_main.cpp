@@ -458,7 +458,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_fovViewmodelAdjust, "cg_fovViewmodelAdjust", "1", CVAR_ARCHIVE },
 };
 
-static int cvarTableSize = sizeof( cvarTable ) / sizeof( cvarTable[0] );
+static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 /*
 =================
@@ -466,12 +466,11 @@ CG_RegisterCvars
 =================
 */
 void CG_RegisterCvars( void ) {
-	int			i;
+	size_t		i;
 	cvarTable_t	*cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		cgi_Cvar_Register( cv->vmCvar, cv->cvarName,
-			cv->defaultString, cv->cvarFlags );
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
+		cgi_Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
 	}
 }
 
@@ -481,14 +480,15 @@ CG_UpdateCvars
 =================
 */
 void CG_UpdateCvars( void ) {
-	int			i;
+	size_t		i;
 	cvarTable_t	*cv;
 
-	for ( i = 0, cv = cvarTable ; i < cvarTableSize ; i++, cv++ ) {
-		cgi_Cvar_Update( cv->vmCvar );
+	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
+		if ( cv->vmCvar ) {
+			cgi_Cvar_Update( cv->vmCvar );
+		}
 	}
 }
-
 
 int CG_CrosshairPlayer( void ) 
 {
@@ -498,7 +498,6 @@ int CG_CrosshairPlayer( void )
 	}
 	return cg.crosshairClientNum;
 }
-
 
 int CG_GetCameraPos( vec3_t camerapos ) {
 	if ( in_camera) {

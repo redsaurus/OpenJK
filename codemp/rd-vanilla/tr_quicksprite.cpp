@@ -123,10 +123,10 @@ void CQuickSpriteSystem::Flush(void)
 		backEnd.pc.c_totalIndexes += mNextVert;
 	}
 
-	// 
+	//
 	// unlock arrays
 	//
-	if (qglUnlockArraysEXT) 
+	if (qglUnlockArraysEXT)
 	{
 		qglUnlockArraysEXT();
 		GLimp_LogComment( "glUnlockArraysEXT\n" );
@@ -179,7 +179,7 @@ void CQuickSpriteSystem::Add(float *pointdata, color4ub_t color, vec2_t fog)
 	}
 
 	curcoord = mVerts[mNextVert];
-	memcpy(curcoord, pointdata, 4*sizeof(vec4_t));
+	memcpy(curcoord, pointdata, sizeof(vec4_t));
 
 	// Set up color
 	curcolor = &mColors[mNextVert];
