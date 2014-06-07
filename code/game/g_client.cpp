@@ -2100,7 +2100,20 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 
 static void G_SetHeadSkin( gentity_t *ent )
 {
-	char	skinName[MAX_QPATH];
+	
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		if (g_char_head_skin->string && g_char_head_skin->string[0])
+		{
+			G_ChangeHeadModel( ent, va("%s|%s", g_char_head_model->string, g_char_head_skin->string) );
+		}
+		else
+		{
+			G_ChangeHeadModel( ent, va("%s|default", g_char_head_model->string) );
+		}
+	}
+
+/*	char	skinName[MAX_QPATH];
 	if (g_char_head_model->string && g_char_head_model->string[0])
 	{
 		if (g_char_head_skin->string && g_char_head_skin->string[0])
@@ -2136,7 +2149,7 @@ static void G_SetHeadSkin( gentity_t *ent )
 		// put it in the config strings
 		// and set the ghoul2 model to use it
 		gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );
-	}
+	}*/
 }
 
 void G_SetHeadSurfaceOnOff( gentity_t *ent )
