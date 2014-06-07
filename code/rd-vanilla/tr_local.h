@@ -16,8 +16,7 @@ This file is part of Jedi Academy.
 */
 // Copyright 2001-2013 Raven Software
 
-#ifndef TR_LOCAL_H
-#define TR_LOCAL_H
+#pragma once
 
 
 #include "../qcommon/q_shared.h"
@@ -571,7 +570,6 @@ typedef enum {
 	SF_GRID,
 	SF_TRIANGLES,
 	SF_POLY,
-	SF_TERRAIN,
 	SF_MD3,
 /*
 Ghoul2 Insert Start
@@ -951,12 +949,6 @@ typedef struct {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
-typedef struct srfTerrain_s
-{
-	surfaceType_t			surfaceType;
-	class CTRLandScape		*landscape;
-} srfTerrain_t;
-
 /*
 ** trGlobals_t 
 **
@@ -1076,7 +1068,6 @@ typedef struct {
 	float					rangedFog;
 
 	float					distanceCull;
-	srfTerrain_t			landScape;
 
 #ifdef _WIN32
 	WinVars_t *wv;
@@ -1238,10 +1229,6 @@ Ghoul2 Insert End
 
 extern	cvar_t	*r_environmentMapping;
 //====================================================================
-
-// Point sprite stuff.
-extern cvar_t	*r_ext_point_parameters;
-extern cvar_t	*r_ext_nv_point_sprite;
 
 
 void R_SwapBuffers( int );
@@ -1884,7 +1871,6 @@ void		Create_Matrix(const float *angle, mdxaBone_t *matrix);
 void		Multiply_3x4Matrix(mdxaBone_t *out,const mdxaBone_t *in2,const mdxaBone_t *in);
 extern qboolean R_LoadMDXM (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
 extern qboolean R_LoadMDXA (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
-bool LoadTGAPalletteImage ( const char *name, byte **pic, int *width, int *height);
 /*
 Ghoul2 Insert End
 */
@@ -1894,5 +1880,3 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input);
 
 // tr_subs.cpp
 void *Z_Malloc( int iSize, memtag_t eTag, qboolean bZeroit, int iAlign );
-
-#endif //TR_LOCAL_H
