@@ -523,7 +523,7 @@ typedef struct
 #define MAX_FAILED_NODES 8
 #define MAX_INHAND_WEAPONS	2
 #define MAX_HOLSTER_WEAPONS 2
-#define MAX_SABER_PARTS 3
+#define MAX_SABER_PARTS 5
 
 
 typedef struct centity_s centity_t;

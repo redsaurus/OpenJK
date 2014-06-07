@@ -156,6 +156,14 @@ typedef struct {
 	char		Skin3Desc[64];
 	int			Skin3Count;
 	char		Skin3Names[MAX_CUSTOMSABERS][16];
+	char		Skin4Name[32];
+	char		Skin4Desc[64];
+	int			Skin4Count;
+	char		Skin4Names[MAX_CUSTOMSABERS][16];
+	char		Skin5Name[32];
+	char		Skin5Desc[64];
+	int			Skin5Count;
+	char		Skin5Names[MAX_CUSTOMSABERS][16];
 } customSaberInfo_t;
 
 typedef struct {

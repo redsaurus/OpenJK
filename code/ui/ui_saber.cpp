@@ -45,10 +45,13 @@ extern vmCvar_t	ui_rgb_saber2_blue;
 extern vmCvar_t	ui_saber_skin1;
 extern vmCvar_t	ui_saber_skin2;
 extern vmCvar_t	ui_saber_skin3;
+extern vmCvar_t	ui_saber_skin4;
+extern vmCvar_t	ui_saber_skin5;
 extern vmCvar_t	ui_saber2_skin1;
 extern vmCvar_t	ui_saber2_skin2;
 extern vmCvar_t	ui_saber2_skin3;
-
+extern vmCvar_t	ui_saber2_skin4;
+extern vmCvar_t	ui_saber2_skin5;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
@@ -238,7 +241,16 @@ qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 				{
 					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin3"));
 				}
-				
+				Q_strcat(skinRoot, MAX_QPATH, "|");
+				if (Cvar_VariableString("ui_saber_skin4") && Cvar_VariableString("ui_saber_skin4")[0])
+				{
+					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin4"));
+				}
+				Q_strcat(skinRoot, MAX_QPATH, "|");
+				if (Cvar_VariableString("ui_saber_skin5") && Cvar_VariableString("ui_saber_skin5")[0])
+				{
+					Q_strcat(skinRoot, MAX_QPATH, Cvar_VariableString("ui_saber_skin5"));
+				}
 			}
 			Q_strncpyz(saberSkin, skinRoot, MAX_QPATH);
 			return qtrue;

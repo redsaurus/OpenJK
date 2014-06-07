@@ -386,9 +386,13 @@ vmCvar_t	ui_rgb_saber2_blue;
 vmCvar_t	ui_saber_skin1;
 vmCvar_t	ui_saber_skin2;
 vmCvar_t	ui_saber_skin3;
+vmCvar_t	ui_saber_skin4;
+vmCvar_t	ui_saber_skin5;
 vmCvar_t	ui_saber2_skin1;
 vmCvar_t	ui_saber2_skin2;
 vmCvar_t	ui_saber2_skin3;
+vmCvar_t	ui_saber2_skin4;
+vmCvar_t	ui_saber2_skin5;
 
 
 //JLFCALLOUT MPMOVED
@@ -443,9 +447,14 @@ static cvarTable_t cvarTable[] =
 	{ &ui_saber_skin1,		"ui_saber_skin1",	"", 0},
 	{ &ui_saber_skin2,		"ui_saber_skin2",	"", 0},
 	{ &ui_saber_skin3,		"ui_saber_skin3",	"", 0},
+	{ &ui_saber_skin4,		"ui_saber_skin4",	"", 0},
+	{ &ui_saber_skin5,		"ui_saber_skin5",	"", 0},
 	{ &ui_saber2_skin1,		"ui_saber2_skin1",	"", 0},
 	{ &ui_saber2_skin2,		"ui_saber2_skin2",	"", 0},
 	{ &ui_saber2_skin3,		"ui_saber2_skin3",	"", 0},
+	{ &ui_saber2_skin4,		"ui_saber2_skin4",	"", 0},
+	{ &ui_saber2_skin5,		"ui_saber2_skin5",	"", 0},
+
 
 //JLFCALLOUT MPMOVED
 	{ &ui_hideAcallout,		"ui_hideAcallout",	"", 0}, 
@@ -758,6 +767,22 @@ const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *
 			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index];
 		}
 	}
+	else if (feederID == FEEDER_SABER_SKIN_4)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Count)
+		{
+			*handle =  ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].FolderName, uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Names[index]));
+			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Names[index];
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_5)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Count)
+		{
+			*handle =  ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].FolderName, uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Names[index]));
+			return uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Names[index];
+		}
+	}
 	else if (feederID == FEEDER_MODS)
 	{
 		if (index >= 0 && index < uiInfo.modCount) 
@@ -835,6 +860,20 @@ qhandle_t UI_FeederItemImage(float feederID, int index)
 		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
 		{
 			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].FolderName, uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index]));
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_4)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
+		{
+			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].FolderName, uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Names[index]));
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_5)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
+		{
+			return ui.R_RegisterShaderNoMip(va("models/weapons2/%s/icon_%s.jpg", uiInfo.customSabers[uiInfo.customSabersIndex].FolderName, uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Names[index]));
 		}
 	}
 /*	else if (feederID == FEEDER_ALLMAPS || feederID == FEEDER_MAPS)
@@ -1920,6 +1959,14 @@ static int UI_FeederCount(float feederID)
 	{
 		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count;
 	}
+	else if (feederID == FEEDER_SABER_SKIN_4)
+	{
+		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Count;
+	}
+	else if (feederID == FEEDER_SABER_SKIN_5)
+	{
+		return uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Count;
+	}
 
 	return 0;
 }
@@ -2128,6 +2175,20 @@ extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Count)
 		{
 			Cvar_Set("ui_saber_skin3", uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Names[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_4)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Count)
+		{
+			Cvar_Set("ui_saber_skin4", uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Names[index]);
+		}
+	}
+	else if (feederID == FEEDER_SABER_SKIN_5)
+	{
+		if (index >= 0 && index < uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Count)
+		{
+			Cvar_Set("ui_saber_skin5", uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Names[index]);
 		}
 	}
 /*	else if (feederID == FEEDER_CINEMATICS)
@@ -2621,7 +2682,7 @@ static bool bIsSaberImageFile(const char* dirptr, const char* skinname)
 	return false;
 }
 
-static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, char* skin1root, char* skin2root, char* skin3root)
+static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, char* skin1root, char* skin2root, char* skin3root, char* skin4root, char* skin5root)
 {
 	const char	*token;
 	const char	*p;
@@ -2710,6 +2771,28 @@ static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, cha
 			Q_strncpyz( skin3root, token, 16, qtrue );
 			Q_strcat( skin3root, 16, "_");
 		}
+		if ( !Q_stricmp( token, "skin4" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( skin4root, token, 16, qtrue );
+			Q_strcat( skin4root, 16, "_");
+		}
+		if ( !Q_stricmp( token, "skin5" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( skin5root, token, 16, qtrue );
+			Q_strcat( skin5root, 16, "_");
+		}
 		if ( !Q_stricmp( token, "skin1name" ) )
 		{
 			token = COM_ParseExt( &p, qtrue );
@@ -2770,6 +2853,46 @@ static qboolean UI_ParseCustomSaberData(char* buf, customSaberInfo_t &saber, cha
 			}
 			Q_strncpyz( saber.Skin3Desc, token, sizeof(saber.Skin3Desc), qtrue );
 		}
+		if ( !Q_stricmp( token, "skin4name" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( saber.Skin4Name, token, sizeof(saber.Skin4Name), qtrue );
+		}
+		if ( !Q_stricmp( token, "skin4desc" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( saber.Skin4Desc, token, sizeof(saber.Skin4Desc), qtrue );
+		}
+		if ( !Q_stricmp( token, "skin5name" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( saber.Skin5Name, token, sizeof(saber.Skin5Name), qtrue );
+		}
+		if ( !Q_stricmp( token, "skin5desc" ) )
+		{
+			token = COM_ParseExt( &p, qtrue );
+			if ( token[0] == 0 )
+			{
+				COM_EndParseSession();
+				return qfalse;
+			}
+			Q_strncpyz( saber.Skin5Desc, token, sizeof(saber.Skin5Desc), qtrue );
+		}
 
 		token = COM_ParseExt( &p, qtrue );	//looking for action commands or final }
 	}
@@ -2798,6 +2921,8 @@ static void UI_BuildCustomSaber_List()
 		char Skin1Root[16];
 		char Skin2Root[16];
 		char Skin3Root[16];
+		char Skin4Root[16];
+		char Skin5Root[16];
 		
 		csabFNLen = strlen(holdChar);
 		
@@ -2814,7 +2939,7 @@ static void UI_BuildCustomSaber_List()
 			ui.FS_Read(&buffer, len, f);
 			ui.FS_FCloseFile(f);
 			buffer[len] = 0;
-			if (!UI_ParseCustomSaberData(buffer, uiInfo.customSabers[uiInfo.customSabersCount], Skin1Root, Skin2Root, Skin3Root))
+			if (!UI_ParseCustomSaberData(buffer, uiInfo.customSabers[uiInfo.customSabersCount], Skin1Root, Skin2Root, Skin3Root, Skin4Root, Skin5Root))
 			{
 				Com_Printf( "UI_BuildCustomSaber_List: error parsing file: %s\n", holdChar);
 				continue;
@@ -2862,10 +2987,26 @@ static void UI_BuildCustomSaber_List()
 							iSkinParts |= 1<<2;
 						}
 					}
+					else if (Q_stricmpn(skinname,Skin4Root,strlen(Skin4Root)) == 0)
+					{
+						if (uiInfo.customSabers[uiInfo.customSabersCount].Skin4Count < MAX_CUSTOMSABERS)
+						{
+							Q_strncpyz(uiInfo.customSabers[uiInfo.customSabersCount].Skin4Names[uiInfo.customSabers[uiInfo.customSabersCount].Skin4Count++], skinname, sizeof(uiInfo.customSabers[0].Skin4Names[0]), qtrue);
+							iSkinParts |= 1<<3;
+						}
+					}
+					else if (Q_stricmpn(skinname,Skin5Root,strlen(Skin5Root)) == 0)
+					{
+						if (uiInfo.customSabers[uiInfo.customSabersCount].Skin5Count < MAX_CUSTOMSABERS)
+						{
+							Q_strncpyz(uiInfo.customSabers[uiInfo.customSabersCount].Skin5Names[uiInfo.customSabers[uiInfo.customSabersCount].Skin5Count++], skinname, sizeof(uiInfo.customSabers[0].Skin5Names[0]), qtrue);
+							iSkinParts |= 1<<4;
+						}
+					}
 				}
 			}
 			
-			if (iSkinParts != 7)
+			if (iSkinParts != 7)//!=31
 			{	//didn't get a skin for each, then skip this model.
 				memset(&uiInfo.customSabers[uiInfo.customSabersCount], 0, sizeof(uiInfo.customSabers[uiInfo.customSabersCount]));
 				continue;
@@ -4802,10 +4943,14 @@ static void UI_UpdateSaberCvars ( void )
 	Cvar_Set ( "g_saber_skin1", Cvar_VariableString ( "ui_saber_skin1" ) );
 	Cvar_Set ( "g_saber_skin2", Cvar_VariableString ( "ui_saber_skin2" ) );
 	Cvar_Set ( "g_saber_skin3", Cvar_VariableString ( "ui_saber_skin3" ) );
+	Cvar_Set ( "g_saber_skin4", Cvar_VariableString ( "ui_saber_skin4" ) );
+	Cvar_Set ( "g_saber_skin5", Cvar_VariableString ( "ui_saber_skin5" ) );
 	
 	Cvar_Set ( "g_saber2_skin1", Cvar_VariableString ( "ui_saber2_skin1" ) );
 	Cvar_Set ( "g_saber2_skin2", Cvar_VariableString ( "ui_saber2_skin2" ) );
 	Cvar_Set ( "g_saber2_skin3", Cvar_VariableString ( "ui_saber2_skin3" ) );
+	Cvar_Set ( "g_saber2_skin4", Cvar_VariableString ( "ui_saber2_skin4" ) );
+	Cvar_Set ( "g_saber2_skin5", Cvar_VariableString ( "ui_saber2_skin5" ) );
 
 }
 
@@ -6635,10 +6780,14 @@ static void UI_GetSaberCvars ( void )
 	Cvar_Set ( "ui_saber_skin1", Cvar_VariableString ( "g_saber_skin1" ) );
 	Cvar_Set ( "ui_saber_skin2", Cvar_VariableString ( "g_saber_skin2" ) );
 	Cvar_Set ( "ui_saber_skin3", Cvar_VariableString ( "g_saber_skin3" ) );
+	Cvar_Set ( "ui_saber_skin4", Cvar_VariableString ( "g_saber_skin4" ) );
+	Cvar_Set ( "ui_saber_skin5", Cvar_VariableString ( "g_saber_skin5" ) );
 	
 	Cvar_Set ( "ui_saber2_skin1", Cvar_VariableString ( "g_saber2_skin1" ) );
 	Cvar_Set ( "ui_saber2_skin2", Cvar_VariableString ( "g_saber2_skin2" ) );
 	Cvar_Set ( "ui_saber2_skin3", Cvar_VariableString ( "g_saber2_skin3" ) );
+	Cvar_Set ( "ui_saber2_skin4", Cvar_VariableString ( "g_saber2_skin4" ) );
+	Cvar_Set ( "ui_saber2_skin5", Cvar_VariableString ( "g_saber2_skin5" ) );
 
 }
 
@@ -6914,6 +7063,16 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 			{
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin4listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin5listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but");
 			if (listBoxItem)
 			{
@@ -6929,6 +7088,16 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 			{
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin4but");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin5but");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but_glow");
 			if (listBoxItem)
 			{
@@ -6940,6 +7109,16 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin3but_glow");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin4but_glow");
+			if (listBoxItem)
+			{
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin5but_glow");
 			if (listBoxItem)
 			{
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
@@ -6966,6 +7145,18 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Desc;
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin4listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Desc;
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin5listbox");
+			if (listBoxItem)
+			{
+				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Desc;
+				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
+			}
 			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin1but");
 			if (listBoxItem)
 			{
@@ -6987,9 +7178,25 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin3Desc;
 				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin4but");
+			if (listBoxItem)
+			{
+				listBoxItem->text = uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Name;
+				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin4Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
+			}
+			listBoxItem = (itemDef_s *) Menu_FindItemByName(menu, "skin5but");
+			if (listBoxItem)
+			{
+				listBoxItem->text = uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Name;
+				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Desc;
+				listBoxItem->window.flags |= WINDOW_VISIBLE;
+			}
 			UI_FeederSelection(FEEDER_SABER_SKIN_1, 0, item);	//fixme, this is not really the right item!!
 			UI_FeederSelection(FEEDER_SABER_SKIN_2, 0, item);
 			UI_FeederSelection(FEEDER_SABER_SKIN_3, 0, item);
+			UI_FeederSelection(FEEDER_SABER_SKIN_4, 0, item);
+			UI_FeederSelection(FEEDER_SABER_SKIN_5, 0, item);
 		}
 	}
 

@@ -99,6 +99,8 @@ This file is part of Jedi Academy.
 #define FEEDER_SABER_SKIN_1					0x19
 #define FEEDER_SABER_SKIN_2					0x1a
 #define FEEDER_SABER_SKIN_3					0x1b
+#define FEEDER_SABER_SKIN_4					0x1c
+#define FEEDER_SABER_SKIN_5					0x1d
 
 
 #define UI_VERSION				200
