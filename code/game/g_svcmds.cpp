@@ -1551,19 +1551,19 @@ qboolean	ConsoleCommand( void ) {
 		{
 			if (atoi(gi.argv(1)) == 1)
 			{
-				gi.cvar_set("g_saber2_skin_1", gi.argv(2) );
-				gi.cvar_set("g_saber2_skin_2", gi.argv(3) );
-				gi.cvar_set("g_saber2_skin_3", gi.argv(4) );
-				gi.cvar_set("g_saber2_skin_4", gi.argv(5) );
-				gi.cvar_set("g_saber2_skin_5", gi.argv(6) );
+				gi.cvar_set("g_saber2_skin1", gi.argv(2) );
+				gi.cvar_set("g_saber2_skin2", gi.argv(3) );
+				gi.cvar_set("g_saber2_skin3", gi.argv(4) );
+				gi.cvar_set("g_saber2_skin4", gi.argv(5) );
+				gi.cvar_set("g_saber2_skin5", gi.argv(6) );
 			}
 			else
 			{
-				gi.cvar_set("g_saber_skin_1", gi.argv(2) );
-				gi.cvar_set("g_saber_skin_2", gi.argv(3) );
-				gi.cvar_set("g_saber_skin_3", gi.argv(4) );
-				gi.cvar_set("g_saber_skin_4", gi.argv(5) );
-				gi.cvar_set("g_saber_skin_5", gi.argv(6) );
+				gi.cvar_set("g_saber_skin1", gi.argv(2) );
+				gi.cvar_set("g_saber_skin2", gi.argv(3) );
+				gi.cvar_set("g_saber_skin3", gi.argv(4) );
+				gi.cvar_set("g_saber_skin4", gi.argv(5) );
+				gi.cvar_set("g_saber_skin5", gi.argv(6) );
 			}
 			
 			G_SetSabersFromCVars(&g_entities[0]);
