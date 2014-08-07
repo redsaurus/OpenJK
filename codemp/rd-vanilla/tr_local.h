@@ -1376,6 +1376,11 @@ void		R_InitShaders(qboolean server);
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
+//
+// tr_arb.c
+//
+void ARB_InitGlowShaders( void );
+
 
 /*
 ====================================================================
@@ -1796,12 +1801,6 @@ typedef enum {
 	RC_VIDEOFRAME
 } renderCommand_t;
 
-
-// these are sort of arbitrary limits.
-// the limits apply to the sum of all scenes in a frame --
-// the main view, all the 3D icons, etc
-#define	MAX_POLYS		600
-#define	MAX_POLYVERTS	3000
 
 // all of the information needed by the back end must be
 // contained in a backEndData_t.

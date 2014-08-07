@@ -1535,7 +1535,7 @@ void *g2SaberInstance = NULL;
 
 qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName);
 qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
-void BG_GetVehicleModelName(char *modelname, int len);
+void BG_GetVehicleModelName(char *modelName, const char *vehicleName, size_t len);
 
 void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 {
@@ -1595,20 +1595,22 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 			// If this is a vehicle, get it's model name.
 			if ( ent->client->NPC_class == CLASS_VEHICLE )
 			{
+				char realModelName[MAX_QPATH];
+
 				Q_strncpyz( vehicleName, modelname, sizeof( vehicleName ) );
-				BG_GetVehicleModelName(modelname, strlen( modelname ));
-				strcpy(truncModelName, modelname);
+				BG_GetVehicleModelName(realModelName, modelname, sizeof( realModelName ));
+				strcpy(truncModelName, realModelName);
 				skin[0] = 0;
 				if ( ent->m_pVehicle
 					&& ent->m_pVehicle->m_pVehicleInfo
 					&& ent->m_pVehicle->m_pVehicleInfo->skin
 					&& ent->m_pVehicle->m_pVehicleInfo->skin[0] )
 				{
-					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", modelname, ent->m_pVehicle->m_pVehicleInfo->skin));
+					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", realModelName, ent->m_pVehicle->m_pVehicleInfo->skin));
 				}
 				else
 				{
-					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", modelname));
+					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", realModelName));
 				}
 			}
 			else
@@ -1994,7 +1996,7 @@ void Svcmd_ToggleUserinfoValidation_f( void ) {
 			return;
 		}
 
-		trap->Cvar_Set( "g_userinfoValidate", va( "%i", (1<<index) ^ g_userinfoValidate.integer ) );
+		trap->Cvar_Set( "g_userinfoValidate", va( "%i", (1 << index) ^ (g_userinfoValidate.integer & ((1 << (numUserinfoFields + USERINFO_VALIDATION_MAX)) - 1)) ) );
 		trap->Cvar_Update( &g_userinfoValidate );
 
 		if ( index < numUserinfoFields )	Com_Printf( "%s %s\n", userinfoFields[index].fieldClean,				((g_userinfoValidate.integer & (1<<index)) ? "Validated" : "Ignored") );
@@ -3449,6 +3451,7 @@ void ClientSpawn(gentity_t *ent) {
 	else
 	{//jediVmerc is incompatible with this gametype, turn it off!
 		trap->Cvar_Set( "g_jediVmerc", "0" );
+		trap->Cvar_Update( &g_jediVmerc );
 		if (level.gametype == GT_HOLOCRON)
 		{
 			//always get free saber level 1 in holocron

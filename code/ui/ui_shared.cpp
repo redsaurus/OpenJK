@@ -11393,7 +11393,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down)
 						item->cursorPos = 0;
 						g_editingField = qtrue;
 						g_editItem = item;
-						DC->setOverstrikeMode(qtrue);
+						//DC->setOverstrikeMode(qtrue);
 					}
 				} 
 //JLFACCEPT
@@ -11472,7 +11472,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down)
 					item->cursorPos = 0;
 					g_editingField = qtrue;
 					g_editItem = item;
-					DC->setOverstrikeMode(qtrue);
+					//DC->setOverstrikeMode(qtrue);
 				} 
 				else 
 				{

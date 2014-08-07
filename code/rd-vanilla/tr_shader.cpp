@@ -3762,7 +3762,7 @@ Finds and loads all .shader files, combining them into
 a single large text block that can be scanned for shader names
 =====================
 */
-#define	MAX_SHADER_FILES	1024
+#define	MAX_SHADER_FILES	4096
 static void ScanAndLoadShaderFiles( void )
 {
 	char **shaderFiles;
@@ -3865,7 +3865,7 @@ static void CreateInternalShaders( void ) {
 	{
 		qglGenProgramsARB( 1, &tr.glowVShader );
 		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.glowVShader );
-		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen( ( char * ) g_strGlowVShaderARB ), g_strGlowVShaderARB );
+		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strGlowVShaderARB ), g_strGlowVShaderARB );
 
 //		const GLubyte *strErr = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
 		int iErrPos = 0;
@@ -3929,7 +3929,7 @@ static void CreateInternalShaders( void ) {
 	{
 		qglGenProgramsARB( 1, &tr.glowPShader );
 		qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.glowPShader );
-		qglProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, strlen( ( char * ) g_strGlowPShaderARB ), g_strGlowPShaderARB );
+		qglProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strGlowPShaderARB ), g_strGlowPShaderARB );
 
 //		const GLubyte *strErr = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
 		int iErrPos = 0;
