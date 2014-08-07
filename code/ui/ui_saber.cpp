@@ -226,6 +226,7 @@ qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 			skinRoot[l] = 0;
 			
 			{
+				Q_strcat(skinRoot, MAX_QPATH, "|_");
 				Q_strcat(skinRoot, MAX_QPATH, "|");
 				if (Cvar_VariableString("ui_saber_skin1") && Cvar_VariableString("ui_saber_skin1")[0])
 				{

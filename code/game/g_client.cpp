@@ -1916,6 +1916,8 @@ void G_SetSabersFromCVars( gentity_t *ent )
 				l++;
 				skinRoot[l] = 0;
 				
+				Q_strcat(skinRoot, MAX_QPATH, "|_");
+				
 				for (int j = 0; j < MAX_SABER_PARTS; j++)
 				{
 					Q_strcat(skinRoot, MAX_QPATH, "|");
@@ -1985,6 +1987,8 @@ void G_SetSabersFromCVars( gentity_t *ent )
 				{
 					l++;
 					skinRoot[l] = 0;
+					
+					Q_strcat(skinRoot, MAX_QPATH, "|_");
 					
 					for (int j = 0; j < MAX_SABER_PARTS; j++)
 					{
