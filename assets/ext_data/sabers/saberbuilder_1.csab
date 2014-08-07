@@ -2,13 +2,19 @@ saberbuilder_1 //this is the name that is in the .sab
 {
 	saberlongname "Ashura's Saber" //this is the name shown in the menu
 	foldername	Saberbuilder //this is the name of the folder, i.e. if the model is in models/weapons2/Saberbuilder/
-	skin1	emitter //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/emitter_blah.skin, models/weapons2/Saberbuilder/emitter_1.skin etc.
-	skin2	pommel //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/pommel_blah.skin
-	skin3	rest //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/rest_blah.skin
+	skin1	em //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/em_blah.skin, models/weapons2/Saberbuilder/em_1.skin etc.
+	skin2	bd //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/bd_blah.skin
+	skin3	bt //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/bt_blah.skin
+	skin4	hd //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/hd_blah.skin
+	skin5	pm //what .skin files to look for. will search for e.g. models/weapons2/Saberbuilder/pm_blah.skin
 	skin1name	@SPMOD_EMITTER //what to show as header for first category
 	skin1desc	@SPMOD_EMITTER_DESC //what to show as description for first category
-	skin2name	@SPMOD_POMMEL //what to show as header for second category
-	skin2desc	@SPMOD_POMMEL_DESC //what to show as description for second category
-	skin3name	@SPMOD_HILT //what to show as header for third category
-	skin3desc	@SPMOD_HILT_DESC //what to show as description for third category
+	skin2name	@SPMOD_BODY //what to show as header for second category
+	skin2desc	@SPMOD_BODY_DESC //what to show as description for second category
+	skin3name	@SPMOD_BUTTONS //what to show as header for third category
+	skin3desc	@SPMOD_BUTTONS_DESC //what to show as description for third category
+	skin4name	@SPMOD_HANDLE //what to show as header for fourth category
+	skin4desc	@SPMOD_HANDLE_DESC //what to show as description for fourth category
+	skin5name	@SPMOD_POMMEL //what to show as header for fifth category
+	skin5desc	@SPMOD_POMMEL_DESC //what to show as description for fifth category
 }

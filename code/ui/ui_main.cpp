@@ -3006,7 +3006,7 @@ static void UI_BuildCustomSaber_List()
 				}
 			}
 			
-			if (iSkinParts != 7)//!=31
+			if (iSkinParts != 31)//todo: allow for only some parts to be required.
 			{	//didn't get a skin for each, then skip this model.
 				memset(&uiInfo.customSabers[uiInfo.customSabersCount], 0, sizeof(uiInfo.customSabers[uiInfo.customSabersCount]));
 				continue;

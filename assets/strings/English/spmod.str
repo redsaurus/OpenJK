@@ -19,8 +19,14 @@ LANG_ENGLISH        "EMITTER"
 REFERENCE           POMMEL
 LANG_ENGLISH        "POMMEL"
 
-REFERENCE           HILT
-LANG_ENGLISH        "HILT"
+REFERENCE           HANDLE
+LANG_ENGLISH        "HANDLE"
+
+REFERENCE			BUTTONS
+LANG_ENGLISH		"BUTTONS"
+
+REFERENCE			BODY
+LANG_ENGLISH		"BODY"
 
 REFERENCE           EMITTER_DESC
 LANG_ENGLISH        "Choose the emitter."
@@ -28,8 +34,14 @@ LANG_ENGLISH        "Choose the emitter."
 REFERENCE           POMMEL_DESC
 LANG_ENGLISH        "Choose the pommel."
 
-REFERENCE           HILT_DESC
-LANG_ENGLISH        "Choose the hilt."
+REFERENCE           HANDLE_DESC
+LANG_ENGLISH        "Choose the handle."
+
+REFERENCE			BUTTONS_DESC
+LANG_ENGLISH		"Choose the buttons."
+
+REFERENCE			BODY_DESC
+LANG_ENGLISH		"Choose the body."
 
 ENDMARKER
 

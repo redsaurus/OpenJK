@@ -1710,7 +1710,7 @@
 			name				skin1but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				400 280 70 16
+			rect				240 280 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible			0
@@ -1725,7 +1725,7 @@
 			descText			@MENUS_SELECT_HEAD
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				400 280 70 16
+			rect				240 280 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
@@ -1750,7 +1750,11 @@
 				show			heads
 				hide			torso
 				hide			lower
+				hide			skin4
+				hide			skin5
 				
+				setitemcolor		skin5but forecolor 1 .682 0 1
+				setitemcolor		skin4but forecolor 1 .682 0 1
 				setitemcolor		skin3but forecolor 1 .682 0 1
 				setitemcolor		skin2but forecolor 1 .682 0 1
 				setitemcolor		skin1but forecolor 1 1 1 1
@@ -1765,7 +1769,7 @@
 			name				skin2but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				480 280 70 16
+			rect				320 280 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible				0
@@ -1780,7 +1784,7 @@
 			descText			@MENUS_SELECT_TORSO
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				480 280 70 16
+			rect				320 280 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
@@ -1805,7 +1809,11 @@
 				show			torso
 				hide			heads
 				hide			lower
+				hide			skin4
+				hide			skin5
 				
+				setitemcolor		skin5but forecolor 1 .682 0 1
+				setitemcolor		skin4but forecolor 1 .682 0 1
 				setitemcolor		skin3but forecolor 1 .682 0 1
 				setitemcolor		skin2but forecolor 1 1 1 1
 				setitemcolor		skin1but forecolor 1 .682 0 1
@@ -1818,7 +1826,7 @@
 			name				skin3but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				560 280 70 16
+			rect				400 280 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible				0
@@ -1833,7 +1841,7 @@
 			descText			@MENUS_SELECT_LEGS
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				560 280 70 16
+			rect				400 280 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
@@ -1858,8 +1866,126 @@
 				show			lower
 				hide			heads
 				hide			torso
+				hide			skin4
+				hide			skin5
 				
+				setitemcolor		skin5but forecolor 1 .682 0 1
+				setitemcolor		skin4but forecolor 1 .682 0 1
 				setitemcolor		skin3but forecolor 1 1 1 1
+				setitemcolor		skin2but forecolor 1 .682 0 1
+				setitemcolor		skin1but forecolor 1 .682 0 1
+			}
+		}
+		
+		// SKIN4 BUTTON
+		itemDef 
+		{
+			name				skin4but_glow
+			group				none
+			style				WINDOW_STYLE_SHADER
+			rect				480 280 70 16
+			background			"gfx/menus/menu_buttonback"
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				skin4but
+			group				none
+			text				@MENUS_LEGS
+			descText			@MENUS_SELECT_LEGS
+			type				ITEM_TYPE_BUTTON
+			style				WINDOW_STYLE_EMPTY
+			rect				480 280 70 16
+			font				2
+			textscale			.9
+			textaligny			-5
+			textalign			ITEM_ALIGN_LEFT
+			textstyle			1
+			textalignx			0
+			backcolor			0 0 0 0
+			forecolor			1 .682 0 1
+			visible				1
+			 
+			mouseEnter 
+			{ 
+				show			skin4but_glow 
+			}
+			mouseExit 
+			{ 
+				hide			skin4but_glow 
+			}	  	  
+			action 
+			{
+				play			"sound/interface/button1.wav"
+				hide			lower
+				hide			heads
+				hide			torso
+				show			skin4
+				hide			skin5
+				
+				setitemcolor		skin5but forecolor 1 .682 0 1
+				setitemcolor		skin4but forecolor 1 1 1 1
+				setitemcolor		skin3but forecolor 1 .682 0 1
+				setitemcolor		skin2but forecolor 1 .682 0 1
+				setitemcolor		skin1but forecolor 1 .682 0 1
+			}
+		}
+		
+		// SKIN5 BUTTON
+		itemDef 
+		{
+			name				skin5but_glow
+			group				none
+			style				WINDOW_STYLE_SHADER
+			rect				560 280 70 16
+			background			"gfx/menus/menu_buttonback"
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				skin5but
+			group				none
+			text				@MENUS_LEGS
+			descText			@MENUS_SELECT_LEGS
+			type				ITEM_TYPE_BUTTON
+			style				WINDOW_STYLE_EMPTY
+			rect				560 280 70 16
+			font				2
+			textscale			.9
+			textaligny			-5
+			textalign			ITEM_ALIGN_LEFT
+			textstyle			1
+			textalignx			0
+			backcolor			0 0 0 0
+			forecolor			1 .682 0 1
+			visible				1
+			 
+			mouseEnter 
+			{ 
+				show			skin5but_glow 
+			}
+			mouseExit 
+			{ 
+				hide			skin5but_glow 
+			}	  	  
+			action 
+			{
+				play			"sound/interface/button1.wav"
+				hide			lower
+				hide			heads
+				hide			torso
+				hide			skin4
+				show			skin5
+				
+				setitemcolor		skin4but forecolor 1 .682 0 1
+				setitemcolor		skin5but forecolor 1 1 1 1
+				setitemcolor		skin3but forecolor 1 .682 0 1
 				setitemcolor		skin2but forecolor 1 .682 0 1
 				setitemcolor		skin1but forecolor 1 .682 0 1
 			}
@@ -1946,6 +2072,60 @@
 				uiScript 		"saber_hilt_nochange"
 			}
 		}
+		
+		itemDef
+		{
+			name				skin4listbox
+			group				skin4
+			type				ITEM_TYPE_LISTBOX
+			style				WINDOW_STYLE_FILLED
+			descText			@MENUS_SELECT_LEGS
+			elementwidth			72
+			elementheight			72
+			elementtype			1 			//LISTBOX_IMAGE
+			feeder				28 			//FEEDER_PLAYER_SKIN_LEGS
+			horizontalscroll
+			border				1
+			bordersize			1
+			backcolor			.66 .66 1 .5
+			bordercolor			.66 .66 1 1
+			forecolor			-1			//use playercolor
+			rect				400 306 219 93
+			visible				0
+			action
+			{
+				play			"sound/interface/choose_head.wav"
+				uiScript 		"saber_hilt_nochange"
+			}
+		}
+		
+		itemDef
+		{
+			name				skin5listbox
+			group				skin5
+			type				ITEM_TYPE_LISTBOX
+			style				WINDOW_STYLE_FILLED
+			descText			@MENUS_SELECT_LEGS
+			elementwidth			72
+			elementheight			72
+			elementtype			1 			//LISTBOX_IMAGE
+			feeder				29 			//FEEDER_PLAYER_SKIN_LEGS
+			horizontalscroll
+			border				1
+			bordersize			1
+			backcolor			.66 .66 1 .5
+			bordercolor			.66 .66 1 1
+			forecolor			-1			//use playercolor
+			rect				400 306 219 93
+			visible				0
+			action
+			{
+				play			"sound/interface/choose_head.wav"
+				uiScript 		"saber_hilt_nochange"
+			}
+		}
+		
+	
 
 //----------------------------------------------------------------------------------------------
 //	OTHER MAIN MENU BUTTONS
