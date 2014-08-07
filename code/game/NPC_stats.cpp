@@ -1933,6 +1933,7 @@ void NPC_BuildRandom( gentity_t *NPC )
 extern void G_MatchPlayerWeapon( gentity_t *ent );
 extern void G_InitPlayerFromCvars( gentity_t *ent );
 extern void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const char *customSkin, const char *surfOff, const char *surfOn );
+extern void G_ChangeHeadModel( gentity_t *ent, const char *newModel );
 qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC ) 
 {
 	const char	*token;
@@ -1944,6 +1945,8 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	char	sound[MAX_QPATH];
 	char	playerModel[MAX_QPATH];
 	char	customSkin[MAX_QPATH];
+	char	playerHeadModel[MAX_QPATH];
+	char	customHeadSkin[MAX_QPATH];
 	clientInfo_t	*ci = &NPC->client->clientInfo;
 	renderInfo_t	*ri = &NPC->client->renderInfo;
 	gNPCstats_t		*stats = NULL;
@@ -2553,7 +2556,29 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				Q_strncpyz( customSkin, value, sizeof(customSkin), qtrue);			
 				continue;
 			}
-
+			
+			// playerModel
+			if ( !Q_stricmp( token, "playerHeadModel" ) )
+			{
+				if ( COM_ParseString( &p, &value ) )
+				{
+					continue;
+				}
+				Q_strncpyz( playerHeadModel, value, sizeof(playerHeadModel), qtrue);
+				continue;
+			}
+			
+			// customSkin
+			if ( !Q_stricmp( token, "customHeadSkin" ) )
+			{
+				if ( COM_ParseString( &p, &value ) )
+				{
+					continue;
+				}
+				Q_strncpyz( customHeadSkin, value, sizeof(customHeadSkin), qtrue);
+				continue;
+			}
+			
 			// surfOff
 			if ( !Q_stricmp( token, "surfOff" ) ) 
 			{
@@ -4065,6 +4090,18 @@ Ghoul2 Insert Start
 			}
 
 			G_SetG2PlayerModel( NPC, playerModel, customSkin, surfOff, surfOn );
+			
+			if ( playerHeadModel && playerHeadModel[0] )
+			{
+				if (customHeadSkin && customHeadSkin[0])
+				{
+					G_ChangeHeadModel( NPC, va("%s|%s", playerHeadModel, customHeadSkin) );
+				}
+				else
+				{
+					G_ChangeHeadModel( NPC, va("%s|default", playerHeadModel) );
+				}
+			}
 		}
 	}
 /*
