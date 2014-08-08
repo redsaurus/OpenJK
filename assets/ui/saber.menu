@@ -1700,6 +1700,102 @@
 //	CUSTOM SABER STUFF!
 //----------------------------------------------------------------------------------------------
 
+		itemDef 
+		{
+			name				saberbox1
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				370 226 305 205
+			background			"white"
+			forecolor			0 0 0.2 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				saberbox2
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				370 239 1 177
+			background			"white"
+			forecolor			.65 .65 1 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				saberbox3
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				375 232 3 192
+			background			"white"
+			forecolor			.45 .45 1 1
+			visible				1
+			decoration
+		}
+		
+		itemDef 
+		{
+			name				saberbox4
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				370 232 5 3
+			background			"white"
+			forecolor			.45 .45 1 1
+			visible				1
+			decoration
+		}
+		
+		itemDef 
+		{
+			name				saberbox5
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				370 421 5 3
+			background			"white"
+			forecolor			.45 .45 1 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				boxsabertop
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				362 226 295 60
+			background			"gfx/menus/sabermenu_box_top"
+			forecolor			1 1 1 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				boxsabermiddle
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				362 286 295 85
+			background			"gfx/menus/sabermenu_box_middle"
+			forecolor			1 1 1 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				boxsaberbottom
+			group				saberskin_menus
+			style				WINDOW_STYLE_SHADER
+			rect				362 371 295 60
+			background			"gfx/menus/sabermenu_box_bottom"
+			forecolor			1 1 1 1
+			visible				1
+			decoration
+		}	
+
 //----------------------------------------------------------------------------------------------
 //	APPEARANCE TABS
 //----------------------------------------------------------------------------------------------
@@ -1710,7 +1806,7 @@
 			name				skin1but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				240 280 70 16
+			rect				400 260 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible			0
@@ -1725,7 +1821,7 @@
 			descText			@MENUS_SELECT_HEAD
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				240 280 70 16
+			rect				400 260 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
@@ -1769,7 +1865,7 @@
 			name				skin2but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				320 280 70 16
+			rect				480 260 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible				0
@@ -1784,7 +1880,7 @@
 			descText			@MENUS_SELECT_TORSO
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				320 280 70 16
+			rect				480 260 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
@@ -1940,7 +2036,7 @@
 			name				skin5but_glow
 			group				none
 			style				WINDOW_STYLE_SHADER
-			rect				560 280 70 16
+			rect				560 260 70 16
 			background			"gfx/menus/menu_buttonback"
 			forecolor			1 1 1 1
 			visible				0
@@ -1955,7 +2051,7 @@
 			descText			@MENUS_SELECT_LEGS
 			type				ITEM_TYPE_BUTTON
 			style				WINDOW_STYLE_EMPTY
-			rect				560 280 70 16
+			rect				560 260 70 16
 			font				2
 			textscale			.9
 			textaligny			-5
