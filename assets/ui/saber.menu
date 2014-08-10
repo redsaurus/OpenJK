@@ -1145,11 +1145,14 @@
 				play			"sound/interface/choose_blade.wav"
 				setcvar "ui_saber_color" "rgb"
 				uiScript		 "updatesabercvars"
-				close			all
-				open			saber_rgb
+				toggledecoration	sabericons
+				toggledecoration	sabericons2
+				toggledecoration	stylebuttons
+				show			rgbsaber1
+				show			rgbicondummy
+				setfocus		rgbicondummy
 			}
 		}
-
 
 // COLOR 2 BUTTON
 		itemDef 
@@ -1400,8 +1403,11 @@
 				play			"sound/interface/choose_blade.wav"
 				setcvar "ui_saber2_color" "rgb"
 				uiScript		 "updatesabercvars"
-				close			all
-				open			saber_rgb
+				toggledecoration	sabericons
+				toggledecoration	sabericons2
+				show			rgbsaber2
+				show			rgbicon2dummy
+				setfocus		rgbicon2dummy
 			}
 		}
 
@@ -2222,6 +2228,398 @@
 		}
 		
 	
+//
+//RGB POPUP BOXES
+//
+
+		itemDef 
+		{
+			name				rgbsliderboxshadow
+			group				rgbsaber1
+			style				WINDOW_STYLE_FILLED
+			rect				440 92 175 100
+			backcolor			0 0 0 0.5
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				rgbsliderbox
+			group				rgbsaber1
+			style				WINDOW_STYLE_FILLED
+			rect				415 160 210 100
+			backcolor			0 0 .35 1
+			forecolor			1 1 1 1
+			border				1
+			bordercolor			0 0 .8 1
+			visible				0
+			decoration
+		}
+		
+		itemDef 
+		{
+			name				rgbsliderboxshadow
+			group				rgbsaber2
+			style				WINDOW_STYLE_FILLED
+			rect				440 92 175 110
+			backcolor			0 0 0 0.5
+			forecolor			1 1 1 1
+			visible				0
+			decoration
+		}
+
+		itemDef 
+		{
+			name				rgbsliderbox
+			group				rgbsaber2
+			style				WINDOW_STYLE_FILLED
+			rect				415 50 210 100
+			backcolor			0 0 .35 1
+			forecolor			1 1 1 1
+			border				1
+			bordercolor			0 0 .8 1
+			visible				0
+			decoration
+		}
+		
+		itemDef 
+		{
+			name				rgbicondummy
+			descText			@MENUS_COLOR1_DESC
+			style				WINDOW_STYLE_SHADER
+			type				ITEM_TYPE_BUTTON
+			rect				584 124 24 24
+			background			"gfx/menus/saber_icon_rgb"
+			forecolor			.75 .75 .75 1
+			border				1
+			bordersize			1
+			bordercolor			.33 .33 .5 1
+			visible				0
+			action 
+			{
+				play			"sound/interface/choose_blade.wav"
+				setcvar "ui_saber_color" "rgb"
+				uiScript		 "updatesabercvars"
+				toggledecoration	sabericons
+				toggledecoration	sabericons2
+				toggledecoration	stylebuttons
+				hide			rgbsaber1
+				hide			rgbicondummy
+				setfocus		rgbicon
+			}
+		}
+		
+		itemDef 
+		{
+			name				rgbicon2dummy
+			style				WINDOW_STYLE_SHADER
+			type				ITEM_TYPE_BUTTON
+			rect				584 170 24 24
+			descText			@MENUS_COLOR2_DESC
+			background			"gfx/menus/saber_icon_rgb"
+			forecolor			.75 .75 .75 1
+			border				1
+			bordersize			1
+			bordercolor			.33 .33 .5 1
+			cvarTest			ui_saber_type
+			hideCvar			{ "single"; "staff" }
+			visible				0
+			action 
+			{
+				play			"sound/interface/choose_blade.wav"
+				setcvar "ui_saber2_color" "rgb"
+				uiScript		 "updatesabercvars"
+				toggledecoration	sabericons
+				toggledecoration	sabericons2
+				hide			rgbsaber2
+				hide			rgbicon2dummy
+				setfocus		rgbicon2
+			}
+		}
+		
+				itemDef
+				{
+					name	colorred
+					group	rgbsaber1
+					type	ITEM_TYPE_NUMERICFIELD
+					text	"Red:"
+					cvar	"ui_rgb_saber_red"
+					rect	420 169 60 14
+					textalign ITEM_ALIGN_LEFT
+					textalignx	0
+					textaligny	-1
+					forecolor			.615 .615 .956 1
+					font	4
+					textscale	1
+					visible	0
+					decoration
+				}
+		
+				itemDef 
+				{
+					name				colorredslider
+					group				rgbsaber1
+					type				ITEM_TYPE_SLIDER_INTEGER
+					cvarfloat			"ui_rgb_saber_red" 255 0 255
+					rect				495 169 200 14
+			   		textalign			ITEM_ALIGN_LEFT
+					textalignx			150
+					textaligny			0
+					font 				4
+					textscale 			1
+					forecolor			.615 .615 .956 1
+					visible				0
+					action 
+					{ 
+						play			"sound/interface/button1.wav" ;
+					}
+
+					mouseenter 
+					{ 
+		//				show			highlight3
+					}
+					mouseexit 
+					{ 
+		//				hide			highlight3
+					} 
+				}
+
+				itemDef
+				{
+					name	colorgreen
+					group	rgbsaber1
+					type	ITEM_TYPE_NUMERICFIELD
+					text	"Green:"
+					cvar	"ui_rgb_saber_green"
+					rect	420 200 60 14
+					textalign ITEM_ALIGN_LEFT
+					textalignx	0
+					textaligny	-1
+					forecolor			.615 .615 .956 1
+					font	4
+					textscale	1
+					visible	0
+					decoration
+				}
+		
+				itemDef 
+				{
+					name				colorgreenslider
+					group				rgbsaber1
+					type				ITEM_TYPE_SLIDER_INTEGER
+					cvarfloat			"ui_rgb_saber_green" 255 0 255
+					rect				495 200 200 14
+			   		textalign			ITEM_ALIGN_LEFT
+					textalignx			150
+					textaligny			0
+					font 				4
+					textscale 			1
+					forecolor			.615 .615 .956 1
+					visible				0
+					action 
+					{ 
+						play			"sound/interface/button1.wav" ;
+					}
+
+					mouseenter 
+					{ 
+		//				show			highlight3
+					}
+					mouseexit 
+					{ 
+		//				hide			highlight3
+					} 
+				}
+
+				itemDef
+				{
+					name	colorblue
+					group	rgbsaber1
+					type	ITEM_TYPE_NUMERICFIELD
+					text	"Blue:"
+					cvar	"ui_rgb_saber_blue"
+					rect	420 231 60 14
+					textalign ITEM_ALIGN_LEFT
+					textalignx	0
+					textaligny	-1
+					forecolor			.615 .615 .956 1
+					font	4
+					textscale	1
+					visible	0
+					decoration
+				}
+		
+				itemDef 
+				{
+					name				colorblueslider
+					group				rgbsaber1
+					type				ITEM_TYPE_SLIDER_INTEGER
+					cvarfloat			"ui_rgb_saber_blue" 255 0 255
+					rect				495 231 200 14
+			   		textalign			ITEM_ALIGN_LEFT
+					textalignx			150
+					textaligny			0
+					font 				4
+					textscale 			1
+					forecolor			.615 .615 .956 1
+					visible				0
+					action 
+					{ 
+						play			"sound/interface/button1.wav" ;
+					}
+
+					mouseenter 
+					{ 
+		//				show			highlight3
+					}
+					mouseexit 
+					{ 
+		//				hide			highlight3
+					} 
+				}
+				
+						itemDef
+						{
+							name	colorred
+							group	rgbsaber2
+							type	ITEM_TYPE_NUMERICFIELD
+							text	"Red:"
+							cvar	"ui_rgb_saber2_red"
+							rect	420 59 60 14
+							textalign ITEM_ALIGN_LEFT
+							textalignx	0
+							textaligny	-1
+							forecolor			.615 .615 .956 1
+							font	4
+							textscale	1
+							visible	0
+							decoration
+						}
+		
+						itemDef 
+						{
+							name				colorredslider
+							group				rgbsaber2
+							type				ITEM_TYPE_SLIDER_INTEGER
+							cvarfloat			"ui_rgb_saber2_red" 255 0 255
+							rect				495 59 200 14
+					   		textalign			ITEM_ALIGN_LEFT
+							textalignx			150
+							textaligny			0
+							font 				4
+							textscale 			1
+							forecolor			.615 .615 .956 1
+							visible				0
+							action 
+							{ 
+								play			"sound/interface/button1.wav" ;
+							}
+
+							mouseenter 
+							{ 
+				//				show			highlight3
+							}
+							mouseexit 
+							{ 
+				//				hide			highlight3
+							} 
+						}
+
+						itemDef
+						{
+							name	colorgreen
+							group	rgbsaber2
+							type	ITEM_TYPE_NUMERICFIELD
+							text	"Green:"
+							cvar	"ui_rgb_saber2_green"
+							rect	420 90 60 14
+							textalign ITEM_ALIGN_LEFT
+							textalignx	0
+							textaligny	-1
+							forecolor			.615 .615 .956 1
+							font	4
+							textscale	1
+							visible	0
+							decoration
+						}
+		
+						itemDef 
+						{
+							name				colorgreenslider
+							group				rgbsaber2
+							type				ITEM_TYPE_SLIDER_INTEGER
+							cvarfloat			"ui_rgb_saber2_green" 255 0 255
+							rect				495 90 200 14
+					   		textalign			ITEM_ALIGN_LEFT
+							textalignx			150
+							textaligny			0
+							font 				4
+							textscale 			1
+							forecolor			.615 .615 .956 1
+							visible				0
+							action 
+							{ 
+								play			"sound/interface/button1.wav" ;
+							}
+
+							mouseenter 
+							{ 
+				//				show			highlight3
+							}
+							mouseexit 
+							{ 
+				//				hide			highlight3
+							} 
+						}
+
+						itemDef
+						{
+							name	colorblue
+							group	rgbsaber2
+							type	ITEM_TYPE_NUMERICFIELD
+							text	"Blue:"
+							cvar	"ui_rgb_saber2_blue"
+							rect	420 121 60 14
+							textalign ITEM_ALIGN_LEFT
+							textalignx	0
+							textaligny	-1
+							forecolor			.615 .615 .956 1
+							font	4
+							textscale	1
+							visible	0
+							decoration
+						}
+		
+						itemDef 
+						{
+							name				colorblueslider
+							group				rgbsaber2
+							type				ITEM_TYPE_SLIDER_INTEGER
+							cvarfloat			"ui_rgb_saber2_blue" 255 0 255
+							rect				495 121 200 14
+					   		textalign			ITEM_ALIGN_LEFT
+							textalignx			150
+							textaligny			0
+							font 				4
+							textscale 			1
+							forecolor			.615 .615 .956 1
+							visible				0
+							action 
+							{ 
+								play			"sound/interface/button1.wav" ;
+							}
+
+							mouseenter 
+							{ 
+				//				show			highlight3
+							}
+							mouseexit 
+							{ 
+				//				hide			highlight3
+							} 
+						}
 
 //----------------------------------------------------------------------------------------------
 //	OTHER MAIN MENU BUTTONS
