@@ -1853,6 +1853,28 @@ void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, floa
 	}
 }
 
+void Menu_ToggleDecorationByName(menuDef_t *menu, const char *p)
+{
+	itemDef_t *item;
+	int i;
+	int count = Menu_ItemsMatchingGroup(menu, p);
+	for (i = 0; i < count; i++)
+	{
+		item = Menu_GetMatchingItemByNumber(menu, i, p);
+		if (item != NULL)
+		{
+			if (item->window.flags & WINDOW_DECORATION)
+			{
+				item->window.flags &= ~WINDOW_DECORATION;
+			}
+			else
+			{
+				item->window.flags |= WINDOW_DECORATION;
+			}
+		}
+	}
+}
+
 /*
 =================
 Rect_Parse
@@ -2812,6 +2834,18 @@ qboolean Script_Orbit(itemDef_t *item, const char **args)
 	return qtrue;
 }
 
+qboolean Script_ToggleDecoration(itemDef_t *item, const char **args)
+{
+	const char *name;
+	
+	if (String_Parse(args, &name))
+	{
+		Menu_ToggleDecorationByName((menuDef_t *) item->parent, name);
+	}
+	
+	return qtrue;
+}
+
 
 commandDef_t commandList[] =
 {	
@@ -2847,7 +2881,8 @@ commandDef_t commandList[] =
   {"delay",			&Script_Delay},					// works on this (script)
   {"transition3",   &Script_Transition3},			// model exclusive transition
   {"incrementfeeder", &Script_IncrementFeeder},
-  {"decrementfeeder", &Script_DecrementFeeder}
+  {"decrementfeeder", &Script_DecrementFeeder},
+	{"toggledecoration", &Script_ToggleDecoration}
 };
 
 int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t);
