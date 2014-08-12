@@ -7393,6 +7393,11 @@ void WP_SaberFireGun( gentity_t *self, usercmd_t *ucmd, int whichGun )
 		return;
 	}
 	
+	if ( self->s.weapon != WP_SABER )
+	{
+		return;
+	}
+	
 	if ( !(self->client->ps.stats[STAT_WEAPONS] & (1<<whichGun)) )
 	{
 		return;
