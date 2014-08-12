@@ -9087,7 +9087,7 @@ int PM_ReadyPoseForSaberAnimLevel( void )
 		anim = BOTH_SABERSTAFF_STANCE;
 		break;
 	case SS_KATARN:
-		anim = BOTH_STAND6;
+		anim = BOTH_STAND9;
 		break;
 	case SS_FAST:
 	case SS_TAVION:
@@ -14328,6 +14328,9 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 		case FP_DRAIN:
 			// FIXME! Failing at WP_ForcePowerUsable(). -AReis
 			ucmd->buttons |= BUTTON_FORCE_DRAIN;
+			break;
+		case FP_SABERTHROW:
+			ucmd->buttons |= BUTTON_ALT_ATTACK;
 			break;
 //		default:
 //			Com_Printf( "Use Force: Unhandled force: %d\n", showPowers[cg.forcepowerSelect]);

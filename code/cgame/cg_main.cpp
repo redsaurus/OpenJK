@@ -3676,6 +3676,8 @@ int showPowers[MAX_SHOWPOWERS] =
 	FP_LIGHTNING,
 	FP_RAGE,
 	FP_GRIP,
+	
+	FP_SABERTHROW,
 };
 
 const char *showPowersName[MAX_SHOWPOWERS] = 
@@ -3694,6 +3696,8 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 	"SP_INGAME_LIGHTNING2",
 	"SP_INGAME_DARK_RAGE2",
 	"SP_INGAME_GRIP2",
+	
+	"Saberthrow",
 };
 
 // Keep these with groups light side, core, and dark side
