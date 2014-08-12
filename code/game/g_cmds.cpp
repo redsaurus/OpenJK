@@ -1114,6 +1114,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 				case SS_MEDIUM:
 				case SS_STRONG:
 				case SS_DESANN:
+				case SS_KATARN:
 					anim = BOTH_ENGAGETAUNT;
 					break;
 				case SS_DUAL:
@@ -1208,6 +1209,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					{
 					case SS_FAST:
 					case SS_TAVION:
+					case SS_KATARN:
 						anim = BOTH_SHOWOFF_FAST;
 						break;
 					case SS_MEDIUM:
@@ -1245,6 +1247,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					{
 					case SS_FAST:
 					case SS_TAVION:
+					case SS_KATARN:
 						anim = BOTH_VICTORY_FAST;
 						break;
 					case SS_MEDIUM:
@@ -1484,7 +1487,7 @@ void ClientCommand( int clientNum ) {
 		if ( gi.argc() < 2 )
 		{
 			gi.SendServerCommand( ent-g_entities, va("print \"usage: addsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_KATARN, SS_DUAL and SS_STAFF\n\""));
 			return;
 		}
 
@@ -1504,7 +1507,7 @@ void ClientCommand( int clientNum ) {
 		if ( gi.argc() < 2 )
 		{
 			gi.SendServerCommand( ent-g_entities, va("print \"usage: setsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_KATARN, SS_DUAL and SS_STAFF\n\""));
 			return;
 		}
 

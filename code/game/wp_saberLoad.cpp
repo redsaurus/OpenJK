@@ -163,6 +163,10 @@ saber_styles_t TranslateSaberStyle( const char *name )
 	{
 		return SS_TAVION;
 	}
+	if ( !Q_stricmp( name, "katarn" ) )
+	{
+		return SS_KATARN;
+	}
 	if ( !Q_stricmp( name, "dual" ) ) 
 	{
 		return SS_DUAL;

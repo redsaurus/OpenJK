@@ -609,6 +609,10 @@ void Svcmd_SaberAttackCycle_f( void )
 		gi.Printf( S_COLOR_MAGENTA"Lightsaber Combat Style: Tavion\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
+	case SS_KATARN:
+		gi.Printf( S_COLOR_MAGENTA"Lightsaber Combat Style: Katarn\n" );
+		//LIGHTSABERCOMBATSTYLE_TAVION
+		break;
 	case SS_DUAL:
 		gi.Printf( S_COLOR_MAGENTA"Lightsaber Combat Style: Dual\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION

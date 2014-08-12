@@ -346,6 +346,8 @@ stringID_table_t SaberStyleTable[] =
 	{ "desann",SS_DESANN },
 	ENUM2STRING(SS_TAVION),
 	{ "tavion",SS_TAVION },
+	ENUM2STRING(SS_KATARN),
+	{ "katarn",SS_KATARN },
 	ENUM2STRING(SS_DUAL),
 	{ "dual",SS_DUAL },
 	ENUM2STRING(SS_STAFF),
@@ -395,10 +397,9 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 		ent->holsterModel[weaponNum] = gi.G2API_InitGhoul2Model(ent->ghoul2, weaponModel, wModelIndex, NULL_HANDLE, NULL_HANDLE, 0, 0 );
 		if ( ent->holsterModel[weaponNum] != -1 )
 		{
-			// attach it to the hand
+			// attach it to the hip. need some correction of rotation first though!
 			gi.G2API_AttachG2Model(&ent->ghoul2[ent->holsterModel[weaponNum]], &ent->ghoul2[ent->playerModel],
 								   boltNum, ent->playerModel);
-			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
 			vec3_t gunAngles;
 			gunAngles[PITCH] = 180.0f;
 			gunAngles[YAW] = 0.0f;
@@ -416,6 +417,7 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			{
 				gi.G2API_SetNewOrigin(&ent->ghoul2[ent->holsterModel[weaponNum]], holsterorigin);
 			}
+			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
 			gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*flash");
 	  		//gi.G2API_SetLodBias( &ent->ghoul2[ent->weaponModel[weaponNum]], 0 );
 		}
@@ -3080,7 +3082,7 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )
 	{//special case: if we're using the same style and locking
 		if ( attackerSaberStyle == defenderSaberStyle 
-			|| (attackerSaberStyle>=SS_FAST&&attackerSaberStyle<=SS_TAVION&&defenderSaberStyle>=SS_FAST&&defenderSaberStyle<=SS_TAVION) )
+			|| (attackerSaberStyle>=SS_FAST&&attackerSaberStyle<=SS_KATARN&&defenderSaberStyle>=SS_FAST&&defenderSaberStyle<=SS_KATARN) )
 		{//using same style
 			if ( winOrLose == SABERLOCK_LOSE )
 			{//you want the defender's stance...
@@ -3327,9 +3329,9 @@ qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLo
 		}
 		//FIXME: attStart% and idealDist will change per saber lock anim pairing... do we need a big table like in bg_panimate.cpp?
 		if ( attacker->client->ps.saberAnimLevel >= SS_FAST
-			&& attacker->client->ps.saberAnimLevel <= SS_TAVION
+			&& attacker->client->ps.saberAnimLevel <= SS_KATARN
 			&& defender->client->ps.saberAnimLevel >= SS_FAST
-			&& defender->client->ps.saberAnimLevel <= SS_TAVION )
+			&& defender->client->ps.saberAnimLevel <= SS_KATARN )
 		{//2 single sabers?  Just do it the old way...
 			switch ( lockMode )
 			{

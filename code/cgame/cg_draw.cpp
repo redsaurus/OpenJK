@@ -293,6 +293,11 @@ static void CG_DrawSaberStyle(const centity_t	*cent,const int xPos,const int yPo
 	}
 
 	cgi_R_SetColor( otherHUDBits[index].color);
+	if (cg.saberAnimLevelPending == SS_KATARN)
+	{
+		cgi_R_SetColor( otherHUDBits[OHB_ARMORAMOUNT].color );
+		index = OHB_SABERSTYLE_MEDIUM;
+	}
 
 	CG_DrawPic( 
 		otherHUDBits[index].xPos,
