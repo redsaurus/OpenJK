@@ -7346,14 +7346,26 @@ else
 		VectorCopy( saberTrail->tip, fx->mVerts[1].origin );
 		VectorCopy( saberTrail->dualtip, fx->mVerts[2].origin );
 		VectorCopy( saberTrail->dualbase, fx->mVerts[3].origin );
-		
-		CG_DoSFXSaber( saberTrail->base, saberTrail->tip, saberTrail->dualtip, saberTrail->dualbase, (client->ps.saber[saberNum].blade[bladeNum].lengthMax), (client->ps.saber[saberNum].blade[bladeNum].radius), client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse) );
-		
+	
+	
+		if ( !(cent->gent->client->ps.saber[saberNum].type == SABER_SITH_SWORD || client->ps.saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
+		{
+			CG_DoSFXSaber( saberTrail->base, saberTrail->tip, saberTrail->dualtip, saberTrail->dualbase, (client->ps.saber[saberNum].blade[bladeNum].lengthMax), (client->ps.saber[saberNum].blade[bladeNum].radius), client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse) );
+		}
+
 		if ( cg.time > saberTrail->inAction )
 		{
 			saberTrail->inAction = cg.time;
 			
-			fx->mShader = cgs.media.SaberTrailShader;
+			if ( cent->gent->client->ps.saber[saberNum].type == SABER_SITH_SWORD || client->ps.saber[saberNum].trailStyle == 1 )
+			{
+				fx->mShader = cgs.media.swordTrailShader;
+				VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
+			}
+			else
+			{
+				fx->mShader = cgs.media.SaberTrailShader;
+			}
 			fx->SetFlags( FX_USE_ALPHA );
 			
 			// New muzzle
@@ -7393,15 +7405,16 @@ else
 			fx->mVerts[3].destST[1] = 4.0f;
 			
 			FX_AddPrimitive( (CEffect**)&fx, 0 );
-			
-			if ( (client->ps.saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
+		}
+	
+		if ( (client->ps.saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
+		{
+			if ( !noDlight )
 			{
-				if ( !noDlight )
-				{
-					CG_DoSaberLight( &client->ps.saber[saberNum] );
-				}
+				CG_DoSaberLight( &client->ps.saber[saberNum] );
 			}
 		}
+
 }
 }
 
