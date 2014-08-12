@@ -14330,7 +14330,7 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			ucmd->buttons |= BUTTON_FORCE_DRAIN;
 			break;
 		case FP_SABERTHROW:
-			ucmd->buttons |= BUTTON_ALT_ATTACK;
+			ucmd->buttons |= BUTTON_SABERTHROW;
 			break;
 //		default:
 //			Com_Printf( "Use Force: Unhandled force: %d\n", showPowers[cg.forcepowerSelect]);
@@ -15115,6 +15115,15 @@ void Pmove( pmove_t *pmove )
 	else
 	{
 		pm->ps->pm_flags &= ~PMF_FORCE_FOCUS_HELD;
+	}
+	
+	if ( pm->cmd.buttons & BUTTON_SABERTHROW )
+	{
+		pm->ps->pm_flags |= PMF_SABERTHROW_HELD;
+	}
+	else
+	{
+		pm->ps->pm_flags &= ~PMF_SABERTHROW_HELD;
 	}
 
 	if ( pm->gent )//&& pm->gent->s.number == 0 )//player only?

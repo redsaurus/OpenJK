@@ -3697,7 +3697,7 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 	"SP_INGAME_DARK_RAGE2",
 	"SP_INGAME_GRIP2",
 	
-	"Saberthrow",
+	"SP_INGAME_SABER_THROW2",
 };
 
 // Keep these with groups light side, core, and dark side
