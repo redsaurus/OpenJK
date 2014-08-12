@@ -1101,6 +1101,7 @@ free fall from their spawn points
 */
 extern int delayedShutDown;
 extern cvar_t	*g_saber;
+extern cvar_t	*g_saber_skin[MAX_SABER_PARTS];
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
@@ -1153,6 +1154,39 @@ void FinishSpawningItem( gentity_t *ent ) {
 			&& Q_stricmp( "NULL", g_saber->string ) )
 		{//player's saber
 			WP_SaberParseParms( g_saber->string, &itemSaber );
+			//Custom saber stuff!
+			if (Q_stristr(itemSaber.name, "saberbuilder"))
+			{
+				char skinRoot[MAX_QPATH] = {0};
+				Q_strncpyz(skinRoot, itemSaber.model, MAX_QPATH);
+				int l = strlen(skinRoot);
+				while (l > 0 && skinRoot[l] != '/')
+				{ //parse back to first /
+					l--;
+				}
+				
+				if (skinRoot[l] == '/')
+				{
+					l++;
+					skinRoot[l] = 0;
+					
+					Q_strcat(skinRoot, MAX_QPATH, "|_");
+					
+					for (int j = 0; j < MAX_SABER_PARTS; j++)
+					{
+						Q_strcat(skinRoot, MAX_QPATH, "|");
+						if (g_saber_skin[j] && g_saber_skin[j]->string && g_saber_skin[j]->string[0])
+						{
+							Q_strcat(skinRoot, MAX_QPATH, g_saber_skin[j]->string);
+						}
+					}
+					
+					if(itemSaber.skin && gi.bIsFromZone(itemSaber.skin, TAG_G_ALLOC) ) {
+						gi.Free(itemSaber.skin);
+					}
+					itemSaber.skin = G_NewString(skinRoot);
+				}
+			}
 		}
 		else
 		{//specific saber
@@ -1160,7 +1194,20 @@ void FinishSpawningItem( gentity_t *ent ) {
 		}
 		//NOTE:  should I keep this string around for any reason?  Will I ever need it later?
 		//ent->??? = G_NewString( itemSaber.model );
-		gi.G2API_InitGhoul2Model( ent->ghoul2, itemSaber.model, G_ModelIndex( itemSaber.model ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+		int g2Model = gi.G2API_InitGhoul2Model( ent->ghoul2, itemSaber.model, G_ModelIndex( itemSaber.model ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+		
+		if ( itemSaber.skin != NULL )
+		{//if this saber has a customSkin, use it
+			// lets see if it's out there
+			int saberSkin = gi.RE_RegisterSkin( itemSaber.skin );
+			if ( saberSkin )
+			{
+				// put it in the config strings
+				// and set the ghoul2 model to use it
+				gi.G2API_SetSkin( &ent->ghoul2[g2Model], G_SkinIndex( itemSaber.skin ), saberSkin );
+			}
+		}
+
 		WP_SaberFreeStrings(itemSaber);
 	}
 	else
