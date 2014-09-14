@@ -10916,7 +10916,6 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key)
 					int max = Item_Multi_CountSettings(item);
 
 					if (key == A_MOUSE2 || key == A_MWHEELDOWN)
-					//if (key == A_MOUSE2)
 					{
 						current--;
 						if ( current < 0 ) 
@@ -10958,7 +10957,7 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key)
 				{
 					int max = Item_Multi_CountSettings(item);
 
-					if (key == A_MOUSE2)
+					if (key == A_MOUSE2 || key == A_MWHEELDOWN)
 					{
 						item->value--;
 						if ( item->value < 0 ) 
