@@ -9444,6 +9444,9 @@ extern cvar_t	*g_char_model;
 extern cvar_t	*g_char_skin_head;
 extern cvar_t	*g_char_skin_torso;
 extern cvar_t	*g_char_skin_legs;
+extern void G_SetHeadSurfaceOnOff( gentity_t *ent );
+extern void G_SetHeadSkin( gentity_t *ent );
+		
 	case SET_WINTER_GEAR:	// Created: 03/26/03 by AReis.
 	{
 		// If this is a (fake) Player NPC or this IS the Player...
@@ -9468,6 +9471,9 @@ extern cvar_t	*g_char_skin_legs;
 			{
 				gi.G2API_SetSkin( &ent->ghoul2[ent->playerModel], G_SkinIndex( strSkin ), iSkinID );
 			}
+			
+			G_SetHeadSurfaceOnOff( ent );
+			G_SetHeadSkin( ent );
 		}
 		break;
 	}

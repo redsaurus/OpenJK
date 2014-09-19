@@ -2102,7 +2102,7 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	}
 }
 
-static void G_SetHeadSkin( gentity_t *ent )
+void G_SetHeadSkin( gentity_t *ent )
 {
 	
 	if (g_char_head_model->string && g_char_head_model->string[0])
