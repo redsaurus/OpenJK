@@ -404,6 +404,7 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			gunAngles[PITCH] = 180.0f;
 			gunAngles[YAW] = 0.0f;
 			gunAngles[ROLL] = 180.0f;
+			vec3_t offset = { 0.0f, -1.0f, -5.0f };
 			if (g_flippedHolsters && g_flippedHolsters->integer > 0)
 			{
 				gunAngles[YAW] = 180.0f;
@@ -411,7 +412,7 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			int holsterorigin = gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*holsterorigin");
 			if (holsterorigin == -1)
 			{
-				gi.G2API_SetBoneAngles(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0);
+				gi.G2API_SetBoneAnglesOffset(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0, offset);
 			}
 			else
 			{

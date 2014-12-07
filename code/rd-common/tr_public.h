@@ -341,6 +341,9 @@ typedef struct {
 	qboolean	(*G2API_SetBoneAngles)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
 					const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
 					int blendTime, int AcurrentTime);
+	qboolean	(*G2API_SetBoneAnglesOffset)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+									   const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
+									   int blendTime, int AcurrentTime, const vec3_t offset);
 	qboolean	(*G2API_SetBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
 					const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
 					int blendTime, int AcurrentTime);

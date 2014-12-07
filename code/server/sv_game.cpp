@@ -530,6 +530,7 @@ Ghoul2 Insert Start
 	import.G2API_HaveWeGhoul2Models = re.G2API_HaveWeGhoul2Models;
 	import.G2API_InitGhoul2Model = re.G2API_InitGhoul2Model;
 	import.G2API_SetBoneAngles = re.G2API_SetBoneAngles;
+	import.G2API_SetBoneAnglesOffset = re.G2API_SetBoneAnglesOffset;
 	import.G2API_SetBoneAnglesMatrix = re.G2API_SetBoneAnglesMatrix;
 	import.G2API_SetBoneAnim = re.G2API_SetBoneAnim;
 	import.G2API_SetSkin = re.G2API_SetSkin;
