@@ -39,6 +39,8 @@ extern void WP_SaberSwingSound( gentity_t *ent, int saberNum, swingType_t swingT
 extern vmCvar_t	cg_debugHealthBars;
 
 extern vmCvar_t	cg_SFXSabers;
+extern vmCvar_t	cg_SFXSabersGlowSize;
+extern vmCvar_t	cg_SFXSabersCoreSize;
 
 /*
 
@@ -6007,8 +6009,8 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		radiusmult = 1.0;
 	}
 	
-	effectradius	= ((radius * 1.6 * v1) + crandom() * 0.1f)*radiusmult;
-	coreradius		= ((radius * 0.4 * v2) + crandom() * 0.1f)*radiusmult;
+	effectradius	= ((radius * 1.6 * v1) + crandom() * 0.1f)*radiusmult*cg_SFXSabersGlowSize.value;
+	coreradius		= ((radius * 0.4 * v2) + crandom() * 0.1f)*radiusmult*cg_SFXSabersCoreSize.value;
 		
 	{
 		saber.renderfx = rfx;

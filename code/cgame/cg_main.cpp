@@ -328,6 +328,8 @@ vmCvar_t	fx_expensivePhysics;
 vmCvar_t	cg_debugHealthBars;
 
 vmCvar_t	cg_SFXSabers;
+vmCvar_t	cg_SFXSabersGlowSize;
+vmCvar_t	cg_SFXSabersCoreSize;
 
 vmCvar_t	cg_smoothCamera;
 vmCvar_t	cg_speedTrail;
@@ -447,7 +449,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_debugHealthBars,	"cg_debugHealthBars",	"0", CVAR_CHEAT },
 	
 	{ &cg_SFXSabers,	"cg_SFXSabers",	"0", CVAR_ARCHIVE },
-
+	{ &cg_SFXSabersGlowSize,	"cg_SFXSabersGlowSize",	"1.0", CVAR_ARCHIVE },
+	{ &cg_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
 
 
