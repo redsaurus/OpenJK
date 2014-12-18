@@ -331,6 +331,8 @@ vmCvar_t	cg_SFXSabers;
 vmCvar_t	cg_SFXSabersGlowSize;
 vmCvar_t	cg_SFXSabersCoreSize;
 
+vmCvar_t	cg_ignitionFlare;
+
 vmCvar_t	cg_smoothCamera;
 vmCvar_t	cg_speedTrail;
 vmCvar_t	cg_fovViewmodel;
@@ -452,7 +454,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_SFXSabersGlowSize,	"cg_SFXSabersGlowSize",	"1.0", CVAR_ARCHIVE },
 	{ &cg_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
-
+	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"0", CVAR_ARCHIVE },
 
 	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE },
 	{ &cg_speedTrail, "cg_speedTrail", "1", CVAR_ARCHIVE },
