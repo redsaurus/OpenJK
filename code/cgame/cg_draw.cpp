@@ -2869,7 +2869,7 @@ static void CG_ScanForCrosshairEntity( qboolean scanAll )
 					AngleVectors( cg_entities[cg.snap->ps.viewEntity].lerpAngles, d_f, d_rt, d_up );
 				}
 				//temporary fix for third person aiming with gun/saber dual wield. shots should come from left hand anyway
-				else if (cg.snap->ps.weapon == WP_SABER && cg_entities[0].gent->client->ps.saberAnimLevel == SS_KATARN)
+				else if (cg.snap->ps.weapon == WP_SABER && cg.snap->ps.viewEntity == 0 && cg_entities[0].gent->client->ps.saberAnimLevel == SS_KATARN)
 				{
 					extern void CalcMuzzlePoint( gentity_t *const ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint, float lead_in );
 					AngleVectors( cg_entities[0].lerpAngles, d_f, d_rt, d_up );

@@ -153,6 +153,7 @@ struct centity_s
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
+	int				muzzleFlashWeapon;
 	qboolean		altFire;			// move to playerEntity?
 
 	int				previousEvent;

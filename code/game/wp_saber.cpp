@@ -7434,8 +7434,9 @@ void WP_SaberFireGun( gentity_t *self, usercmd_t *ucmd, int whichGun )
 	oldWeapon = self->s.weapon;
 	self->s.weapon = whichGun;
 	FireWeapon(self, chargedShot);
-
-	//TODO: Muzzle flashes
+	
+	cg_entities[self->s.number].muzzleFlashTime = level.time;
+	cg_entities[self->s.number].muzzleFlashWeapon = whichGun;
 	
 	self->s.weapon = oldWeapon;
 }

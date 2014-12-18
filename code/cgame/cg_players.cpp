@@ -8139,6 +8139,10 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 						&& (cent->gent->client->ps.saber[saberNum].blade[bladeNum].length > 0 || cent->gent->client->ps.saberInFlight) )
 					{
 						calcedMp = qtrue;
+						if (cent->gent->client->ps.saberAnimLevel == SS_KATARN)
+						{
+							calcedMp = qfalse;
+						}
 					}
 				}
 			}
@@ -8393,6 +8397,21 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 						gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, oldMD );
 					}
 				}
+				else if ((cent->gent->client->ps.saberAnimLevel == SS_KATARN)
+						 && cent->gent->s.weapon == WP_SABER
+						 && cent->gent->weaponModel[1]
+						 && cent->gent->weaponModel[1] != -1
+						 && ( cent->gent->ghoul2.size() > cent->gent->weaponModel[1] )
+						 && ( cent->gent->ghoul2[cent->gent->weaponModel[1]].mModelindex != -1))//one in each hand
+				{
+					mdxaBone_t	boltMatrix;
+					// figure out where the actual model muzzle is
+					gi.G2API_GetBoltMatrix( cent->gent->ghoul2, cent->gent->weaponModel[1], 0, &boltMatrix, tempAngles, ent.origin, cg.time, cgs.model_draw, cent->currentState.modelScale );
+					// work the matrix axis stuff into the original axis and origins used.
+					gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, cent->gent->client->renderInfo.muzzlePoint );
+					gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, cent->gent->client->renderInfo.muzzleDir );
+					
+				}
 				else if (( cent->gent->weaponModel[0] != -1) &&
 					( cent->gent->ghoul2.size() > cent->gent->weaponModel[0] ) &&
 					( cent->gent->ghoul2[cent->gent->weaponModel[0]].mModelindex != -1))
@@ -8445,7 +8464,13 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				const char *effect = NULL;
 
 				cent->muzzleFlashTime  = 0;
-
+				
+				if (cent->muzzleFlashWeapon)
+				{
+					wData = &weaponData[cent->muzzleFlashWeapon];
+					cent->muzzleFlashWeapon = 0;
+				}
+				
 				// Try and get a default muzzle so we have one to fall back on
 				if ( wData->mMuzzleEffect[0] )
 				{
