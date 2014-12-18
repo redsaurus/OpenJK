@@ -7,6 +7,7 @@
 	loadMenu { "ui/character.menu"						}
 	loadMenu { "ui/saber.menu"						}
 	loadMenu { "ui/saber_rgb.menu"						}
+	loadMenu { "ui/saber_rgb2.menu"						}
 	loadMenu { "ui/loadgame.menu"						}
 	loadMenu { "ui/controls.menu"						}
 	loadMenu { "ui/setup.menu"						}

@@ -8,7 +8,7 @@
 {
 	menuDef 
 	{
-		name					"saber_rgb"
+		name					"saber_rgb2"
 		visible					0
 		fullscreen				0
 		outOfBoundsClick									// this closes the window if it gets a click out of the rectangle
@@ -29,7 +29,7 @@
 		onESC 
 		{ 
 			play				"sound/interface/esc.wav" ; 
-			close				saber_rgb
+			close				saber_rgb2
 		}
 
 //----------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@
 			name				rgbsliderboxshadow
 			group				rgbsaber1
 			style				WINDOW_STYLE_FILLED
-			rect				440 92 175 100
+			rect				440 92 175 110
 			backcolor			0 0 0 0.5
 			forecolor			1 1 1 1
 			visible				1
@@ -53,7 +53,7 @@
 			name				rgbsliderbox
 			group				rgbsaber1
 			style				WINDOW_STYLE_FILLED
-			rect				415 160 210 100
+			rect				415 50 210 100
 			backcolor			0 0 .35 .9
 			forecolor			1 1 1 1
 			border				0
@@ -65,10 +65,10 @@
 		itemDef 
 		{
 			name				rgbicondummy
-			descText			@MENUS_COLOR1_DESC
+			descText			@MENUS_COLOR2_DESC
 			style				WINDOW_STYLE_SHADER
 			type				ITEM_TYPE_BUTTON
-			rect				584 124 24 24
+			rect				584 170 24 24
 			background			"gfx/menus/saber_icon_rgb"
 			forecolor			.75 .75 .75 1
 			border				1
@@ -78,7 +78,7 @@
 			action 
 			{
 				play			"sound/interface/choose_blade.wav"
-				close			saber_rgb
+				close			saber_rgb2
 			}
 		}
 		
@@ -87,8 +87,8 @@
 			name	colorred
 			type	ITEM_TYPE_NUMERICFIELD
 			text	"Red:"
-			cvar	"ui_rgb_saber_red"
-			rect	420 169 60 14
+			cvar	"ui_rgb_saber2_red"
+			rect	420 59 60 14
 			textalign ITEM_ALIGN_LEFT
 			textalignx	0
 			textaligny	-1
@@ -103,8 +103,8 @@
 		{
 			name				colorredslider
 			type				ITEM_TYPE_SLIDER_INTEGER
-			cvarfloat			"ui_rgb_saber_red" 255 0 255
-			rect				495 169 200 14
+			cvarfloat			"ui_rgb_saber2_red" 255 0 255
+			rect				495 59 200 14
 	   		textalign			ITEM_ALIGN_LEFT
 			textalignx			150
 			textaligny			0
@@ -132,8 +132,8 @@
 			name	colorgreen
 			type	ITEM_TYPE_NUMERICFIELD
 			text	"Green:"
-			cvar	"ui_rgb_saber_green"
-			rect	420 200 60 14
+			cvar	"ui_rgb_saber2_green"
+			rect	420 90 60 14
 			textalign ITEM_ALIGN_LEFT
 			textalignx	0
 			textaligny	-1
@@ -148,8 +148,8 @@
 		{
 			name				colorgreenslider
 			type				ITEM_TYPE_SLIDER_INTEGER
-			cvarfloat			"ui_rgb_saber_green" 255 0 255
-			rect				495 200 200 14
+			cvarfloat			"ui_rgb_saber2_green" 255 0 255
+			rect				495 90 200 14
 	   		textalign			ITEM_ALIGN_LEFT
 			textalignx			150
 			textaligny			0
@@ -177,8 +177,8 @@
 			name	colorblue
 			type	ITEM_TYPE_NUMERICFIELD
 			text	"Blue:"
-			cvar	"ui_rgb_saber_blue"
-			rect	420 231 60 14
+			cvar	"ui_rgb_saber2_blue"
+			rect	420 121 60 14
 			textalign ITEM_ALIGN_LEFT
 			textalignx	0
 			textaligny	-1
@@ -193,8 +193,8 @@
 		{
 			name				colorblueslider
 			type				ITEM_TYPE_SLIDER_INTEGER
-			cvarfloat			"ui_rgb_saber_blue" 255 0 255
-			rect				495 231 200 14
+			cvarfloat			"ui_rgb_saber2_blue" 255 0 255
+			rect				495 121 200 14
 	   		textalign			ITEM_ALIGN_LEFT
 			textalignx			150
 			textaligny			0
