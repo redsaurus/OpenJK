@@ -30,6 +30,7 @@ This file is part of Jedi Academy.
 ////////////////////////////////////////////////////////////////////////////////////////
 #include "b_local.h"
 #include "../Ravl/CVec.h"
+#include "../cgame/cg_local.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +218,7 @@ enum	EBobaTacticsState
 ////////////////////////////////////////////////////////////////////////////////////////
 // 
 ////////////////////////////////////////////////////////////////////////////////////////
+extern void Saber_SithSwordPrecache( void );
 void Boba_Precache( void )
 {
 	G_SoundIndex( "sound/chars/boba/bf_blast-off.wav" );
@@ -237,6 +239,9 @@ void Boba_Precache( void )
 	BobaHadDeathScript			= false;
 	BobaActive					= true;
 	BobaFootStepCount			= 0;
+	
+	RegisterItem( FindItemForWeapon( WP_EMPLACED_GUN ));	//precache the weapon
+	Saber_SithSwordPrecache();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -577,6 +582,219 @@ void Boba_DoFlameThrower( gentity_t *self )
 	if ( (NPCInfo->aiFlags&NPCAI_FLAMETHROW))
 	{
 		Boba_FireFlameThrower( self );
+	}
+}
+
+#include "AI_BobaFett.h"
+
+wristWeapon_t missileStates[4] = {
+	{BOBA_MISSILE_ROCKET, FP_FIRST, WP_ROCKET_LAUNCHER, qfalse, 1, BOBA_FLAMEDURATION, 150, BOTH_FORCELIGHTNING_HOLD, qfalse, qtrue, qtrue},
+	{BOBA_MISSILE_LASER, FP_GRIP, WP_EMPLACED_GUN, qfalse, 5, BOBA_FLAMEDURATION, 150, BOTH_FORCELIGHTNING_HOLD, qfalse, qtrue, qtrue},
+	{BOBA_MISSILE_DART, FP_FIRST, WP_DISRUPTOR, qfalse, 1, 1500, 200, BOTH_PULL_IMPALE_STAB, qfalse, qfalse, qtrue},
+	{BOBA_MISSILE_VIBROBLADE, FP_DRAIN, WP_MELEE, qfalse, 1, 1000, 100, BOTH_PULL_IMPALE_STAB, qfalse, qfalse, qfalse}
+};
+
+void Boba_VibrobladePunch( gentity_t *self )
+{
+	int dummyForcePower = FP_DRAIN;
+	int addTime, oldWeapon;
+	if ( !self->client->ps.forcePowerDuration[dummyForcePower] )
+	{
+		NPC_SetAnim( self, SETANIM_TORSO, BOTH_PULL_IMPALE_STAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		self->client->ps.torsoAnimTimer  =	1000;
+		self->client->ps.forcePowerDuration[dummyForcePower] = 1;
+		G_SoundOnEnt( self, CHAN_WEAPON, va( "sound/weapons/sword/swing%d.wav", Q_irand( 1, 4 ) ) );
+	}
+	
+	if ( self->client->ps.torsoAnimTimer > 900 )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime > 0 )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.torsoAnimTimer < 50 )
+	{
+		self->client->ps.forcePowerDuration[dummyForcePower] = 0;
+		self->client->ps.torsoAnimTimer  =	0;
+		return;
+	}
+	
+	mdxaBone_t	boltMatrix;
+	vec3_t muzzlePoint;
+	vec3_t muzzleDir;
+	gi.G2API_GetBoltMatrix( self->ghoul2, self->playerModel, self->handRBolt, &boltMatrix, self->currentAngles, self->currentOrigin, (cg.time?cg.time:level.time),
+						   NULL, self->s.modelScale );
+	// work the matrix axis stuff into the original axis and origins used.
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, muzzlePoint );
+	gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, muzzleDir );
+	
+	VectorCopy(muzzlePoint, self->client->renderInfo.muzzlePoint);
+	VectorCopy(muzzleDir, self->client->renderInfo.muzzleDir);
+	
+	oldWeapon = self->s.weapon;
+	self->s.weapon = WP_MELEE;
+	
+	addTime = weaponData[WP_MELEE].fireTime;
+	self->client->ps.weaponTime += self->client->ps.torsoAnimTimer;
+	
+	FireWeapon(self, qfalse);
+	
+	self->s.weapon = oldWeapon;
+	
+}
+
+void		Boba_FireWristMissile( gentity_t *self, int whichMissile )
+{
+	int addTime, oldWeapon;
+	qboolean altFire;
+	int dummyForcePower;
+	static int shotsFired = 0;//only 5 shots allowed for wristlaser; only 1 for missile launcher or dart
+	
+	if ( whichMissile == BOBA_MISSILE_VIBROBLADE )
+	{
+		Boba_VibrobladePunch( self );
+		return;
+	}
+
+	if ( self->s.number >= MAX_CLIENTS )
+	{
+		return;
+	}
+	
+	if ( !self->client )
+	{
+		return;
+	}
+	
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.leanofs )
+	{
+		return;
+	}
+	
+	if ( cg.zoomMode || in_camera )
+	{
+		return;
+	}
+	
+	dummyForcePower = missileStates[whichMissile].dummyForcePower;
+	
+	if ( !self->client->ps.forcePowerDuration[dummyForcePower] )
+	{
+		NPC_SetAnim( self, SETANIM_TORSO, missileStates[whichMissile].fireAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		self->client->ps.torsoAnimTimer  =	missileStates[whichMissile].animTimer;
+		self->client->ps.forcePowerDuration[dummyForcePower] = 1;
+		shotsFired = 0;
+	}
+	
+	if ( self->client->ps.torsoAnimTimer > missileStates[whichMissile].animTimer - missileStates[whichMissile].animDelay )
+	{
+		return;
+	}
+
+	if ( self->client->ps.weaponTime > 0 )
+	{
+		return;
+	}
+	
+	if ( missileStates[whichMissile].hold )
+	{
+		if ( self->client->ps.torsoAnimTimer < 150 )
+		{
+			self->client->ps.forcePowerDuration[dummyForcePower] = 150;
+			return;
+		}
+	}
+	else
+	{
+		if ( self->client->ps.torsoAnimTimer < 50 )
+		{
+			self->client->ps.forcePowerDuration[dummyForcePower] = 0;
+			self->client->ps.torsoAnimTimer  =	0;
+			return;
+		}
+	}
+	
+	if ( shotsFired >= missileStates[whichMissile].maxShots )
+	{
+		vec3_t ORIGIN = {0, 0, 0};
+		G_PlayEffect( G_EffectIndex("repeater/muzzle_smoke"), self->playerModel, missileStates[whichMissile].leftBolt ? self->genericBolt3 : self->handRBolt, self->s.number, ORIGIN);
+		//play smoke
+		return;
+	}
+	
+	oldWeapon = self->s.weapon;
+
+	self->s.weapon = missileStates[whichMissile].whichWeapon;
+	altFire = missileStates[whichMissile].altFire;
+	if (missileStates[whichMissile].fullyCharged)
+	{
+		self->client->ps.weaponChargeTime = 0;
+	}
+	
+	addTime = weaponData[self->s.weapon].fireTime;
+	self->client->ps.weaponTime += addTime;
+	self->client->ps.lastShotTime = level.time;
+	
+	const weaponData_t  *wData = NULL;
+	const char *effect = NULL;
+	
+	wData = &weaponData[self->s.weapon];
+	
+	// Try and get a default muzzle so we have one to fall back on
+	if ( wData->mMuzzleEffect[0] )
+	{
+		effect = &wData->mMuzzleEffect[0];
+	}
+	
+	if ( altFire )
+	{
+		// We're alt-firing, so see if we need to override with a custom alt-fire effect
+		if ( wData->mAltMuzzleEffect[0] )
+		{
+			effect = &wData->mAltMuzzleEffect[0];
+		}
+	}
+	
+	if ( effect )
+	{
+		
+		mdxaBone_t	boltMatrix;
+		vec3_t muzzlePoint;
+		vec3_t muzzleDir;
+		gi.G2API_GetBoltMatrix( self->ghoul2, self->playerModel, missileStates[whichMissile].leftBolt ? self->genericBolt3 : self->handRBolt, &boltMatrix, self->currentAngles, self->currentOrigin, (cg.time?cg.time:level.time),
+							   NULL, self->s.modelScale );
+		// work the matrix axis stuff into the original axis and origins used.
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, muzzlePoint );
+		gi.G2API_GiveMeVectorFromMatrix( boltMatrix, NEGATIVE_Y, muzzleDir );
+		
+		VectorCopy(muzzlePoint, self->client->renderInfo.muzzlePoint);
+		VectorCopy(muzzleDir, self->client->renderInfo.muzzleDir);
+
+		G_PlayEffect( effect, muzzlePoint, muzzleDir );
+	}
+		
+	FireWeapon(self, altFire);
+	shotsFired++;
+	
+	self->s.weapon = oldWeapon;
+	
+}
+
+void Boba_EndWristMissile( gentity_t *self, int whichMissile )
+{
+	if (missileStates[whichMissile].hold)
+	{
+		self->client->ps.forcePowerDuration[missileStates[whichMissile].dummyForcePower] = 0;
+		self->client->ps.torsoAnimTimer  =	0;
 	}
 }
 
