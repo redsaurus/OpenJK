@@ -26,6 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "wp_saber.h"
 #include "w_local.h"
 
+#include "AI_BobaFett.h"
+
+extern wristWeapon_t missileStates[4];
+
 void WP_Melee( gentity_t *ent )
 //---------------------------------------------------------
 {
@@ -34,6 +38,7 @@ void WP_Melee( gentity_t *ent )
 	vec3_t		mins, maxs, end;
 	int			damage = ent->s.number ? (g_spskill->integer*2)+1 : 3;
 	float		range = ent->s.number ? 64 : 32;
+	qboolean	isBobaPlayer = ( !ent->s.number && ent->client->NPC_class == CLASS_BOBAFETT && ent->client->ps.forcePowerDuration[missileStates[BOBA_MISSILE_VIBROBLADE].dummyForcePower]) ? qtrue : qfalse;
 
 	VectorMA( muzzle, range, forwardVec, end );
 
@@ -60,11 +65,20 @@ void WP_Melee( gentity_t *ent )
 			damage *= Q_irand( 1, 2 );
 		}
 	}
+	
+	if (isBobaPlayer)
+	{
+		damage = 50;
+	}
 
 	if ( tr_ent && tr_ent->takedamage )
 	{
 		int dflags = DAMAGE_NO_KNOCKBACK;
-		if (ent->s.weapon == WP_NOGHRI_STICK || ent->s.weapon == WP_TUSKEN_RIFLE)
+		if (isBobaPlayer)
+		{
+			G_Sound( ent, G_SoundIndex( va( "sound/weapons/sword/stab%d.wav", Q_irand( 1, 4 ) ) ) );
+		}
+		else if (ent->s.weapon == WP_NOGHRI_STICK || ent->s.weapon == WP_TUSKEN_RIFLE)
 		{
 			G_Sound( tr_ent, G_SoundIndex( va( "sound/weapons/tusken_staff/stickhit%d.wav", Q_irand( 1, 4 ) ) ) );
 		}

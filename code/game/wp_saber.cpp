@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_vehicles.h"
 #include "../qcommon/tri_coll_test.h"
 #include "../cgame/cg_local.h"
+#include "AI_BobaFett.h"
 
 #define JK2_RAGDOLL_GRIPNOHEALTH
 
@@ -15362,7 +15363,21 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		}
 	}
 
-	if ( ucmd->buttons & BUTTON_FORCEGRIP )
+	if ( !self->s.number
+		&& self->client->NPC_class == CLASS_BOBAFETT )
+	{//Boba Fett
+		if ( ucmd->buttons & BUTTON_FORCEGRIP )
+		{//start wrist laser
+			Boba_FireWristMissile( self, BOBA_MISSILE_LASER );
+			return;
+		}
+		else if ( self->client->ps.forcePowerDuration[FP_GRIP] )
+		{
+			Boba_EndWristMissile( self, BOBA_MISSILE_LASER );
+			return;
+		}
+	}
+	else if ( ucmd->buttons & BUTTON_FORCEGRIP )
 	{
 		ForceGrip( self );
 	}
@@ -15387,7 +15402,25 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		ForceLightning( self );
 	}
 
-	if ( ucmd->buttons & BUTTON_FORCE_DRAIN )
+	if ( !self->s.number
+		&& self->client->NPC_class == CLASS_BOBAFETT )
+	{//Boba Fett
+		if ( ucmd->buttons & BUTTON_FORCE_DRAIN )
+		{//start wrist rocket
+			Boba_FireWristMissile( self, BOBA_MISSILE_VIBROBLADE );
+			//Boba_VibrobladePunch( self );
+			return;
+		}
+		else if ( self->client->ps.forcePowerDuration[FP_DRAIN] )
+		{
+			Boba_EndWristMissile( self, BOBA_MISSILE_VIBROBLADE );
+			//self->client->ps.forcePowerDuration[FP_DRAIN] = 0;
+			//self->client->ps.torsoAnimTimer  =	0;
+			
+			return;
+		}
+	}
+	else if ( ucmd->buttons & BUTTON_FORCE_DRAIN )
 	{
 		if ( !ForceDrain2( self ) )
 		{//can't drain-grip someone right in front
