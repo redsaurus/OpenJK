@@ -310,6 +310,33 @@ static void Svcmd_SaberColor_f()
 	}
 }
 
+static void Svcmd_SaberCrystal_f()
+{
+	int saberNum = atoi(gi.argv(1));
+	
+	saberNum--;
+	
+	gentity_t *self = G_GetSelfForPlayerCmd();
+	
+	if ( saberNum == 0 || saberNum == 1 )
+	{
+		if (!Q_stricmp(gi.argv(2), "black"))
+		{
+			self->client->ps.saber[saberNum].crystals = (saber_crystals_t)(self->client->ps.saber[saberNum].crystals^SABER_CRYSTAL_BLACK);
+			return;
+		}
+		else if (!Q_stricmp(gi.argv(2), "unstable"))
+		{
+			self->client->ps.saber[saberNum].crystals = (saber_crystals_t)(self->client->ps.saber[saberNum].crystals^SABER_CRYSTAL_UNSTABLE);
+			return;
+		}
+	}
+	
+	gi.Printf( "Usage:  saberCrystal <saberNum> <crystal> \n" );
+	gi.Printf( "valid saberNums:  1 or 2\n" );
+	gi.Printf( "valid crystals:  black and unstable\n" );
+}
+
 struct SetForceCmd {
 	const char *desc;
 	const char *cmdname;
@@ -1173,6 +1200,17 @@ qboolean	ConsoleCommand( void ) {
 			}
 
 		}
+		return qtrue;
+	}
+	
+	if ( Q_stricmp( cmd, "saberCrystal" ) == 0 )
+	{
+		if ( !g_cheats->integer )
+		{
+			gi.SendServerCommand( 0, "print \"Cheats are not enabled on this server.\n\"");
+			return qtrue;
+		}
+		Svcmd_SaberCrystal_f();
 		return qtrue;
 	}
 

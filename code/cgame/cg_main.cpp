@@ -1414,6 +1414,10 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.SaberBladeShader = cgi_R_RegisterShader( "SFX_Sabers/saber_blade" );
 	cgs.media.SaberEndShader = cgi_R_RegisterShader( "SFX_Sabers/saber_end" );
 	
+	cgs.media.blackSaberTrailShader = cgi_R_RegisterShader( "SFX_Sabers/black_trail" );
+	cgs.media.blackSaberBladeShader = cgi_R_RegisterShader( "SFX_Sabers/black_blade" );
+	cgs.media.blackSaberEndShader = cgi_R_RegisterShader( "SFX_Sabers/black_end" );
+	
 	cg.loadLCARSStage = 5;
 	CG_LoadingString( "game media models" );
 

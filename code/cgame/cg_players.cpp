@@ -5868,7 +5868,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 	}
 }
 
-void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t trail_muz, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight )
+void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t trail_muz, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight, saber_crystals_t crystals )
 {
 	vec3_t	dif, mid, blade_dir, end_dir, trail_dir, base_dir;
 	float	radiusmult, effectradius, coreradius, effectalpha, AngleScale;
@@ -5923,14 +5923,25 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 			break;
 	}
 	
+	if ( crystals & SABER_CRYSTAL_BLACK )
+	{
+		glow = cgs.media.blackSaberGlowShader;
+	}
+	
 	VectorMA( blade_muz, blade_len * 0.5f, blade_dir, mid );
 	
 	if (doLight)
 	{
-		vec3_t rgb={1,1,1};
-		CG_RGBForSaberColor( color, rgb );
-		VectorScale( rgb, 0.66f, rgb );
-		cgi_R_AddLightToScene( mid, (blade_len*2.0f) + (random()*10.0f), rgb[0], rgb[1], rgb[2] );
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+		}
+		else
+		{
+			vec3_t rgb={1,1,1};
+			CG_RGBForSaberColor( color, rgb );
+			VectorScale( rgb, 0.66f, rgb );
+			cgi_R_AddLightToScene( mid, (blade_len*2.0f) + (random()*10.0f), rgb[0], rgb[1], rgb[2] );
+		}
 	}
 	
 	//Distance Scale
@@ -6044,6 +6055,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		VectorMA( blade_muz, -1, blade_dir, saber.oldorigin );
 		
 		saber.customShader = cgs.media.SaberBladeShader;
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
+		
 		saber.reType = RT_LINE;
 		
 		saber.radius = coreradius;
@@ -6084,6 +6100,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		VectorMA( trail_muz, -1, trail_dir, saber.oldorigin );
 		
 		saber.customShader = cgs.media.SaberBladeShader;
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
 		saber.reType = RT_LINE;
 		
 		saber.radius = coreradius;
@@ -6128,6 +6148,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		VectorMA( blade_muz, -0.1, base_dir, saber.oldorigin );
 		
 		saber.customShader = cgs.media.SaberBladeShader;
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
 		saber.reType = RT_LINE;
 		
 		saber.radius = coreradius;
@@ -6205,6 +6229,11 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		VectorMA( blade_tip, -0.1, end_dir, saber.oldorigin );
 		
 		saber.customShader = cgs.media.SaberEndShader;
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+			saber.customShader = cgs.media.blackSaberEndShader;
+		}
+		
 		saber.reType = RT_LINE;
 		
 		if(end_len > 9)
@@ -6237,7 +6266,7 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 	}
 }
 
-static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight )
+static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, qboolean doLight, saber_crystals_t crystals )
 {
 	vec3_t		mid;
 	qhandle_t	blade = 0, glow = 0;
@@ -6284,13 +6313,25 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 			blade = cgs.media.rgbSaberCoreShader;
 			break;
 	}
+	
+	if ( crystals & SABER_CRYSTAL_BLACK )
+	{
+		glow = cgs.media.blackSaberGlowShader;
+		blade = cgs.media.blackSaberCoreShader;
+	}
 
 	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
 	if ( doLight )
 	{//FIXME: RGB combine all the colors of the sabers you're using into one averaged color!
-		vec3_t rgb={1,1,1};
-		CG_RGBForSaberColor( color, rgb );
-		cgi_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+		}
+		else
+		{
+			vec3_t rgb={1,1,1};
+			CG_RGBForSaberColor( color, rgb );
+			cgi_R_AddLightToScene( mid, (length*1.4f) + (random()*3.0f), rgb[0], rgb[1], rgb[2] );
+		}
 	}
 
 	memset( &saber, 0, sizeof( refEntity_t ));
@@ -7160,6 +7201,11 @@ if (cg_SFXSabers.integer == 0)
 						duration = saberTrail->duration/2.0f; // stay around twice as long
 						VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
 					}
+					else if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_BLACK )
+					{
+						fx->mShader = cgs.media.blackSaberBlurShader;
+						duration = saberTrail->duration/5.0f;
+					}
 					else
 					{
 						fx->mShader = cgs.media.saberBlurShader;
@@ -7240,7 +7286,7 @@ if (cg_SFXSabers.integer == 0)
 	}
 	// Pass in the renderfx flags attached to the saber weapon model...this is done so that saber glows
 	//	will get rendered properly in a mirror...not sure if this is necessary??
-	CG_DoSaber( org_, axis_[0], length, client->ps.saber[saberNum].blade[bladeNum].lengthMax, client->ps.saber[saberNum].blade[bladeNum].radius, client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse) );
+	CG_DoSaber( org_, axis_[0], length, client->ps.saber[saberNum].blade[bladeNum].lengthMax, client->ps.saber[saberNum].blade[bladeNum].radius, client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse), client->ps.saber[saberNum].crystals );
 }
 else
 {
@@ -7354,7 +7400,7 @@ else
 	
 		if ( !(cent->gent->client->ps.saber[saberNum].type == SABER_SITH_SWORD || client->ps.saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
 		{
-			CG_DoSFXSaber( saberTrail->base, saberTrail->tip, saberTrail->dualtip, saberTrail->dualbase, (client->ps.saber[saberNum].blade[bladeNum].lengthMax), (client->ps.saber[saberNum].blade[bladeNum].radius), client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse) );
+			CG_DoSFXSaber( saberTrail->base, saberTrail->tip, saberTrail->dualtip, saberTrail->dualbase, (client->ps.saber[saberNum].blade[bladeNum].lengthMax), (client->ps.saber[saberNum].blade[bladeNum].radius), client->ps.saber[saberNum].blade[bladeNum].color, renderfx, (noDlight==qfalse), client->ps.saber[saberNum].crystals );
 		}
 
 		if ( cg.time > saberTrail->inAction )
@@ -7365,6 +7411,10 @@ else
 			{
 				fx->mShader = cgs.media.swordTrailShader;
 				VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
+			}
+			else if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_BLACK )
+			{
+				fx->mShader = cgs.media.blackSaberTrailShader;
 			}
 			else
 			{
@@ -8074,6 +8124,11 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 									gi.G2API_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, org_);
 									
 									qhandle_t shader = cgi_R_RegisterShader( "gfx/effects/flare1" );
+									
+									if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_BLACK )
+									{
+										shader = cgi_R_RegisterShader( "gfx/effects/sabers/flare1black" );
+									}
 									
 									FX_AddSprite( org_, cent->gent->client->ps.velocity, NULL, 40.0f, 0.0f, 1.0f, 0.7f, RGB, RGB, random() * 360, 0.0f, 100.0f, shader, FX_USE_ALPHA );
 								}
