@@ -7009,6 +7009,7 @@ void UI_UpdateSaberType( void )
 		DC->setCVar( "ui_saber2", "" );
 	}
 }
+extern int Menu_ItemsMatchingGroup(menuDef_t *menu, const char *name);
 extern void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
 static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 {
@@ -7135,7 +7136,7 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 			{
 				listBoxItem->window.flags &= ~WINDOW_VISIBLE;
 			}
-			if (Menu_FindItemByName(menu, "saberskin_menus"))
+			if (Menu_ItemsMatchingGroup(menu, "saberskin_menus") > 0)
 			{
 				Menu_ShowItemByName(menu, "saberskin_menus", qfalse);
 			}
@@ -7208,7 +7209,7 @@ static void UI_UpdateSaberHilt( qboolean secondSaber, qboolean changedModel )
 				listBoxItem->descText = uiInfo.customSabers[uiInfo.customSabersIndex].Skin5Desc;
 				listBoxItem->window.flags |= WINDOW_VISIBLE;
 			}
-			if (Menu_FindItemByName(menu, "saberskin_menus"))
+			if (Menu_ItemsMatchingGroup(menu, "saberskin_menus") > 0)
 			{
 				Menu_ShowItemByName(menu, "saberskin_menus", qtrue);
 				UI_FeederSelection(FEEDER_SABER_SKIN_1, 0, item);	//fixme, this is not really the right item!!
