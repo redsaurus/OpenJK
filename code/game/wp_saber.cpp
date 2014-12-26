@@ -545,7 +545,7 @@ void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum )
 void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 {
 	int saberNum = 0, maxSaber = 1;
-	if (!(ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER )))
+	if (!(ent && ent->client && (ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ))))
 	{
 		return;
 	}
