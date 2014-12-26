@@ -363,6 +363,9 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.media.blackSaberGlowShader		= cgi_R_RegisterShader( "gfx/effects/sabers/black_glow" );
 		cgs.media.blackSaberCoreShader		= cgi_R_RegisterShader( "gfx/effects/sabers/black_line" );
 		cgs.media.blackSaberBlurShader		= cgi_R_RegisterShader("gfx/effects/sabers/blackSaberBlur");
+			
+		cgs.media.rgbUnstableCoreShader		= cgi_R_RegisterShader("gfx/effects/sabers/jkg/blade_unstable");
+		cgs.media.unstableBlurShader		= cgi_R_RegisterShader("gfx/effects/sabers/jkg/trail_unstable");
 
 		cgs.media.forceCoronaShader			= cgi_R_RegisterShaderNoMip( "gfx/hud/force_swirl" );
 

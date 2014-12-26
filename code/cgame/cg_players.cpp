@@ -6024,6 +6024,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 	
 	effectradius	= ((radius * 1.6 * v1) + crandom() * 0.1f)*radiusmult*cg_SFXSabersGlowSize.value;
 	coreradius		= ((radius * 0.4 * v2) + crandom() * 0.1f)*radiusmult*cg_SFXSabersCoreSize.value;
+	if ( crystals & SABER_CRYSTAL_UNSTABLE )
+	{
+		coreradius *= 0.9;
+	}
 		
 	{
 		saber.renderfx = rfx;
@@ -6058,6 +6062,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		if ( crystals & SABER_CRYSTAL_BLACK )
 		{
 			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
+		else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+		{
+			saber.customShader = cgs.media.rgbUnstableCoreShader;
 		}
 		
 		saber.reType = RT_LINE;
@@ -6103,6 +6111,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		if ( crystals & SABER_CRYSTAL_BLACK )
 		{
 			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
+		else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+		{
+			saber.customShader = cgs.media.rgbUnstableCoreShader;
 		}
 		saber.reType = RT_LINE;
 		
@@ -6151,6 +6163,10 @@ void CG_DoSFXSaber( vec3_t blade_muz, vec3_t blade_tip, vec3_t trail_tip, vec3_t
 		if ( crystals & SABER_CRYSTAL_BLACK )
 		{
 			saber.customShader = cgs.media.blackSaberBladeShader;
+		}
+		else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+		{
+			saber.customShader = cgs.media.rgbUnstableCoreShader;
 		}
 		saber.reType = RT_LINE;
 		
@@ -6318,6 +6334,11 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 	{
 		glow = cgs.media.blackSaberGlowShader;
 		blade = cgs.media.blackSaberCoreShader;
+	}
+	else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+	{
+		glow = cgs.media.rgbSaberGlowShader;
+		blade = cgs.media.rgbUnstableCoreShader;
 	}
 
 	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
@@ -7204,6 +7225,11 @@ if (cg_SFXSabers.integer == 0)
 					else if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_BLACK )
 					{
 						fx->mShader = cgs.media.blackSaberBlurShader;
+						duration = saberTrail->duration/5.0f;
+					}
+					else if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_UNSTABLE )
+					{
+						fx->mShader = cgs.media.unstableBlurShader;
 						duration = saberTrail->duration/5.0f;
 					}
 					else
