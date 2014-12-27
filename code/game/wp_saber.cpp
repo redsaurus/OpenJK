@@ -475,7 +475,17 @@ void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *psWeaponModel, i
 			gi.G2API_AttachG2Model(&ent->ghoul2[ent->weaponModel[weaponNum]], &ent->ghoul2[ent->playerModel],
 						boltNum, ent->playerModel);
 			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
-			gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[weaponNum]], "*flash");
+			if (gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[weaponNum]], "*cannonflash") != -1)
+			{
+				vec3_t gunAngles = { 0.0f, 0.0f, 0.0f };
+				vec3_t offset = { 0.0f, 0.0f, -10.0f };
+				gi.G2API_SetSurfaceOnOff(&ent->ghoul2[ent->weaponModel[weaponNum]], "eweb_cannon", 0x00000002);
+				gi.G2API_SetBoneAnglesOffset(&ent->ghoul2[ent->weaponModel[weaponNum]], "base", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0, offset);
+			}
+			else
+			{
+				gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[weaponNum]], "*flash");
+			}
 	  		//gi.G2API_SetLodBias( &ent->ghoul2[ent->weaponModel[weaponNum]], 0 );
 		}
 	}

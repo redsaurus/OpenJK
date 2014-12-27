@@ -43,6 +43,8 @@ LANG_ENGLISH		"Choose the buttons."
 REFERENCE			BODY_DESC
 LANG_ENGLISH		"Choose the body."
 
+REFERENCE			EWEB_EXIT
+LANG_ENGLISH		"Press 'JUMP' to exit.\nPress 'USE FORCE' to detach gun."
 ENDMARKER
 
 

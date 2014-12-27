@@ -8970,6 +8970,21 @@ static void PM_FinishWeaponChange( void ) {
 	{
 		trueSwitch = qfalse;
 	}
+	
+	if ( trueSwitch && pm->ps->weapon == WP_EMPLACED_GUN && !(pm->ps->eFlags & EF_LOCKED_TO_WEAPON) )
+	{
+		gitem_t *item;
+		item = FindItemForWeapon( WP_EMPLACED_GUN );
+		gentity_t *dropped = Drop_Item(pm->gent, item, 0, qfalse);
+		dropped->count = pm->ps->ammo[AMMO_EMPLACED];
+		gi.G2API_InitGhoul2Model( dropped->ghoul2, "models/map_objects/hoth/eweb_model.glm", G_ModelIndex( "models/map_objects/hoth/eweb_model.glm" ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+		gi.G2API_SetSurfaceOnOff(&dropped->ghoul2[0], "eweb_cannon", 0x00000002);
+		dropped->s.radius = 10;
+		dropped->delay = level.time + 1000;
+		pm->ps->ammo[AMMO_EMPLACED] = 0;
+		pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_EMPLACED_GUN);
+	}
+	
 	//int oldWeap = pm->ps->weapon;
 	pm->ps->weapon = weapon;
 	pm->ps->weaponstate = WEAPON_RAISING;
@@ -8977,6 +8992,40 @@ static void PM_FinishWeaponChange( void ) {
 
 	if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_ATST )
 	{//do nothing
+	}
+	else if ( weapon == WP_EMPLACED_GUN && !(pm->ps->eFlags & EF_LOCKED_TO_WEAPON) )
+	{
+		if ( pm->gent )
+		{
+			// remove the sabre if we had it.
+			G_RemoveWeaponModels( pm->gent );
+			//holster sabers
+			WP_SaberAddHolsteredG2SaberModels( pm->gent );
+			G_CreateG2AttachedWeaponModel( pm->gent, "models/map_objects/hoth/eweb_model.glm", pm->gent->handRBolt, 0 );
+		}
+		
+		if ( !(pm->ps->eFlags&EF_HELD_BY_WAMPA) )
+		{
+			if ( pm->ps->weapon != WP_THERMAL
+				&& pm->ps->weapon != WP_TRIP_MINE
+				&& pm->ps->weapon != WP_DET_PACK
+				&& !G_IsRidingVehicle(pm->gent))
+			{
+				PM_SetAnim(pm,SETANIM_TORSO,TORSO_RAISEWEAP1,SETANIM_FLAG_HOLD);
+			}
+		}
+		
+		if ( pm->ps->clientNum < MAX_CLIENTS
+			&& cg_gunAutoFirst.integer
+			&& !PM_RidingVehicle()
+			//			&& oldWeap == WP_SABER
+			&& weapon != WP_NONE )
+		{
+			gi.cvar_set( "cg_thirdperson", "0" );
+		}
+		pm->ps->saberMove = LS_NONE;
+		pm->ps->saberBlocking = BLK_NO;
+		pm->ps->saberBlocked = BLOCKED_NONE;
 	}
 	else if ( weapon == WP_SABER )
 	{//turn on the lightsaber

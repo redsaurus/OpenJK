@@ -819,6 +819,15 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			return;
 		}
 	}
+	
+	if ( ent->item->giType == IT_WEAPON
+		&& ent->item->giTag == WP_EMPLACED_GUN )
+	{//portable eweb
+		if ( ent->delay > level.time )
+		{//just picked it up, don't pick up again right away
+			return;
+		}
+	}
 
 	if ( other->s.number < MAX_CLIENTS
 		&& (ent->spawnflags&ITMSF_USEPICKUP) )
