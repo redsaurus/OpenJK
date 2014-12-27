@@ -605,14 +605,14 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 				ChangeWeapon( self, WP_BLASTER );
 				self->client->ps.weapon = WP_BLASTER;
 				self->client->ps.weaponstate = WEAPON_READY;
-				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER].weaponMdl, self->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER].worldModel, self->handRBolt, 0 );
 			}
 			else if ( self->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_BLASTER_PISTOL ) )
 			{
 				ChangeWeapon( self, WP_BLASTER_PISTOL );
 				self->client->ps.weapon = WP_BLASTER_PISTOL;
 				self->client->ps.weaponstate = WEAPON_READY;
-				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER_PISTOL].weaponMdl, self->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( self, weaponData[WP_BLASTER_PISTOL].worldModel, self->handRBolt, 0 );
 			}
 		}
 		return;
@@ -1034,7 +1034,7 @@ void NPC_ChangeWeapon( int newWeapon )
 		}
 		else
 		{
-			G_CreateG2AttachedWeaponModel( NPC, weaponData[NPC->client->ps.weapon].weaponMdl, NPC->handRBolt, 0 );
+			G_CreateG2AttachedWeaponModel( NPC, weaponData[NPC->client->ps.weapon].worldModel, NPC->handRBolt, 0 );
 			WP_SaberAddHolsteredG2SaberModels( NPC );
 		}
 	}

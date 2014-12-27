@@ -448,7 +448,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 				&& ent->client->ps.weapon != WP_SABER //sabers done above
 				&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 			{
-				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 			switch ( ent->client->ps.weapon )
@@ -550,7 +550,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 					&& ent->client->ps.weapon != WP_SABER//sabers done above
 					&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 				{
-					G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+					G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 					WP_SaberAddHolsteredG2SaberModels( ent );
 				}
 				switch ( ent->client->ps.weapon )
@@ -563,7 +563,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 						&& ent->NPC->rank >= RANK_LT_COMM
 						&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 					{//dual blaster pistols, so add the left-hand one, too
-						G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handLBolt, 1 );
+						G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handLBolt, 1 );
 					}
 					break;
 				case WP_DISRUPTOR:
@@ -627,7 +627,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 			&& ent->client->ps.weapon != WP_SABER//sabers done above
 			&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 		break;
@@ -663,7 +663,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 	{
 		if ( !ent->weaponModel[1] )
 		{//we have the scepter, so put it in our left hand if we don't already have a second weapon
-			G_CreateG2AttachedWeaponModel( ent, weaponData[WP_SCEPTER].weaponMdl, ent->handLBolt, 1 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[WP_SCEPTER].worldModel, ent->handLBolt, 1 );
 		}
 		ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[1]], "*flash");
 	}

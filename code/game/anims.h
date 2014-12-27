@@ -1811,6 +1811,65 @@ typedef enum //# animNumber_e
 
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)
 
+/*
+ ======================================
+ Viewmodel Animations
+ ======================================
+ */
+
+enum {
+	// Basic
+	VM_READY,
+	VM_IDLE,
+	VM_RAISE,
+	VM_LOWER,
+	VM_FIRE,
+	VM_MELEE,
+	VM_RELOAD,
+	
+	// Force powers
+	VM_FPUSH,
+	VM_FPULL,
+	VM_FGRIP,
+	VM_FGRIP_HOLD,
+	VM_FGRIP_RELEASE,
+	VM_FGRIP_THROW,
+	VM_FHEAL_QUICK,
+	VM_FHEAL_START,
+	VM_FHEAL_STOP,
+	VM_FLIGHTNING,
+	VM_FLIGHTNING_START,
+	VM_FLIGHTNING_HOLD,
+	VM_FLIGHTNING_RELEASE,
+	VM_FRESISTPUSH,
+	VM_FMINDTRICK1,
+	VM_FMINDTRICK2,
+	
+	// JA stuff
+	VM_2H_FLIGHTNING,
+	VM_2H_FLIGHTNING_HOLD,
+	VM_2H_FLIGHTNING_RELEASE,
+	VM_FDRAIN,
+	VM_FDRAIN_START,
+	VM_FDRAIN_HOLD,
+	VM_FDRAIN_RELEASE,
+	VM_FPROTECT,
+	VM_FPROTECT_FAST,
+	VM_FRAGE,
+	VM_FABSORB,
+	VM_FABSORB_START,
+	VM_FABSORB_END,
+	
+	MAX_VIEWMODEL_ANIMATIONS
+};
+
+typedef struct
+{
+	char			filename[MAX_QPATH];
+	animation_t		animations[MAX_VIEWMODEL_ANIMATIONS];
+} viewModelAnimSet_t;
+
+extern stringID_table_t vmAnimTable [MAX_VIEWMODEL_ANIMATIONS+1];
 
 #endif// #ifndef __ANIMS_H__
 

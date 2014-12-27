@@ -1044,7 +1044,7 @@ extern void CG_ChangeWeapon( int num );
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 

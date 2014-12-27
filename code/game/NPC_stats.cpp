@@ -1379,19 +1379,7 @@ void NPC_PrecacheWeapons( team_t playerTeam, int spawnflags, char *NPCtype )
 			CG_RegisterItemSounds( (item-bg_itemlist) );
 			CG_RegisterItemVisuals( (item-bg_itemlist) );
 			//precache the in-hand/in-world ghoul2 weapon model
-
-			char weaponModel[64];
-
-			strcpy (weaponModel, weaponData[curWeap].weaponMdl);
-			if (char *spot = strstr(weaponModel, ".md3") ) {
-				*spot = 0;
-				spot = strstr(weaponModel, "_w");//i'm using the in view weapon array instead of scanning the item list, so put the _w back on
-				if (!spot) {
-					strcat (weaponModel, "_w");
-				}
-				strcat (weaponModel, ".glm");	//and change to ghoul2
-			}
-			gi.G2API_PrecacheGhoul2Model( weaponModel ); // correct way is item->world_model
+			gi.G2API_PrecacheGhoul2Model( weaponData[curWeap].worldModel ); // correct way is item->world_model
 		}
 	}
 }

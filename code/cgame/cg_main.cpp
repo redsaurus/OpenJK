@@ -2201,6 +2201,10 @@ void CG_Shutdown( void )
 {
 	in_camera = false;
 	FX_Free();
+	
+	for (int i = 0; i < WP_NUM_WEAPONS; i++) {
+		CG_DeregisterWeapon(i);
+	}
 }
 
 //// DEBUG STUFF

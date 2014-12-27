@@ -820,6 +820,7 @@ void CG_DPPrevForcePower_f( void );
 
 
 void CG_RegisterWeapon( int weaponNum );
+void CG_DeregisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 void CG_RegisterItemSounds( int itemNum );
 

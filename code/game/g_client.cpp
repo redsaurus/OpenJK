@@ -1874,7 +1874,7 @@ void G_AddWeaponModels( gentity_t *ent )
 		}
 		else if ( ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 	}
@@ -2715,7 +2715,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		}
 		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
 			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 

@@ -28,6 +28,7 @@ This file is part of Jedi Academy.
 #include "g_vehicles.h"
 #include "hitlocs.h"
 #include "bset.h"
+#include "anims.h"
 
 #define	FOFS(x) offsetof(gentity_t, x)
 
@@ -899,6 +900,14 @@ typedef struct weaponInfo_s {
 	sfxHandle_t		altChargeSound;
 
 	sfxHandle_t		selectSound;	// sound played when weapon is selected
+	
+	bool			bUsesGhoul2; //g2 viewmodels from eezstreet
+	CGhoul2Info_v	ghoul2;
+	qhandle_t		g2_flashbolt;
+	qhandle_t		g2_effectsbolt;
+	int				g2_index;
+	int				g2_skin;
+	viewModelAnimSet_t g2_anims;
 } weaponInfo_t;
 
 extern sfxHandle_t CAS_GetBModelSound( const char *name, int stage );

@@ -7421,7 +7421,7 @@ void WP_SaberFireGun( gentity_t *self, usercmd_t *ucmd, int whichGun )
 	
 	if ( !self->weaponModel[1] || (self->weaponModel[1] == -1) )
 	{
-		G_CreateG2AttachedWeaponModel( self, weaponData[whichGun].weaponMdl, self->handLBolt, 1 );
+		G_CreateG2AttachedWeaponModel( self, weaponData[whichGun].worldModel, self->handLBolt, 1 );
 	}
 	
 	addTime = weaponData[whichGun].fireTime;

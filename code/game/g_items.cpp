@@ -507,7 +507,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].weaponMdl, other->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].worldModel, other->handRBolt, 0 );
 				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 		}

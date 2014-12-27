@@ -9092,8 +9092,8 @@ static void PM_FinishWeaponChange( void ) {
 			G_RemoveWeaponModels( pm->gent );
 			//holster sabers
 			WP_SaberAddHolsteredG2SaberModels( pm->gent );
-			if (weaponData[weapon].weaponMdl[0]) {	//might be NONE, so check if it has a model
-				G_CreateG2AttachedWeaponModel( pm->gent, weaponData[weapon].weaponMdl, pm->gent->handRBolt, 0 );
+			if (weaponData[weapon].worldModel[0]) {	//might be NONE, so check if it has a model
+				G_CreateG2AttachedWeaponModel( pm->gent, weaponData[weapon].worldModel, pm->gent->handRBolt, 0 );
 			}
 		}
 
@@ -13581,8 +13581,8 @@ static void PM_Weapon( void )
 		{//add the thermal model back in our hand
 			// remove anything if we have anything already
 			G_RemoveWeaponModels( pm->gent );
-			if (weaponData[pm->ps->weapon].weaponMdl[0]) {	//might be NONE, so check if it has a model
-				G_CreateG2AttachedWeaponModel( pm->gent, weaponData[pm->ps->weapon].weaponMdl, pm->gent->handRBolt, 0 );
+			if (weaponData[pm->ps->weapon].worldModel[0]) {	//might be NONE, so check if it has a model
+				G_CreateG2AttachedWeaponModel( pm->gent, weaponData[pm->ps->weapon].worldModel, pm->gent->handRBolt, 0 );
 				//make it sound like we took another one out from... uh.. somewhere...
 				if ( cg.time > 0 )
 				{//this way we don't get that annoying change weapon sound every time a map starts

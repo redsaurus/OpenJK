@@ -158,6 +158,10 @@ void WPN_SplashRadius(const char **holdBuf);
 void WPN_AltSplashDamage(const char **holdBuf);
 void WPN_AltSplashRadius(const char **holdBuf);
 
+void WPN_WorldModel(const char **holdBuf);
+void WPN_NoHandModel(const char **holdBuf);
+void WPN_SkinFile(const char **holdBuf);
+
 // Legacy weapons.dat force fields
 void WPN_FuncSkip(const char **holdBuf);
 
@@ -437,6 +441,10 @@ wpnParms_t WpnParms[] =
 	{ "splashRadius",		WPN_SplashRadius },
 	{ "altSplashDamage",	WPN_AltSplashDamage },
 	{ "altSplashRadius",	WPN_AltSplashRadius },
+	
+	{ "noHandModel",		WPN_NoHandModel },
+	{ "skinFile",			WPN_SkinFile },
+	{ "worldModel",			WPN_WorldModel },
 
 	// Old legacy files contain these, so we skip them to shut up warnings
 	{ "firingforce",		WPN_FuncSkip },
@@ -573,6 +581,28 @@ void WPN_WeaponModel(const char **holdBuf)
 	}
 
 	Q_strncpyz(weaponData[wpnParms.weaponNum].weaponMdl,tokenStr,len);
+}
+
+//--------------------------------------------
+void WPN_WorldModel(const char **holdBuf)
+{
+	int len;
+	const char	*tokenStr;
+	
+	if ( COM_ParseString(holdBuf,&tokenStr))
+	{
+		return;
+	}
+	
+	len = strlen(tokenStr);
+	len++;
+	if (len > 64)
+	{
+		len = 64;
+		gi.Printf(S_COLOR_YELLOW"WARNING: worldModel too long in external WEAPONS.DAT '%s'\n", tokenStr);
+	}
+	
+	Q_strncpyz(weaponData[wpnParms.weaponNum].worldModel,tokenStr,len);
 }
 
 //--------------------------------------------
@@ -1429,6 +1459,44 @@ void WPN_AltSplashRadius(const char **holdBuf)
 
 	weaponData[wpnParms.weaponNum].altSplashRadius = tokenFlt;
 }
+
+//--------------------------------------------
+
+void WPN_NoHandModel(const char **holdBuf)
+{
+	int		tokenInt;
+	
+	if( COM_ParseInt(holdBuf,&tokenInt))
+	{
+		SkipRestOfLine(holdBuf);
+		return;
+	}
+	
+	weaponData[wpnParms.weaponNum].bNoHandModel = tokenInt ? true : false;
+}
+
+//--------------------------------------------
+
+void WPN_SkinFile(const char **holdBuf)
+{
+	const char	*tokenStr;
+	
+	if ( COM_ParseString(holdBuf,&tokenStr))
+	{
+		return;
+	}
+	size_t len = strlen( tokenStr );
+	
+	len++;
+	if (len > MAX_QPATH)
+	{
+		len = MAX_QPATH;
+		gi.Printf(S_COLOR_YELLOW"WARNING: SkinFile '%s' too long in external WEAPONS.DAT\n", tokenStr);
+	}
+	
+	Q_strncpyz(weaponData[wpnParms.weaponNum].skinPath,tokenStr,len);
+}
+
 
 //--------------------------------------------
 static void WP_ParseParms(const char *buffer)

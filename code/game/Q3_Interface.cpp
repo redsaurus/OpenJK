@@ -3275,7 +3275,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	}
 	else
 	{
-		G_CreateG2AttachedWeaponModel( self, weaponData[wp].weaponMdl, self->handRBolt, 0 );
+		G_CreateG2AttachedWeaponModel( self, weaponData[wp].worldModel, self->handRBolt, 0 );
 		WP_SaberAddHolsteredG2SaberModels( self );
 	}
 }
