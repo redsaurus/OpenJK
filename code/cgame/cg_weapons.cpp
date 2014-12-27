@@ -1199,7 +1199,7 @@ int CG_MapTorsoToG2VMAnimation(playerState_t *ps) {
 	}
 }
 
-extern void CG_ForcePushBlur(const vec3_t org);
+extern void CG_ForcePushBlur(const vec3_t org, qboolean darkSide = qfalse);
 void CG_AnimateViewmodel( centity_t* cent, playerState_t *ps ) {
 	CG_RegisterWeapon(ps->weapon);
 	weaponInfo_t* weapon = &cg_weapons[ps->weapon];
