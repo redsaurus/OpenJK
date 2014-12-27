@@ -357,7 +357,7 @@ stringID_table_t SaberStyleTable[] =
 
 //SABER INITIALIZATION======================================================================
 
-void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum )
+void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum, vec3_t angles, vec3_t offset )
 {
 	if (!psWeaponModel)
 	{
@@ -400,19 +400,10 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 			// attach it to the hip. need some correction of rotation first though!
 			gi.G2API_AttachG2Model(&ent->ghoul2[ent->holsterModel[weaponNum]], &ent->ghoul2[ent->playerModel],
 								   boltNum, ent->playerModel);
-			vec3_t gunAngles;
-			gunAngles[PITCH] = 180.0f;
-			gunAngles[YAW] = 0.0f;
-			gunAngles[ROLL] = 180.0f;
-			vec3_t offset = { 0.0f, -1.0f, -5.0f };
-			if (g_flippedHolsters && g_flippedHolsters->integer > 0)
-			{
-				gunAngles[YAW] = 180.0f;
-			}
 			int holsterorigin = gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*holsterorigin");
 			if (holsterorigin == -1)
 			{
-				gi.G2API_SetBoneAnglesOffset(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", gunAngles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0, offset);
+				gi.G2API_SetBoneAnglesOffset(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", angles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0, offset);
 			}
 			else
 			{
@@ -587,16 +578,58 @@ void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 				continue;
 			}
 		}
+		else if ( ent->client->ps.saber[saberNum].holsterPlace == HOLSTER_NONE )
+		{
+			continue;
+		}
 		int handBolt = -1;
+		holster_locations_t holsterPlace = ent->client->ps.saber[saberNum].holsterPlace;
+		vec3_t offset = { 0.0f, 0.0f, 0.0f };
+		vec3_t angles = { 0.0f, 0.0f, 0.0f };
+		if ( holsterPlace == HOLSTER_HIPS )
+		{
+			angles[PITCH] = 180.0f;
+			angles[YAW] = 0.0f;
+			angles[ROLL] = 180.0f;
+			if (g_flippedHolsters && g_flippedHolsters->integer > 0)
+			{
+				angles[YAW] = 180.0f;
+			}
+			VectorSet(offset, 0.0f, -1.0f, -5.0f);
+		}
+		else if ( holsterPlace == HOLSTER_BACK )
+		{
+			angles[YAW] = 180.0f;
+			angles[PITCH] = 22.5f;
+			VectorSet(offset, 0.0f, -2.0f, 4.0f);
+		}
 		if ( saberNum == 0 )
 		{
-			handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_r" );
+			if ( holsterPlace == HOLSTER_HIPS )
+			{
+				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_r" );
+			}
+			else if ( holsterPlace == HOLSTER_BACK )
+			{
+				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*back" );
+			}
 		}
 		else
 		{
-			handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+			if ( holsterPlace == HOLSTER_HIPS )
+			{
+				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+			}
+			else if ( holsterPlace == HOLSTER_BACK )
+			{
+				if ( ent->client->ps.saber[0].holsterPlace == HOLSTER_BACK )
+				{
+					continue;
+				}
+				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*back" );
+			}
 		}
-		G_CreateG2HolsteredWeaponModel( ent, ent->client->ps.saber[saberNum].model, handBolt, saberNum );
+		G_CreateG2HolsteredWeaponModel( ent, ent->client->ps.saber[saberNum].model, handBolt, saberNum, angles, offset );
 		
 		if ( ent->client->ps.saber[saberNum].skin != NULL )
 		{//if this saber has a customSkin, use it

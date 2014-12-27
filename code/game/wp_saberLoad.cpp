@@ -140,6 +140,17 @@ stringID_table_t SaberMoveTable[] =
 	{ "",	-1 }
 };
 
+stringID_table_t HolsterTable[] =
+{
+	ENUM2STRING(HOLSTER_NONE),
+	ENUM2STRING(HOLSTER_HIPS),
+	ENUM2STRING(HOLSTER_BACK),
+	{ "none", HOLSTER_NONE },
+	{ "hips", HOLSTER_HIPS },
+	{ "back", HOLSTER_BACK },
+	{ "",	-1 }
+};
+
 
 saber_styles_t TranslateSaberStyle( const char *name ) 
 {
@@ -507,6 +518,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber, qboolean setColors = qtrue )
 	saber->splashDamage2 = 0;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
 	saber->splashKnockback2 = 0.0f;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 //=========================================================================================================================================
+	saber->holsterPlace = HOLSTER_INVALID;
 }
 
 static void Saber_ParseName( saberInfo_t *saber, const char **p ) {
@@ -1800,6 +1812,15 @@ static void Saber_ParseNoClashFlare2( saberInfo_t *saber, const char **p ) {
 	if ( n )
 		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE2;
 }
+static void Saber_ParseHolsterPlace( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	int holsterType;
+	if ( COM_ParseString( p, &value ) )
+		return;
+	holsterType = GetIDForString( HolsterTable, value );
+	if ( holsterType >= HOLSTER_NONE && holsterType <= HOLSTER_BACK )
+		saber->holsterPlace = (holster_locations_t)holsterType;
+}
 
 /*
 ===============
@@ -2002,6 +2023,7 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "bladeEffect2",			Saber_ParseBladeEffect2,		NULL	},
 	{ "noClashFlare",			Saber_ParseNoClashFlare,		NULL	},
 	{ "noClashFlare2",			Saber_ParseNoClashFlare2,		NULL	},
+	{ "holsterPlace",			Saber_ParseHolsterPlace,		NULL	},
 	{ NULL,						NULL,							NULL	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];
@@ -2089,6 +2111,18 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 	if ( saber->type == SABER_SITH_SWORD )
 	{//precache all the sith sword sounds
 		Saber_SithSwordPrecache();
+	}
+	
+	if ( saber->holsterPlace == HOLSTER_INVALID )
+	{
+		if ( saber->type == SABER_SITH_SWORD )
+		{
+			saber->holsterPlace = HOLSTER_BACK;
+		}
+		else
+		{
+			saber->holsterPlace = HOLSTER_HIPS;
+		}
 	}
 	return qtrue;
 }

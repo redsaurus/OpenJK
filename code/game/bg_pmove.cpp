@@ -8931,7 +8931,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 			}
 			if (!G_IsRidingVehicle(pm->gent))
 			{
-				PM_SetSaberMove(LS_PUTAWAY);
+			//	PM_SetSaberMove(LS_PUTAWAY);
 			}
 		}
 		//put this back in because saberActive isn't being set somewhere else anymore
@@ -9080,7 +9080,14 @@ static void PM_FinishWeaponChange( void ) {
 		{//actually did switch weapons, play anim
 			if (!G_IsRidingVehicle(pm->gent))
 			{
-				PM_SetSaberMove(LS_DRAW);
+				if ( pm->ps->saber[0].holsterPlace == HOLSTER_BACK )
+				{
+					//TODO: nice draw move from back holster
+				}
+				else
+				{
+					PM_SetSaberMove(LS_DRAW);
+				}
 			}
 		}
 	}

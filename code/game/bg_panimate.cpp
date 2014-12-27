@@ -5234,7 +5234,10 @@ void PM_TorsoAnimLightsaber()
 	{
 		if (!G_IsRidingVehicle(pm->gent))
 		{
-			PM_SetSaberMove(LS_DRAW);
+			if (pm->ps->saber[0].holsterPlace != HOLSTER_BACK)
+			{
+				PM_SetSaberMove(LS_DRAW);
+			}
 		}
 		return;
 	}
