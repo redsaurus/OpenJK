@@ -714,4 +714,9 @@ void PlayerStateToEntityState( playerState_t *ps, entityState_t *s );
 
 qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
 
+#define	HYPERSPACE_TIME				4000 //For hyperspace triggers
+#define	HYPERSPACE_TELEPORT_FRAC	0.75f
+#define	HYPERSPACE_SPEED			10000.0f//was 30000
+#define	HYPERSPACE_TURN_RATE		45.0f
+
 #endif//#ifndef __BG_PUBLIC_H__

@@ -137,6 +137,8 @@ typedef enum
 
 	//rww - added for sky portals
 	thinkF_G_PortalifyEntities,
+	
+	thinkF_shipboundary_think,
 
 } thinkFunc_t;
 
@@ -245,6 +247,8 @@ extern void misc_weapon_shooter_fire( gentity_t *self );
 
 extern void beacon_think			( gentity_t *self );
 
+extern void shipboundary_think		( gentity_t *ent );
+
 
 //	void		(*clThink)(centity_s *cent);	//Think func for equivalent centity
 typedef enum
@@ -324,6 +328,7 @@ typedef enum
 	touchF_func_rotating_touch,
 	touchF_TouchTieBomb,
 	touchF_space_touch,
+	touchF_shipboundary_touch,
 } touchFunc_t;
 
 // TOUCH functions...
@@ -348,6 +353,7 @@ extern void func_rotating_touch				(gentity_t *self, gentity_t *other, trace_t *
 extern void TouchTieBomb( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void TieFighterUse( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void space_touch( gentity_t *self, gentity_t *other, trace_t *trace );
+extern void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace );
 
 //	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 typedef enum

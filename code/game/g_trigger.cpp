@@ -1371,6 +1371,11 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	{ //only let vehicles touch
 		return;
 	}
+	
+	if ( other->client->ps.hyperSpaceTime && level.time - other->client->ps.hyperSpaceTime < HYPERSPACE_TIME )
+	{//don't interfere with hyperspacing ships
+		return;
+	}
 
 	ent = G_Find (NULL, FOFS(targetname), self->target);
 	if (!ent || !ent->inuse)
@@ -1384,12 +1389,52 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
 		return;
 	}
+	
+	//make sure this sucker is linked so the prediction knows where to go
+	gi.linkentity(self);
 
 	other->client->ps.vehTurnaroundIndex = ent->s.number;
 	other->client->ps.vehTurnaroundTime = level.time + self->count;
+	
+	//keep up the detailed checks for another 2 seconds
+	self->bounceCount = level.time + 2000;
 }
 
-/*QUAKED trigger_shipboundary (.5 .5 .5) ? 
+void shipboundary_think(gentity_t *ent)
+{
+	gentity_t			*entityList[MAX_GENTITIES];
+	int			numListedEntities;
+	int			i = 0;
+	gentity_t	*listedEnt;
+	
+	ent->nextthink = level.time + 100;
+	
+	if (ent->bounceCount < level.time)
+	{ //don't need to be doing this check, no one has touched recently
+		return;
+	}
+	
+	numListedEntities = gi.EntitiesInBox( ent->absmin, ent->absmax, entityList, MAX_GENTITIES );
+	while (i < numListedEntities)
+	{
+		listedEnt = entityList[i];
+		if (listedEnt->inuse && listedEnt->client && listedEnt->s.m_iVehicleNum)
+		{
+			if (listedEnt->NPC &&
+				listedEnt->client->NPC_class == CLASS_VEHICLE)
+			{
+				Vehicle_t *pVeh = listedEnt->m_pVehicle;
+				if (pVeh && pVeh->m_pVehicleInfo->type == VH_FIGHTER)
+				{
+					shipboundary_touch(ent, listedEnt, NULL);
+				}
+			}
+		}
+		i++;
+	}
+}
+
+/*QUAKED trigger_shipboundary (.5 .5 .5) ?
 causes vehicle to turn toward target and travel in that direction for a set time when hit.
 
 "target"		name of entity to turn toward (can be info_notnull, or whatever).
@@ -1413,7 +1458,9 @@ void SP_trigger_shipboundary(gentity_t *self)
 	}
 
 	//FIXME: implement!
-	//self->e_TouchFunc = touchF_shipboundary_touch;
+	self->e_TouchFunc = touchF_shipboundary_touch;
+	self->nextthink = level.time + 500;
+	self->e_ThinkFunc = thinkF_shipboundary_think;
 
     gi.linkentity(self);
 }

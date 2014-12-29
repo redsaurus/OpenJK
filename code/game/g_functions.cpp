@@ -134,6 +134,8 @@ void GEntity_ThinkFunc(gentity_t *self)
 	THINKCASE( misc_weapon_shooter_fire )
 
 	THINKCASE( beacon_think )
+			
+	THINKCASE( shipboundary_think )
 	
 	default:
 		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",self->e_ThinkFunc);
@@ -231,6 +233,7 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 	TOUCHCASE( func_rotating_touch )
 	TOUCHCASE( TouchTieBomb )
 	TOUCHCASE( space_touch )
+	TOUCHCASE( shipboundary_touch )
 	
 	default:
 		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",self->e_TouchFunc);
