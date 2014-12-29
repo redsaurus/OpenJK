@@ -237,6 +237,9 @@ typedef enum {
 #define EF_FORCE_DRAINED		0x40000000	// Force drained effect
 #define EF_BLOCKED_MOVER		0x80000000	// for movers that are blocked - shared with previous
 
+//These new EF2_??? flags were added for NPCs, they really should not be used often. Taken from MP.
+#define	EF2_HYPERSPACE			(1<<5)		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
+
 typedef enum {
 	PW_NONE,
 	PW_QUAD,// This can go away

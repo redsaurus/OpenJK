@@ -1975,6 +1975,7 @@ typedef struct playerState_s {
 								// used to twist the legs during strafing
 
 	int			eFlags;			// copied to entityState_t->eFlags
+	int			eFlags2;
 
 	int			eventSequence;	// pmove generated events
 	int			events[MAX_PS_EVENTS];
@@ -2246,6 +2247,10 @@ typedef struct playerState_s {
 	//NOTE: not really used in SP, just for Fighter Vehicle damage stuff
 	int			brokenLimbs;
 	int			electrifyTime;
+	
+	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
+	int			hyperSpaceTime;
+	vec3_t		hyperSpaceAngles;
 } playerState_t;
 
 
@@ -2340,6 +2345,7 @@ typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!
 	int		number;			// entity index
 	int		eType;			// entityType_t
 	int		eFlags;
+	int		eFlags2;
 
 	trajectory_t	pos;	// for calculating position
 	trajectory_t	apos;	// for calculating angles

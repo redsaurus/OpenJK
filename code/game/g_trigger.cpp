@@ -1319,8 +1319,7 @@ void space_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if (other->s.m_iVehicleNum
-		&& other->s.m_iVehicleNum <= MAX_CLIENTS )
+	if (other->s.m_iVehicleNum)
 	{//a player client inside a vehicle
 		gentity_t *veh = &g_entities[other->s.m_iVehicleNum];
 
@@ -1391,10 +1390,10 @@ void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 	}
 	
 	//make sure this sucker is linked so the prediction knows where to go
-	gi.linkentity(self);
+	gi.linkentity(ent);
 
 	other->client->ps.vehTurnaroundIndex = ent->s.number;
-	other->client->ps.vehTurnaroundTime = level.time + self->count;
+	other->client->ps.vehTurnaroundTime = level.time + (self->count*2);
 	
 	//keep up the detailed checks for another 2 seconds
 	self->bounceCount = level.time + 2000;
@@ -1463,6 +1462,143 @@ void SP_trigger_shipboundary(gentity_t *self)
 	self->e_ThinkFunc = thinkF_shipboundary_think;
 
     gi.linkentity(self);
+}
+
+void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
+{
+	gentity_t *ent;
+	
+	if (!other || !other->inuse || !other->client ||
+		other->s.number < MAX_CLIENTS ||
+		!other->m_pVehicle)
+	{ //only let vehicles touch
+		return;
+	}
+	
+	if ( other->client->ps.hyperSpaceTime && level.time - other->client->ps.hyperSpaceTime < HYPERSPACE_TIME )
+	{//already hyperspacing, just keep us moving
+		if ( other->client->ps.eFlags2&EF2_HYPERSPACE )
+		{//they've started the hyperspace but haven't been teleported yet
+			float timeFrac = ((float)(level.time-other->client->ps.hyperSpaceTime))/HYPERSPACE_TIME;
+			if ( timeFrac >= HYPERSPACE_TELEPORT_FRAC )
+			{//half-way, now teleport them!
+				vec3_t	diff, fwd, right, up, newOrg;
+				float	fDiff, rDiff, uDiff;
+				//take off the flag so we only do this once
+				other->client->ps.eFlags &= ~qfalse;
+				//Get the offset from the local position
+				ent = G_Find (NULL, FOFS(targetname), self->target);
+				if (!ent || !ent->inuse)
+				{ //this is bad
+					G_Error( "trigger_hyperspace has invalid target '%s'\n", self->target );
+					return;
+				}
+				VectorSubtract( other->client->ps.origin, ent->s.origin, diff );
+				AngleVectors( ent->s.angles, fwd, right, up );
+				fDiff = DotProduct( fwd, diff );
+				rDiff = DotProduct( right, diff );
+				uDiff = DotProduct( up, diff );
+				//Now get the base position of the destination
+				ent = G_Find (NULL, FOFS(targetname), self->target2);
+				if (!ent || !ent->inuse)
+				{ //this is bad
+					G_Error( "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
+					return;
+				}
+				VectorCopy( ent->s.origin, newOrg );
+				//finally, add the offset into the new origin
+				AngleVectors( ent->s.angles, fwd, right, up );
+				VectorMA( newOrg, fDiff, fwd, newOrg );
+				VectorMA( newOrg, rDiff, right, newOrg );
+				VectorMA( newOrg, uDiff, up, newOrg );
+				//trap->Print("hyperspace from %s to %s\n", vtos(other->client->ps.origin), vtos(newOrg) );
+				//now put them in the offset position, facing the angles that position wants them to be facing
+				TeleportPlayer( other, newOrg, ent->s.angles );
+				if ( other->m_pVehicle && other->m_pVehicle->m_pPilot )
+				{//teleport the pilot, too
+					TeleportPlayer( (gentity_t*)other->m_pVehicle->m_pPilot, newOrg, ent->s.angles );
+					//FIXME: and the passengers?
+				}
+				//make them face the new angle
+				//other->client->ps.hyperSpaceIndex = ent->s.number;
+				VectorCopy( ent->s.angles, other->client->ps.hyperSpaceAngles );
+				//sound
+				G_SoundOnEnt( other, CHAN_LOCAL, "sound/vehicles/common/hyperend.wav");
+			}
+		}
+		return;
+	}
+	else
+	{
+		ent = G_Find (NULL, FOFS(targetname), self->target);
+		if (!ent || !ent->inuse)
+		{ //this is bad
+			G_Error( "trigger_hyperspace has invalid target '%s'\n", self->target );
+			return;
+		}
+		
+		if (!other->s.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
+		{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
+			G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
+			return;
+		}
+		//other->client->ps.hyperSpaceIndex = ent->s.number;
+		VectorCopy( ent->s.angles, other->client->ps.hyperSpaceAngles );
+		other->client->ps.hyperSpaceTime = level.time;
+	}
+}
+
+/*
+ void trigger_hyperspace_find_targets( gentity_t *self )
+ {
+	gentity_t *targEnt = NULL;
+	targEnt = G_Find (NULL, FOFS(targetname), self->target);
+	if (!targEnt || !targEnt->inuse)
+	{ //this is bad
+ trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
+ return;
+	}
+	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
+	targEnt = G_Find (NULL, FOFS(targetname), self->target2);
+	if (!targEnt || !targEnt->inuse)
+	{ //this is bad
+ trap->Error( ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
+ return;
+	}
+	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
+ }
+ */
+/*QUAKED trigger_hyperspace (.5 .5 .5) ?
+ Ship will turn to face the angles of the first target_position then fly forward, playing the hyperspace effect, then pop out at a relative point around the target
+ 
+ "target"		whatever position the ship teleports from in relation to the target_position specified here, that's the relative position the ship will spawn at around the target2 target_position
+ "target2"		name of target_position to teleport the ship to (will be relative to it's origin)
+ */
+void SP_trigger_hyperspace(gentity_t *self)
+{
+	//register the hyperspace end sound (start sounds are customized)
+	G_SoundIndex( "sound/vehicles/common/hyperend.wav" );
+	
+	InitTrigger(self);
+	self->contents = CONTENTS_TRIGGER;
+	
+	if (!self->target || !self->target[0])
+	{
+		G_Error( "trigger_hyperspace without a target." );
+	}
+	if (!self->target2 || !self->target2[0])
+	{
+		G_Error( "trigger_hyperspace without a target2." );
+	}
+	
+	self->delay = Distance( self->absmax, self->absmin );//my size
+	
+	self->e_TouchFunc = touchF_hyperspace_touch;
+	
+	gi.linkentity(self);
+	
+	//self->think = trigger_hyperspace_find_targets;
+	//self->nextthink = level.time + FRAMETIME;
 }
 /*
 ==============================================================================

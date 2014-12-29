@@ -2213,6 +2213,15 @@ void SP_func_static( gentity_t *ent )
 			ent->damage = 2;
 		}
 	}
+	
+	int test;
+	G_SpawnInt( "hyperspace", "0", &test );
+	if ( test )
+	{
+		//ent->r.svFlags |= SVF_BROADCAST; // I need to rotate something that is huge and it's touching too many area portals...
+		ent->s.eFlags2 |= EF2_HYPERSPACE;
+	}
+
 	gi.linkentity( ent );
 
 	if (level.mBSPInstanceDepth)

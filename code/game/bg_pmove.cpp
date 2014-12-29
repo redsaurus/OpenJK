@@ -14782,7 +14782,7 @@ void PM_CheckInVehicleSaberAttackAnim( void )
 //force the vehicle to turn and travel to its forced destination point
 void PM_VehForcedTurning( gentity_t *veh )
 {
-	gentity_t *dst = &g_entities[pm->ps->vehTurnaroundIndex];
+	gentity_t *dst = &g_entities[veh->client->ps.vehTurnaroundIndex];
 	float pitchD, yawD;
 	vec3_t dir;
 
@@ -14814,6 +14814,81 @@ void PM_VehForcedTurning( gentity_t *veh )
 
 	//PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 	SetClientViewAngle(pm->gent, pm->ps->viewangles);
+}
+
+void PM_VehFaceHyperspacePoint(gentity_t *veh)
+{
+	
+	if (!veh || !veh->m_pVehicle)
+	{
+		return;
+	}
+	else
+	{
+		float timeFrac = ((float)(pm->cmd.serverTime-veh->client->ps.hyperSpaceTime))/HYPERSPACE_TIME;
+		float	turnRate, aDelta;
+		int		i, matchedAxes = 0;
+		
+		pm->cmd.upmove = veh->m_pVehicle->m_ucmd.upmove = 127;
+		pm->cmd.forwardmove = veh->m_pVehicle->m_ucmd.forwardmove = 0;
+		pm->cmd.rightmove = veh->m_pVehicle->m_ucmd.rightmove = 0;
+		
+		turnRate = (90.0f*pml.frametime);
+		for ( i = 0; i < 3; i++ )
+		{
+			aDelta = AngleSubtract(veh->client->ps.hyperSpaceAngles[i], veh->m_pVehicle->m_vOrientation[i]);
+			if ( fabs( aDelta ) < turnRate )
+			{//all is good
+				pm->ps->viewangles[i] = veh->client->ps.hyperSpaceAngles[i];
+				matchedAxes++;
+			}
+			else
+			{
+				aDelta = AngleSubtract(veh->client->ps.hyperSpaceAngles[i], pm->ps->viewangles[i]);
+				if ( fabs( aDelta ) < turnRate )
+				{
+					pm->ps->viewangles[i] = veh->client->ps.hyperSpaceAngles[i];
+				}
+				else if ( aDelta > 0 )
+				{
+					if ( i == YAW )
+					{
+						pm->ps->viewangles[i] = AngleNormalize360( pm->ps->viewangles[i]+turnRate );
+					}
+					else
+					{
+						pm->ps->viewangles[i] = AngleNormalize180( pm->ps->viewangles[i]+turnRate );
+					}
+				}
+				else
+				{
+					if ( i == YAW )
+					{
+						pm->ps->viewangles[i] = AngleNormalize360( pm->ps->viewangles[i]-turnRate );
+					}
+					else
+					{
+						pm->ps->viewangles[i] = AngleNormalize180( pm->ps->viewangles[i]-turnRate );
+					}
+				}
+			}
+		}
+		
+		SetClientViewAngle(pm->gent, pm->ps->viewangles);
+		
+		if ( timeFrac < HYPERSPACE_TELEPORT_FRAC )
+		{//haven't gone through yet
+			if ( matchedAxes < 3 )
+			{//not facing the right dir yet
+				//keep hyperspace time up to date
+				veh->client->ps.hyperSpaceTime += pml.msec;
+			}
+			else if ( !(veh->client->ps.eFlags2&EF2_HYPERSPACE))
+			{//flag us as ready to hyperspace!
+				veh->client->ps.eFlags2 |= EF2_HYPERSPACE;
+			}
+		}
+	}
 }
 /*
 ================
@@ -14886,9 +14961,15 @@ void Pmove( pmove_t *pmove )
 	}
 	else if ( pm->gent && PM_RidingVehicle() )
 	{
-		if ( pm->ps->vehTurnaroundIndex
-			&& pm->ps->vehTurnaroundTime > pm->cmd.serverTime )
+		if ( (&g_entities[pm->gent->s.m_iVehicleNum])->client &&
+			(pm->cmd.serverTime-(&g_entities[pm->gent->s.m_iVehicleNum])->client->ps.hyperSpaceTime) < HYPERSPACE_TIME)
+		{ //going into hyperspace, turn to face the right angles
+			PM_VehFaceHyperspacePoint( &g_entities[pm->gent->s.m_iVehicleNum] );
+		}
+		else if ( (&g_entities[pm->gent->s.m_iVehicleNum])->client && (&g_entities[pm->gent->s.m_iVehicleNum])->client->ps.vehTurnaroundIndex
+			&& (&g_entities[pm->gent->s.m_iVehicleNum])->client->ps.vehTurnaroundTime > pm->cmd.serverTime )
 		{ //riding this vehicle, turn my view too
+			Com_Printf("forced turning!\n");
 			PM_VehForcedTurning( &g_entities[pm->gent->s.m_iVehicleNum] );
 		}
 	}
