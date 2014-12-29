@@ -398,16 +398,27 @@ void G_CreateG2HolsteredWeaponModel( gentity_t *ent, const char *psWeaponModel, 
 		if ( ent->holsterModel[weaponNum] != -1 )
 		{
 			// attach it to the hip. need some correction of rotation first though!
+			int holsterorigin = gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*holsterorigin");
+			mdxaBone_t boltMatrix2;
+			if (holsterorigin != -1)
+			{
+				vec3_t origin = {0, 0, 0};
+				gi.G2API_GetBoltMatrix(ent->ghoul2, ent->holsterModel[weaponNum], holsterorigin, &boltMatrix2,
+									   origin, origin, 0,
+									   NULL, ent->s.modelScale);
+			}
 			gi.G2API_AttachG2Model(&ent->ghoul2[ent->holsterModel[weaponNum]], &ent->ghoul2[ent->playerModel],
 								   boltNum, ent->playerModel);
-			int holsterorigin = gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*holsterorigin");
 			if (holsterorigin == -1)
 			{
 				gi.G2API_SetBoneAnglesOffset(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", angles, BONE_ANGLES_PREMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0, offset);
 			}
 			else
 			{
-				gi.G2API_SetNewOrigin(&ent->ghoul2[ent->holsterModel[weaponNum]], holsterorigin);
+				boltMatrix2.matrix[1][3] -= 1.0f;//TODO: this is no good for back holstered weapons
+				gi.G2API_SetBoneAnglesMatrix(&ent->ghoul2[ent->holsterModel[weaponNum]], "ModView internal default", boltMatrix2, BONE_ANGLES_PREMULT,
+											 NULL, 0, 0);
+				
 			}
 			// set up a bolt on the end so we can get where the sabre muzzle is - we can assume this is always bolt 0
 			gi.G2API_AddBolt(&ent->ghoul2[ent->holsterModel[weaponNum]], "*flash");
