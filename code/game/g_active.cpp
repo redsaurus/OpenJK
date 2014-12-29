@@ -5238,7 +5238,7 @@ extern cvar_t	*g_skippingcin;
 	//FIXME: if global gravity changes this should update everyone's personal gravity...
 	if ( !(ent->svFlags & SVF_CUSTOM_GRAVITY) )
 	{
-		if (ent->client->inSpaceIndex)
+		if (ent->client->inSpaceIndex && ent->client->inSpaceIndex != ENTITYNUM_NONE)
 		{ //in space, so no gravity...
 			client->ps.gravity = 0.0f;
 		}

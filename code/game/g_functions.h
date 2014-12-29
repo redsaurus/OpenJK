@@ -323,6 +323,7 @@ typedef enum
 	touchF_prox_mine_stick,
 	touchF_func_rotating_touch,
 	touchF_TouchTieBomb,
+	touchF_space_touch,
 } touchFunc_t;
 
 // TOUCH functions...
@@ -346,6 +347,7 @@ extern void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 extern void func_rotating_touch				(gentity_t *self, gentity_t *other, trace_t *trace);
 extern void TouchTieBomb( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void TieFighterUse( gentity_t *self, gentity_t *other, gentity_t *activator );
+extern void space_touch( gentity_t *self, gentity_t *other, trace_t *trace );
 
 //	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 typedef enum

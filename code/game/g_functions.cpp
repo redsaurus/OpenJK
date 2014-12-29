@@ -230,6 +230,7 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 	TOUCHCASE( prox_mine_stick )
 	TOUCHCASE( func_rotating_touch )
 	TOUCHCASE( TouchTieBomb )
+	TOUCHCASE( space_touch )
 	
 	default:
 		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",self->e_TouchFunc);
