@@ -136,6 +136,7 @@ void GEntity_ThinkFunc(gentity_t *self)
 	THINKCASE( beacon_think )
 			
 	THINKCASE( shipboundary_think )
+	THINKCASE( asteroid_field_think )
 	
 	default:
 		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",self->e_ThinkFunc);

@@ -410,6 +410,7 @@ void SP_trigger_visible( gentity_t *self );
 void SP_trigger_space(gentity_t *self);
 void SP_trigger_shipboundary(gentity_t *self);
 void SP_trigger_hyperspace(gentity_t *self);
+void SP_trigger_asteroid_field(gentity_t *self);
 
 void SP_target_give (gentity_t *ent);
 void SP_target_delay (gentity_t *ent);
@@ -649,6 +650,7 @@ spawn_t	spawns[] = {
 	{"trigger_space", SP_trigger_space},
 	{"trigger_shipboundary", SP_trigger_shipboundary},
 	{ "trigger_hyperspace",	SP_trigger_hyperspace },
+	{ "trigger_asteroid_field",	SP_trigger_asteroid_field },
 
 	{"target_give", SP_target_give},
 	{"target_delay", SP_target_delay},

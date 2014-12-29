@@ -1661,7 +1661,7 @@ Q3_Lerp2Origin
 Lerps the origin to the destination value
 =============
 */
-static void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
+void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 {
 	gentity_t	*ent = &g_entities[entID];
 

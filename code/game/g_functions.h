@@ -139,6 +139,7 @@ typedef enum
 	thinkF_G_PortalifyEntities,
 	
 	thinkF_shipboundary_think,
+	thinkF_asteroid_field_think,
 
 } thinkFunc_t;
 
@@ -248,6 +249,7 @@ extern void misc_weapon_shooter_fire( gentity_t *self );
 extern void beacon_think			( gentity_t *self );
 
 extern void shipboundary_think		( gentity_t *ent );
+extern void asteroid_field_think	( gentity_t *self );
 
 
 //	void		(*clThink)(centity_s *cent);	//Think func for equivalent centity

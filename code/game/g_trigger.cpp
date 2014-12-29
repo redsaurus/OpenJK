@@ -1600,6 +1600,196 @@ void SP_trigger_hyperspace(gentity_t *self)
 	//self->think = trigger_hyperspace_find_targets;
 	//self->nextthink = level.time + FRAMETIME;
 }
+
+gentity_t *asteroid_pick_random_asteroid( gentity_t *self )
+{
+	int			t_count = 0, pick;
+	gentity_t	*t = NULL;
+	
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	{
+		if (t != self)
+		{
+			t_count++;
+		}
+	}
+	
+	if(!t_count)
+	{
+		return NULL;
+	}
+	
+	if(t_count == 1)
+	{
+		return t;
+	}
+	
+	//FIXME: need a seed
+	pick = Q_irand(1, t_count);
+	t_count = 0;
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	{
+		if (t != self)
+		{
+			t_count++;
+		}
+		else
+		{
+			continue;
+		}
+		
+		if(t_count == pick)
+		{
+			return t;
+		}
+	}
+	return NULL;
+}
+
+int asteroid_count_num_asteroids( gentity_t *self )
+{
+	int	i, count = 0;
+	
+	for ( i = MAX_CLIENTS; i < ENTITYNUM_WORLD; i++ )
+	{
+		if ( !g_entities[i].inuse )
+		{
+			continue;
+		}
+		if ( g_entities[i].owner == self )
+		{
+			count++;
+		}
+	}
+	return count;
+}
+
+extern void SP_func_rotating (gentity_t *ent);
+extern void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration );
+void asteroid_field_think(gentity_t *self)
+{
+	int numAsteroids = asteroid_count_num_asteroids( self );
+	
+	self->nextthink = level.time + 500;
+	
+	if ( numAsteroids < self->count )
+	{
+		//need to spawn a new asteroid
+		gentity_t *newAsteroid = G_Spawn();
+		if ( newAsteroid )
+		{
+			vec3_t startSpot, endSpot, startAngles;
+			float dist, speed = Q_flrand( self->speed * 0.25f, self->speed * 2.0f );
+			int	capAxis, axis, time = 0;
+			gentity_t *copyAsteroid = asteroid_pick_random_asteroid( self );
+			if ( copyAsteroid )
+			{
+				newAsteroid->model = G_NewString(copyAsteroid->model);
+				newAsteroid->model2 = copyAsteroid->model2;
+				newAsteroid->health = copyAsteroid->health;
+				newAsteroid->spawnflags = copyAsteroid->spawnflags;
+				newAsteroid->mass = copyAsteroid->mass;
+				newAsteroid->damage = copyAsteroid->damage;
+				newAsteroid->speed = copyAsteroid->speed;
+				
+				G_SetOrigin( newAsteroid, copyAsteroid->s.origin );
+				G_SetAngles( newAsteroid, copyAsteroid->s.angles );
+				newAsteroid->classname = "func_rotating";
+				
+				SP_func_rotating( newAsteroid );
+				
+				VectorCopy(copyAsteroid->s.modelScale, newAsteroid->s.modelScale);
+				VectorSet(newAsteroid->s.modelScale, 2.0, 2.0, 2.0);
+				//newAsteroid->maxHealth = newAsteroid->health;
+				newAsteroid->radius = copyAsteroid->radius;
+				newAsteroid->material = copyAsteroid->material;
+				//CacheChunkEffects( self->material );
+				
+				//keep track of it
+				newAsteroid->owner = self;
+				
+				//move it
+				capAxis = Q_irand( 0, 2 );
+				for ( axis = 0; axis < 3; axis++ )
+				{
+					if ( axis == capAxis )
+					{
+						if ( Q_irand( 0, 1 ) )
+						{
+							startSpot[axis] = self->mins[axis];
+							endSpot[axis] = self->maxs[axis];
+						}
+						else
+						{
+							startSpot[axis] = self->maxs[axis];
+							endSpot[axis] = self->mins[axis];
+						}
+					}
+					else
+					{
+						startSpot[axis] = self->mins[axis]+(Q_flrand(0,1.0f)*(self->maxs[axis]-self->mins[axis]));
+						endSpot[axis] = self->mins[axis]+(Q_flrand(0,1.0f)*(self->maxs[axis]-self->mins[axis]));
+					}
+				}
+				//FIXME: maybe trace from start to end to make sure nothing is in the way?  How big of a trace?
+				
+				G_SetOrigin( newAsteroid, startSpot );
+				dist = Distance( endSpot, startSpot );
+				time = ceil(dist/speed)*1000;
+				Q3_Lerp2Origin( -1, newAsteroid->s.number, endSpot, time );
+				
+				//spin it
+				startAngles[0] = Q_flrand( -360, 360 );
+				startAngles[1] = Q_flrand( -360, 360 );
+				startAngles[2] = Q_flrand( -360, 360 );
+				G_SetAngles( newAsteroid, startAngles );
+				newAsteroid->s.apos.trDelta[0] = Q_flrand( -100, 100 );
+				newAsteroid->s.apos.trDelta[1] = Q_flrand( -100, 100 );
+				newAsteroid->s.apos.trDelta[2] = Q_flrand( -100, 100 );
+				newAsteroid->s.apos.trTime = level.time;
+				newAsteroid->s.apos.trType = TR_LINEAR;
+				
+				//remove itself when done
+				newAsteroid->e_ThinkFunc = thinkF_G_FreeEntity;
+				newAsteroid->nextthink = level.time+time;
+				
+				//think again sooner if need even more
+				if ( numAsteroids+1 < self->count )
+				{//still need at least one more
+					//spawn it in 100ms
+					self->nextthink = level.time + 100;
+				}
+			}
+		}
+	}
+}
+
+/*QUAKED trigger_asteroid_field (.5 .5 .5) ?
+ speed - how fast, on average, the asteroid moves
+ count - how many asteroids, max, to have at one time
+ target - target this at func_rotating asteroids
+ */
+void SP_trigger_asteroid_field(gentity_t *self)
+{
+	gi.SetBrushModel( self, self->model );
+	self->contents = 0;
+	
+	if ( !self->count )
+	{
+		self->health = 20;
+	}
+	
+	if ( !self->speed )
+	{
+		self->speed = 10000;
+	}
+	
+	self->e_ThinkFunc = thinkF_asteroid_field_think;
+	self->nextthink = level.time + 100;
+	
+	gi.linkentity(self);
+}
+
 /*
 ==============================================================================
 
