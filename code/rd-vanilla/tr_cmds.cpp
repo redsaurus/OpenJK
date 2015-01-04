@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -81,23 +80,6 @@ void R_PerformanceCounters( void ) {
 	memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
 }
 
-
-/*
-====================
-R_InitCommandBuffers
-====================
-*/
-void R_InitCommandBuffers( void ) {
-}
-
-/*
-====================
-R_ShutdownCommandBuffers
-====================
-*/
-void R_ShutdownCommandBuffers( void ) {
-}
-
 /*
 ====================
 R_IssueRenderCommands
@@ -134,15 +116,12 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 
 /*
 ====================
-R_SyncRenderThread
+R_IssuePendingRenderCommands
 
 Issue any pending commands and wait for them to complete.
-After exiting, the render thread will have completed its work
-and will remain idle and the main thread is free to issue
-OpenGL calls until R_IssueRenderCommands is called.
 ====================
 */
-void R_SyncRenderThread( void ) {
+void R_IssuePendingRenderCommands( void ) {
 	if ( !tr.registered ) {
 		return;
 	}
@@ -153,14 +132,16 @@ void R_SyncRenderThread( void ) {
 ============
 R_GetCommandBuffer
 
-make sure there is enough command space, waiting on the
-render thread if needed.
+make sure there is enough command space
 ============
 */
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData->commands;
+	bytes = PAD(bytes, sizeof (void *));
+
+	assert(cmdList);
 
 	// always leave room for the end of list command
 	if ( cmdList->used + bytes + 4 > MAX_RENDER_COMMANDS ) {
@@ -394,7 +375,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 		else
 		{
-			R_SyncRenderThread();
+			R_IssuePendingRenderCommands();
 			qglEnable( GL_STENCIL_TEST );
 			qglStencilMask( ~0U );
 			qglClearStencil( 0U );
@@ -407,7 +388,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	{
 		// this is only reached if it was on and is now off
 		if ( r_measureOverdraw->modified ) {
-			R_SyncRenderThread();
+			R_IssuePendingRenderCommands();
 			qglDisable( GL_STENCIL_TEST );
 			r_measureOverdraw->modified = qfalse;
 		}
@@ -417,7 +398,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	// texturemode stuff
 	//
 	if ( r_textureMode->modified || r_ext_texture_filter_anisotropic->modified) {
-		R_SyncRenderThread();
+		R_IssuePendingRenderCommands();
 		GL_TextureMode( r_textureMode->string );
 		r_textureMode->modified = qfalse;
 		r_ext_texture_filter_anisotropic->modified = qfalse;
@@ -429,7 +410,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( r_gamma->modified ) {
 		r_gamma->modified = qfalse;
 
-		R_SyncRenderThread();
+		R_IssuePendingRenderCommands();
 		R_SetColorMappings();
 	}
 
@@ -437,7 +418,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
     if ( !r_ignoreGLErrors->integer ) {
         int	err;
 
-		R_SyncRenderThread();
+		R_IssuePendingRenderCommands();
         if ( ( err = qglGetError() ) != GL_NO_ERROR ) {
             Com_Error( ERR_FATAL, "RE_BeginFrame() - glGetError() failed (0x%x)!\n", err );
         }
@@ -495,8 +476,6 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 
 	R_IssueRenderCommands( qtrue );
 
-	// use the other buffers next frame, because another CPU
-	// may still be rendering into the current ones
 	R_InitNextFrame();
 
 	if ( frontEndMsec ) {
@@ -513,4 +492,3 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 		styleUpdated[i] = false;
 	}
 }
-

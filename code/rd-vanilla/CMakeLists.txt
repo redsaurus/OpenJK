@@ -18,9 +18,15 @@ if(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
 	# Files
 
 	# JPEG
-	file(GLOB_RECURSE J_SRC "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
-	source_group("jpeg-8c" FILES ${J_SRC})
-	set(SPRDVanillaFiles ${SPRDVanillaFiles} ${J_SRC})
+	if(UseInternalJPEG)
+		file(GLOB_RECURSE J_SRC "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
+		source_group("jpeg-8c" FILES ${J_SRC})
+		set(SPRDVanillaFiles ${SPRDVanillaFiles} ${J_SRC})
+	else()
+		find_package(JPEG REQUIRED)
+		set(SPRDVanillaRendererIncludeDirectories ${SPRDVanillaRendererIncludeDirectories} ${JPEG_INCLUDE_DIR})
+		set(SPRDVanillaRendererLibraries ${SPRDVanillaRendererLibraries} ${JPEG_LIBRARIES})
+	endif()
 
 	# GHOUL 2
 	set(SPRDVanillaG2Files
@@ -114,12 +120,12 @@ if(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
 	set(SPRDVanillaMainFiles
 		"${SPDir}/rd-vanilla/glext.h"
 		"${SPDir}/rd-vanilla/qgl.h"
+		"${SPDir}/rd-vanilla/tr_arb.cpp"
 		"${SPDir}/rd-vanilla/tr_backend.cpp"
 		"${SPDir}/rd-vanilla/tr_bsp.cpp"
 		"${SPDir}/rd-vanilla/tr_cmds.cpp"
 		"${SPDir}/rd-vanilla/tr_curve.cpp"
 		"${SPDir}/rd-vanilla/tr_draw.cpp"
-		"${SPDir}/rd-vanilla/tr_flares.cpp"
 		"${SPDir}/rd-vanilla/tr_ghoul2.cpp"
 		"${SPDir}/rd-vanilla/tr_image.cpp"
 		"${SPDir}/rd-vanilla/tr_init.cpp"
@@ -136,6 +142,7 @@ if(BuildSPRdVanilla OR BuildJK2SPRdVanilla)
 		"${SPDir}/rd-vanilla/tr_shade_calc.cpp"
 		"${SPDir}/rd-vanilla/tr_shader.cpp"
 		"${SPDir}/rd-vanilla/tr_shadows.cpp"
+		"${SPDir}/rd-vanilla/tr_skin.cpp"
 		"${SPDir}/rd-vanilla/tr_sky.cpp"
 		"${SPDir}/rd-vanilla/tr_stl.cpp"
 		"${SPDir}/rd-vanilla/tr_stl.h"

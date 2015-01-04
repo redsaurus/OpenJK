@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1030,6 +1029,7 @@ typedef struct {
 
 	vec3_t					sunLight;			// from the sky shader for this level
 	vec3_t					sunDirection;
+	int						sunSurfaceLight;	// from the sky shader for this level
 	vec3_t					sunAmbient;			// from the sky shader	(only used for John's terrain system)
 
 
@@ -1379,6 +1379,11 @@ shader_t	*R_GetShaderByHandle( qhandle_t hShader );
 void		R_InitShaders( void );
 void		R_ShaderList_f( void );
 
+//
+// tr_arb.c
+//
+void ARB_InitGlowShaders( void );
+
 
 /*
 ====================================================================
@@ -1485,20 +1490,6 @@ WORLD MAP
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_AddWorldSurfaces( void );
 
-
-/*
-============================================================
-
-FLARES
-
-============================================================
-*/
-
-void R_ClearFlares( void );
-
-void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t normal, float lightScale );
-void RB_AddDlightFlares( void );
-void RB_RenderFlares (void);
 
 /*
 ============================================================
@@ -1834,10 +1825,7 @@ extern	backEndData_t	*backEndData;
 void *R_GetCommandBuffer( int bytes );
 void RB_ExecuteRenderCommands( const void *data );
 
-void R_InitCommandBuffers( void );
-void R_ShutdownCommandBuffers( void );
-
-void R_SyncRenderThread( void );
+void R_IssuePendingRenderCommands( void );
 
 void R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs );
 

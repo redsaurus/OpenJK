@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1703,7 +1702,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 				{
 					vec4_t color;
 					Com_Memcpy( color, g_color_table[colour], sizeof( color ) );
-					color[3] = rgba[3];
+					color[3] = rgba ? rgba[3] : 1.0f;
 					RE_SetColor( color );
 				}
 			}
@@ -1757,7 +1756,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 			break;
 		}
 	}
-	//let it remember the old color //RE_SetColor(NULL);;
+	//let it remember the old color //RE_SetColor(NULL);
 #else
 	static qboolean gbInShadow = qfalse;	// MUST default to this
 	float				fox, foy, fx, fy;
@@ -1897,7 +1896,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 					{
 						vec4_t color;
 						Com_Memcpy( color, g_color_table[colour], sizeof( color ) );
-						color[3] = rgba[3];
+						color[3] = rgba ? rgba[3] : 1.0f;
 						RE_SetColor( color );
 					}
 					break;
@@ -1949,7 +1948,7 @@ void RE_Font_DrawString(int ox, int oy, const char *psText, const float *rgba, c
 			break;
 		}
 	}
-	//let it remember the old color //RE_SetColor(NULL);;
+	//let it remember the old color //RE_SetColor(NULL);
 #endif
 }
 

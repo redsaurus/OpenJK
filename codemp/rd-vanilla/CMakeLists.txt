@@ -72,16 +72,22 @@ set(MPVanillaRendererRdCommonFiles
 source_group("rd-common" FILES ${MPVanillaRendererRdCommonFiles})
 set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererRdCommonFiles})
 
-set(MPVanillaRendererQcommonFiles
+set(MPVanillaRendererCommonFiles
 	"${MPDir}/qcommon/matcomp.cpp"
 	"${MPDir}/qcommon/q_math.cpp"
 	"${MPDir}/qcommon/q_shared.cpp")
-source_group("qcommon" FILES ${MPVanillaRendererQcommonFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererQcommonFiles})
+source_group("common" FILES ${MPVanillaRendererCommonFiles})
+set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererCommonFiles})
 
-file(GLOB_RECURSE MPVanillaRendererJpegFiles "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
-source_group("jpeg-8c" FILES ${MPVanillaRendererJpegFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererJpegFiles})
+if(UseInternalJPEG)
+	file(GLOB_RECURSE MPVanillaRendererJpegFiles "${OpenJKLibDir}/jpeg-8c/*.c" "${OpenJKLibDir}/jpeg-8c/*.h")
+	source_group("jpeg-8c" FILES ${MPVanillaRendererJpegFiles})
+	set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererJpegFiles})
+else()
+	find_package(JPEG REQUIRED)
+	set(MPVanillaRendererIncludeDirectories ${MPVanillaRendererIncludeDirectories} ${JPEG_INCLUDE_DIR})
+	set(MPVanillaRendererLibraries ${MPVanillaRendererLibraries} ${JPEG_LIBRARIES})
+endif()
 
 if(UseInternalPNG)
 	set(MPVanillaRendererLibPngFiles

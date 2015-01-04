@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -1654,6 +1653,10 @@ static qboolean UI_RunMenuScript ( const char **args )
 		else if (Q_stricmp(name, "resetcharacterlistboxes") == 0)
 		{
 			UI_ResetCharacterListBoxes();
+		}
+		else if ( Q_stricmp( name, "LaunchMP" ) == 0 )
+		{
+			// TODO for MAC_PORT, will only be valid for non-JK2 mode
 		}
 		else
 		{

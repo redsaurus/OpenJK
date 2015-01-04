@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -180,6 +179,9 @@ typedef enum { qfalse=0, qtrue } qboolean;
 	int Q_vsnprintf( char *str, size_t size, const char *format, va_list args );
 #else // not using MSVC
 
+	#if !defined(__STDC_LIMIT_MACROS)
+	#define __STDC_LIMIT_MACROS
+	#endif
 	#include <stdint.h>
 
 	#define Q_vsnprintf vsnprintf
@@ -2558,6 +2560,7 @@ typedef struct parseData_s
 {
 	char	fileName[MAX_QPATH];			// Name of current file being read in
 	int		com_lines;						// Number of lines read in
+	int		com_tokenline;
 	const char	*bufferStart;					// Start address of buffer holding data that was read in
 	const char	*bufferCurrent;					// Where data is currently being parsed from buffer
 } parseData_t;

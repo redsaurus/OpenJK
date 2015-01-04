@@ -2,9 +2,8 @@
 This file is part of Jedi Academy.
 
     Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    it under the terms of the GNU General Public License version 2
+    as published by the Free Software Foundation.
 
     Jedi Academy is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -961,7 +960,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 /*
 ============================================================================
 
-RENDER BACK END THREAD FUNCTIONS
+RENDER BACK END FUNCTIONS
 
 ============================================================================
 */
@@ -993,7 +992,7 @@ void	RB_SetGL2D (void) {
 
 	// set time for 2D shaders
 	backEnd.refdef.time = ri.Milliseconds();
-	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001;
+	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
 
@@ -1028,17 +1027,17 @@ const void *RB_StretchPic ( const void *data ) {
 
 	cmd = (const stretchPicCommand_t *)data;
 
+	if ( !backEnd.projection2D ) {
+		RB_SetGL2D();
+	}
+
 	shader = cmd->shader;
 	if ( shader != tess.shader ) {
 		if ( tess.numIndexes ) {
-			RB_EndSurface();	//this might change culling and other states
+			RB_EndSurface();
 		}
 		backEnd.currentEntity = &backEnd.entity2D;
 		RB_BeginSurface( shader, 0 );
-	}
-
-	if ( !backEnd.projection2D ) {
-		RB_SetGL2D();	//set culling and other states
 	}
 
 	RB_CHECKOVERFLOW( 4, 6 );
@@ -1527,9 +1526,6 @@ const void	*RB_WorldEffects( const void *data )
 /*
 ====================
 RB_ExecuteRenderCommands
-
-This function will be called syncronously if running without
-smp extensions, or asyncronously by another thread.
 ====================
 */
 void RB_ExecuteRenderCommands( const void *data ) {
@@ -1538,6 +1534,8 @@ void RB_ExecuteRenderCommands( const void *data ) {
 	t1 = ri.Milliseconds ();
 
 	while ( 1 ) {
+		data = PADP(data, sizeof(void *));
+
 		switch ( *(const int *)data ) {
 		case RC_SET_COLOR:
 			data = RB_SetColor( data );
@@ -1568,7 +1566,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 			break;
 		case RC_END_OF_LIST:
 		default:
-			// stop rendering on this thread
+			// stop rendering
 			t2 = ri.Milliseconds ();
 			backEnd.pc.msec = t2 - t1;
 			return;
@@ -1589,7 +1587,7 @@ void BeginPixelShader( GLuint uiType, GLuint uiID )
 		case GL_REGISTER_COMBINERS_NV:
 		{
 			// Just in case...
-			if ( !qglCombinerParameterfvNV)
+			if ( !qglCombinerParameterfvNV )
 				return;
 
 			// Call the list with the regcom in it.
