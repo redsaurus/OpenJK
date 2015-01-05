@@ -1624,6 +1624,25 @@ void G_SubBSPSpawnEntitiesFromString(const char *entityString, vec3_t posOffset,
 	}	
 }
 
+void G_SpawnExtraEntitiesFromString( const char *entityString ) {
+	const char		*entities;
+	
+	entities = entityString;
+	
+	// allow calls to G_Spawn*()
+	spawning = qtrue;
+	NPCsPrecached = qfalse;
+	numSpawnVars = 0;
+
+	// parse ents
+	while( G_ParseSpawnVars( &entities ) )
+	{
+		G_SpawnGEntityFromSpawnVars();
+	}
+
+	spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+}
+
 void G_SpawnEntitiesFromString( const char *entityString ) {
 	const char		*entities;
 
@@ -1683,4 +1702,22 @@ void G_SpawnEntitiesFromString( const char *entityString ) {
 		G_Error( "Errors loading map, check the console for them." );
 	}
 }
+
+void G_LoadExtraEntitiesFile( void )
+{
+	int			len;
+	char		*buffer;
+	
+	len = gi.FS_ReadFile( va( "mapentities/%s.eent", level.mapname), (void **) &buffer );
+	
+	if ( len == -1 )
+	{
+		return;
+	}
+	
+	G_SpawnExtraEntitiesFromString( buffer );
+	
+	gi.FS_FreeFile( buffer );
+}
+
 

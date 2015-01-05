@@ -729,6 +729,7 @@ InitGame
 int giMapChecksum;
 SavedGameJustLoaded_e g_eSavedGameJustLoaded;
 qboolean g_qbLoadTransition = qfalse;
+void G_LoadExtraEntitiesFile( void );
 void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition )
 {
 	//rww - default this to 0, we will auto-set it to 1 if we run into a terrain ent
@@ -803,6 +804,8 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString( entities );
+	
+	G_LoadExtraEntitiesFile();
 
 	// general initialization
 	G_FindTeams();
