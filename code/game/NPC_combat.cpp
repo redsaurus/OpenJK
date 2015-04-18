@@ -1,19 +1,24 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 //NPC_combat.cpp
 
@@ -701,6 +706,9 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		{//commando
 			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 4;
+#ifdef BASE_SAVE_COMPAT
+			ent->NPC->burstMean = 8;
+#endif
 			ent->NPC->burstMax = 12;
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 600;//attack debounce
@@ -813,6 +821,9 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		{
 			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 3;
+#ifdef BASE_SAVE_COMPAT
+			ent->NPC->burstMean = 6;
+#endif
 			ent->NPC->burstMax = 10;
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 1500;//attack debounce
@@ -903,6 +914,9 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		{
 			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 3;
+#ifdef BASE_SAVE_COMPAT
+			ent->NPC->burstMean = 3;
+#endif
 			ent->NPC->burstMax = 3;
 			if ( g_spskill->integer == 0 )
 				ent->NPC->burstSpacing = 1500;//attack debounce
@@ -959,6 +973,9 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		{
 			ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
 			ent->NPC->burstMin = 2; // 3 shots, really
+#ifdef BASE_SAVE_COMPAT
+			ent->NPC->burstMean = 2;
+#endif
 			ent->NPC->burstMax = 2;
 
 			if ( ent->owner ) // if we have an owner, it should be the chair at this point...so query the chair for its shot debounce times, etc.
@@ -2652,7 +2669,7 @@ NPC_CollectCombatPoints
 -------------------------
 */
 
-typedef	map< float, int >	combatPoint_m;
+typedef	std::map< float, int >	combatPoint_m;
 
 static int NPC_CollectCombatPoints( const vec3_t origin, const float radius, combatPoint_m &points, const int flags )
 {

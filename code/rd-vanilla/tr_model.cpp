@@ -1,24 +1,29 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 // tr_models.c -- model loading and caching
 
-// leave this as first line for PCH reasons...
-//
 #include "../server/exe_headers.h"
 
 #include "tr_local.h"
@@ -58,8 +63,8 @@ Ghoul2 Insert End
 // This stuff looks a bit messy, but it's kept here as black box, and nothing appears in any .H files for other 
 //	modules to worry about. I may make another module for this sometime.
 //
-typedef pair<int,int> StringOffsetAndShaderIndexDest_t;
-typedef vector <StringOffsetAndShaderIndexDest_t> ShaderRegisterData_t;
+typedef std::pair<int,int> StringOffsetAndShaderIndexDest_t;
+typedef std::vector <StringOffsetAndShaderIndexDest_t> ShaderRegisterData_t;
 struct CachedEndianedModelBinary_s
 {
 	void	*pModelDiskImage;
@@ -77,7 +82,7 @@ struct CachedEndianedModelBinary_s
 	}
 };
 typedef struct CachedEndianedModelBinary_s CachedEndianedModelBinary_t;
-typedef map <sstring_t,CachedEndianedModelBinary_t>	CachedModels_t;
+typedef std::map <sstring_t,CachedEndianedModelBinary_t>	CachedModels_t;
 													CachedModels_t *CachedModels = NULL;	// the important cache item.
 
 void RE_RegisterModels_StoreShaderRequest(const char *psModelFileName, const char *psShaderName, const int *piShaderIndexPoke)

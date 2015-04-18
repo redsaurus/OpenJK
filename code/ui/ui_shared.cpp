@@ -1,19 +1,25 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 //
 // string allocation/managment
@@ -33,9 +39,7 @@ This file is part of Jedi Academy.
 #include "ui_shared.h"
 #include "menudef.h"
 
-#ifndef _WIN32
-#include <cmath>
-#endif
+#include "qcommon/stringed_ingame.h"
 
 void		UI_LoadMenus(const char *menuFile, qboolean reset);
 
@@ -95,7 +99,8 @@ static void *captureData = NULL;
 #ifdef CGAME
 #define MEM_POOL_SIZE  128 * 1024
 #else
-#define MEM_POOL_SIZE  1024 * 1024
+//#define MEM_POOL_SIZE  1024 * 1024
+#define MEM_POOL_SIZE  2048 * 1024
 #endif
 
 #define SCROLL_TIME_START				500
@@ -1168,10 +1173,10 @@ hashForString
 return a hash value for the string
 ================
 */
-static long hashForString(const char *str)
+static unsigned hashForString(const char *str)
 {
 	int		i;
-	long	hash;
+	unsigned	hash;
 	char	letter;
 
 	hash = 0;
@@ -1179,7 +1184,7 @@ static long hashForString(const char *str)
 	while (str[i] != '\0')
 	{
 		letter = tolower((unsigned char)str[i]);
-		hash+=(long)(letter)*(i+119);
+		hash += (unsigned)(letter)*(i + 119);
 		i++;
 	}
 	hash &= (HASH_TABLE_SIZE-1);
@@ -1194,7 +1199,7 @@ String_Alloc
 const char *String_Alloc(const char *p)
 {
 	int len;
-	long hash;
+	unsigned hash;
 	stringDef_t *str, *last;
 	static const char *staticNULL = "";
 
@@ -7356,7 +7361,7 @@ void Item_Model_Paint(itemDef_t *item)
 
 	// Set up lighting
 	//VectorCopy( refdef.vieworg, ent.lightingOrigin );
-	ent.renderfx = RF_LIGHTING_ORIGIN | RF_NOSHADOW;
+	ent.renderfx = RF_NOSHADOW;
 
 	ui.R_AddLightToScene(refdef.vieworg, 500, 1, 1, 1);	//fixme: specify in menu file!
 

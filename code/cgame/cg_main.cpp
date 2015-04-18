@@ -1,19 +1,25 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 #include "cg_media.h"
 #include "FxScheduler.h"
@@ -23,7 +29,7 @@ This file is part of Jedi Academy.
 
 #include "../qcommon/sstring.h"
 //NOTENOTE: Be sure to change the mirrored code in g_shared.h
-typedef	map< sstring_t, unsigned char, less<sstring_t>, allocator< unsigned char >  >	namePrecache_m;
+typedef	std::map< sstring_t, unsigned char  >	namePrecache_m;
 extern namePrecache_m	*as_preCacheMap;
 extern void CG_RegisterNPCCustomSounds( clientInfo_t *ci );
 extern qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth );
@@ -2907,7 +2913,11 @@ void CG_LoadMenus(const char *menuFile)
 	len = cgi_FS_FOpenFile( menuFile, &f, FS_READ );
 	if ( !f )
 	{
-		CG_Printf( "hud menu file not found: %s, using default\n", menuFile );
+		if ( Q_isanumber( menuFile ) ) // cg_hudFiles 1
+			CG_Printf( S_COLOR_GREEN "hud menu file skipped, using default\n" );
+		else
+			CG_Printf( S_COLOR_YELLOW "hud menu file not found: %s, using default\n", menuFile );
+
 		len = cgi_FS_FOpenFile( "ui/jahud.txt", &f, FS_READ );
 		if (!f)
 		{
@@ -2948,8 +2958,7 @@ void CG_LoadMenus(const char *menuFile)
 
 		if (Q_stricmp(token, "loadmenu") == 0)
 		{
-			int menuLoad = CG_Load_Menu(&p);
-			if (menuLoad)
+			if (CG_Load_Menu(&p))
 			{
 				continue;
 			}

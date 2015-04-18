@@ -1,27 +1,30 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 // tr_image.c
 
-// leave this as first line for PCH reasons...
-//
 #include "../server/exe_headers.h"
-
-
 
 #include "tr_local.h"
 #include "../rd-common/tr_common.h"
@@ -763,9 +766,9 @@ public:
 	bool operator()(const char *s1, const char *s2) const { return(Q_stricmp(s1, s2) < 0); } 
 };
 
-typedef map <const char *, image_t *, CStringComparator>	AllocatedImages_t;
-													AllocatedImages_t AllocatedImages;
-													AllocatedImages_t::iterator itAllocatedImages;
+typedef std::map <const char *, image_t *, CStringComparator>	AllocatedImages_t;
+AllocatedImages_t AllocatedImages;
+AllocatedImages_t::iterator itAllocatedImages;
 
 int giTextureBindNum = 1024;	// will be set to this anyway at runtime, but wtf?
 
@@ -1337,22 +1340,22 @@ void R_CreateBuiltinImages( void ) {
 	// Create the scene glow image. - AReis
 	tr.screenGlow = 1024 + giTextureBindNum++;
 	qglDisable( GL_TEXTURE_2D );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.screenGlow );
-	qglTexImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, 0 );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow );
+	qglTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, 0 );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
 	// Create the scene image. - AReis
 	tr.sceneImage = 1024 + giTextureBindNum++;
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.sceneImage );
-	qglTexImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, 0 );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
+	qglTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, glConfig.vidWidth, glConfig.vidHeight, 0, GL_RGB, GL_FLOAT, 0 );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
 	// Create the minimized scene blur image.
 	if ( r_DynamicGlowWidth->integer > glConfig.vidWidth  )
@@ -1364,13 +1367,13 @@ void R_CreateBuiltinImages( void ) {
 		r_DynamicGlowHeight->integer = glConfig.vidHeight;
 	}
 	tr.blurImage = 1024 + giTextureBindNum++;
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.blurImage );
-	qglTexImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA16, r_DynamicGlowWidth->integer, r_DynamicGlowHeight->integer, 0, GL_RGB, GL_FLOAT, 0 );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	qglTexParameteri( GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
+	qglTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA16, r_DynamicGlowWidth->integer, r_DynamicGlowHeight->integer, 0, GL_RGB, GL_FLOAT, 0 );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 	qglEnable( GL_TEXTURE_2D );
 
 
@@ -1473,7 +1476,7 @@ void R_SetColorMappings( void ) {
 
 	if ( glConfig.deviceSupportsGamma )
 	{
-		GLimp_SetGamma( s_gammatable, s_gammatable, s_gammatable );
+		ri.WIN_SetGamma( &glConfig, s_gammatable, s_gammatable, s_gammatable );
 	}
 }
 

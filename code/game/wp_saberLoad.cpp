@@ -1,19 +1,24 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 //wp_saberLoad.cpp
 
@@ -188,61 +193,51 @@ saber_styles_t TranslateSaberStyle( const char *name )
 	return SS_NONE;
 }
 
-void WP_SaberFreeStrings( saberInfo_t &saber )
-{
-	if (saber.name && gi.bIsFromZone(saber.name , TAG_G_ALLOC)) {
-		gi.Free (saber.name);
-		saber.name=0;
+void WP_SaberFreeStrings( saberInfo_t &saber ) {
+	if ( saber.name && gi.bIsFromZone( saber.name, TAG_G_ALLOC ) ) {
+		gi.Free( saber.name );
+		saber.name = NULL;
 	}
-	if (saber.fullName && gi.bIsFromZone(saber.fullName , TAG_G_ALLOC)) {
-		gi.Free (saber.fullName);
-		saber.fullName=0;
+	if ( saber.fullName && gi.bIsFromZone( saber.fullName, TAG_G_ALLOC ) ) {
+		gi.Free( saber.fullName );
+		saber.fullName = NULL;
 	}
-	if (saber.model && gi.bIsFromZone(saber.model , TAG_G_ALLOC)) {
-		gi.Free (saber.model);
-		saber.model=0;
+	if ( saber.model && gi.bIsFromZone( saber.model, TAG_G_ALLOC ) ) {
+		gi.Free( saber.model );
+		saber.model = NULL;
 	}
-	if (saber.skin && gi.bIsFromZone(saber.skin , TAG_G_ALLOC)) {
-		gi.Free (saber.skin);
-		saber.skin=0;
+	if ( saber.skin && gi.bIsFromZone( saber.skin, TAG_G_ALLOC ) ) {
+		gi.Free( saber.skin );
+		saber.skin = NULL;
 	}
-	if (saber.brokenSaber1 && gi.bIsFromZone(saber.brokenSaber1 , TAG_G_ALLOC)) {
-		gi.Free (saber.brokenSaber1);
-		saber.brokenSaber1=0;
+	if ( saber.brokenSaber1 && gi.bIsFromZone( saber.brokenSaber1, TAG_G_ALLOC ) ) {
+		gi.Free( saber.brokenSaber1 );
+		saber.brokenSaber1 = NULL;
 	}
-	if (saber.brokenSaber2 && gi.bIsFromZone(saber.brokenSaber2 , TAG_G_ALLOC)) {
-		gi.Free (saber.brokenSaber2);
-		saber.brokenSaber2=0;
+	if ( saber.brokenSaber2 && gi.bIsFromZone( saber.brokenSaber2, TAG_G_ALLOC ) ) {
+		gi.Free( saber.brokenSaber2 );
+		saber.brokenSaber2 = NULL;
 	}
 }
 
-qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum )
-{
-	if ( saber )
-	{
-		if ( saber->bladeStyle2Start > 0 )
-		{
-			if ( bladeNum >= saber->bladeStyle2Start )
-			{
-				return qtrue;
-			}
-		}
-	}
+qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
+	if ( saber
+		&& saber->bladeStyle2Start > 0
+		&& bladeNum >= saber->bladeStyle2Start )
+		return qtrue;
+
 	return qfalse;
 }
 
-qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum )
-{
-	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum )
-		&& (saber->saberFlags2&SFL2_TRANSITION_DAMAGE) )
-	{//use first blade style for this blade
+qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
+	//use first blade style for this blade
+	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE) )
 		return qtrue;
-	}
-	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum )
-		&& (saber->saberFlags2&SFL2_TRANSITION_DAMAGE2) )
-	{//use second blade style for this blade
+
+	//use second blade style for this blade
+	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2) )
 		return qtrue;
-	}
+
 	return qfalse;
 }
 

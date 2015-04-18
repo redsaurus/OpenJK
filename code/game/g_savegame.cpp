@@ -1,19 +1,24 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 // Filename:-	g_savegame.cpp
 
@@ -150,7 +155,7 @@ static const save_field_t savefields_gClient[] =
 	{NULL, 0, F_IGNORE}
 };
 
-list<sstring_t> *strList = NULL;
+std::list<sstring_t> *strList = NULL;
 
 
 /////////// char * /////////////
@@ -496,7 +501,7 @@ static void EnumerateField(const save_field_t *pField, const byte *pbBase)
 
 static void EnumerateFields(const save_field_t *pFields, const byte *pbData, unsigned int ulChid, int iLen)
 {
-	strList = new list<sstring_t>;
+	strList = new std::list<sstring_t>;
 
 	// enumerate all the fields...
 	//
@@ -515,7 +520,7 @@ static void EnumerateFields(const save_field_t *pFields, const byte *pbData, uns
 
 	// save out any associated strings..
 	//
-	list<sstring_t>::iterator it = strList->begin();
+	std::list<sstring_t>::iterator it = strList->begin();
 	for (size_t i=0; i<strList->size(); i++, ++it)
 	{
 		gi.AppendToSaveGame(INT_ID('S','T','R','G'), (void *)(*it).c_str(), (*it).length() + 1);

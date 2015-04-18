@@ -1,19 +1,24 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 #pragma once
 #if !defined(G2_H_INC)
@@ -71,7 +76,7 @@ qboolean	G2_Stop_Bone_Angles(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char
 void		G2_Animate_Bone_List(CGhoul2Info_v &ghoul2, const int currentTime, const int index,CRagDollUpdateParams *params);
 //rww - RAGDOLL_END
 
-void		G2_Init_Bone_List(boneInfo_v &blist);
+void		G2_Init_Bone_List(boneInfo_v &blist, int numBones);
 int			G2_Find_Bone_In_List(boneInfo_v &blist, const int boneNum);
 qboolean	G2_Set_Bone_Angles_Matrix(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName, const mdxaBone_t &matrix,
 									  const int flags, const int blendTime, const int currentTime);

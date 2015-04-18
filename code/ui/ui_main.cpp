@@ -1,21 +1,26 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
-// Copyright (C) 1999-2000 Id Software, Inc.
-//
+
 /*
 =======================================================================
 
@@ -40,8 +45,8 @@ USER INTERFACE MAIN
 #include "../game/anims.h"
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
+#include "../qcommon/stringed_ingame.h"
 #include "../qcommon/stv_version.h"
-
 #include "../qcommon/q_shared.h"
 
 extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
@@ -654,8 +659,9 @@ void Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const cha
 	// now print the cursor as well...
 	//
 	char sTemp[1024];
-	int iCopyCount = min((int)strlen(text), cursorPos);
-		iCopyCount = min(iCopyCount,(int)sizeof(sTemp));
+	int iCopyCount = iMaxPixelWidth > 0 ? Q_min( (int)strlen( text ), iMaxPixelWidth ) : (int)strlen( text );
+		iCopyCount = Q_min(iCopyCount, cursorPos);
+		iCopyCount = Q_min(iCopyCount,(int)sizeof(sTemp));
 
 	// copy text into temp buffer for pixel measure...
 	//
@@ -5393,15 +5399,15 @@ static void	UI_DemoSetForceLevels( void )
 
 	if (pState)
 	{//i am carrying over from a previous level, so get the increased power! (non-core only)
-		uiInfo.forcePowerLevel[FP_HEAL] = max(pState->forcePowerLevel[FP_HEAL], uiInfo.forcePowerLevel[FP_HEAL]);
-		uiInfo.forcePowerLevel[FP_TELEPATHY]=max(pState->forcePowerLevel[FP_TELEPATHY], uiInfo.forcePowerLevel[FP_TELEPATHY]);
-		uiInfo.forcePowerLevel[FP_GRIP]=max(pState->forcePowerLevel[FP_GRIP], uiInfo.forcePowerLevel[FP_GRIP]);
-		uiInfo.forcePowerLevel[FP_LIGHTNING]=max(pState->forcePowerLevel[FP_LIGHTNING], uiInfo.forcePowerLevel[FP_LIGHTNING]);
-		uiInfo.forcePowerLevel[FP_PROTECT]=max(pState->forcePowerLevel[FP_PROTECT], uiInfo.forcePowerLevel[FP_PROTECT]);
+		uiInfo.forcePowerLevel[FP_HEAL] = Q_max(pState->forcePowerLevel[FP_HEAL], uiInfo.forcePowerLevel[FP_HEAL]);
+		uiInfo.forcePowerLevel[FP_TELEPATHY]=Q_max(pState->forcePowerLevel[FP_TELEPATHY], uiInfo.forcePowerLevel[FP_TELEPATHY]);
+		uiInfo.forcePowerLevel[FP_GRIP]=Q_max(pState->forcePowerLevel[FP_GRIP], uiInfo.forcePowerLevel[FP_GRIP]);
+		uiInfo.forcePowerLevel[FP_LIGHTNING]=Q_max(pState->forcePowerLevel[FP_LIGHTNING], uiInfo.forcePowerLevel[FP_LIGHTNING]);
+		uiInfo.forcePowerLevel[FP_PROTECT]=Q_max(pState->forcePowerLevel[FP_PROTECT], uiInfo.forcePowerLevel[FP_PROTECT]);
 
-		uiInfo.forcePowerLevel[FP_ABSORB]=max(pState->forcePowerLevel[FP_ABSORB], uiInfo.forcePowerLevel[FP_ABSORB]);
-		uiInfo.forcePowerLevel[FP_DRAIN]=max(pState->forcePowerLevel[FP_DRAIN], uiInfo.forcePowerLevel[FP_DRAIN]);
-		uiInfo.forcePowerLevel[FP_RAGE]=max(pState->forcePowerLevel[FP_RAGE], uiInfo.forcePowerLevel[FP_RAGE]);
+		uiInfo.forcePowerLevel[FP_ABSORB]=Q_max(pState->forcePowerLevel[FP_ABSORB], uiInfo.forcePowerLevel[FP_ABSORB]);
+		uiInfo.forcePowerLevel[FP_DRAIN]=Q_max(pState->forcePowerLevel[FP_DRAIN], uiInfo.forcePowerLevel[FP_DRAIN]);
+		uiInfo.forcePowerLevel[FP_RAGE]=Q_max(pState->forcePowerLevel[FP_RAGE], uiInfo.forcePowerLevel[FP_RAGE]);
 	}
 }
 

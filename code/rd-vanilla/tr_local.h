@@ -1,34 +1,34 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 #pragma once
-
 
 #include "../qcommon/q_shared.h"
 #include "../qcommon/qfiles.h"
 #include "../rd-common/tr_public.h"
 #include "../rd-common/mdx_format.h"
-#ifdef _WIN32
 #include "qgl.h"
-#include "glext.h"
-#else
-#include "qgl.h"
-#include "../sdl/sdl_qgl.h"
-#endif
 
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 typedef unsigned int glIndex_t;
@@ -1068,10 +1068,6 @@ typedef struct {
 	float					rangedFog;
 
 	float					distanceCull;
-
-#ifdef _WIN32
-	WinVars_t *wv;
-#endif
 } trGlobals_t;
 
 int		 R_Images_StartIteration(void);
@@ -1085,6 +1081,7 @@ extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
+extern window_t		window;
 
 
 //
@@ -1119,7 +1116,7 @@ extern cvar_t	*r_primitives;			// "0" = based on compiled vertex array existance
 extern cvar_t	*r_fastsky;				// controls whether sky should be cleared or drawn
 extern cvar_t	*r_drawSun;				// controls drawing of sun quad
 extern cvar_t	*r_dynamiclight;		// dynamic lights enabled/disabled
-extern cvar_t	*r_dlightBacks;			// dlight non-facing surfaces for continuity
+// rjr - removed for hacking extern cvar_t	*r_dlightBacks;			// dlight non-facing surfaces for continuity
 
 extern	cvar_t	*r_norefresh;			// bypasses the ref rendering
 extern	cvar_t	*r_drawentities;		// disable/enable entity rendering
@@ -1392,17 +1389,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
 */
-
-void		GLimp_Init( void );
-void		GLimp_Shutdown( void );
-void		GLimp_EndFrame( void );
-
-void		GLimp_LogComment( const char *comment );
-void		GLimp_Minimize( void );
-
-void		GLimp_SetGamma( unsigned char red[256], 
-						    unsigned char green[256],
-							unsigned char blue[256] );
+static inline void GLimp_LogComment( char *comment ) {}
 
 
 /*

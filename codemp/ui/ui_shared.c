@@ -1,3 +1,27 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 //
 // string allocation/managment
 
@@ -287,6 +311,7 @@ void String_Init() {
 	}
 }
 
+#if 0
 /*
 =================
 PC_SourceWarning
@@ -308,6 +333,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 
 	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
 }
+#endif
 
 /*
 =================
@@ -385,7 +411,7 @@ qboolean PC_Float_Parse(int handle, float *f) {
 		negative = qtrue;
 	}
 	if (token.type != TT_NUMBER) {
-		PC_SourceError(handle, "expected float but found %s\n", token.string);
+		PC_SourceError(handle, "expected float but found %s", token.string);
 		return qfalse;
 	}
 	if (negative)
@@ -465,7 +491,7 @@ qboolean PC_Int_Parse(int handle, int *i) {
 		negative = qtrue;
 	}
 	if (token.type != TT_NUMBER) {
-		PC_SourceError(handle, "expected integer but found %s\n", token.string);
+		PC_SourceError(handle, "expected integer but found %s", token.string);
 		return qfalse;
 	}
 	*i = token.intvalue;
@@ -656,12 +682,15 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 	vec4_t color;
 	rectDef_t fillRect;
 
+	if ( w == NULL )
+		return;
+
 	if ( debugMode ) {
 		color[0] = color[1] = color[2] = color[3] = 1;
 		DC->drawRect(w->rect.x, w->rect.y, w->rect.w, w->rect.h, 1, color);
 	}
 
-	if ( w == NULL || ( w->style == 0 && w->border == 0 ) )
+	if ( w->style == 0 && w->border == 0 )
 		return;
 
 	fillRect = w->rect;
@@ -7467,7 +7496,7 @@ qboolean ItemParse_flag( itemDef_t *item, int handle)
 
 	if (itemFlags[i].string == NULL)
 	{
-		Com_Printf( S_COLOR_YELLOW "Unknown item style value '%s'", token.string );
+		Com_Printf( S_COLOR_YELLOW "Unknown item style value '%s'\n", token.string );
 	}
 
 	return qtrue;
@@ -7483,7 +7512,7 @@ qboolean ItemParse_style( itemDef_t *item, int handle)
 {
 	if (!PC_Int_Parse(handle, &item->window.style))
 	{
-		Com_Printf(S_COLOR_YELLOW "Unknown item style value");
+		Com_Printf(S_COLOR_YELLOW "Unknown item style value\n");
 		return qfalse;
 	}
 
@@ -7711,7 +7740,7 @@ qboolean ItemParse_textalign( itemDef_t *item, int handle )
 {
 	if (!PC_Int_Parse(handle, &item->textalignment))
 	{
-		Com_Printf(S_COLOR_YELLOW "Unknown text alignment value");
+		Com_Printf(S_COLOR_YELLOW "Unknown text alignment value\n");
 
 		return qfalse;
 	}
@@ -8031,8 +8060,10 @@ qboolean ItemParse_cvarFloat( itemDef_t *item, int handle ) {
 	return qfalse;
 }
 
+#ifdef _UI
 char currLanguage[32][128];
 static const char languageString[32] = "@MENUS_MYLANGUAGE";
+#endif
 
 qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	pc_token_t token;
@@ -8091,7 +8122,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 
 		if (!PC_String_Parse(handle, (const char **)&psString))
 		{
-			PC_SourceError(handle, "end of file inside menu item\n");
+			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
 
@@ -8153,7 +8184,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 
 		if ( !PC_String_Parse ( handle, (const char **)&string ) )
 		{
-			PC_SourceError(handle, "end of file inside menu item\n");
+			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
 
@@ -8442,7 +8473,7 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 	}
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token)) {
-			PC_SourceError(handle, "end of file inside menu item\n");
+			PC_SourceError(handle, "end of file inside menu item");
 			return qfalse;
 		}
 
@@ -8760,7 +8791,7 @@ qboolean MenuParse_style( itemDef_t *item, int handle)
 
 	if (!PC_Int_Parse(handle, &menu->window.style))
 	{
-		Com_Printf(S_COLOR_YELLOW "Unknown menu style value");
+		Com_Printf(S_COLOR_YELLOW "Unknown menu style value\n");
 		return qfalse;
 	}
 
@@ -8864,7 +8895,7 @@ qboolean MenuParse_descAlignment( itemDef_t *item, int handle )
 
 	if (!PC_Int_Parse(handle, &menu->descAlignment))
 	{
-		Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value");
+		Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value\n");
 		return qfalse;
 	}
 
@@ -9208,7 +9239,7 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token)) {
-			PC_SourceError(handle, "end of file inside menu\n");
+			PC_SourceError(handle, "end of file inside menu");
 			return qfalse;
 		}
 

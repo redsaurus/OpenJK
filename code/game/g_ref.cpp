@@ -1,19 +1,24 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 // Reference tag utility functions
 #include "g_local.h"
@@ -24,8 +29,8 @@ extern int delayedShutDown;
 
 #define	TAG_GENERIC_NAME	"__WORLD__"	//If a designer chooses this name, cut a finger off as an example to the others
 
-typedef vector < reference_tag_t * >		refTag_v;
-typedef map < string, reference_tag_t * >	refTag_m;
+typedef std::vector < reference_tag_t * >		refTag_v;
+typedef std::map < std::string, reference_tag_t * >	refTag_m;
 
 typedef struct tagOwner_s
 {
@@ -33,7 +38,7 @@ typedef struct tagOwner_s
 	refTag_m	tagMap;
 } tagOwner_t;
 
-typedef map < string, tagOwner_t * >	refTagOwner_m;
+typedef std::map < std::string, tagOwner_t * >	refTagOwner_m;
 
 refTagOwner_m	refTagOwnerMap;
 
@@ -194,6 +199,7 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 		//gi.Error("Nameless ref_tag found at (%i %i %i)", (int)origin[0], (int)origin[1], (int)origin[2]);
 		gi.Printf(S_COLOR_RED"ERROR: Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
 		delayedShutDown = level.time + 100;
+		delete tag;
 		return NULL;
 	}
 
@@ -206,6 +212,7 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 	{
 		delayedShutDown = level.time + 100;
 		gi.Printf(S_COLOR_RED"ERROR: Duplicate tag name \"%s\"\n", name );
+		delete tag;
 		return NULL;
 	}
 

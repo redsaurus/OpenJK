@@ -1,22 +1,27 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
-// leave this as first line for PCH reasons...
-//
 #include "../server/exe_headers.h"
 
 
@@ -480,19 +485,19 @@ Field_Paste
 */
 void Field_CharEvent( field_t *edit, int ch );
 void Field_Paste( field_t *edit ) {
-	char	*cbd;
-	int		pasteLen, i;
+	char	*cbd, *c;
 
-	cbd = Sys_GetClipboardData();
+	c = cbd = Sys_GetClipboardData();
 
 	if ( !cbd ) {
 		return;
 	}
 
 	// send as if typed, so insert / overstrike works properly
-	pasteLen = strlen( cbd );
-	for ( i = 0 ; i < pasteLen ; i++ ) {
-		Field_CharEvent( edit, cbd[i] );
+	while( *c )
+	{
+		uint32_t utf32 = ConvertUTF8ToUTF32( c, &c );
+		Field_CharEvent( edit, ConvertUTF32ToExpectedCharset( utf32 ) );
 	}
 
 	Z_Free( cbd );

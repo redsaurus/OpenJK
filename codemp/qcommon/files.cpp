@@ -1,4 +1,29 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2005 - 2015, ioquake3 contributors
+Copyright (C) 2013 - 2015, OpenJK contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 /*****************************************************************************
+
  * name:		files.cpp
  *
  * desc:		file code
@@ -13,6 +38,10 @@
 #endif
 #endif
 #include "minizip/unzip.h"
+
+#if defined(_WIN32)
+#include <Windows.h>
+#endif
 
 // for rmdir
 #if defined (_MSC_VER)
@@ -1677,7 +1706,6 @@ int FS_Write( const void *buffer, int len, fileHandle_t h ) {
 	return len;
 }
 
-#define	MAXPRINTMSG	4096
 void QDECL FS_Printf( fileHandle_t h, const char *fmt, ... ) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
@@ -3816,7 +3844,6 @@ void FS_Restart( int checksumFeed ) {
 		Com_Error( ERR_FATAL, "Couldn't load mpdefault.cfg" );
 	}
 
-	// bk010116 - new check before safeMode
 	if ( Q_stricmp(fs_gamedirvar->string, lastValidGame) ) {
 		// skip the jampconfig.cfg if "safe" is on the command line
 		if ( !Com_SafeMode() ) {

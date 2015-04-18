@@ -1,26 +1,28 @@
 /*
-This file is part of Jedi Knight 2.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Knight 2 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Knight 2 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Knight 2.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 //NPC_stats.cpp
-// leave this line at the top for all NPC_xxxx.cpp files...
+
 #include "g_headers.h"
-
-
-
 
 #include "b_local.h"
 #include "b_public.h"
@@ -2251,7 +2253,6 @@ void NPC_LoadParms( void )
 	char		npcExtensionListBuf[2048];			//	The list of file names read in
 
 	//First, load in the npcs.cfg
-	gi.Printf( "Parsing %s\n", filename );
 	len = gi.FS_ReadFile( filename, (void **) &buffer );
 	if ( len == -1 ) {
 		gi.Printf( "file not found\n" );
@@ -2276,8 +2277,6 @@ void NPC_LoadParms( void )
 	for ( i = 0; i < fileCnt; i++, holdChar += npcExtFNLen + 1 )
 	{
 		npcExtFNLen = strlen( holdChar );
-
-		gi.Printf( "Parsing %s\n", holdChar );
 
 		len = gi.FS_ReadFile( va( "ext_data/%s", holdChar), (void **) &buffer );
 

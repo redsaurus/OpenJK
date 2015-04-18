@@ -1,25 +1,27 @@
 /*
-This file is part of Jedi Knight 2.
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Knight 2 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Knight 2 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Knight 2.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
 // Reference tag utility functions
-// leave this line at the top for all g_xxxx.cpp files...
 #include "g_headers.h"
-
-
 
 #include "g_local.h"
 #include "g_functions.h"
@@ -196,6 +198,7 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 	{
 		//gi.Error("Nameless ref_tag found at (%i %i %i)", (int)origin[0], (int)origin[1], (int)origin[2]);
 		gi.Printf(S_COLOR_RED"ERROR: Nameless ref_tag found at (%i %i %i)\n", (int)origin[0], (int)origin[1], (int)origin[2]);
+		delete tag;
 		return NULL;
 	}
 
@@ -207,6 +210,7 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 	if ( TAG_Find( owner, name ) )
 	{
 		gi.Printf(S_COLOR_RED"Duplicate tag name \"%s\"\n", name );
+		delete tag;
 		return NULL;
 	}
 

@@ -1,24 +1,27 @@
 /*
-This file is part of Jedi Academy.
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2015, OpenJK contributors
 
-    Jedi Academy is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License version 2
-    as published by the Free Software Foundation.
+This file is part of the OpenJK source code.
 
-    Jedi Academy is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
 
-    You should have received a copy of the GNU General Public License
-    along with Jedi Academy.  If not, see <http://www.gnu.org/licenses/>.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
 */
-// Copyright 2001-2013 Raven Software
 
-// leave this as first line for PCH reasons...
-//
 #include "../server/exe_headers.h"
-
 
 #include "tr_local.h"
 
@@ -1094,107 +1097,179 @@ const void *RB_StretchPic ( const void *data ) {
 
 /*
 =============
-RB_DrawRotatePic
+RB_RotatePic
 =============
 */
 const void *RB_RotatePic ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
-	image_t *image;
 	shader_t *shader;
 
 	cmd = (const rotatePicCommand_t *)data;
 
 	shader = cmd->shader;
-	image = &shader->stages[0].bundle[0].image[0];
 
-	if ( image ) {
-		if ( !backEnd.projection2D ) {
-			RB_SetGL2D();
-		}
-
-		qglColor4ubv( backEnd.color2D );
-		qglPushMatrix();
-
-		qglTranslatef(cmd->x+cmd->w,cmd->y,0);
-		qglRotatef(cmd->a, 0.0, 0.0, 1.0);
-
-		GL_Bind( image );
-		qglBegin (GL_QUADS);
-		qglTexCoord2f( cmd->s1, cmd->t1);
-		qglVertex2f( -cmd->w, 0 );
-		qglTexCoord2f( cmd->s2, cmd->t1 );
-		qglVertex2f( 0, 0 );
-		qglTexCoord2f( cmd->s2, cmd->t2 );
-		qglVertex2f( 0, cmd->h );
-		qglTexCoord2f( cmd->s1, cmd->t2 );
-		qglVertex2f( -cmd->w, cmd->h );
-		qglEnd();
-
-		qglPopMatrix();
+	if ( !backEnd.projection2D ) {
+		RB_SetGL2D();
 	}
+
+	shader = cmd->shader;
+	if ( shader != tess.shader ) {
+		if ( tess.numIndexes ) {
+			RB_EndSurface();
+		}
+		backEnd.currentEntity = &backEnd.entity2D;
+		RB_BeginSurface( shader, 0 );
+	}
+
+	RB_CHECKOVERFLOW( 4, 6 );
+	int numVerts = tess.numVertexes;
+	int numIndexes = tess.numIndexes;
+
+	float angle = DEG2RAD( cmd-> a );
+	float s = sinf( angle );
+	float c = cosf( angle );
+
+	matrix3_t m = {
+		{ c, s, 0.0f },
+		{ -s, c, 0.0f },
+		{ cmd->x + cmd->w, cmd->y, 1.0f }
+	};
+
+	tess.numVertexes += 4;
+	tess.numIndexes += 6;
+
+	tess.indexes[ numIndexes ] = numVerts + 3;
+	tess.indexes[ numIndexes + 1 ] = numVerts + 0;
+	tess.indexes[ numIndexes + 2 ] = numVerts + 2;
+	tess.indexes[ numIndexes + 3 ] = numVerts + 2;
+	tess.indexes[ numIndexes + 4 ] = numVerts + 0;
+	tess.indexes[ numIndexes + 5 ] = numVerts + 1;
+
+	byteAlias_t *baDest = NULL, *baSource = (byteAlias_t *)&backEnd.color2D;
+	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 0]; baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 1]; baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 2]; baDest->ui = baSource->ui;
+	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 3]; baDest->ui = baSource->ui;
+
+	tess.xyz[ numVerts ][0] = m[0][0] * (-cmd->w) + m[2][0];
+	tess.xyz[ numVerts ][1] = m[0][1] * (-cmd->w) + m[2][1];
+	tess.xyz[ numVerts ][2] = 0;
+
+	tess.texCoords[ numVerts ][0][0] = cmd->s1;
+	tess.texCoords[ numVerts ][0][1] = cmd->t1;
+
+	tess.xyz[ numVerts + 1 ][0] = m[2][0];
+	tess.xyz[ numVerts + 1 ][1] = m[2][1];
+	tess.xyz[ numVerts + 1 ][2] = 0;
+
+	tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
+	tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
+
+	tess.xyz[ numVerts + 2 ][0] = m[1][0] * (cmd->h) + m[2][0];
+	tess.xyz[ numVerts + 2 ][1] = m[1][1] * (cmd->h) + m[2][1];
+	tess.xyz[ numVerts + 2 ][2] = 0;
+
+	tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
+	tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
+
+	tess.xyz[ numVerts + 3 ][0] = m[0][0] * (-cmd->w) + m[1][0] * (cmd->h) + m[2][0];
+	tess.xyz[ numVerts + 3 ][1] = m[0][1] * (-cmd->w) + m[1][1] * (cmd->h) + m[2][1];
+	tess.xyz[ numVerts + 3 ][2] = 0;
+
+	tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
+	tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
 
 	return (const void *)(cmd + 1);
 }
 
 /*
 =============
-RB_DrawRotatePic2
+RB_RotatePic2
 =============
 */
 const void *RB_RotatePic2 ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
-	image_t *image;
 	shader_t *shader;
 
 	cmd = (const rotatePicCommand_t *)data;
 
 	shader = cmd->shader;
 
+	// FIXME is this needed
 	if ( shader->numUnfoggedPasses )
 	{
-		image = &shader->stages[0].bundle[0].image[0];
-
-		if ( image )
-		{
-			if ( !backEnd.projection2D )
-			{
-				RB_SetGL2D();
-			}
-
-			// Get our current blend mode, etc.
-			GL_State( shader->stages[0].stateBits );
-
-			qglColor4ubv( backEnd.color2D );
-			qglPushMatrix();
-
-			// rotation point is going to be around the center of the passed in coordinates
-			qglTranslatef( cmd->x, cmd->y, 0 );
-			qglRotatef( cmd->a, 0.0, 0.0, 1.0 );
-
-			GL_Bind( image );
-			qglBegin( GL_QUADS );
-				qglTexCoord2f( cmd->s1, cmd->t1);
-				qglVertex2f( -cmd->w * 0.5f, -cmd->h * 0.5f );
-
-				qglTexCoord2f( cmd->s2, cmd->t1 );
-				qglVertex2f( cmd->w * 0.5f, -cmd->h * 0.5f );
-
-				qglTexCoord2f( cmd->s2, cmd->t2 );
-				qglVertex2f( cmd->w * 0.5f, cmd->h * 0.5f );
-
-				qglTexCoord2f( cmd->s1, cmd->t2 );
-				qglVertex2f( -cmd->w * 0.5f, cmd->h * 0.5f );
-			qglEnd();
-
-			qglPopMatrix();
-
-			// Hmmm, this is not too cool
-			GL_State( GLS_DEPTHTEST_DISABLE |
-				  GLS_SRCBLEND_SRC_ALPHA |
-				  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+		if ( !backEnd.projection2D ) {
+			RB_SetGL2D();
 		}
+
+		shader = cmd->shader;
+		if ( shader != tess.shader ) {
+			if ( tess.numIndexes ) {
+				RB_EndSurface();
+			}
+			backEnd.currentEntity = &backEnd.entity2D;
+			RB_BeginSurface( shader, 0 );
+		}
+
+		RB_CHECKOVERFLOW( 4, 6 );
+		int numVerts = tess.numVertexes;
+		int numIndexes = tess.numIndexes;
+
+		float angle = DEG2RAD( cmd-> a );
+		float s = sinf( angle );
+		float c = cosf( angle );
+
+		matrix3_t m = {
+			{ c, s, 0.0f },
+			{ -s, c, 0.0f },
+			{ cmd->x, cmd->y, 1.0f }
+		};
+
+		tess.numVertexes += 4;
+		tess.numIndexes += 6;
+
+		tess.indexes[ numIndexes ] = numVerts + 3;
+		tess.indexes[ numIndexes + 1 ] = numVerts + 0;
+		tess.indexes[ numIndexes + 2 ] = numVerts + 2;
+		tess.indexes[ numIndexes + 3 ] = numVerts + 2;
+		tess.indexes[ numIndexes + 4 ] = numVerts + 0;
+		tess.indexes[ numIndexes + 5 ] = numVerts + 1;
+
+		byteAlias_t *baDest = NULL, *baSource = (byteAlias_t *)&backEnd.color2D;
+		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 0]; baDest->ui = baSource->ui;
+		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 1]; baDest->ui = baSource->ui;
+		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 2]; baDest->ui = baSource->ui;
+		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 3]; baDest->ui = baSource->ui;
+
+		tess.xyz[ numVerts ][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
+		tess.xyz[ numVerts ][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
+		tess.xyz[ numVerts ][2] = 0;
+
+		tess.texCoords[ numVerts ][0][0] = cmd->s1;
+		tess.texCoords[ numVerts ][0][1] = cmd->t1;
+
+		tess.xyz[ numVerts + 1 ][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (-cmd->h * 0.5f) + m[2][0];
+		tess.xyz[ numVerts + 1 ][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (-cmd->h * 0.5f) + m[2][1];
+		tess.xyz[ numVerts + 1 ][2] = 0;
+
+		tess.texCoords[ numVerts + 1 ][0][0] = cmd->s2;
+		tess.texCoords[ numVerts + 1 ][0][1] = cmd->t1;
+
+		tess.xyz[ numVerts + 2 ][0] = m[0][0] * (cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
+		tess.xyz[ numVerts + 2 ][1] = m[0][1] * (cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
+		tess.xyz[ numVerts + 2 ][2] = 0;
+
+		tess.texCoords[ numVerts + 2 ][0][0] = cmd->s2;
+		tess.texCoords[ numVerts + 2 ][0][1] = cmd->t2;
+
+		tess.xyz[ numVerts + 3 ][0] = m[0][0] * (-cmd->w * 0.5f) + m[1][0] * (cmd->h * 0.5f) + m[2][0];
+		tess.xyz[ numVerts + 3 ][1] = m[0][1] * (-cmd->w * 0.5f) + m[1][1] * (cmd->h * 0.5f) + m[2][1];
+		tess.xyz[ numVerts + 3 ][2] = 0;
+
+		tess.texCoords[ numVerts + 3 ][0][0] = cmd->s1;
+		tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
 	}
 
 	return (const void *)(cmd + 1);
@@ -1263,10 +1338,10 @@ const void	*RB_DrawSurfs( const void *data ) {
 	{
 		// Copy the normal scene to texture.
 		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.sceneImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-		qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
+		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 		qglEnable( GL_TEXTURE_2D );
 
 		// Just clear colors, but leave the depth buffer intact so we can 'share' it.
@@ -1281,10 +1356,10 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 		// Copy the glow scene to texture.
 		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.screenGlow );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0,  backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-		qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow );
+		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0,  backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 		qglEnable( GL_TEXTURE_2D );
 
 		// Resize the viewport to the blur texture size.
@@ -1299,10 +1374,10 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 		// Copy the finished glow scene back to texture.
 		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.blurImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-		qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
+		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 		qglEnable( GL_TEXTURE_2D );
 
 		// Set the viewport back to normal.
@@ -1495,7 +1570,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
     GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
-	GLimp_EndFrame();
+	ri.WIN_Present(&window);
 
 	backEnd.projection2D = qfalse;
 
@@ -1682,21 +1757,21 @@ static inline void RB_BlurGlowTexture()
 	GLuint uiTex = tr.screenGlow;
 
 	qglActiveTextureARB( GL_TEXTURE3_ARB );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 	qglActiveTextureARB( GL_TEXTURE2_ARB );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 	qglActiveTextureARB( GL_TEXTURE1_ARB );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 	qglActiveTextureARB(GL_TEXTURE0_ARB );
 	qglDisable( GL_TEXTURE_2D );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 	/////////////////////////////////////////////////////////
 	// Draw the blur passes (each pass blurs it more, increasing the blur radius ).
@@ -1725,24 +1800,24 @@ static inline void RB_BlurGlowTexture()
 			uiTex = tr.blurImage;
 			qglActiveTextureARB( GL_TEXTURE3_ARB );
 			qglDisable( GL_TEXTURE_2D );
-			qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-			qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 			qglActiveTextureARB( GL_TEXTURE2_ARB );
 			qglDisable( GL_TEXTURE_2D );
-			qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-			qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 			qglActiveTextureARB( GL_TEXTURE1_ARB );
 			qglDisable( GL_TEXTURE_2D );
-			qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-			qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 			qglActiveTextureARB(GL_TEXTURE0_ARB );
 			qglDisable( GL_TEXTURE_2D );
-			qglEnable( GL_TEXTURE_RECTANGLE_EXT );
-			qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 			// Copy the current image over.
-			qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, uiTex );
-			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
+			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 		}
 
 		// Draw the fullscreen quad.
@@ -1760,8 +1835,8 @@ static inline void RB_BlurGlowTexture()
 			qglVertex2f( backEnd.viewParms.viewportWidth, 0 );
 		qglEnd();
 
-		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.blurImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_EXT, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
+		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 
 		// Increase the texel offsets.
 		// NOTE: This is possibly the most important input to the effect. Even by using an exponential function I've been able to
@@ -1774,16 +1849,16 @@ static inline void RB_BlurGlowTexture()
 
 	// Disable multi-texturing.
 	qglActiveTextureARB( GL_TEXTURE3_ARB );
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 
 	qglActiveTextureARB( GL_TEXTURE2_ARB );
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 
 	qglActiveTextureARB( GL_TEXTURE1_ARB );
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 
 	qglActiveTextureARB(GL_TEXTURE0_ARB );
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 	qglEnable( GL_TEXTURE_2D );
 
 	qglDisable( GL_VERTEX_PROGRAM_ARB );
@@ -1816,13 +1891,13 @@ static inline void RB_DrawGlowOverlay()
 	GL_State(GLS_DEPTHTEST_DISABLE);
 
 	qglDisable( GL_TEXTURE_2D );
-	qglEnable( GL_TEXTURE_RECTANGLE_EXT );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
 
 	// For debug purposes.
 	if ( r_DynamicGlow->integer != 2 )
 	{
 		// Render the normal scene texture.
-		qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.sceneImage );
+		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
 		qglBegin(GL_QUADS);
 			qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 			qglTexCoord2f( 0, glConfig.vidHeight );
@@ -1852,7 +1927,7 @@ static inline void RB_DrawGlowOverlay()
 	qglEnable( GL_BLEND );
 
 	// Now additively render the glow texture.
-	qglBindTexture( GL_TEXTURE_RECTANGLE_EXT, tr.blurImage );
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
 	qglBegin(GL_QUADS);
 		qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 		qglTexCoord2f( 0, r_DynamicGlowHeight->integer );
@@ -1868,7 +1943,7 @@ static inline void RB_DrawGlowOverlay()
 		qglVertex2f( glConfig.vidWidth, 0 );
 	qglEnd();
 
-	qglDisable( GL_TEXTURE_RECTANGLE_EXT );
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 	qglEnable( GL_TEXTURE_2D );
 	qglBlendFunc( GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR );
 	qglDisable( GL_BLEND );
