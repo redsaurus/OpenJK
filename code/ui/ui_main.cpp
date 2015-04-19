@@ -1737,12 +1737,16 @@ static void UI_CalcForceStatus(void)
 	lightSide = pState->forcePowerLevel[FP_HEAL] +
 		pState->forcePowerLevel[FP_TELEPATHY] +
 		pState->forcePowerLevel[FP_PROTECT] +
-		pState->forcePowerLevel[FP_ABSORB];
+		pState->forcePowerLevel[FP_ABSORB] +
+		pState->forcePowerLevel[FP_STASIS] +
+		pState->forcePowerLevel[FP_BLINDING];
 
 	darkSide = pState->forcePowerLevel[FP_GRIP] +
 		pState->forcePowerLevel[FP_LIGHTNING] +
 		pState->forcePowerLevel[FP_RAGE] +
-		pState->forcePowerLevel[FP_DRAIN];
+		pState->forcePowerLevel[FP_DRAIN] +
+		pState->forcePowerLevel[FP_DESTRUCTION] +
+		pState->forcePowerLevel[FP_INSANITY];
 
 	total = lightSide + darkSide;
 
@@ -5075,7 +5079,7 @@ static void UI_UpdateFightingStyleChoices ( void )
 	}
 }
 
-#define MAX_POWER_ENUMS 16
+#define MAX_POWER_ENUMS 20
 
 typedef struct {
 	const char	*title;
@@ -5088,6 +5092,8 @@ static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
 	{ "heal",			FP_HEAL },
 	{ "mindtrick",	FP_TELEPATHY },
 	{ "protect",		FP_PROTECT },
+	{ "stasis",		FP_STASIS },
+	{ "blinding",	FP_BLINDING },
 
 				// Core powers
 	{ "jump",			FP_LEVITATION },
@@ -5104,6 +5110,8 @@ static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
 	{ "grip",			FP_GRIP },
 	{ "lightning",	FP_LIGHTNING },
 	{ "rage",			FP_RAGE },
+	{ "destruction",	FP_DESTRUCTION },
+	{ "insanity",	FP_INSANITY },
 };
 
 
@@ -5370,6 +5378,11 @@ static void	UI_DemoSetForceLevels( void )
 		uiInfo.forcePowerLevel[FP_DRAIN]=0;
 		uiInfo.forcePowerLevel[FP_LIGHTNING]=0;
 		uiInfo.forcePowerLevel[FP_RAGE]=0;
+		
+		uiInfo.forcePowerLevel[FP_INSANITY]=0;
+		uiInfo.forcePowerLevel[FP_DESTRUCTION]=0;
+		uiInfo.forcePowerLevel[FP_STASIS]=0;
+		uiInfo.forcePowerLevel[FP_BLINDING]=0;
 	}
 	else
 	{
@@ -5395,6 +5408,11 @@ static void	UI_DemoSetForceLevels( void )
 		uiInfo.forcePowerLevel[FP_ABSORB]=0;
 		uiInfo.forcePowerLevel[FP_DRAIN]=0;
 		uiInfo.forcePowerLevel[FP_RAGE]=0;
+		
+		uiInfo.forcePowerLevel[FP_INSANITY]=0;
+		uiInfo.forcePowerLevel[FP_DESTRUCTION]=0;
+		uiInfo.forcePowerLevel[FP_STASIS]=0;
+		uiInfo.forcePowerLevel[FP_BLINDING]=0;
 	}
 
 	if (pState)
@@ -5408,6 +5426,11 @@ static void	UI_DemoSetForceLevels( void )
 		uiInfo.forcePowerLevel[FP_ABSORB]=Q_max(pState->forcePowerLevel[FP_ABSORB], uiInfo.forcePowerLevel[FP_ABSORB]);
 		uiInfo.forcePowerLevel[FP_DRAIN]=Q_max(pState->forcePowerLevel[FP_DRAIN], uiInfo.forcePowerLevel[FP_DRAIN]);
 		uiInfo.forcePowerLevel[FP_RAGE]=Q_max(pState->forcePowerLevel[FP_RAGE], uiInfo.forcePowerLevel[FP_RAGE]);
+		
+		uiInfo.forcePowerLevel[FP_INSANITY]=Q_max(pState->forcePowerLevel[FP_INSANITY], uiInfo.forcePowerLevel[FP_INSANITY]);
+		uiInfo.forcePowerLevel[FP_DESTRUCTION]=Q_max(pState->forcePowerLevel[FP_DESTRUCTION], uiInfo.forcePowerLevel[FP_DESTRUCTION]);
+		uiInfo.forcePowerLevel[FP_STASIS]=Q_max(pState->forcePowerLevel[FP_STASIS], uiInfo.forcePowerLevel[FP_STASIS]);
+		uiInfo.forcePowerLevel[FP_BLINDING]=Q_max(pState->forcePowerLevel[FP_BLINDING], uiInfo.forcePowerLevel[FP_BLINDING]);
 	}
 }
 

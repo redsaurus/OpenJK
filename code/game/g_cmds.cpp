@@ -39,6 +39,10 @@ extern void ForceRage( gentity_t *self );
 extern void ForceProtect( gentity_t *self );
 extern void ForceAbsorb( gentity_t *self );
 extern void ForceSeeing( gentity_t *self );
+extern void ForceDestruction( gentity_t *self );
+extern void ForceInsanity( gentity_t *self );
+extern void ForceStasis( gentity_t *self );
+extern void ForceBlinding( gentity_t *self );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum );
 extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 extern void ItemUse_Bacta(gentity_t *ent);
@@ -1482,6 +1486,26 @@ void ClientCommand( int clientNum ) {
 	{
 		ent = G_GetSelfForPlayerCmd();
 		ForceSeeing(ent);
+	}
+	else if (Q_stricmp (cmd, "force_destruction") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceDestruction(ent);
+	}
+	else if (Q_stricmp (cmd, "force_insanity") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceInsanity(ent);
+	}
+	else if (Q_stricmp (cmd, "force_stasis") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceStasis(ent);
+	}
+	else if (Q_stricmp (cmd, "force_blinding") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceBlinding(ent);
 	}
 	else if (Q_stricmp (cmd, "addsaberstyle") == 0)
 	{

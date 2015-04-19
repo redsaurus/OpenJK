@@ -190,6 +190,10 @@ int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 	FORCE_LIGHTSIDE,//FP_ABSORB,//duration
 	FORCE_DARKSIDE,//FP_DRAIN,//hold/duration
 	0,//FP_SEE,//duration
+	FORCE_DARKSIDE,//FP_DESTRUCTION
+	FORCE_DARKSIDE,//FP_INSANITY
+	FORCE_LIGHTSIDE,//FP_STASIS
+	FORCE_LIGHTSIDE,//FP_BLINDING
 	//NUM_FORCE_POWERS
 };
 
@@ -211,7 +215,11 @@ int forcePowerNeeded[NUM_FORCE_POWERS] =
 	30,//FP_PROTECT,//duration - protect against physical/energy (level 1 stops blaster/energy bolts, level 2 stops projectiles, level 3 protects against explosions)
 	30,//FP_ABSORB,//duration - protect against dark force powers (grip, lightning, drain)
 	1,//FP_DRAIN,//hold/duration - drain force power for health
-	20//FP_SEE,//duration - detect/see hidden enemies
+	20,//FP_SEE,//duration - detect/see hidden enemies
+	20,//FP_DESTRUCTION
+	20,//FP_INSANITY
+	20,//FP_STASIS
+	20,//FP_BLINDING
 	//NUM_FORCE_POWERS
 };
 
@@ -12769,6 +12777,147 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	self->client->ps.forceJumpCharge = 0;
 }
 
+void ForceDestruction( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_DESTRUCTION, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_RED"Used Force Destruction\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_DESTRUCTION, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
+
+void ForceInsanity( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_INSANITY, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_RED"Used Force Insanity\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_INSANITY, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
+
+void ForceStasis( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_STASIS, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_BLUE"Used Force Stasis\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_STASIS, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
+
+void ForceBlinding( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_BLINDING, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_BLUE"Used Force Blinding\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_BLINDING, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
+
+
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent)
 {
 	int getLevel = 0;
@@ -12983,6 +13132,14 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		self->client->ps.forcePowersActive |= ( 1 << forcePower );
 		G_SoundOnEnt( self, CHAN_ITEM, "sound/weapons/force/see.mp3" );
 		self->s.loopSound = G_SoundIndex( "sound/weapons/force/seeloop.wav" );
+		break;
+	case FP_DESTRUCTION:
+		break;
+	case FP_INSANITY:
+		break;
+	case FP_STASIS:
+		break;
+	case FP_BLINDING:
 		break;
 	default:
 		break;
@@ -13508,6 +13665,14 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		break;
 	case FP_SEE:
 		self->s.loopSound = 0;
+		break;
+	case FP_DESTRUCTION:
+		break;
+	case FP_INSANITY:
+		break;
+	case FP_STASIS:
+		break;
+	case FP_BLINDING:
 		break;
 	default:
 		break;
@@ -14362,6 +14527,14 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		break;
 	case FP_SEE:
 		break;
+	case FP_DESTRUCTION:
+		break;
+	case FP_INSANITY:
+		break;
+	case FP_STASIS:
+		break;
+	case FP_BLINDING:
+		break;
 	default:
 		break;
 	}
@@ -14447,6 +14620,14 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 				break;
 			case FP_SEE:
 				//nothing
+				break;
+			case FP_DESTRUCTION:
+				break;
+			case FP_INSANITY:
+				break;
+			case FP_STASIS:
+				break;
+			case FP_BLINDING:
 				break;
 			}
 		}
@@ -14625,7 +14806,8 @@ void WP_InitForcePowers( gentity_t *ent )
 		}
 		else
 		{
-			ent->client->ps.forcePowersKnown = ( 1 << FP_HEAL )|( 1 << FP_LEVITATION )|( 1 << FP_SPEED )|( 1 << FP_PUSH )|( 1 << FP_PULL )|( 1 << FP_TELEPATHY )|( 1 << FP_GRIP )|( 1 << FP_LIGHTNING)|( 1 << FP_SABERTHROW)|( 1 << FP_SABER_DEFENSE )|( 1 << FP_SABER_OFFENSE )|( 1<< FP_RAGE )|( 1<< FP_DRAIN )|( 1<< FP_PROTECT )|( 1<< FP_ABSORB )|( 1<< FP_SEE );
+			ent->client->ps.forcePowersKnown = ( 1 << FP_HEAL )|( 1 << FP_LEVITATION )|( 1 << FP_SPEED )|( 1 << FP_PUSH )|( 1 << FP_PULL )|( 1 << FP_TELEPATHY )|( 1 << FP_GRIP )|( 1 << FP_LIGHTNING)|( 1 << FP_SABERTHROW)|( 1 << FP_SABER_DEFENSE )|( 1 << FP_SABER_OFFENSE )|( 1<< FP_RAGE )|( 1<< FP_DRAIN )|( 1<< FP_PROTECT )|( 1<< FP_ABSORB )|( 1<< FP_SEE )|( 1 << FP_DESTRUCTION )
+				|( 1 << FP_INSANITY )|( 1 << FP_STASIS )|( 1 << FP_BLINDING );
 			ent->client->ps.forcePowerLevel[FP_HEAL] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_PUSH] = FORCE_LEVEL_1;
@@ -14644,6 +14826,11 @@ void WP_InitForcePowers( gentity_t *ent )
 			ent->client->ps.forcePowerLevel[FP_SABER_DEFENSE] = FORCE_LEVEL_3;
 			ent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
 			ent->client->ps.forcePowerLevel[FP_GRIP] = FORCE_LEVEL_2;
+			
+			ent->client->ps.forcePowerLevel[FP_DESTRUCTION] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_INSANITY] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_STASIS] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_BLINDING] = FORCE_LEVEL_1;
 		}
 	}
 }

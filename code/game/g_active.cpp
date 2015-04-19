@@ -4723,6 +4723,10 @@ extern void ForceSeeing(gentity_t *ent);
 extern void ForceTelepathy(gentity_t *ent);
 extern void ForceAbsorb(gentity_t *ent);
 extern void ForceHeal(gentity_t *ent);
+extern void ForceDestruction( gentity_t *ent );
+extern void ForceInsanity( gentity_t *ent );
+extern void ForceStasis( gentity_t *ent );
+extern void ForceBlinding( gentity_t *ent );
 static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 {
 	switch(cmd) {
@@ -4763,6 +4767,18 @@ static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 		break;
 	case GENCMD_FORCE_SEEING:
 		ForceSeeing(ent);
+		break;
+	case GENCMD_FORCE_DESTRUCTION:
+		ForceDestruction(ent);
+		break;
+	case GENCMD_FORCE_INSANITY:
+		ForceInsanity(ent);
+		break;
+	case GENCMD_FORCE_STASIS:
+		ForceStasis(ent);
+		break;
+	case GENCMD_FORCE_BLINDING:
+		ForceBlinding(ent);
 		break;
 	}
 }

@@ -352,6 +352,10 @@ SetForceCmd SetForceTable[NUM_FORCE_POWERS] = {
 	{ "forceAbsorb",		"setForceAbsorb",		FORCE_LEVEL_3			},
 	{ "forceDrain",			"setForceDrain",		FORCE_LEVEL_3			},
 	{ "forceSight",			"setForceSight",		FORCE_LEVEL_3			},
+	{ "forceDestruction",	"setForceDestruction",	FORCE_LEVEL_3			},
+	{ "forceInsanity",		"setForceInsanity",		FORCE_LEVEL_3			},
+	{ "forceStasis",		"setForceStasis",		FORCE_LEVEL_3			},
+	{ "forceBlinding",		"setForceBlinding",		FORCE_LEVEL_3			},
 };
 
 static void Svcmd_ForceSetLevel_f( int forcePower )
@@ -856,6 +860,26 @@ qboolean	ConsoleCommand( void ) {
 	if ( Q_stricmp( cmd, "setForceSight" ) == 0 )	
 	{
 		Svcmd_ForceSetLevel_f( FP_SEE );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceDestruction" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_DESTRUCTION );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceInsanity" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_INSANITY );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceStasis" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_STASIS );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceBlinding" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_BLINDING );
 		return qtrue;
 	}
 	if ( Q_stricmp( cmd, "setForceAll" ) == 0 )	

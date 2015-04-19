@@ -1424,6 +1424,11 @@ typedef enum
 	FP_ABSORB,//duration - protect against dark force powers (grip, lightning, drain - maybe push/pull, too?)
 	FP_DRAIN,//hold/duration - drain force power for health
 	FP_SEE,//duration - detect/see hidden enemies
+	//extra powers!
+	FP_DESTRUCTION,//instant
+	FP_INSANITY,//instant
+	FP_STASIS,//duration + instant?
+	FP_BLINDING,//instant
 	NUM_FORCE_POWERS
 } forcePowers_t;
 
@@ -2313,6 +2318,10 @@ typedef enum
 	GENCMD_FORCE_ABSORB,
 	GENCMD_FORCE_DRAIN,
 	GENCMD_FORCE_SEEING,
+	GENCMD_FORCE_DESTRUCTION,
+	GENCMD_FORCE_INSANITY,
+	GENCMD_FORCE_STASIS,
+	GENCMD_FORCE_BLINDING,
 } genCmds_t;
 
 

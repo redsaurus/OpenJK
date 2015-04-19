@@ -124,6 +124,18 @@ static void IN_UseGivenForce(void)
 	case FP_HEAL:
 		genCmdNum = GENCMD_FORCE_HEAL;
 		break;
+	case FP_DESTRUCTION:
+		genCmdNum = GENCMD_FORCE_DESTRUCTION;
+		break;
+	case FP_INSANITY:
+		genCmdNum = GENCMD_FORCE_INSANITY;
+		break;
+	case FP_STASIS:
+		genCmdNum = GENCMD_FORCE_STASIS;
+		break;
+	case FP_BLINDING:
+		genCmdNum = GENCMD_FORCE_BLINDING;
+		break;
 	default:
 		assert(0);
 		break;
