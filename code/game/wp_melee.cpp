@@ -64,7 +64,14 @@ void WP_Melee( gentity_t *ent )
 	if ( tr_ent && tr_ent->takedamage )
 	{
 		int dflags = DAMAGE_NO_KNOCKBACK;
-		G_PlayEffect( G_EffectIndex( "melee/punch_impact" ), tr.endpos, forwardVec );
+		if (ent->s.weapon == WP_NOGHRI_STICK || ent->s.weapon == WP_TUSKEN_RIFLE)
+		{
+			G_Sound( tr_ent, G_SoundIndex( va( "sound/weapons/tusken_staff/stickhit%d.wav", Q_irand( 1, 4 ) ) ) );
+		}
+		else
+		{
+			G_PlayEffect( G_EffectIndex( "melee/punch_impact" ), tr.endpos, forwardVec );
+		}
 		//G_Sound( tr_ent, G_SoundIndex( va("sound/weapons/melee/punch%d", Q_irand(1, 4)) ) );
 		if ( ent->NPC && (ent->NPC->aiFlags&NPCAI_HEAVY_MELEE) )
 		{ //4x damage for heavy melee class

@@ -3102,7 +3102,7 @@ void CG_FireWeapon( centity_t *cent, qboolean alt_fire )
 		CG_Error( "CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS" );
 		return;
 	}
-	if ( ent->weapon == WP_TUSKEN_RIFLE && cent->gent->client) 
+	if ( (ent->weapon == WP_TUSKEN_RIFLE || ent->weapon == WP_NOGHRI_STICK) && cent->gent->client)
 	{ 	
 		if (cent->gent->client->ps.torsoAnim==BOTH_TUSKENATTACK1 ||
 		cent->gent->client->ps.torsoAnim==BOTH_TUSKENATTACK2 ||
