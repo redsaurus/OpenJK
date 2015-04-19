@@ -2582,9 +2582,9 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		// force the base weapon up
 		client->ps.weaponstate = WEAPON_READY;
 
-		for ( i = FIRST_WEAPON; i < MAX_PLAYER_WEAPONS; i++ ) // don't give ammo for explosives
+		for ( i = FIRST_WEAPON; i < WP_NUM_WEAPONS; i++ ) // don't give ammo for explosives
 		{
-			if ( (client->ps.stats[STAT_WEAPONS]&(1<<i)) )
+			if ( playerUsableWeapons[i] && (client->ps.stats[STAT_WEAPONS]&(1<<i)) )
 			{//if starting with this weapon, gimme max ammo for it
 				client->ps.ammo[weaponData[i].ammoIndex] = ammoData[weaponData[i].ammoIndex].max;
 			}

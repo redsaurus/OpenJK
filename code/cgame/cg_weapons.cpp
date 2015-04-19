@@ -2149,9 +2149,10 @@ void CG_DrawWeaponSelect( void )
 	// count the number of weapons owned
 	count = 0;
 	isOnVeh = (G_IsRidingVehicle(cg_entities[0].gent)!=0);
- 	for ( i = 1 ; i < MAX_PLAYER_WEAPONS ; i++ ) 
+ 	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ )
 	{
 		if ((bits & ( 1 << i ))  &&
+			playerUsableWeapons[i] &&
 			(!isOnVeh || i==WP_NONE || i==WP_SABER || i==WP_BLASTER)) 
 		{
 			count++;
@@ -2193,7 +2194,7 @@ void CG_DrawWeaponSelect( void )
 	}
 	if (i<1)
 	{
-		i = MAX_PLAYER_WEAPONS;
+		i = WP_NUM_WEAPONS;
 	}
 
 	smallIconSize = 40;
@@ -2231,10 +2232,10 @@ void CG_DrawWeaponSelect( void )
 		}
 		if (i<1)
 		{
-			i = MAX_PLAYER_WEAPONS;
+			i = WP_NUM_WEAPONS;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & ( 1 << i ) && playerUsableWeapons[i]) )	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -2309,7 +2310,7 @@ void CG_DrawWeaponSelect( void )
 	{
 		i = cg.weaponSelect + 1;
 	}
-	if (i> MAX_PLAYER_WEAPONS)
+	if (i>= WP_NUM_WEAPONS)
 	{
 		i = 1;
 	}
@@ -2330,12 +2331,12 @@ void CG_DrawWeaponSelect( void )
 		{
 			i = WP_CONCUSSION;
 		}
-		if (i>MAX_PLAYER_WEAPONS)
+		if (i>= WP_NUM_WEAPONS)
 		{
 			i = 1;
 		}
 
-		if ( !(bits & ( 1 << i )))	// Does he have this weapon?
+		if ( !(bits & ( 1 << i ) && playerUsableWeapons[i]))	// Does he have this weapon?
 		{
 			if ( i == WP_CONCUSSION )
 			{
@@ -2412,7 +2413,7 @@ qboolean CG_WeaponSelectable( int i, int original, qboolean dpMode )
 {
 	int	usage_for_weap;
 
-	if (i > MAX_PLAYER_WEAPONS)
+	if (i >= WP_NUM_WEAPONS || !playerUsableWeapons[i])
 	{	
 #ifndef FINAL_BUILD
 		Com_Printf("CG_WeaponSelectable() passed illegal index of %d!\n",i);
@@ -2563,7 +2564,7 @@ void CG_NextWeapon_f( void ) {
 		firstWeapon = 0;	// include WP_NONE here
 	}
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ ) 
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ )
 	{
 		
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2584,7 +2585,7 @@ void CG_NextWeapon_f( void ) {
 			cg.weaponSelect++;
 		}
 
-		if ( cg.weaponSelect < firstWeapon || cg.weaponSelect > MAX_PLAYER_WEAPONS) { 
+		if ( cg.weaponSelect < firstWeapon || cg.weaponSelect >= WP_NUM_WEAPONS) {
 			cg.weaponSelect = firstWeapon; 
 		}
 		
@@ -2619,7 +2620,7 @@ void CG_DPNextWeapon_f( void ) {
 
 	original = cg.DataPadWeaponSelect;
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ ) 
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ )
 	{
 		
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2640,7 +2641,7 @@ void CG_DPNextWeapon_f( void ) {
 			cg.DataPadWeaponSelect++;
 		}
 
-		if ( cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect > MAX_PLAYER_WEAPONS) { 
+		if ( cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect >= WP_NUM_WEAPONS ) {
 			cg.DataPadWeaponSelect = FIRST_WEAPON; 
 		}
 		
@@ -2677,7 +2678,7 @@ void CG_DPPrevWeapon_f( void )
 
 	original = cg.DataPadWeaponSelect;
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ ) 
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ )
 	{
 		
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
@@ -2698,9 +2699,9 @@ void CG_DPPrevWeapon_f( void )
 			cg.DataPadWeaponSelect--;
 		}
 
-		if ( cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect > MAX_PLAYER_WEAPONS) 
+		if ( cg.DataPadWeaponSelect < FIRST_WEAPON || cg.DataPadWeaponSelect >= WP_NUM_WEAPONS )
 		{ 
-			cg.DataPadWeaponSelect = MAX_PLAYER_WEAPONS;
+			cg.DataPadWeaponSelect = WP_NUM_WEAPONS;
 		}
 		
 		if ( CG_WeaponSelectable( cg.DataPadWeaponSelect, original, qtrue ) ) 
@@ -2767,7 +2768,7 @@ void CG_PrevWeapon_f( void ) {
 		firstWeapon = 0;	// include WP_NONE here
 	}
 
-	for ( i = 0 ; i <= MAX_PLAYER_WEAPONS ; i++ ) {
+	for ( i = 0 ; i < WP_NUM_WEAPONS ; i++ ) {
 		
 		//*SIGH*... Hack to put concussion rifle before rocketlauncher
 		if ( cg.weaponSelect == WP_ROCKET_LAUNCHER )
@@ -2788,8 +2789,8 @@ void CG_PrevWeapon_f( void ) {
 		}
 
 
-		if ( cg.weaponSelect < firstWeapon || cg.weaponSelect > MAX_PLAYER_WEAPONS) { 
-			cg.weaponSelect = MAX_PLAYER_WEAPONS;
+		if ( cg.weaponSelect < firstWeapon || cg.weaponSelect >= WP_NUM_WEAPONS ) {
+			cg.weaponSelect = WP_NUM_WEAPONS;
 		}
 		
 		if ( CG_WeaponSelectable( cg.weaponSelect, original, qfalse ) ) 

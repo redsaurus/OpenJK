@@ -106,6 +106,58 @@ func_t	funcs[] = {
 	{NULL,					NULL}
 };
 
+qboolean playerUsableWeapons[WP_NUM_WEAPONS] =
+{
+	qtrue,//WP_NONE,
+	
+	// Player weapons
+	qtrue,//WP_SABER,
+	qtrue,//WP_BLASTER_PISTOL,	// player and NPC weapon
+	qtrue,//WP_BLASTER,			// player and NPC weapon
+	qtrue,//WP_DISRUPTOR,		// player and NPC weapon
+	qtrue,//WP_BOWCASTER,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_REPEATER,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_DEMP2,			// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_FLECHETTE,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_ROCKET_LAUNCHER,	// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_THERMAL,			// player and NPC weapon
+	qtrue,//WP_TRIP_MINE,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_DET_PACK,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_CONCUSSION,		// NPC weapon - player can pick this up, but never starts with them
+	
+	//extras
+	qtrue,//WP_MELEE,			// player and NPC weapon - Any ol' melee attack
+	
+	//when in atst
+	qtrue,//WP_ATST_MAIN,
+	qtrue,//WP_ATST_SIDE,
+	
+	// These can never be gotten directly by the player
+	qtrue,//WP_STUN_BATON,		// stupid weapon, should remove
+	
+	//NPC weapons
+	qtrue,//WP_BRYAR_PISTOL,	// NPC weapon - player can pick this up, but never starts with them
+	
+	qfalse,//WP_EMPLACED_GUN,
+	
+	qfalse,//WP_BOT_LASER,		// Probe droid	- Laser blast
+	
+	qfalse,//WP_TURRET,			// turret guns
+	
+	qfalse,//WP_TIE_FIGHTER,
+	
+	qfalse,//WP_RAPID_FIRE_CONC,
+	
+	qfalse,//WP_JAWA,
+	qtrue,//WP_TUSKEN_RIFLE,
+	qfalse,//WP_TUSKEN_STAFF,
+	qfalse,//WP_SCEPTER,
+	qtrue,//WP_NOGHRI_STICK,
+	
+	//# #eol
+	//WP_NUM_WEAPONS
+};
+
 //qboolean COM_ParseInt( char **data, int *i );
 //qboolean COM_ParseString( char **data, char **s ); 
 //qboolean COM_ParseFloat( char **data, float *f );
