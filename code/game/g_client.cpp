@@ -1884,7 +1884,14 @@ void G_AddWeaponModels( gentity_t *ent )
 		}
 		else if ( ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			if ( ent->client->ps.weapon == WP_EMPLACED_GUN && !(ent->client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+			{
+				G_CreateG2AttachedWeaponModel( ent, "models/map_objects/hoth/eweb_model.glm", ent->handRBolt, 0 );
+			}
+			else
+			{
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			}
 			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 	}
@@ -2725,10 +2732,17 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		}
 		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			if ( ent->client->ps.weapon == WP_EMPLACED_GUN && !(ent->client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+			{
+				G_CreateG2AttachedWeaponModel( ent, "models/map_objects/hoth/eweb_model.glm", ent->handRBolt, 0 );
+			}
+			else
+			{
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			}
 			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
-
+		
 		{
 			// fire the targets of the spawn point
 			G_UseTargets( spawnPoint, ent );
