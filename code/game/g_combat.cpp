@@ -3966,7 +3966,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 					|| meansOfDeath == MOD_CRUSH
 					|| meansOfDeath == MOD_IMPACT
 					|| meansOfDeath == MOD_FALLING
-					|| meansOfDeath == MOD_EXPLOSIVE_SPLASH ) )
+					|| meansOfDeath == MOD_EXPLOSIVE_SPLASH
+					|| meansOfDeath == MOD_DESTRUCTION ) )
 			{//drop it
 				TossClientItems( self );
 				self->client->ps.weapon = self->s.weapon = WP_NONE;
@@ -4613,7 +4614,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 				&& meansOfDeath!=MOD_LASERTRIP
 				&& meansOfDeath!=MOD_LASERTRIP_ALT
 				&& meansOfDeath!=MOD_EXPLOSIVE
-				&& meansOfDeath!=MOD_EXPLOSIVE_SPLASH )
+				&& meansOfDeath!=MOD_EXPLOSIVE_SPLASH
+				&& meansOfDeath!=MOD_DESTRUCTION )
 			{//no sound when killed by headshot (explosions don't count)
 				G_AlertTeam( self, attacker, 512, 0 );
 				if ( gi.VoiceVolume[self->s.number] )
@@ -5158,7 +5160,8 @@ void G_CheckKnockdown( gentity_t *targ, gentity_t *attacker, vec3_t newDir, int 
 			&&mod!=MOD_LASERTRIP
 			&&mod!=MOD_LASERTRIP_ALT
 			&&mod!=MOD_EXPLOSIVE
-			&&mod!=MOD_EXPLOSIVE_SPLASH )
+			&&mod!=MOD_EXPLOSIVE_SPLASH
+			&&mod!=MOD_DESTRUCTION )
 		{
 			return;
 		}
@@ -5468,7 +5471,8 @@ qboolean G_NonLocationSpecificDamage( int meansOfDeath )
 		|| meansOfDeath == MOD_FORCE_GRIP
 		|| meansOfDeath == MOD_KNOCKOUT
 		|| meansOfDeath == MOD_CRUSH
-		|| meansOfDeath == MOD_EXPLOSIVE_SPLASH )
+		|| meansOfDeath == MOD_EXPLOSIVE_SPLASH
+		|| meansOfDeath == MOD_DESTRUCTION )
 	{
 		return qtrue;
 	}
@@ -5797,7 +5801,8 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				|| mod == MOD_LASERTRIP_ALT
 				|| mod == MOD_EXPLOSIVE_SPLASH
 				|| mod == MOD_ENERGY_SPLASH
-				|| mod == MOD_SABER )
+				|| mod == MOD_SABER
+				|| mod == MOD_DESTRUCTION )
 			{//galak without shields takes quarter damage from explosives and lightsaber
 				damage = ceil((float)damage/4.0f);
 			}
@@ -6016,9 +6021,27 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 			}
 		}
 		//absorb
-		/*
+		
 		if ( (targ->client->ps.forcePowersActive & (1 << FP_ABSORB)) )
 		{
+			if ( mod == MOD_DESTRUCTION )
+			{
+				switch (targ->client->ps.forcePowerLevel[FP_ABSORB]) {
+					case FORCE_LEVEL_1:
+						damage *= 0.5f;
+						break;
+					case FORCE_LEVEL_2:
+						damage *= 0.25f;
+						break;
+					case FORCE_LEVEL_3:
+						damage *= 0.1f;
+						break;
+					default:
+						damage = 0;
+						break;
+				}
+			}
+			/*
 			if ( mod == MOD_FORCE_LIGHTNING
 				|| mod == MOD_FORCE_GRIP
 				|| mod == MOD_FORCE_DRAIN )
@@ -6034,9 +6057,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				//make absorb sound
 				G_SoundOnEnt( targ, CHAN_ITEM, "sound/weapons/force/absorbhit.wav" );
 				targ->client->ps.forcePower += absorbed;
-			}
+			}*/
 		}
-		*/
+	
 	}
 
 	knockback = damage;

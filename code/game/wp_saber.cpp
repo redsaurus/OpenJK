@@ -216,7 +216,7 @@ int forcePowerNeeded[NUM_FORCE_POWERS] =
 	30,//FP_ABSORB,//duration - protect against dark force powers (grip, lightning, drain)
 	1,//FP_DRAIN,//hold/duration - drain force power for health
 	20,//FP_SEE,//duration - detect/see hidden enemies
-	20,//FP_DESTRUCTION
+	40,//FP_DESTRUCTION
 	20,//FP_INSANITY
 	20,//FP_STASIS
 	20,//FP_BLINDING
@@ -12777,8 +12777,82 @@ void ForceJump( gentity_t *self, usercmd_t *ucmd )
 	self->client->ps.forceJumpCharge = 0;
 }
 
+#define	DESTRUCTION_VELOCITY		600
+#define	DESTRUCTION_DAMAGE			40
+#define DESTRUCTION_SPLASH_DAMAGE	30
+#define	DESTRUCTION_SPLASH_RADIUS		160
+#define DESTRUCTION_NPC_DAMAGE_EASY		10
+#define DESTRUCTION_NPC_DAMAGE_NORMAL	20
+#define DESTRUCTION_NPC_DAMAGE_HARD		30
+#define DESTRUCTION_SIZE				3
+
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire = qfalse );
+//---------------------------------------------------------
+void WP_FireDestruction( gentity_t *ent, int forceLevel )
+//---------------------------------------------------------
+{
+	vec3_t	start, forward;
+	int		damage	= DESTRUCTION_DAMAGE;
+	float	vel = DESTRUCTION_VELOCITY;
+	
+	if ( forceLevel == FORCE_LEVEL_2 )
+	{
+		vel *= 1.5f;
+	}
+	else if ( forceLevel == FORCE_LEVEL_3 )
+	{
+		vel *= 2.0f;
+	}
+	
+	AngleVectors( ent->client->ps.viewangles, forward, NULL, NULL );
+	VectorNormalize( forward );
+	
+	VectorCopy( ent->client->renderInfo.eyePoint, start );
+	
+	gentity_t *missile = CreateMissile( start, forward, vel, 10000, ent, qfalse );
+	
+	missile->classname = "rocket_proj";
+	missile->s.weapon = WP_CONCUSSION;
+	missile->mass = 10;
+	
+	// Do the damages
+	if ( ent->s.number != 0 )
+	{
+		if ( g_spskill->integer == 0 )
+		{
+			damage = DESTRUCTION_NPC_DAMAGE_EASY;
+		}
+		else if ( g_spskill->integer == 1 )
+		{
+			damage = DESTRUCTION_NPC_DAMAGE_NORMAL;
+		}
+		else
+		{
+			damage = DESTRUCTION_NPC_DAMAGE_HARD;
+		}
+	}
+	
+	// Make it easier to hit things
+	VectorSet( missile->maxs, DESTRUCTION_SIZE, DESTRUCTION_SIZE, DESTRUCTION_SIZE );
+	VectorScale( missile->maxs, -1, missile->mins );
+	
+	missile->damage = damage * (1.0f + forceLevel)/2.0f;
+	missile->dflags = DAMAGE_DEATH_KNOCKBACK;
+	
+	missile->methodOfDeath = MOD_DESTRUCTION;
+	missile->splashMethodOfDeath = MOD_DESTRUCTION;// ?SPLASH;
+	
+	missile->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
+	missile->splashDamage = DESTRUCTION_SPLASH_DAMAGE * (1.0f + forceLevel)/2.0f;
+	missile->splashRadius = DESTRUCTION_SPLASH_RADIUS * (1.0f + forceLevel)/2.0f;;
+	
+	// we don't want it to ever bounce
+	missile->bounceCount = 0;
+}
+
 void ForceDestruction( gentity_t *self )
 {
+	int anim, soundIndex;
 	if ( self->health <= 0 )
 	{
 		return;
@@ -12787,9 +12861,12 @@ void ForceDestruction( gentity_t *self )
 	{
 		return;
 	}
-	
-	if ( self->client->ps.weaponTime >= 800 )
-	{//just did one!
+	if ( self->client->ps.forcePowerDebounce[FP_DESTRUCTION] > level.time )
+	{//already using destruction
+		return;
+	}
+	if ( !self->s.number && (cg.zoomMode || in_camera) )
+	{//can't destruction when zoomed in or in cinematic
 		return;
 	}
 	if ( self->client->ps.saberLockTime > level.time )
@@ -12797,19 +12874,40 @@ void ForceDestruction( gentity_t *self )
 		return;
 	}
 	
-	gi.Printf(S_COLOR_RED"Used Force Destruction\n");
+	CG_RegisterWeapon( WP_CONCUSSION ); // Temporary! Will have new effects etc soon.
 	
-	//TODO: CODE
+	anim = BOTH_FORCEPUSH;
+	soundIndex = G_SoundIndex( "sound/weapons/force/rage.wav" );
+
+	int parts = SETANIM_TORSO;
+	if ( !PM_InKnockDown( &self->client->ps ) )
+	{
+		if ( !VectorLengthSquared( self->client->ps.velocity ) && !(self->client->ps.pm_flags&PMF_DUCKED))
+		{
+			parts = SETANIM_BOTH;
+		}
+	}
+	NPC_SetAnim( self, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	
+	if ( self->handLBolt != -1 )
+	{
+		G_PlayEffect( G_EffectIndex( "force/drain_hand" ), self->playerModel, self->handLBolt, self->s.number, self->currentOrigin, 200, qtrue );
+	}
+	
+	G_Sound( self, soundIndex );
+
+	WP_FireDestruction( self, self->client->ps.forcePowerLevel[FP_DESTRUCTION] );
 	
 	WP_ForcePowerStart( self, FP_DESTRUCTION, 0 );
 	
-	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
-	self->client->ps.saberBlocked = BLOCKED_NONE;
 	self->client->ps.weaponTime = 1000;
 	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
 	{
 		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
 	}
+	self->client->ps.forcePowerDebounce[FP_DESTRUCTION] = level.time + self->client->ps.torsoAnimTimer + 500;
 }
 
 void ForceInsanity( gentity_t *self )
