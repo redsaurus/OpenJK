@@ -39,6 +39,7 @@ const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 								const vec4_t v4Color);
 void CG_LoadViewmodelAnimations (CGhoul2Info* ghl2, const char *modelName, viewModelAnimSet_t* ptAnims);
 
+extern vmCvar_t cg_eyeView;
 /*
 =================
 CG_RegisterWeapon

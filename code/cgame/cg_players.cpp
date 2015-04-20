@@ -47,6 +47,7 @@ extern vmCvar_t	cg_SFXSabersGlowSize;
 extern vmCvar_t	cg_SFXSabersCoreSize;
 
 extern vmCvar_t cg_ignitionFlare;
+extern vmCvar_t cg_eyeView;
 
 /*
 
