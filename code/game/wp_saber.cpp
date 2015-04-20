@@ -9040,7 +9040,7 @@ qboolean WP_ForceThrowable( gentity_t *ent, gentity_t *forwardEnt, gentity_t *se
 			{//can't push ATST or Galak or Rancor or Wampa
 				return qfalse;
 			}
-			else if ( ent->s.weapon == WP_EMPLACED_GUN )
+			else if ( ent->s.weapon == WP_EMPLACED_GUN && ent->client->ps.eFlags & EF_LOCKED_TO_WEAPON )
 			{//FIXME: maybe can pull them out?
 				return qfalse;
 			}
@@ -10948,7 +10948,7 @@ void ForceGrip( gentity_t *self )
 		default:
 			break;
 		}
-		if ( traceEnt->s.weapon == WP_EMPLACED_GUN )
+		if ( traceEnt->s.weapon == WP_EMPLACED_GUN && traceEnt->client->ps.eFlags & EF_LOCKED_TO_WEAPON )
 		{//FIXME: maybe can pull them out?
 			return;
 		}
@@ -11713,7 +11713,7 @@ qboolean ForceDrain2( gentity_t *self )
 		default:
 			break;
 		}
-		if ( traceEnt->s.weapon == WP_EMPLACED_GUN )
+		if ( traceEnt->s.weapon == WP_EMPLACED_GUN && traceEnt->client->ps.eFlags & EF_LOCKED_TO_WEAPON )
 		{//FIXME: maybe can pull them out?
 			return qfalse;
 		}
