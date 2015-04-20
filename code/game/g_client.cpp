@@ -1918,7 +1918,7 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].singleBladeStyle;
 		}
 		//Custom saber stuff!
-		if (Q_stristr(ent->client->ps.saber[0].name, "saberbuilder"))
+		if (ent->client->ps.saber[0].name && ent->client->ps.saber[0].name[0] && Q_stristr(ent->client->ps.saber[0].name, "saberbuilder") && ent->client->ps.saber[0].model)
 		{
 			char skinRoot[MAX_QPATH] = {0};
 			Q_strncpyz(skinRoot, ent->client->ps.saber[0].model, MAX_QPATH);
@@ -1990,7 +1990,7 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			}
 			
 			//Custom saber stuff!
-			if (Q_stristr(ent->client->ps.saber[1].name, "saberbuilder"))
+			if (ent->client->ps.saber[1].name && ent->client->ps.saber[1].name[0] && Q_stristr(ent->client->ps.saber[1].name, "saberbuilder") && ent->client->ps.saber[1].model)
 			{
 				char skinRoot[MAX_QPATH] = {0};
 				Q_strncpyz(skinRoot, ent->client->ps.saber[1].model, MAX_QPATH);
