@@ -6396,6 +6396,14 @@ static void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax
 		saber.shaderRGBA[1] = ((color >> 8) & 0xff);
 		saber.shaderRGBA[2] = ((color >> 16) & 0xff);
 	}
+	else if ( (crystals & SABER_CRYSTAL_UNSTABLE) && !(crystals & SABER_CRYSTAL_BLACK) )
+	{
+		vec3_t rgb={1,1,1};
+		CG_RGBForSaberColor( color, rgb );
+		saber.shaderRGBA[0] = 0xff * rgb[0];
+		saber.shaderRGBA[1] = 0xff * rgb[1];
+		saber.shaderRGBA[2] = 0xff * rgb[2];
+	}
 
 	cgi_R_AddRefEntityToScene( &saber );
 
