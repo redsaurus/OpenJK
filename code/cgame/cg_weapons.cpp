@@ -2588,7 +2588,7 @@ void CG_NextWeapon_f( void ) {
 		}
 		else if ( cg.weaponSelect == WP_DET_PACK )
 		{
-			cg.weaponSelect = firstWeapon;
+			cg.weaponSelect = WP_MELEE;
 		}
 		else
 		{
@@ -2644,7 +2644,7 @@ void CG_DPNextWeapon_f( void ) {
 		}
 		else if ( cg.DataPadWeaponSelect == WP_DET_PACK )
 		{
-			cg.DataPadWeaponSelect = FIRST_WEAPON;
+			cg.DataPadWeaponSelect = WP_MELEE;
 		}
 		else
 		{
