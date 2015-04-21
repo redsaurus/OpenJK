@@ -2273,6 +2273,8 @@ typedef struct playerState_s {
 	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
 	int			hyperSpaceTime;
 	vec3_t		hyperSpaceAngles;
+	
+	int			stasisTime;
 } playerState_t;
 
 

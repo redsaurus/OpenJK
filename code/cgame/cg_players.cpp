@@ -5133,6 +5133,19 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 		cgi_R_AddRefEntityToScene( ent);
 	}
+	
+	if ( cent->gent->client->ps.stasisTime > (cg.time?cg.time:level.time) )
+	{ //stasis is represented by grey..
+		ent->shaderRGBA[0] = 100;
+		ent->shaderRGBA[1] = 100;
+		ent->shaderRGBA[2] = 100;
+		ent->shaderRGBA[3] = 254;
+		
+		ent->renderfx &= ~RF_RGB_TINT;
+		ent->customShader = cgs.media.playerShieldDamage;
+		
+		cgi_R_AddRefEntityToScene( ent );
+	}
 }
 
 

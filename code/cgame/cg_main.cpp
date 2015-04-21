@@ -2164,10 +2164,10 @@ void CG_Init( int serverCommandSequence ) {
 		"gfx/mp/f_icon_lt_absorb",		//FP_ABSORB,
 		"gfx/mp/f_icon_dk_drain",		//FP_DRAIN,
 		"gfx/mp/f_icon_sight",			//FP_SEE,
-		"gfx/mp/f_icon_destruction",	//FP_DESTRUCTION,
-		"gfx/mp/f_icon_insanity",		//FP_INSANITY,
-		"gfx/mp/f_icon_stasis",			//FP_STASIS,
-		"gfx/mp/f_icon_blinding",		//FP_BLINDING,
+		"gfx/mp/f_icon_dk_destruction",	//FP_DESTRUCTION,
+		"gfx/mp/f_icon_dk_insanity",		//FP_INSANITY,
+		"gfx/mp/f_icon_lt_stasis",			//FP_STASIS,
+		"gfx/mp/f_icon_lt_blinding",		//FP_BLINDING,
 		
 	};
 

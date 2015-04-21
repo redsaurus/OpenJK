@@ -2451,7 +2451,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	VectorCopy( self->client->ps.moveDir, oldMoveDir );
 	VectorClear( self->client->ps.moveDir );
 	// see if NPC ai is frozen
-	if ( debugNPCFreeze->integer || (NPC->svFlags&SVF_ICARUS_FREEZE) ) 
+	if ( debugNPCFreeze->integer || (NPC->svFlags&SVF_ICARUS_FREEZE) || (self && self->client && self->client->ps.stasisTime > level.time))
 	{
 		NPC_UpdateAngles( qtrue, qtrue );
 		ClientThink(self->s.number, &ucmd);

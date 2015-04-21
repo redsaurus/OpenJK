@@ -319,6 +319,14 @@ int insanityTime[NUM_FORCE_POWER_LEVELS] =
 	15000//15000
 };
 
+int stasisTime[NUM_FORCE_POWER_LEVELS] =
+{
+	0,//none
+	5000,//5000,
+	10000,//10000,
+	15000//15000
+};
+
 //NOTE: keep in synch with table below!!!
 int saberThrowDist[NUM_FORCE_POWER_LEVELS] =
 {
@@ -13091,11 +13099,6 @@ void ForceInsanity( gentity_t *self )
 		NPC_SetAnim( self, SETANIM_TORSO, BOTH_MINDTRICK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD );
 		//FIXME: build-up or delay this until in proper part of anim
 	}
-	//
-	
-	gi.Printf(S_COLOR_RED"Used Force Insanity\n");
-	
-	//TODO: CODE
 	
 	WP_ForcePowerStart( self, FP_INSANITY, 0 );
 	
@@ -13108,8 +13111,16 @@ void ForceInsanity( gentity_t *self )
 	}
 }
 
+extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 void ForceStasis( gentity_t *self )
 {
+	trace_t	tr;
+	vec3_t	end, forward;
+	gentity_t	*traceEnt;
+	int anim, soundIndex;
+	float currentFrame, animSpeed;
+	int junk;
+	
 	if ( self->health <= 0 )
 	{
 		return;
@@ -13119,28 +13130,78 @@ void ForceStasis( gentity_t *self )
 		return;
 	}
 	
-	if ( self->client->ps.weaponTime >= 800 )
-	{//just did one!
+	if ( self->client->ps.forcePowerDebounce[FP_STASIS] > level.time )
+	{//already using destruction
 		return;
 	}
+	if ( !self->s.number && (cg.zoomMode || in_camera) )
+	{//can't destruction when zoomed in or in cinematic
+		return;
+	}
+
 	if ( self->client->ps.saberLockTime > level.time )
 	{//FIXME: can this be a way to break out?
 		return;
 	}
 	
-	gi.Printf(S_COLOR_BLUE"Used Force Stasis\n");
+	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+	VectorNormalize( forward );
+	VectorMA( self->client->renderInfo.eyePoint, 2048, forward, end );
 	
-	//TODO: CODE
+	//Stasis the enemy!
+	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_BODY, (EG2_Collision)0, 0 );
+	if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
+	{
+		return;
+	}
+	
+	traceEnt = &g_entities[tr.entityNum];
+	
+	if( traceEnt->NPC && traceEnt->NPC->scriptFlags & SCF_NO_FORCE )
+	{
+		return;
+	}
+	
+	if(traceEnt->health > 0 &&
+	   traceEnt->s.weapon != WP_SABER && traceEnt->client->NPC_class != CLASS_REBORN)
+	{
+		//doesn't affect jedi for now...but affects everything else??
+		if (traceEnt->client)
+		{
+			traceEnt->client->ps.stasisTime = level.time + stasisTime[self->client->ps.forcePowerLevel[FP_STASIS]];//stuck for 5-10 seconds
+		}
+		gi.G2API_GetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
+								  level.time, &currentFrame, &junk, &junk, &junk, &animSpeed, NULL );
+		gi.G2API_SetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
+								  currentFrame, currentFrame,
+								  BONE_ANIM_OVERRIDE_FREEZE/*|BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND*/, animSpeed, level.time, -1, 100 );
+	}
+	
+	anim = BOTH_FORCEPUSH;
+	soundIndex = G_SoundIndex( "sound/weapons/force/protecthit.wav" );
+	
+	int parts = SETANIM_TORSO;
+	if ( !PM_InKnockDown( &self->client->ps ) )
+	{
+		if ( !VectorLengthSquared( self->client->ps.velocity ) && !(self->client->ps.pm_flags&PMF_DUCKED))
+		{
+			parts = SETANIM_BOTH;
+		}
+	}
+	NPC_SetAnim( self, parts, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	
+	G_Sound( self, soundIndex );
 	
 	WP_ForcePowerStart( self, FP_STASIS, 0 );
 	
-	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
-	self->client->ps.saberBlocked = BLOCKED_NONE;
 	self->client->ps.weaponTime = 1000;
 	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
 	{
 		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
 	}
+	self->client->ps.forcePowerDebounce[FP_STASIS] = level.time + self->client->ps.torsoAnimTimer + 500;
 }
 
 void ForceBlinding( gentity_t *self )

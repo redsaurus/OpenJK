@@ -4214,6 +4214,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			WP_StopForceHealEffects( self );
 		}
 	}
+	self->client->ps.stasisTime = 0;
 	VectorCopy( self->currentAngles, self->client->ps.viewangles );
 	//FACING==========================================================
 	if ( player && player->client && player->client->ps.viewEntity == self->s.number )

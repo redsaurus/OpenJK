@@ -15042,7 +15042,7 @@ void Pmove( pmove_t *pmove )
 	if (pm->ps->pm_type == PM_FREEZE) {
 		return;		// no movement at all
 	}
-
+	
 	if ( pm->ps->pm_type == PM_INTERMISSION ) {
 		return;		// no movement at all
 	}
@@ -15297,7 +15297,6 @@ void Pmove( pmove_t *pmove )
 		}
 	}
 
-
 	// ANIMATION
 	//================================
 
@@ -15330,12 +15329,16 @@ void Pmove( pmove_t *pmove )
 	else // TEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMPTEMP
 	{
 		// footstep events / legs animations
-		PM_Footsteps();
+		if (pm->ps->stasisTime < level.time) {
+			PM_Footsteps();
+		}
 	}
 	// torso animation
 	if ( !pVeh )
 	{//not riding a vehicle
-		PM_TorsoAnimation();
+		if (pm->ps->stasisTime < level.time) {
+			PM_TorsoAnimation();
+		}
 	}
 
 	// entering / leaving water splashes
