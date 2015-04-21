@@ -64,6 +64,15 @@ LANG_ENGLISH		"Noghri Stick"
 REFERENCE			INGAME_WEAPON_TUSKEN_RIFLE
 LANG_ENGLISH		"Tusken Rifle"
 
+REFERENCE           INGAME_MELEE_DESC
+LANG_ENGLISH        "Melee  \nWhen applied to a face a fist causes damage.\nPrimary Fire - Throws a punch.\nSecondary Fire - Throws a punch.\nAmmo Type - N/A"
+
+REFERENCE           INGAME_TUSKEN_RIFLE_DESC
+LANG_ENGLISH        "Tusken Rifle  \nThe Tusken Rifle fires a highly damaging projectile.\nPrimary Fire - Melee attack.\nSecondary Fire - Fires a sniper projectile shot that is highly damaging.\nAmmo Type - Power cell"
+
+REFERENCE           INGAME_NOGHRI_STICK_DESC
+LANG_ENGLISH        "Noghri Stick  \nThe Noghri Stick fires a ball of poisonous gas.\nPrimary Fire - Fires a ball of poisionous gas that does damage over time.\nSecondary Fire - Melee attack.\nAmmo Type - Power cell"
+
 ENDMARKER
 
 

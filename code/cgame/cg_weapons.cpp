@@ -1758,7 +1758,7 @@ int CG_WeaponCheck( int weaponIndex )
 
 int cgi_UI_GetItemText(char *menuFile,char *itemName, char *text);
 
-const char *weaponDesc[13] = 
+const char *weaponDesc[WP_NUM_WEAPONS - 1] =
 {
 "SABER_DESC",
 "NEW_BLASTER_PISTOL_DESC",
@@ -1773,6 +1773,21 @@ const char *weaponDesc[13] =
 "TRIP_MINE_DESC",
 "DET_PACK_DESC",
 "CONCUSSION_DESC",
+"MELEE_DESC",
+"ATST_MAIN_DESC",
+"ATST_SIDE_DESC",
+"STUN_BATON_DESC",
+"BLASTER_PISTOL_DESC",
+"EMPLACED_GUN_DESC",
+"BOT_LASER_DESC",
+"TURRET_DESC",
+"TIE_FIGHTER_DESC",
+"RAPID_CONCUSSION_DESC",
+"JAWA_DESC",
+"TUSKEN_RIFLE_DESC",
+"TUSKEN_STAFF_DESC",
+"SCEPTER_DESC",
+"NOGHRI_STICK_DESC",
 };
 
 /*
@@ -1837,9 +1852,9 @@ void CG_DrawDataPadWeaponSelect( void )
 	{
 		cg.DataPadWeaponSelect = FIRST_WEAPON;
 	}
-	else if (cg.DataPadWeaponSelect>13)
+	else if (cg.DataPadWeaponSelect>=WP_NUM_WEAPONS)
 	{
-		cg.DataPadWeaponSelect = 13;
+		cg.DataPadWeaponSelect = WP_NUM_WEAPONS - 1;
 	}
 
 	// What weapon does the player currently have selected
@@ -1853,7 +1868,7 @@ void CG_DrawDataPadWeaponSelect( void )
 	}
 	if (weaponSelectI<1)
 	{
-		weaponSelectI = 13;
+		weaponSelectI = WP_NUM_WEAPONS - 1;
 	}	
 
 	const int smallIconSize = 40;
@@ -1883,7 +1898,7 @@ void CG_DrawDataPadWeaponSelect( void )
 
 		if (weaponSelectI<1)
 		{
-			weaponSelectI = 13;
+			weaponSelectI = WP_NUM_WEAPONS - 1;
 		}
 
 		if ( !(weaponBitFlag & ( 1 << weaponSelectI )))	// Does he have this weapon?
@@ -1952,7 +1967,7 @@ void CG_DrawDataPadWeaponSelect( void )
 		weaponSelectI = cg.DataPadWeaponSelect + 1;
 	}
 
-	if (weaponSelectI> 13)
+	if (weaponSelectI>= WP_NUM_WEAPONS)
 	{
 		weaponSelectI = 1;
 	}
@@ -1971,7 +1986,7 @@ void CG_DrawDataPadWeaponSelect( void )
 		{
 			weaponSelectI = WP_CONCUSSION;
 		}
-		if (weaponSelectI>13)
+		if (weaponSelectI>= WP_NUM_WEAPONS)
 		{
 			weaponSelectI = 1;
 		}
