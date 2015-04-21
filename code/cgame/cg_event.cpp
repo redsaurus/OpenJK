@@ -106,6 +106,11 @@ void CG_ItemPickup( int itemNum, qboolean bHadItem ) {
 				cgi_Cvar_Set( "cg_WeaponPickupText", va("%s %s\n", text, data));
 				cg.weaponPickupTextTime	= cg.time + 5000;
 			}
+			else if ( cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",bg_itemlist[itemNum].classname ), data, sizeof( data )))
+			{
+				cgi_Cvar_Set( "cg_WeaponPickupText", va("%s %s\n", text, data));
+				cg.weaponPickupTextTime	= cg.time + 5000;
+			}
 		}
 	}
 

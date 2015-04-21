@@ -2015,7 +2015,10 @@ void CG_DrawDataPadWeaponSelect( void )
 	}
 
 	// Print the weapon description
-	cgi_SP_GetStringTextString( va("SP_INGAME_%s",weaponDesc[cg.DataPadWeaponSelect-1]), text, sizeof(text) );
+	if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",weaponDesc[cg.DataPadWeaponSelect-1]), text, sizeof(text) ))
+	{
+		cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",weaponDesc[cg.DataPadWeaponSelect-1]), text, sizeof(text) );
+	}
 
 	if (text[0])
 	{
@@ -2396,6 +2399,12 @@ void CG_DrawWeaponSelect( void )
 		if ( cgi_SP_GetStringTextString( va("SP_INGAME_%s",item->classname), text, sizeof( text )))
 		{
 			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);	
+			int x = ( SCREEN_WIDTH - w ) / 2;
+			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24)+yOffset, text, textColor, cgs.media.qhFontSmall, -1, 1.0f);
+		}
+		else if ( cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",item->classname), text, sizeof( text )))
+		{
+			int w = cgi_R_Font_StrLenPixels(text, cgs.media.qhFontSmall, 1.0f);
 			int x = ( SCREEN_WIDTH - w ) / 2;
 			cgi_R_Font_DrawString(x, (SCREEN_HEIGHT - 24)+yOffset, text, textColor, cgs.media.qhFontSmall, -1, 1.0f);
 		}

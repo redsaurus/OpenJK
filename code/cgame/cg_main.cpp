@@ -3439,6 +3439,17 @@ void CG_DrawInventorySelect( void )
 
 					cgi_R_Font_DrawString( x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
 				}
+				else
+				{
+					Com_sprintf( itemName, sizeof(itemName), "SPMOD_INGAME_%s",	item->classname );
+					if ( cgi_SP_GetStringTextString( itemName, data, sizeof( data )))
+					{
+						int w = cgi_R_Font_StrLenPixels( data, cgs.media.qhFontSmall, 1.0f );
+						int x = ( SCREEN_WIDTH - w ) / 2;
+						
+						cgi_R_Font_DrawString( x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
+					}
+				}
 			}
 		}
 	}
@@ -3657,7 +3668,10 @@ void CG_DrawDataPadInventorySelect( void )
 	// draw the weapon description
 	if ((cg.DataPadInventorySelect>=0) && (cg.DataPadInventorySelect<13))
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
+		}
 
 		if (text[0])
 		{
@@ -4409,19 +4423,31 @@ void CG_DrawDataPadForceSelect( void )
 		}
 	}
 
-	cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
+	if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) ))
+	{
+		cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
+	}
 
 	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==1)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==2)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 	else
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 
 	if (text[0])
