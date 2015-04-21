@@ -434,6 +434,11 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	{//can't pick up enemies if confused
 		return;
 	}
+	
+	if ( self->NPC->insanityTime > level.time )
+	{//can't pick up enemies if confused
+		return;
+	}
 
 #ifdef _DEBUG
 	if ( self->s.number )
@@ -449,7 +454,7 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 
 	if ( self->client && self->NPC && enemy->client && enemy->client->playerTeam == self->client->playerTeam )
 	{//Probably a damn script!
-		if ( self->NPC->charmedTime > level.time )
+		if ( self->NPC->charmedTime > level.time || self->NPC->darkCharmedTime > level.time )
 		{//Probably a damn script!
 			return;
 		}

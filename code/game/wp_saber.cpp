@@ -311,6 +311,14 @@ int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 	30000//15000
 };
 
+int insanityTime[NUM_FORCE_POWER_LEVELS] =
+{
+	0,//none
+	5000,//5000,
+	10000,//10000,
+	15000//15000
+};
+
 //NOTE: keep in synch with table below!!!
 int saberThrowDist[NUM_FORCE_POWER_LEVELS] =
 {
@@ -10606,7 +10614,9 @@ void ForceTelepathy( gentity_t *self )
 	}
 	if ( targetLive
 		&& traceEnt->NPC
-		&& traceEnt->health > 0 )
+		&& traceEnt->health > 0
+		&& traceEnt->NPC->darkCharmedTime < level.time
+		&& traceEnt->NPC->insanityTime < level.time )
 	{//hit an organic non-player
 		if ( G_ActivateBehavior( traceEnt, BSET_MINDTRICK ) )
 		{//activated a script on him
@@ -12910,8 +12920,14 @@ void ForceDestruction( gentity_t *self )
 	self->client->ps.forcePowerDebounce[FP_DESTRUCTION] = level.time + self->client->ps.torsoAnimTimer + 500;
 }
 
+extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
 void ForceInsanity( gentity_t *self )
 {
+	trace_t	tr;
+	vec3_t	end, forward;
+	gentity_t	*traceEnt;
+	qboolean	targetLive = qfalse;
+
 	if ( self->health <= 0 )
 	{
 		return;
@@ -12929,6 +12945,153 @@ void ForceInsanity( gentity_t *self )
 	{//FIXME: can this be a way to break out?
 		return;
 	}
+	
+	//Pretty heavily based on mind trick
+	
+	AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+	VectorNormalize( forward );
+	VectorMA( self->client->renderInfo.eyePoint, 2048, forward, end );
+	
+	//Cause a distraction if enemy is not fighting
+	gi.trace( &tr, self->client->renderInfo.eyePoint, vec3_origin, vec3_origin, end, self->s.number, MASK_OPAQUE|CONTENTS_BODY, (EG2_Collision)0, 0 );
+	if ( tr.entityNum == ENTITYNUM_NONE || tr.fraction == 1.0 || tr.allsolid || tr.startsolid )
+	{
+		return;
+	}
+	
+	traceEnt = &g_entities[tr.entityNum];
+	
+	if( traceEnt->NPC && traceEnt->NPC->scriptFlags & SCF_NO_FORCE )
+	{
+		return;
+	}
+	
+	if ( traceEnt && traceEnt->client  )
+	{
+		switch ( traceEnt->client->NPC_class )
+		{
+			case CLASS_GALAKMECH://cant grip him, he's in armor
+			case CLASS_ATST://much too big to grip!
+				//no droids either
+			case CLASS_PROBE:
+			case CLASS_GONK:
+			case CLASS_R2D2:
+			case CLASS_R5D2:
+			case CLASS_MARK1:
+			case CLASS_MARK2:
+			case CLASS_MOUSE:
+			case CLASS_SEEKER:
+			case CLASS_REMOTE:
+			case CLASS_PROTOCOL:
+			case CLASS_ASSASSIN_DROID:
+			case CLASS_SABER_DROID:
+			case CLASS_BOBAFETT:
+				break;
+			case CLASS_RANCOR:
+				if ( !(traceEnt->spawnflags&1) )
+				{
+					targetLive = qtrue;
+				}
+				break;
+			default:
+				targetLive = qtrue;
+				break;
+		}
+	}
+	if ( targetLive
+		&& traceEnt->NPC
+		&& traceEnt->health > 0
+		&& traceEnt->NPC->charmedTime < level.time
+		&& traceEnt->NPC->confusionTime < level.time )
+	{//hit an organic non-player
+		int override = 0;
+		if ( (traceEnt->NPC->scriptFlags&SCF_NO_MIND_TRICK) )
+		{
+			if ( traceEnt->client->NPC_class == CLASS_GALAKMECH )
+			{
+				G_AddVoiceEvent( traceEnt, Q_irand( EV_CONFUSE1, EV_CONFUSE3 ), Q_irand( 3000, 5000 ) );
+			}
+		}
+		else if ( traceEnt->s.weapon != WP_SABER
+				 && traceEnt->client->NPC_class != CLASS_REBORN )
+		{//haha!  Jedi aren't easily confused!
+			if ( self->client->ps.forcePowerLevel[FP_INSANITY] > FORCE_LEVEL_2
+				&& traceEnt->s.weapon != WP_NONE		//don't charm people who aren't capable of fighting... like ugnaughts and droids, just confuse them
+				&& traceEnt->client->NPC_class != CLASS_TUSKEN//don't charm them, just confuse them
+				&& traceEnt->client->NPC_class != CLASS_NOGHRI//don't charm them, just confuse them
+				&& !Pilot_AnyVehiclesRegistered()		//also, don't charm guys when bikes are near
+				)
+			{//turn them to our side
+				//if insanity 3 and aiming at an enemy need more force power
+				override = 50;
+				if ( self->client->ps.forcePower < 50 )
+				{
+					return;
+				}
+				if ( traceEnt->enemy )
+				{
+					G_ClearEnemy( traceEnt );
+				}
+				if ( traceEnt->NPC )
+				{
+					//traceEnt->NPC->tempBehavior = BS_FOLLOW_LEADER;
+					traceEnt->client->leader = self;
+				}
+				//FIXME: maybe pick an enemy right here?
+				//FIXME: does nothing to TEAM_FREE and TEAM_NEUTRALs!!!
+				team_t	saveTeam = traceEnt->client->enemyTeam;
+				traceEnt->client->enemyTeam = traceEnt->client->playerTeam;
+				traceEnt->client->playerTeam = saveTeam;
+				//FIXME: need a *charmed* timer on this...?  Or do TEAM_PLAYERS assume that "confusion" means they should switch to team_enemy when done?
+				traceEnt->NPC->darkCharmedTime = level.time + insanityTime[self->client->ps.forcePowerLevel[FP_TELEPATHY]];
+				if ( traceEnt->ghoul2.size() && traceEnt->headBolt != -1 )
+				{//FIXME: what if already playing effect?
+					G_PlayEffect( G_EffectIndex( "force/drain_hand" ), traceEnt->playerModel, traceEnt->headBolt, traceEnt->s.number, traceEnt->currentOrigin, insanityTime[self->client->ps.forcePowerLevel[FP_INSANITY]], qtrue );
+				}
+				if ( PM_HasAnimation( traceEnt, BOTH_SONICPAIN_HOLD ) )
+				{
+					NPC_SetAnim( traceEnt, SETANIM_LEGS, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_NORMAL );
+					NPC_SetAnim( traceEnt, SETANIM_TORSO, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+					traceEnt->client->ps.torsoAnimTimer += 200;
+					traceEnt->client->ps.weaponTime = traceEnt->client->ps.torsoAnimTimer;
+				}
+			}
+			else
+			{//just insanity them
+				if ( PM_HasAnimation( traceEnt, BOTH_SONICPAIN_HOLD ) )
+				{
+					NPC_SetAnim( traceEnt, SETANIM_LEGS, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_NORMAL );
+					NPC_SetAnim( traceEnt, SETANIM_TORSO, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+					traceEnt->client->ps.torsoAnimTimer += insanityTime[self->client->ps.forcePowerLevel[FP_INSANITY]];
+					traceEnt->client->ps.weaponTime = traceEnt->client->ps.torsoAnimTimer;
+				}
+				traceEnt->NPC->insanityTime = level.time + insanityTime[self->client->ps.forcePowerLevel[FP_INSANITY]];//confused for 5-10 seconds
+				if ( traceEnt->enemy )
+				{
+					G_ClearEnemy( traceEnt );
+				}
+				if ( traceEnt->ghoul2.size() && traceEnt->headBolt != -1 )
+				{//FIXME: what if already playing effect?
+					G_PlayEffect( G_EffectIndex( "force/drain_hand" ), traceEnt->playerModel, traceEnt->headBolt, traceEnt->s.number, traceEnt->currentOrigin, insanityTime[self->client->ps.forcePowerLevel[FP_INSANITY]], qtrue );
+				}
+			}
+		}
+		else
+		{
+			NPC_Jedi_PlayConfusionSound( traceEnt );
+		}
+		WP_ForcePowerStart( self, FP_INSANITY, override );
+		vec3_t	eyeDir;
+		AngleVectors( traceEnt->client->renderInfo.eyeAngles, eyeDir, NULL, NULL );
+		VectorNormalize( eyeDir );
+		G_PlayEffect( "force/drain_hand", traceEnt->client->renderInfo.eyePoint, eyeDir );
+		
+		//make sure this plays and that you cannot press fire for about 1 second after this
+		//FIXME: BOTH_FORCEMINDTRICK or BOTH_FORCEDISTRACT
+		NPC_SetAnim( self, SETANIM_TORSO, BOTH_MINDTRICK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD );
+		//FIXME: build-up or delay this until in proper part of anim
+	}
+	//
 	
 	gi.Printf(S_COLOR_RED"Used Force Insanity\n");
 	

@@ -875,7 +875,7 @@ NPC_ST_InvestigateEvent
 static qboolean NPC_ST_InvestigateEvent( int eventID, bool extraSuspicious )
 {
 	//If they've given themselves away, just take them as an enemy
-	if ( NPCInfo->confusionTime < level.time )
+	if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 	{
 		if ( level.alertEvents[eventID].level == AEL_DISCOVERED && (NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES) )
 		{
@@ -1104,7 +1104,7 @@ void NPC_BSST_Investigate( void )
 		WeaponThink( qtrue );
 	}
 
-	if ( NPCInfo->confusionTime < level.time )
+	if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 	{
 		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )
 		{
@@ -1127,7 +1127,7 @@ void NPC_BSST_Investigate( void )
 		//There is an event to look at
 		if ( alertEvent >= 0 )
 		{
-			if ( NPCInfo->confusionTime < level.time )
+			if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 			{
 				if ( NPC_CheckForDanger( alertEvent ) )
 				{//running like hell
@@ -1239,7 +1239,7 @@ void NPC_BSST_Patrol( void )
 		//get group- mainly for group speech debouncing, but may use for group scouting/investigating AI, too
 		AI_GetGroup( NPC );
 
-		if ( NPCInfo->confusionTime < level.time )
+		if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 		{
 			//Look for any enemies
 			if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )

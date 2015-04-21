@@ -6826,7 +6826,7 @@ static void Jedi_Attack( void )
 	}
 	else if ( NPC->enemy &&
 		NPC->enemy->NPC
-		&& NPC->enemy->NPC->charmedTime > level.time )
+		&& (NPC->enemy->NPC->charmedTime > level.time || NPC->enemy->NPC->darkCharmedTime > level.time) )
 	{//my enemy was charmed
 		if ( OnSameTeam( NPC, NPC->enemy ) )
 		{//has been charmed to be on my team
@@ -7647,7 +7647,7 @@ void NPC_BSJedi_Default( void )
 			//FIXME: build a list of all local enemies (since we have to find best anyway) for other AI factors- like when to use group attacks, determine when to change tactics, when surrounded, when blocked by another in the enemy group, etc.  Should we build this group list or let the enemies maintain their own list and we just access it?
 			gentity_t *sav_enemy = NPC->enemy;//FIXME: what about NPC->lastEnemy?
 			NPC->enemy = NULL;
-			gentity_t *newEnemy = NPC_CheckEnemy( NPCInfo->confusionTime < level.time, qfalse, qfalse );
+			gentity_t *newEnemy = NPC_CheckEnemy( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time), qfalse, qfalse );
 			NPC->enemy = sav_enemy;
 			if ( newEnemy && newEnemy != sav_enemy )
 			{//picked up a new enemy!

@@ -272,7 +272,7 @@ bool	Pilot_MasterUpdate()
 		{
 			ucmd.upmove = 127;
 
-			if (NPCInfo->greetEnt && NPCInfo->greetEnt->m_pVehicle && level.time<NPCInfo->confusionTime)
+			if (NPCInfo->greetEnt && NPCInfo->greetEnt->m_pVehicle && (level.time<NPCInfo->confusionTime||level.time<NPCInfo->insanityTime))
 			{
 				Vehicle_t*	pVeh	= NPCInfo->greetEnt->m_pVehicle;
 				if (!(pVeh->m_ulFlags&VEH_OUTOFCONTROL))

@@ -4829,9 +4829,11 @@ static void Q3_SetNoMindTrick( int entID, qboolean add)
 	{
 		ent->NPC->scriptFlags |= SCF_NO_MIND_TRICK;
 		ent->NPC->confusionTime = 0;
+		ent->NPC->insanityTime = 0;
 		if ( ent->ghoul2.size() && ent->headBolt != -1 )
 		{
 			G_StopEffect("force/confusion", ent->playerModel, ent->headBolt, ent->s.number );
+			G_StopEffect("force/drain_hand", ent->playerModel, ent->headBolt, ent->s.number );
 		}
 	}
 	else

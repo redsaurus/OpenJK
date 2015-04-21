@@ -738,7 +738,7 @@ void NPC_BSHowler_Default( void )
 		{
 			gentity_t *sav_enemy = NPC->enemy;//FIXME: what about NPC->lastEnemy?
 			NPC->enemy = NULL;
-			gentity_t *newEnemy = NPC_CheckEnemy( NPCInfo->confusionTime < level.time, qfalse, qfalse );
+			gentity_t *newEnemy = NPC_CheckEnemy( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time), qfalse, qfalse );
 			NPC->enemy = sav_enemy;
 			if ( newEnemy && newEnemy != sav_enemy )
 			{//picked up a new enemy!

@@ -368,7 +368,7 @@ static void G_DynamicMusicUpdate( void )
 		}
 
 		LOScalced = clearLOS = qfalse;
-		if ( (ent->enemy==player&&(!ent->NPC||ent->NPC->confusionTime<level.time)) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
+		if ( (ent->enemy==player&&(!ent->NPC||((ent->NPC->confusionTime<level.time)&&(ent->NPC->insanityTime<level.time)))) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
 		{//mad
 			if ( ent->health > 0 )
 			{//alive

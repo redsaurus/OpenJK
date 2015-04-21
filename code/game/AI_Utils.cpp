@@ -335,6 +335,9 @@ qboolean AI_ValidateGroupMember( AIGroupInfo_t *group, gentity_t *member )
 	//must be aware
 	if ( member->NPC->confusionTime > level.time )
 		return qfalse;
+	
+	if ( member->NPC->insanityTime > level.time )
+		return qfalse;
 
 	//must be allowed to join groups
 	if ( member->NPC->scriptFlags&SCF_NO_GROUPS )

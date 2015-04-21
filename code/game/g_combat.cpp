@@ -4005,7 +4005,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			{//killed a client
 				if ( self->client->playerTeam == TEAM_ENEMY 
 					|| self->client->playerTeam == TEAM_FREE
-					|| (self->NPC && self->NPC->charmedTime > level.time) )
+					|| (self->NPC && (self->NPC->charmedTime > level.time || self->NPC->darkCharmedTime > level.time) ) )
 				{//killed an enemy
 					attacker->client->sess.missionStats.enemiesKilled++;
 				}
@@ -4198,6 +4198,8 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 		self->NPC->desiredPitch = 0;
 		self->NPC->confusionTime = 0;
 		self->NPC->charmedTime = 0;
+		self->NPC->insanityTime = 0;
+		self->NPC->darkCharmedTime = 0;
 		if ( self->ghoul2.size() )
 		{
 			if ( self->chestBolt != -1 )
@@ -4207,6 +4209,7 @@ extern void RunEmplacedWeapon( gentity_t *ent, usercmd_t **ucmd );
 			if ( self->headBolt != -1 )
 			{
 				G_StopEffect("force/confusion", self->playerModel, self->headBolt, self->s.number );
+				G_StopEffect("force/drain_hand", self->playerModel, self->headBolt, self->s.number );
 			}
 			WP_StopForceHealEffects( self );
 		}
@@ -5971,7 +5974,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 						if ( targ->client 
 							&& attacker->client 
 							&& targ->client->playerTeam == attacker->client->playerTeam 
-							&& (!targ->NPC || !targ->NPC->charmedTime) )
+							&& (!targ->NPC || (!targ->NPC->charmedTime && !targ->NPC->darkCharmedTime)) )
 						{//complain, but don't turn on them
 							G_FriendlyFireReaction( targ, attacker, dflags );
 						}
@@ -6147,7 +6150,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 		if ( targ->client 
 			&& attacker->client 
 			&& targ->client->playerTeam == attacker->client->playerTeam 
-			&& (!targ->NPC || !targ->NPC->charmedTime) )
+			&& (!targ->NPC || (!targ->NPC->charmedTime && !targ->NPC->darkCharmedTime)) )
 		{//complain, but don't turn on them
 			G_FriendlyFireReaction( targ, attacker, dflags );
 		}
@@ -6727,7 +6730,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 				
 				if ( yellAtAttacker )
 				{
-					if ( !targ->NPC || !targ->NPC->charmedTime )
+					if ( !targ->NPC || (!targ->NPC->charmedTime && !targ->NPC->darkCharmedTime) )
 					{
 						G_FriendlyFireReaction( targ, attacker, dflags );
 					}

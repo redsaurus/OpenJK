@@ -198,8 +198,8 @@ void NPC_BSAnimal_Default( void )
 
 
 	bool	EvadeThreat		= (level.time<NPCInfo->investigateSoundDebounceTime);
-	bool	CharmedDocile	= (level.time<NPCInfo->confusionTime);
-	bool	CharmedApproach = (level.time<NPCInfo->charmedTime);
+	bool	CharmedDocile	= (level.time<NPCInfo->confusionTime)||(level.time<NPCInfo->insanityTime);
+	bool	CharmedApproach = (level.time<NPCInfo->charmedTime)||(level.time<NPCInfo->darkCharmedTime);
 
 
 
