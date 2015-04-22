@@ -1557,7 +1557,8 @@ typedef enum
 	HOLSTER_INVALID = -1,
 	HOLSTER_NONE = 0,
 	HOLSTER_HIPS,
-	HOLSTER_BACK
+	HOLSTER_BACK,
+	HOLSTER_LHIP
 } holster_locations_t;
 
 //SABER FLAGS

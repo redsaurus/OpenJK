@@ -644,7 +644,11 @@ void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 		}
 		if ( saberNum == 0 )
 		{
-			if ( holsterPlace == HOLSTER_HIPS )
+			if ( holsterPlace == HOLSTER_LHIP )
+			{
+				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+			}
+			else if ( holsterPlace == HOLSTER_HIPS )
 			{
 				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_r" );
 			}
@@ -655,9 +659,16 @@ void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 		}
 		else
 		{
-			if ( holsterPlace == HOLSTER_HIPS )
+			if ( holsterPlace == HOLSTER_HIPS || holsterPlace == HOLSTER_LHIP )
 			{
-				handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+				if ( ent->client->ps.saber[0].holsterPlace == HOLSTER_LHIP )
+				{
+					handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_r" );
+				}
+				else
+				{
+					handBolt = gi.G2API_AddBolt( &ent->ghoul2[ent->playerModel], "*hip_l" );
+				}
 			}
 			else if ( holsterPlace == HOLSTER_BACK )
 			{

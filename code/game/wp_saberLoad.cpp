@@ -152,6 +152,7 @@ stringID_table_t HolsterTable[] =
 	{ "none", HOLSTER_NONE },
 	{ "hips", HOLSTER_HIPS },
 	{ "back", HOLSTER_BACK },
+	{ "lhip", HOLSTER_LHIP },
 	{ "",	-1 }
 };
 

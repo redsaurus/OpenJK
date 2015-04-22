@@ -51,6 +51,7 @@ extern cvar_t	*g_saberAnimSpeed;
 extern cvar_t	*g_saberAutoAim;
 extern cvar_t	*g_speederControlScheme;
 extern cvar_t	*g_saberNewControlScheme;
+extern cvar_t	*g_noIgniteTwirl;
 
 extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void WP_ForcePowerDrain( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
@@ -5242,9 +5243,30 @@ void PM_TorsoAnimLightsaber()
 	{
 		if (!G_IsRidingVehicle(pm->gent))
 		{
-			if (pm->ps->saber[0].holsterPlace != HOLSTER_BACK)
+			if (!g_noIgniteTwirl->integer)
 			{
 				PM_SetSaberMove(LS_DRAW);
+			}
+			else
+			{
+				if ( (PM_RunningAnim( pm->ps->legsAnim )
+					  || pm->ps->legsAnim == BOTH_WALK_STAFF
+					  || pm->ps->legsAnim == BOTH_WALK_DUAL
+					  || pm->ps->legsAnim == BOTH_WALKBACK_STAFF
+					  || pm->ps->legsAnim == BOTH_WALKBACK_DUAL )
+					&& pm->ps->saberBlockingTime < cg.time )
+				{//running w/1-handed weapon uses full-body anim
+					int setFlags = SETANIM_FLAG_NORMAL;
+					if ( PM_LandingAnim( pm->ps->torsoAnim ) )
+					{
+						setFlags = SETANIM_FLAG_OVERRIDE;
+					}
+					PM_SetAnim(pm,SETANIM_TORSO,pm->ps->legsAnim,setFlags);
+				}
+				else
+				{
+					PM_SetSaberMove(LS_READY);
+				}
 			}
 		}
 		return;
@@ -5253,7 +5275,14 @@ void PM_TorsoAnimLightsaber()
 	{
 		if (!G_IsRidingVehicle(pm->gent))
 		{
-			PM_SetSaberMove(LS_PUTAWAY);
+			if (!g_noIgniteTwirl->integer)
+			{
+				PM_SetSaberMove(LS_PUTAWAY);
+			}
+			else
+			{
+				//should never get here...
+			}
 		}
 		return;
 	}
@@ -5275,7 +5304,7 @@ void PM_TorsoAnimLightsaber()
 			pm->ps->weaponstate == WEAPON_CHARGING ||
 			pm->ps->weaponstate == WEAPON_CHARGING_ALT )
 	{//ready
-		if ( pm->ps->weapon == WP_SABER && (pm->ps->SaberLength()) )
+		if ( pm->ps->weapon == WP_SABER && (pm->ps->SaberLength()) && (pm->ps->SaberActive() || !g_noIgniteTwirl->integer))
 		{//saber is on
 			// Select the proper idle Lightsaber attack move from the chart.
 			if (pm->ps->saberMove > LS_READY && pm->ps->saberMove < LS_MOVE_MAX)
@@ -5687,7 +5716,7 @@ void PM_TorsoAnimation( void )
 	if (pm->ps->weapon == WP_SABER )		// WP_LIGHTSABER
 	{
 		qboolean saberInAir = qfalse;
-		if ( pm->ps->SaberLength() && !pm->ps->saberInFlight )
+		if ( pm->ps->SaberLength() && !pm->ps->saberInFlight && (pm->ps->SaberActive() || !g_noIgniteTwirl->integer) )
 		{
 			PM_TorsoAnimLightsaber();
 		}
@@ -5748,7 +5777,7 @@ void PM_TorsoAnimation( void )
 				{
 					if ( PM_InSlopeAnim( pm->ps->legsAnim ) )
 					{//HMM... this probably breaks the saber putaway and select anims
-						if ( pm->ps->SaberLength() > 0 )
+						if ( pm->ps->SaberLength() > 0 && (pm->ps->SaberActive() || !g_noIgniteTwirl->integer) )
 						{
 							PM_SetAnim(pm,SETANIM_TORSO,BOTH_STAND2,SETANIM_FLAG_NORMAL);
 						}
@@ -5830,7 +5859,7 @@ void PM_TorsoAnimation( void )
 			pm->ps->weaponstate == WEAPON_CHARGING ||
 			pm->ps->weaponstate == WEAPON_CHARGING_ALT )
 	{
-		if ( pm->ps->weapon == WP_SABER && pm->ps->SaberLength() )
+		if ( pm->ps->weapon == WP_SABER && pm->ps->SaberLength() && (pm->ps->SaberActive() || !g_noIgniteTwirl->integer))
 		{
 			PM_SetAnim(pm,SETANIM_TORSO,BOTH_ATTACK1,SETANIM_FLAG_NORMAL);//TORSO_WEAPONREADY1
 		}
