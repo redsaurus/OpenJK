@@ -5113,8 +5113,13 @@ void PM_SetAnim(pmove_t	*pm,int setAnimParts,int anim,int setAnimFlags, int blen
 	{//FIXME: sometimes we'll want to set anims when your dead... twitches, impacts, etc.
 		return;
 	}
-
+	
 	if ( pm->gent == NULL )
+	{
+		return;
+	}
+
+	if ( pm->ps->stasisTime > level.time )
 	{
 		return;
 	}

@@ -2703,6 +2703,11 @@ void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int 
 	{
 		return;
 	}
+	
+	if ( ent->client->ps.stasisTime > level.time )
+	{
+		return;
+	}
 
 	if(ent->client)
 	{//Players, NPCs

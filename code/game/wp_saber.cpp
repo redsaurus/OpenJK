@@ -217,8 +217,8 @@ int forcePowerNeeded[NUM_FORCE_POWERS] =
 	1,//FP_DRAIN,//hold/duration - drain force power for health
 	20,//FP_SEE,//duration - detect/see hidden enemies
 	40,//FP_DESTRUCTION
-	20,//FP_INSANITY
-	20,//FP_STASIS
+	50,//FP_INSANITY
+	35,//FP_STASIS
 	20,//FP_BLINDING
 	//NUM_FORCE_POWERS
 };
@@ -15129,7 +15129,7 @@ void WP_InitForcePowers( gentity_t *ent )
 		else
 		{
 			ent->client->ps.forcePowersKnown = ( 1 << FP_HEAL )|( 1 << FP_LEVITATION )|( 1 << FP_SPEED )|( 1 << FP_PUSH )|( 1 << FP_PULL )|( 1 << FP_TELEPATHY )|( 1 << FP_GRIP )|( 1 << FP_LIGHTNING)|( 1 << FP_SABERTHROW)|( 1 << FP_SABER_DEFENSE )|( 1 << FP_SABER_OFFENSE )|( 1<< FP_RAGE )|( 1<< FP_DRAIN )|( 1<< FP_PROTECT )|( 1<< FP_ABSORB )|( 1<< FP_SEE )|( 1 << FP_DESTRUCTION )
-				|( 1 << FP_INSANITY )|( 1 << FP_STASIS )|( 1 << FP_BLINDING );
+				|( 1 << FP_INSANITY )|( 1 << FP_STASIS )/*|( 1 << FP_BLINDING )*/;
 			ent->client->ps.forcePowerLevel[FP_HEAL] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_PUSH] = FORCE_LEVEL_1;
@@ -15149,10 +15149,10 @@ void WP_InitForcePowers( gentity_t *ent )
 			ent->client->ps.forcePowerLevel[FP_SABER_OFFENSE] = FORCE_LEVEL_3;
 			ent->client->ps.forcePowerLevel[FP_GRIP] = FORCE_LEVEL_2;
 			
-			ent->client->ps.forcePowerLevel[FP_DESTRUCTION] = FORCE_LEVEL_1;
-			ent->client->ps.forcePowerLevel[FP_INSANITY] = FORCE_LEVEL_1;
-			ent->client->ps.forcePowerLevel[FP_STASIS] = FORCE_LEVEL_1;
-			ent->client->ps.forcePowerLevel[FP_BLINDING] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_DESTRUCTION] = FORCE_LEVEL_2;
+			ent->client->ps.forcePowerLevel[FP_INSANITY] = FORCE_LEVEL_2;
+			ent->client->ps.forcePowerLevel[FP_STASIS] = FORCE_LEVEL_2;
+//			ent->client->ps.forcePowerLevel[FP_BLINDING] = FORCE_LEVEL_1;
 		}
 	}
 }
