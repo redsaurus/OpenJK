@@ -1814,7 +1814,7 @@ void CG_DrawDataPadWeaponSelect( void )
 
 	// count the number of weapons owned
 	weaponCount = 0;
-	for ( i = 1 ; i < 16 ; i++ ) 
+	for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ )
 	{
 		if ( weaponBitFlag & ( 1 << i ) ) 
 		{

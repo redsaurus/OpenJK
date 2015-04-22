@@ -661,7 +661,7 @@ void Player_CacheFromPrevLevel(void)
 			&ibits	//client->ps.stats[STAT_ITEMS]
 			);
 
-		for ( i = 1 ; i < 16 ; i++ ) 
+		for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ )
 		{
 			if ( bits & ( 1 << i ) ) 
 			{
