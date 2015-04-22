@@ -73,6 +73,41 @@ LANG_ENGLISH        "Tusken Rifle  \nThe Tusken Rifle fires a highly damaging pr
 REFERENCE           INGAME_NOGHRI_STICK_DESC
 LANG_ENGLISH        "Noghri Stick  \nThe Noghri Stick fires a ball of poisonous gas.\nPrimary Fire - Fires a ball of poisionous gas that does damage over time.\nSecondary Fire - Melee attack.\nAmmo Type - Power cell"
 
+REFERENCE			SFX_SABERS
+LANG_ENGLISH		"SFX Sabers:"
+
+REFERENCE			SFX_SABERS_DESC
+LANG_ENGLISH		"AJL's SFX lightsaber blades."
+
+REFERENCE			MPMOVEMENT
+LANG_ENGLISH		"MP Movement:"
+
+REFERENCE			MPMOVEMENT_DESC
+LANG_ENGLISH		"Raz0r's Multiplayer-style movement."
+
+REFERENCE			FLIPPED_HOLSTERS
+LANG_ENGLISH		"Flipped Holsters:"
+
+REFERENCE			FLIPPED_HOLSTERS_DESC
+LANG_ENGLISH		"Lightsabers are holstered upside down."
+
+REFERENCE			IGNITE_FLARE
+LANG_ENGLISH		"Ignition Flare:"
+
+REFERENCE			IGNITE_FLARE_DESC
+LANG_ENGLISH		"Display a flare when a lightsaber is ignited."
+
+REFERENCE			IGNITE_TWIRL
+LANG_ENGLISH		"Ignition Twirl:"
+
+REFERENCE			IGNITE_TWIRL_DESC
+LANG_ENGLISH		"Twirl the lightsaber when turning on and off."
+
+REFERENCE			JKENHANCED
+LANG_ENGLISH		"JK: Enhanced"
+
+REFERENCE			JKENHANCED_OPTIONS_DESC
+LANG_ENGLISH		"Configure JK: Enhanced options."
 ENDMARKER
 
 
