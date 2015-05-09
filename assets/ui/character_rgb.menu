@@ -1,0 +1,219 @@
+//----------------------------------------------------------------------------------------------
+//
+//	SERVER INFORMATION POPUP MENU
+//
+//	List information pertinant to one server
+//
+//----------------------------------------------------------------------------------------------
+{
+	menuDef 
+	{
+		name					"character_rgb"
+		visible					0
+		fullscreen				0
+		outOfBoundsClick									// this closes the window if it gets a click out of the rectangle
+		rect					0 0 640 480
+		focusColor				1 1 1 1								// Focus color for text and items
+		border					1
+		descX					320
+		descY					400
+		descScale				1
+		descColor				1 .682 0 .8
+		descAlignment				ITEM_ALIGN_CENTER		
+		popup
+
+		onOpen 
+		{
+		}
+
+		onESC 
+		{ 
+			play				"sound/interface/esc.wav" ;
+			close				character_rgb
+		}
+
+//----------------------------------------------------------------------------------------------
+//	MENU BACKGROUND
+//----------------------------------------------------------------------------------------------
+
+		itemDef 
+		{
+			name				rgbsliderbox
+			group				rgbchar
+			style				WINDOW_STYLE_FILLED
+			rect				30 140 220 120
+			backcolor			0 0 .35 .9
+			forecolor			1 1 1 1
+			border				0
+			bordercolor			0 0 .8 1
+			visible				1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				rgbicondummy
+			group				rgbchar
+			style				WINDOW_STYLE_EMPTY
+			type				ITEM_TYPE_BUTTON
+			text				X
+			textalign			ITEM_ALIGN_CENTER
+			textaligny			4
+			textalignx			12
+			textstyle			1
+			rect				220 140 24 24
+			forecolor			.75 .75 .75 1
+			border				0
+			bordersize			1
+			bordercolor			.33 .33 .5 1
+			visible				1
+			action 
+			{
+				play			"sound/interface/esc.wav" ; 
+				close			character_rgb
+			}
+		}
+		
+		itemDef
+		{
+			name	colorred
+			group				rgbchar
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Red:"
+			cvar	"ui_char_color_red"
+			rect	35 169 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				colorredslider
+			group				rgbchar
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_char_color_red" 255 0 255
+			rect				110 169 200 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
+
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
+		}
+
+		itemDef
+		{
+			name	colorgreen
+			group				rgbchar
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Green:"
+			cvar	"ui_char_color_green"
+			rect	35 200 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				colorgreenslider
+			group				rgbchar
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_char_color_green" 255 0 255
+			rect				110 200 200 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
+
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
+		}
+
+		itemDef
+		{
+			name	colorblue
+			group				rgbchar
+			type	ITEM_TYPE_NUMERICFIELD
+			text	"Blue:"
+			cvar	"ui_char_color_blue"
+			rect	35 231 60 14
+			textalign ITEM_ALIGN_LEFT
+			textalignx	0
+			textaligny	-1
+			forecolor			.615 .615 .956 1
+			font	4
+			textscale	1
+			visible	1
+			decoration
+		}
+
+		itemDef 
+		{
+			name				colorblueslider
+			group				rgbchar
+			type				ITEM_TYPE_SLIDER_INTEGER
+			cvarfloat			"ui_char_color_blue" 255 0 255
+			rect				110 231 200 14
+	   		textalign			ITEM_ALIGN_LEFT
+			textalignx			150
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				1
+			action 
+			{ 
+				play			"sound/interface/button1.wav" ;
+			}
+
+			mouseenter 
+			{ 
+//				show			highlight3
+			}
+			mouseexit 
+			{ 
+//				hide			highlight3
+			} 
+		}
+
+	}
+}

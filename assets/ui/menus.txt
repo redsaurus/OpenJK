@@ -5,6 +5,7 @@
 	loadMenu { "ui/newgame.menu"						}
 	loadMenu { "ui/newgame_first.menu"					}
 	loadMenu { "ui/character.menu"						}
+	loadMenu { "ui/character_rgb.menu"					}
 	loadMenu { "ui/saber.menu"						}
 	loadMenu { "ui/saber_rgb.menu"						}
 	loadMenu { "ui/saber_rgb2.menu"						}
