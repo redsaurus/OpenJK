@@ -418,6 +418,10 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_FORCE_ABSORB_LEVEL),
 	ENUM2STRING(SET_FORCE_DRAIN_LEVEL),
 	ENUM2STRING(SET_FORCE_SIGHT_LEVEL),
+	ENUM2STRING(SET_FORCE_DESTRUCTION_LEVEL),
+	ENUM2STRING(SET_FORCE_INSANITY_LEVEL),
+	ENUM2STRING(SET_FORCE_STASIS_LEVEL),
+	ENUM2STRING(SET_FORCE_BLINDING_LEVEL),
 	ENUM2STRING(SET_SABER1_COLOR1),
 	ENUM2STRING(SET_SABER1_COLOR2),
 	ENUM2STRING(SET_SABER2_COLOR1),
@@ -484,6 +488,10 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_FORCE_PROTECT),
 	ENUM2STRING(SET_FORCE_ABSORB),
 	ENUM2STRING(SET_FORCE_DRAIN),
+	ENUM2STRING(SET_FORCE_DESTRUCTION),
+	ENUM2STRING(SET_FORCE_INSANITY),
+	ENUM2STRING(SET_FORCE_STASIS),
+	ENUM2STRING(SET_FORCE_BLINDING),
 	ENUM2STRING(SET_WINTER_GEAR),
 	ENUM2STRING(SET_NO_ANGLES),
 	ENUM2STRING(SET_SABER_ORIGIN),
@@ -9376,6 +9384,10 @@ extern void LockDoors(gentity_t *const ent);
 	case SET_FORCE_ABSORB_LEVEL:
 	case SET_FORCE_DRAIN_LEVEL:
 	case SET_FORCE_SIGHT_LEVEL:
+	case SET_FORCE_DESTRUCTION_LEVEL:
+	case SET_FORCE_INSANITY_LEVEL:
+	case SET_FORCE_STASIS_LEVEL:
+	case SET_FORCE_BLINDING_LEVEL:
 		int_data = atoi((char *) data);
 		Q3_SetForcePowerLevel( entID, (toSet-SET_FORCE_HEAL_LEVEL), int_data );
 		break;
@@ -9463,6 +9475,18 @@ extern void Saboteur_Cloak( gentity_t *self );
 		break;
 	case SET_FORCE_DRAIN:
 		Q3_SetForcePower( entID, FP_DRAIN, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_DESTRUCTION:
+		Q3_SetForcePower( entID, FP_DESTRUCTION, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_INSANITY:
+		Q3_SetForcePower( entID, FP_INSANITY, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_STASIS:
+		Q3_SetForcePower( entID, FP_STASIS, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_BLINDING:
+		Q3_SetForcePower( entID, FP_BLINDING, (qboolean)(Q_stricmp("true",(char*)data)==0) );
 		break;
 
 extern cvar_t	*g_char_model;

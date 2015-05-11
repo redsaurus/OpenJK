@@ -14955,12 +14955,24 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 				//nothing
 				break;
 			case FP_DESTRUCTION:
+				ForceDestruction( self );
+				//do only once
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_INSANITY:
+				ForceInsanity( self );
+				//do only once
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_STASIS:
+				ForceStasis( self );
+				//do only once
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_BLINDING:
+				ForceBlinding( self );
+				//do only once
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			}
 		}
