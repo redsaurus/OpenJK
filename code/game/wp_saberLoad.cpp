@@ -2357,9 +2357,17 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 		}
 	}
 	*/
-	WP_SaberAddG2SaberModels( ent, saberNum );
-	ent->client->ps.saber[saberNum].SetLength( 0.0f );
-	ent->client->ps.saber[saberNum].Activate();
+	if (ent->client->ps.weapon == WP_SABER)
+	{
+		WP_SaberAddG2SaberModels( ent, saberNum );
+		ent->client->ps.saber[saberNum].SetLength( 0.0f );
+		ent->client->ps.saber[saberNum].Activate();
+	}
+	else
+	{
+		G_RemoveHolsterModels( ent );
+		WP_SaberAddHolsteredG2SaberModels( ent );
+	}
 
 	if ( ent->client->ps.saber[saberNum].stylesLearned )
 	{//change to the style we're supposed to be using
