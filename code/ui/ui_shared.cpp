@@ -7264,6 +7264,10 @@ void Item_Model_Paint(itemDef_t *item)
 				break;
 			}
 		}
+		if (Cvar_VariableString( "ui_char_head_model" )[0])
+		{
+			DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qtrue);
+		}
 	}
 
 	// setup the refdef

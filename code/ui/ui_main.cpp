@@ -978,6 +978,8 @@ static qboolean UI_DeferMenuScript ( const char **args )
 UI_RunMenuScript
 ===============
 */
+extern qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName );
+extern void ItemParse_swapheads( itemDef_t *item );
 static qboolean UI_RunMenuScript ( const char **args )
 {
 	const char *name, *name2,*mapName,*menuName,*warningMenuName;
@@ -1296,6 +1298,46 @@ static qboolean UI_RunMenuScript ( const char **args )
 									);
 
 						ItemParse_model_g2skin_go( item, skin );
+						
+						if (Cvar_VariableString( "ui_char_head_model" )[0])
+						{
+							Com_sprintf( skin, sizeof( skin ), "models/players/%s/model.glm", Cvar_VariableString ( "ui_char_head_model" ) );
+							ItemParse_asset_model_go_head( item, skin, qfalse );
+						}
+						else
+						{
+							ItemParse_asset_model_go_head( item, NULL, qtrue );
+						}
+
+						if (Cvar_VariableString( "ui_char_head_model" )[0])
+						{
+							if (Cvar_VariableString( "ui_char_head_skin" )[0])
+							{
+								Com_sprintf( skin, sizeof( skin), "models/players/%s/model_%s.skin", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+								if (!DC->registerSkin( skin ))
+								{
+									//What if it's a 3-parter or one part of a 3-parter?
+									if (strchr(Cvar_VariableString( "ui_char_head_skin" ), '|'))
+									{
+										Com_sprintf( skin, sizeof( skin ), "models/players/%s/|%s", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+									}
+									else
+									{
+										Com_sprintf( skin, sizeof( skin ), "models/players/%s/%s.skin", Cvar_VariableString("ui_char_head_model"), Cvar_VariableString("ui_char_head_skin"));
+									}
+								}
+							}
+							else
+							{
+								Com_sprintf( skin, sizeof( skin), "models/players/%s/model_default.skin", Cvar_VariableString("ui_char_head_model"));
+							}
+							ItemParse_model_g2skin_go_head( item, skin );
+						}
+						
+						if (Cvar_VariableString( "ui_char_head_model" )[0])
+						{
+							ItemParse_swapheads( item );
+						}
 						UI_SaberAttachToChar( item );
 					}
 				}
@@ -2021,6 +2063,10 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 					{
 						ItemParse_model_g2anim_go( item, datapadMoveData[uiInfo.movesTitleIndex][index].anim );
 						uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qtrue);
+						if (Cvar_VariableString( "ui_char_head_model" )[0])
+						{
+							DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qtrue);
+						}
 
 						uiInfo.moveAnimTime += uiInfo.uiDC.realTime;
 
@@ -2102,6 +2148,10 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 				{
 					ItemParse_model_g2anim_go( item, uiInfo.movesBaseAnim );
 					uiInfo.moveAnimTime = DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qtrue);
+					if (Cvar_VariableString( "ui_char_head_model" )[0])
+					{
+						DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qtrue);
+					}
 				}
 			}
 		}
@@ -6854,8 +6904,6 @@ static void UI_ResetSaberCvars ( void )
 
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
 extern qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName );
-extern qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName );
-extern void ItemParse_swapheads( itemDef_t *item );
 static void UI_UpdateCharacterSkin( void )
 {
 	menuDef_t *menu;
