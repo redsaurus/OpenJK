@@ -47,7 +47,9 @@ extern vmCvar_t	cg_SFXSabersGlowSize;
 extern vmCvar_t	cg_SFXSabersCoreSize;
 
 extern vmCvar_t cg_ignitionFlare;
-extern vmCvar_t cg_eyeView;
+
+//True View Camera Position Check Function
+extern void CheckCameraLocation( vec3_t OldeyeOrigin );
 
 /*
 
@@ -1687,7 +1689,7 @@ static void CG_BreathPuffs( centity_t *cent, vec3_t angles, vec3_t origin )
 
 	if ( !client
 		|| cg_drawBreath.integer == 0
-		|| !cg.renderingThirdPerson
+		|| (!cg.renderingThirdPerson && !(cg_trueguns.integer || client->ps.weapon == WP_MELEE || client->ps.weapon == WP_SABER ))
 		|| client->ps.pm_type == PM_DEAD
 		|| client->breathPuffTime > cg.time )
 	{
@@ -7555,6 +7557,407 @@ static void CG_AddSaberBlades( centity_t *cent, int renderfx, vec3_t origin, vec
 //--------------- END SABER STUFF --------
 
 /*
+ ================
+ GetSelfLegAnimPoint
+ ================
+ */
+//Get the point in the leg animation and return a percentage of the current point in the anim between 0 and the total anim length (0.0f - 1.0f)
+float GetSelfLegAnimPoint(void)
+{
+	float		current	  = 0.0f;
+	int			end		  = 0;
+	int			start	  = 0;
+	if (!!gi.G2API_GetBoneAnimIndex(&
+									cg_entities[cg.snap->ps.clientNum].gent->ghoul2[cg_entities[cg.snap->ps.clientNum].gent->playerModel],
+									cg_entities[cg.snap->ps.clientNum].gent->rootBone,
+									level.time,
+									&current,
+									&start,
+									&end,
+									NULL,
+									NULL,
+									NULL))
+	{
+		float percentComplete = (current-start)/(end-start);
+		
+		return percentComplete;
+	}
+	
+	return 0.0f;
+
+}
+
+
+/*
+ ================
+ GetSelfTorsoAnimPoint
+ 
+ ================
+ */
+//Get the point in the torso animation and return a percentage of the current point in the anim between 0 and the total anim length (0.0f - 1.0f)
+float GetSelfTorsoAnimPoint(void)
+{
+	float		current	  = 0.0f;
+	int			end		  = 0;
+	int			start	  = 0;
+	if (!!gi.G2API_GetBoneAnimIndex(&
+									cg_entities[cg.snap->ps.clientNum].gent->ghoul2[cg_entities[cg.snap->ps.clientNum].gent->playerModel],
+									cg_entities[cg.snap->ps.clientNum].gent->lowerLumbarBone,
+									level.time,
+									&current,
+									&start,
+									&end,
+									NULL,
+									NULL,
+									NULL))
+	{
+		float percentComplete = (current-start)/(end-start);
+		
+		return percentComplete;
+	}
+	
+	return 0.0f;
+}
+
+
+/*
+ ===============
+ SmoothTrueView
+ 
+ Purpose:  Uses the currently setup model-based First Person View to calculation the final viewangles.  Features the
+ following:
+ 1.  Simulates allowable eye movement by makes a deadzone around the inputed viewangles vs the desired
+ viewangles of cg.refdef.viewangles
+ 2.  Prevents the sudden view flipping during moves where your camera is suppose to flip 360 on the pitch (x)
+ pitch (x) axis.
+ ===============
+ */
+
+void SmoothTrueView(vec3_t eyeAngles)
+{
+	float LegAnimPoint = GetSelfLegAnimPoint();
+	float TorsoAnimPoint = GetSelfTorsoAnimPoint();
+	
+	//counter
+	int		i;
+	
+	//cg.refdef.viewangles in relation to eyeAngles
+	float	AngDiff;
+	
+	qboolean	eyeRange = qtrue;
+	qboolean	UseRefDef = qfalse;
+	qboolean	DidSpecial = qfalse;
+	
+	//Debug messages
+	//Com_Printf("eyeAngles: %f, %f, %f\n", eyeAngles[0], eyeAngles[1], eyeAngles[2]);
+	//Com_Printf("cg.refdef.viewangles: %f, %f, %f\n", cg.refdef.viewangles[0], cg.refdef.viewangles[1], cg.refdef.viewangles[2]);
+	
+	
+	
+	//RAFIXME: See if I can find a link this to the prediction stuff.  I think the snap is of just the last gamestate snap
+	
+	//Rolls
+	if ( cg_trueroll.integer )
+	{
+		if ( ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_RIGHT )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT_STOP )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_RIGHT_STOP )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT_FLIP )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_RUN_RIGHT_FLIP )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_FLIP_LEFT )
+			|| ( (cg.snap->ps.legsAnim) == BOTH_WALL_FLIP_RIGHT ) )
+		{//Roll moves that look good with eye range
+			eyeRange = qtrue;
+			DidSpecial = qtrue;
+		}
+		else if ( cg_trueroll.integer == 1 )
+		{//Use simple roll for the more complicated rolls
+			if ( ( (cg.snap->ps.legsAnim) == BOTH_FLIP_L )
+				|| ( (cg.snap->ps.legsAnim) == BOTH_ROLL_L ) )
+			{//Left rolls
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[2] += AngleNormalize180( (360 * LegAnimPoint) );
+				AngleNormalize180( eyeAngles[2] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+			else if( ((cg.snap->ps.legsAnim) == BOTH_FLIP_R)
+					|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_R) )
+			{//Right rolls
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[2] += AngleNormalize180( ( 360 - (360 * LegAnimPoint) ) );
+				AngleNormalize180( eyeAngles[2] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+		else
+		{//You're here because you're using cg_trueroll.integer == 2
+			if ( ((cg.snap->ps.legsAnim) == BOTH_FLIP_L)
+				|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_L)
+				|| ((cg.snap->ps.legsAnim) == BOTH_FLIP_R)
+				|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_R) )
+			{//Roll animation, lock the eyemovement
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+	}
+	else if ( ((cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_RUN_RIGHT)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT_STOP)
+			 || ((cg.snap->ps.legsAnim) ==	BOTH_WALL_RUN_RIGHT_STOP)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_RUN_LEFT_FLIP)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_RUN_RIGHT_FLIP)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_FLIP_LEFT)
+			 || ((cg.snap->ps.legsAnim) == BOTH_WALL_FLIP_RIGHT)
+			 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_L)
+			 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_L)
+			 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_R)
+			 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_R) )
+	{//you don't want rolling so use cg.refdef.viewangles as the view
+		UseRefDef = qtrue;
+	}
+	
+	//Flips
+	if( cg_trueflip.integer )
+	{
+		if( cg.snap->ps.legsAnim == BOTH_WALL_FLIP_BACK1 )
+		{//Flip moves that look good with the eyemovement locked
+			eyeRange = qfalse;
+			DidSpecial = qtrue;
+		}
+		else if ( cg_trueflip.integer == 1 )
+		{//Use simple flip for the more complicated flips
+			if ( ((cg.snap->ps.legsAnim) == BOTH_FLIP_F)
+				|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_F) )
+			{//forward flips
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[0] += AngleNormalize180( 360 - (360 * LegAnimPoint) );
+				AngleNormalize180( eyeAngles[0] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+			else if ( ((cg.snap->ps.legsAnim) == BOTH_FLIP_B)
+					 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_B)
+					 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_BACK1) )
+			{//back flips
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[0] += AngleNormalize180( (360 * LegAnimPoint) );
+				AngleNormalize180( eyeAngles[0] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+		else
+		{//You're here because you're using cg_trueflip.integer = 2
+			if ( ( (cg.snap->ps.legsAnim) == BOTH_FLIP_F )
+				|| ( (cg.snap->ps.legsAnim) == BOTH_ROLL_F )
+				|| ( (cg.snap->ps.legsAnim) == BOTH_FLIP_B )
+				|| ( (cg.snap->ps.legsAnim) == BOTH_ROLL_B )
+				|| ( (cg.snap->ps.legsAnim) == BOTH_FLIP_BACK1 ) )
+			{//Flip animation and using cg_trueflip.integer = 2, lock the eyemovement
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+	}
+	else if ( ((cg.snap->ps.legsAnim) == BOTH_WALL_FLIP_BACK1)
+			 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_F)
+			 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_F)
+			 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_B)
+			 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_B)
+			 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_BACK1) )
+	{//you don't want flipping so use cg.refdef.viewangles as the view
+		UseRefDef = qtrue;
+	}
+	
+	
+	
+	if ( cg_truespin.integer )
+	{
+		if ( cg_truespin.integer == 1 )
+		{//Do a simulated Spin for the more complicated spins
+			if ( ((cg.snap->ps.torsoAnim) == BOTH_T1_TL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T1__L_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T1__L__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T1_BL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T1_BL__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T1_BL_TR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T2__L_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T2_BL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T2_BL__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T3__L_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T3_BL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T3_BL__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T4__L_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T4_BL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T4_BL__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5_TL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5__L_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5__L__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5_BL_BR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5_BL__R)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_T5_BL_TR)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_ATTACK_BACK)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_CROUCHATTACKBACK1)
+				|| ((cg.snap->ps.torsoAnim) == BOTH_BUTTERFLY_LEFT)
+				//This technically has 2 spins and seems to have been labeled wrong
+				|| ((cg.snap->ps.legsAnim) == BOTH_FJSS_TR_BL) )
+			{//Left Spins
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[1] += AngleNormalize180( (360 - (360 * TorsoAnimPoint)) );
+				AngleNormalize180( eyeAngles[1] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+			else if ( ((cg.snap->ps.torsoAnim) == BOTH_T1_BR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T1__R__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T1__R_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T1_TR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T1_BR_TL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T1_BR__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T2_BR__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T2_BR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T2__R_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T3_BR__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T3_BR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T3__R_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T4_BR__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T4_BR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T4__R_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5_BR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5__R__L)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5__R_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5_TR_BL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5_BR_TL)
+					 || ((cg.snap->ps.torsoAnim) == BOTH_T5_BR__L)
+					 //This technically has 2 spins
+					 || ((cg.snap->ps.legsAnim) == BOTH_BUTTERFLY_RIGHT)
+					 //This technically has 2 spins and seems to have been labeled wrong
+					 || ((cg.snap->ps.legsAnim) == BOTH_FJSS_TL_BR) )
+			{//Right Spins
+				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				eyeAngles[1] += AngleNormalize180( (360 * TorsoAnimPoint) );
+				AngleNormalize180( eyeAngles[1] );
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+		else
+		{//You're here because you're using cg_truespin.integer == 2
+			if ( PM_SpinningSaberAnim( (cg.snap->ps.torsoAnim) )
+				&& ((cg.snap->ps.torsoAnim)  != BOTH_JUMPFLIPSLASHDOWN1)
+				&& ((cg.snap->ps.torsoAnim)  != BOTH_JUMPFLIPSTABDOWN) )
+			{//Flip animation and using cg_trueflip.integer = 2, lock the eyemovement
+				eyeRange = qfalse;
+				DidSpecial = qtrue;
+			}
+		}
+	}
+	else if ( PM_SpinningSaberAnim( (cg.snap->ps.torsoAnim) )
+				&& ((cg.snap->ps.torsoAnim)  != BOTH_JUMPFLIPSLASHDOWN1)
+				&& ((cg.snap->ps.torsoAnim)  != BOTH_JUMPFLIPSTABDOWN) )
+	{//you don't want spinning so use cg.refdef.viewangles as the view
+		UseRefDef = qtrue;
+	}
+	else if ( (cg.snap->ps.legsAnim) == BOTH_JUMPATTACK6)
+	{
+		UseRefDef = qtrue;
+	}
+	
+	//Prevent camera flicker while landing.
+	if ( ((cg.snap->ps.legsAnim)  == BOTH_LAND1)
+		|| ((cg.snap->ps.legsAnim)  == BOTH_LAND2)
+		|| ((cg.snap->ps.legsAnim)  == BOTH_LANDBACK1)
+		|| ((cg.snap->ps.legsAnim)  == BOTH_LANDLEFT1)
+		|| ((cg.snap->ps.legsAnim)  == BOTH_LANDRIGHT1) )
+	{
+		UseRefDef = qtrue;
+	}
+	
+	//Prevent the camera flicker while switching to the saber.
+	if ( ( (cg.snap->ps.torsoAnim) ==	BOTH_STAND2TO1 )
+		|| ( (cg.snap->ps.torsoAnim) == BOTH_STAND1TO2 ) )
+	{
+		UseRefDef = qtrue;
+	}
+	
+	//special camera view for blue backstab
+	if ( (cg.snap->ps.torsoAnim) == BOTH_A2_STABBACK1)
+	{
+		eyeRange = qfalse;
+		DidSpecial = qtrue;
+	}
+	
+	if ( ( (cg.snap->ps.torsoAnim) == BOTH_JUMPFLIPSLASHDOWN1)
+		|| ( (cg.snap->ps.torsoAnim) == BOTH_JUMPFLIPSLASHDOWN1) )
+	{
+		eyeRange = qfalse;
+		DidSpecial = qtrue;
+	}
+	
+	
+	if ( UseRefDef )
+	{
+		VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+	}
+	else
+	{
+		//Movement Roll dampener
+		if ( !DidSpecial )
+		{
+			if ( !cg_truemoveroll.integer )
+			{
+				eyeAngles[2] = cg.snap->ps.viewangles[2];
+			}
+			else if ( cg_truemoveroll.integer == 1 )
+			{//dampen the movement leaning
+				eyeAngles[2] *= .5;
+			}
+		}
+		
+		//eye movement
+		if ( eyeRange )
+		{//allow eye motion
+			for (i = 0; i < 2; i++ )
+			{
+				int fov;
+				if ( cg_truefov.integer )
+				{
+					fov = cg_truefov.value;
+				}
+				else
+				{
+					fov = cg_fov.value;
+				}
+				
+				AngDiff = eyeAngles[i] - cg.snap->ps.viewangles[i];
+				
+				AngDiff = AngleNormalize180( AngDiff );
+				if ( fabs( AngDiff ) > fov )
+				{
+					if ( AngDiff < 0 )
+					{
+						eyeAngles[i] += fov;
+					}
+					else
+					{
+						eyeAngles[i] -= fov;
+					}
+				}
+				else
+				{
+					eyeAngles[i] = cg.snap->ps.viewangles[i];
+				}
+				AngleNormalize180( eyeAngles[i] );
+			}
+		}
+	}
+}
+
+/*
 ===============
 CG_Player
 
@@ -7642,7 +8045,7 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 
-	if(cent->currentState.number == 0 && !cg.renderingThirdPerson )//!cg_thirdPerson.integer )
+	if(cent->currentState.number == 0 && !cg.renderingThirdPerson && !cg_trueguns.integer)//!cg_thirdPerson.integer )
 	{
 		calcedMp = qtrue;
 	}
@@ -7693,7 +8096,7 @@ Ghoul2 Insert Start
 			{//no viewentity
 				if ( cent->currentState.number == cg.snap->ps.clientNum )
 				{//I am the player
-					if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+					if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 					{//not using saber or fists
 						ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 					}
@@ -7701,7 +8104,7 @@ Ghoul2 Insert Start
 			}
 			else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 			{//I am the view entity
-				if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+				if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 				{//not using first person saber test or, if so, not using saber
 					ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -8093,6 +8496,118 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 			gi.G2API_GiveMeVectorFromMatrix( boltMatrix, ORIGIN, cent->gent->client->renderInfo.footRPoint );
 		}
 
+		//[TrueView]
+		//Restrict True View Model changes to the player and do the True View camera view work.
+		if (cg.snap && cent->currentState.number == cg.snap->ps.clientNum)
+		{
+			if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cent->currentState.weapon == WP_SABER
+											  || cent->currentState.weapon == WP_MELEE) && !cg.zoomMode)
+			{
+				//<True View varibles
+				mdxaBone_t 		eyeMatrix;
+				vec3_t			eyeAngles;
+				vec3_t			EyeAxis[3];
+				vec3_t			OldeyeOrigin;
+				qhandle_t		eyesBolt;
+				qboolean		boneBased = qfalse;
+				
+				//make the player's be based on the ghoul2 model
+				
+				//grab the location data for the "*head_eyes" tag surface
+				eyesBolt = gi.G2API_AddBolt(&cent->gent->ghoul2[cent->gent->playerModel], "*head_eyes");
+				if( !gi.G2API_GetBoltMatrix(cent->gent->ghoul2, cent->gent->playerModel, eyesBolt, &eyeMatrix, tempAngles, cent->lerpOrigin,
+											  cg.time, cgs.model_draw, cent->currentState.modelScale) )
+				{//Something prevented you from getting the "*head_eyes" information.  The model probably doesn't have a
+					//*head_eyes tag surface.  Try using *head_front instead
+					
+					eyesBolt = gi.G2API_AddBolt(&cent->gent->ghoul2[cent->gent->playerModel], "*head_front");
+					if( !gi.G2API_GetBoltMatrix(cent->gent->ghoul2, cent->gent->playerModel, eyesBolt, &eyeMatrix, tempAngles, cent->lerpOrigin,
+												  cg.time, cgs.model_draw, cent->currentState.modelScale) )
+					{
+						eyesBolt = gi.G2API_AddBolt(&cent->gent->ghoul2[cent->gent->playerModel], "reye");
+						boneBased = qtrue;
+						if( !gi.G2API_GetBoltMatrix(cent->gent->ghoul2, cent->gent->playerModel, eyesBolt, &eyeMatrix, tempAngles, cent->lerpOrigin,
+													  cg.time, cgs.model_draw, cent->currentState.modelScale) )
+						{
+/*							if( !trueviewwarning )
+							{//first failure.  Do a single warning then turn the warnings off.
+								CG_Printf("WARNING:  This Model seems to have missing the *head_eyes and *head_front tag surfaces.  True View Disabled.\n");
+								trueviewwarning = qtrue;
+							}*/
+							
+							goto SkipTrueView;
+						}
+					}
+				}
+				
+				//Set the original eye Origin
+				VectorCopy( cg.refdef.vieworg, OldeyeOrigin);
+				
+				//set the player's view origin
+				gi.G2API_GiveMeVectorFromMatrix(eyeMatrix, ORIGIN, cg.refdef.vieworg);
+				
+				//Find the orientation of the eye tag surface
+				//I based this on coordsys.h that I found at http://www.xs4all.nl/~hkuiper/cwmtx/html/coordsys_8h-source.html
+				//According to the file, Harry Kuiper, Will DeVore deserve credit for making that file that I based this on.
+				
+				if(boneBased)
+				{//the eye bone has different default axis orientation than the tag surfaces.
+					EyeAxis[0][0] = eyeMatrix.matrix[0][1];
+					EyeAxis[1][0] = eyeMatrix.matrix[1][1];
+					EyeAxis[2][0] = eyeMatrix.matrix[2][1];
+					
+					EyeAxis[0][1] = eyeMatrix.matrix[0][0];
+					EyeAxis[1][1] = eyeMatrix.matrix[1][0];
+					EyeAxis[2][1] = eyeMatrix.matrix[2][0];
+					
+					EyeAxis[0][2] = -eyeMatrix.matrix[0][2];
+					EyeAxis[1][2] = -eyeMatrix.matrix[1][2];
+					EyeAxis[2][2] = -eyeMatrix.matrix[2][2];
+				}
+				else
+				{
+					EyeAxis[0][0] = eyeMatrix.matrix[0][0];
+					EyeAxis[1][0] = eyeMatrix.matrix[1][0];
+					EyeAxis[2][0] = eyeMatrix.matrix[2][0];
+					
+					EyeAxis[0][1] = eyeMatrix.matrix[0][1];
+					EyeAxis[1][1] = eyeMatrix.matrix[1][1];
+					EyeAxis[2][1] = eyeMatrix.matrix[2][1];
+					
+					EyeAxis[0][2] = eyeMatrix.matrix[0][2];
+					EyeAxis[1][2] = eyeMatrix.matrix[1][2];
+					EyeAxis[2][2] = eyeMatrix.matrix[2][2];
+				}
+				
+				eyeAngles[YAW] = ( atan2(EyeAxis[1][0], EyeAxis[0][0]) * 180 / M_PI );
+				
+				//I want asin but it's not setup in the libraries so I'm useing the statement asin x = (M_PI / 2) - acos x
+				eyeAngles[PITCH] = ( ( (M_PI / 2) - acos (-EyeAxis[2][0]) ) * 180 / M_PI );
+				eyeAngles[ROLL] = ( atan2(EyeAxis[2][1], EyeAxis[2][2]) * 180 / M_PI );
+				
+				//END Find the orientation of the eye tag surface
+				
+				//Shift the camera origin by cg_trueeyeposition
+				AngleVectors( eyeAngles, EyeAxis[0], NULL, NULL );
+				VectorMA( cg.refdef.vieworg, cg_trueeyeposition.value, EyeAxis[0], cg.refdef.vieworg );
+				
+				//Trace to see if the bolt eye origin is ok to move to.  If it's not, place it at the last safe position.
+				CheckCameraLocation( OldeyeOrigin );
+				
+				//Do all the Eye "movement" and simplified moves here.
+				SmoothTrueView(eyeAngles);
+				
+				//set the player view angles
+//				VectorCopy(eyeAngles, cg.refdef.viewangles);
+				
+				//set the player view axis
+				AnglesToAxis( eyeAngles, cg.refdef.viewaxis );
+				
+			}
+		}
+		
+SkipTrueView:
+
 		//Handle saber
 		if ( cent->gent
 			&& cent->gent->client
@@ -8288,7 +8803,8 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		if ( cent->currentState.number != 0
 			|| cg.renderingThirdPerson
 			|| cg.snap->ps.stats[STAT_HEALTH] <= 0
-			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//First person saber
+			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )  //First person saber
+			|| cg_trueguns.integer
 			)
 		{//if NPC, third person, or dead, unless using saber
 			//Get eyePoint & eyeAngles
@@ -8839,7 +9355,7 @@ Ghoul2 Insert End
 		{//no viewentity
 			if ( cent->currentState.number == cg.snap->ps.clientNum )
 			{//I am the player
-				if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+				if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 				{//not using saber or fists
 					renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -8847,7 +9363,7 @@ Ghoul2 Insert End
 		}
 		else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 		{//I am the view entity
-			if ( cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE )
+			if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 			{//not using saber or fists
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}

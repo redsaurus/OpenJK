@@ -210,6 +210,7 @@ set(SPGameCGameFiles
 	"${SPDir}/cgame/cg_snapshot.cpp"
 	"${SPDir}/cgame/cg_syscalls.cpp"
 	"${SPDir}/cgame/cg_text.cpp"
+	"${SPDir}/cgame/cg_trueview.cpp"
 	"${SPDir}/cgame/cg_view.cpp"
 	"${SPDir}/cgame/cg_weapons.cpp"
 	"${SPDir}/cgame/FX_ATSTMain.cpp"

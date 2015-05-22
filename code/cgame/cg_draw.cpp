@@ -3286,6 +3286,11 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 			{
 				sz -= ( cg.overrides.fov - cg_zoomFov ) / 80.0f;
 			}
+			else if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cg.snap->ps.weapon == WP_SABER
+												   || cg.snap->ps.weapon == WP_MELEE) && cg_truefov.value )
+			{
+				sz -= ( cg_truefov.value - cg_zoomFov ) / 80.0f;
+			}
 			else
 			{
 				sz -= ( cg_fov.value - cg_zoomFov ) / 80.0f;

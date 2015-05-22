@@ -338,7 +338,17 @@ vmCvar_t	cg_SFXSabersCoreSize;
 
 vmCvar_t	cg_ignitionFlare;
 
-vmCvar_t	cg_eyeView;
+vmCvar_t	cg_trueguns;
+vmCvar_t	cg_fpls;
+
+vmCvar_t		cg_trueroll;
+vmCvar_t		cg_trueflip;
+vmCvar_t		cg_truespin;
+vmCvar_t		cg_truemoveroll;
+vmCvar_t		cg_truesaberonly;
+vmCvar_t		cg_trueeyeposition;
+vmCvar_t		cg_trueinvertsaber;
+vmCvar_t		cg_truefov;
 
 vmCvar_t	cg_smoothCamera;
 vmCvar_t	cg_speedTrail;
@@ -463,7 +473,17 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"0", CVAR_ARCHIVE },
 	
-	{ &cg_eyeView,	"cg_eyeView",	"0", CVAR_ARCHIVE },
+	//True View Control cvars
+	{ &cg_trueguns, "cg_trueguns", "0", CVAR_ARCHIVE },
+	{ &cg_fpls, "cg_fpls", "1", CVAR_ARCHIVE },
+	{ &cg_trueroll,	"cg_trueroll",	"0", CVAR_ARCHIVE },
+	{ &cg_trueflip,	"cg_trueflip",	"0", CVAR_ARCHIVE },
+	{ &cg_truespin,	"cg_truespin",	"0", CVAR_ARCHIVE },
+	{ &cg_truemoveroll,	"cg_truemoveroll",	"0", CVAR_ARCHIVE },
+	{ &cg_truesaberonly,	"cg_truesaberonly",	"0", CVAR_ARCHIVE },
+	{ &cg_trueeyeposition,	"cg_trueeyeposition",	"0.0", 0},
+	{ &cg_trueinvertsaber,	"cg_trueinvertsaber",	"1", CVAR_ARCHIVE},
+	{ &cg_truefov,	"cg_truefov",	"80", CVAR_ARCHIVE},
 
 	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE },
 	{ &cg_speedTrail, "cg_speedTrail", "1", CVAR_ARCHIVE },
@@ -2194,6 +2214,8 @@ void CG_Init( int serverCommandSequence ) {
 	CG_GameStateReceived();
 
 	CG_InitConsoleCommands();
+	
+	CG_TrueViewInit();
 
 	cg.weaponPickupTextTime = 0;
 

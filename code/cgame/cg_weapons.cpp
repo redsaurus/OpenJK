@@ -39,7 +39,6 @@ const char *CG_DisplayBoxedText(int iBoxX, int iBoxY, int iBoxWidth, int iBoxHei
 								const vec4_t v4Color);
 void CG_LoadViewmodelAnimations (CGhoul2Info* ghl2, const char *modelName, viewModelAnimSet_t* ptAnims);
 
-extern vmCvar_t cg_eyeView;
 /*
 =================
 CG_RegisterWeapon
@@ -1267,6 +1266,9 @@ void CG_AddViewWeapon( playerState_t *ps )
 
 	// no gun if in third person view
 	if ( cg.renderingThirdPerson )
+		return;
+	
+	if ( cg_trueguns.integer )
 		return;
 
 	if ( ps->pm_type == PM_INTERMISSION )
