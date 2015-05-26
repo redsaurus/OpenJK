@@ -175,7 +175,17 @@ LANG_ENGLISH        "Rank 2 - Jedi launches a more powerful orb of force energy.
 REFERENCE           INGAME_FORCE_DESTRUCTION_LVL3_DESC
 LANG_ENGLISH        "Rank 3 - Jedi launches an extremely dangerous orb of force energy."
 
+REFERENCE			TRUE_GUNS
+LANG_ENGLISH		"TrueView Guns:"
 
+REFERENCE			FPLS
+LANG_ENGLISH		"TrueView Lightsaber:"
+
+REFERENCE			TRUE_GUNS_DESC
+LANG_ENGLISH		"TrueView first person view for guns."
+
+REFERENCE			FPLS_DESC
+LANG_ENGLISH		"First person lightsaber option using TrueView."
 
 ENDMARKER
 

@@ -2822,6 +2822,70 @@
 				play			"sound/interface/button1.wav"
 			} 
 		}
+		
+		itemDef 
+		{			
+			name				trueviewguns
+			group				jkenhanced
+      			type				ITEM_TYPE_MULTI
+			text				@SPMOD_TRUE_GUNS
+			descText			@SPMOD_TRUE_GUNS_DESC
+			cvar				"cg_trueguns"	
+			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
+			rect				260 258 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+
+			mouseenter 
+			{ 
+				show			highlight6
+			}
+			mouseexit 
+			{ 
+				hide			highlight6
+			}
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			} 
+		}
+		
+		itemDef 
+		{			
+			name				trueviewsabers
+			group				jkenhanced
+      			type				ITEM_TYPE_MULTI
+			text				@SPMOD_FPLS
+			descText			@SPMOD_FPLS_DESC
+			cvar				"cg_fpls"	
+			cvarFloatList			{  @MENUS_OFF 0 @MENUS_ON 1 }
+			rect				260 272 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+
+			mouseenter 
+			{ 
+				show			highlight7
+			}
+			mouseexit 
+			{ 
+				hide			highlight7
+			}
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			} 
+		}
 
 //----------------------------------------------------------------------------------------------
 //	RESET DEFAULTS
