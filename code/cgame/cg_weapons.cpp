@@ -1268,7 +1268,7 @@ void CG_AddViewWeapon( playerState_t *ps )
 	if ( cg.renderingThirdPerson )
 		return;
 	
-	if ( cg_trueguns.integer )
+	if ( cg_trueguns.integer && !cg.zoomMode )
 		return;
 
 	if ( ps->pm_type == PM_INTERMISSION )

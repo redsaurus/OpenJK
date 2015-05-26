@@ -1324,7 +1324,7 @@ float CG_ForceSpeedFOV( void )
 	float timeLeft = player->client->ps.forcePowerDuration[FP_SPEED] - cg.time;
 	float length = FORCE_SPEED_DURATION*forceSpeedValue[player->client->ps.forcePowerLevel[FP_SPEED]];
 	float amt = forceSpeedFOVMod[player->client->ps.forcePowerLevel[FP_SPEED]];
-	if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cg.snap->ps.weapon == WP_SABER
+	if ( !cg.renderingThirdPerson && ((!cg.zoomMode && cg_trueguns.integer) || cg.snap->ps.weapon == WP_SABER
 										   || cg.snap->ps.weapon == WP_MELEE) && cg_truefov.value )
 	{
 		fov = cg_truefov.value;
@@ -1403,7 +1403,7 @@ static qboolean	CG_CalcFov( void ) {
 		{
 			fov_x = cg.overrides.fov;
 		}
-		else if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cg.snap->ps.weapon == WP_SABER
+		else if ( !cg.renderingThirdPerson && ((!cg.zoomMode && cg_trueguns.integer) || cg.snap->ps.weapon == WP_SABER
 											   || cg.snap->ps.weapon == WP_MELEE) && cg_truefov.value )
 		{
 			fov_x = cg_truefov.value;
@@ -1679,7 +1679,7 @@ static qboolean CG_CalcViewValues( void ) {
 		}
 	}
 
-	if ( (cg.renderingThirdPerson||cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE)
+	if ( (cg.renderingThirdPerson)
 		&& !cg.zoomMode
 		&& !viewEntIsCam )
 	{
@@ -1691,7 +1691,7 @@ static qboolean CG_CalcViewValues( void ) {
 //		else
 //		{
 		// First person saber
-		if ( !cg.renderingThirdPerson )
+		/*if ( !cg.renderingThirdPerson )
 		{
 			if ( cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE )
 			{
@@ -1701,7 +1701,7 @@ static qboolean CG_CalcViewValues( void ) {
 				AngleVectors( cg.refdefViewAngles, dir, NULL, NULL );
 				VectorMA( cg.refdef.vieworg, -2, dir, cg.refdef.vieworg );
 			}
-		}
+		}*/
 		CG_OffsetThirdPersonView();
 //		}
 	}

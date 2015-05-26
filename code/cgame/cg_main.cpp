@@ -475,7 +475,7 @@ static cvarTable_t cvarTable[] = {
 	
 	//True View Control cvars
 	{ &cg_trueguns, "cg_trueguns", "0", CVAR_ARCHIVE },
-	{ &cg_fpls, "cg_fpls", "1", CVAR_ARCHIVE },
+	{ &cg_fpls, "cg_fpls", "0", CVAR_ARCHIVE },
 	{ &cg_trueroll,	"cg_trueroll",	"0", CVAR_ARCHIVE },
 	{ &cg_trueflip,	"cg_trueflip",	"0", CVAR_ARCHIVE },
 	{ &cg_truespin,	"cg_truespin",	"0", CVAR_ARCHIVE },
@@ -569,6 +569,12 @@ int CG_GetCameraPos( vec3_t camerapos ) {
 	}
 	else if (cg.snap && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//implied: !cg.renderingThirdPerson
 	{//first person saber hack
+		VectorCopy( cg.refdef.vieworg, camerapos );
+		return 1;
+	}
+	else if ( cg_trueguns.integer && !cg.zoomMode )
+	{//in third person
+		//FIXME: what about hacks that render in third person regardless of this value?
 		VectorCopy( cg.refdef.vieworg, camerapos );
 		return 1;
 	}

@@ -3136,7 +3136,7 @@ static void CG_PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t torso[3], v
 	int			i;
 	qboolean	looking = qfalse, talking = qfalse;
 
-	if ( cg.renderingThirdPerson && cent->gent && cent->gent->s.number == 0 )
+	if ( (cg.renderingThirdPerson || (cg_trueguns.integer && !cg.zoomMode) || cent->gent->client->ps.weapon == WP_SABER || cent->gent->client->ps.weapon == WP_MELEE) && cent->gent && cent->gent->s.number == 0 )
 	{
 		// If we are rendering third person, we should just force the player body to always fully face
 		//	whatever way they are looking, otherwise, you can end up with gun shots coming off of the
@@ -7649,8 +7649,8 @@ void SmoothTrueView(vec3_t eyeAngles)
 	qboolean	DidSpecial = qfalse;
 	
 	//Debug messages
-	//Com_Printf("eyeAngles: %f, %f, %f\n", eyeAngles[0], eyeAngles[1], eyeAngles[2]);
-	//Com_Printf("cg.refdef.viewangles: %f, %f, %f\n", cg.refdef.viewangles[0], cg.refdef.viewangles[1], cg.refdef.viewangles[2]);
+	//CG_Printf("eyeAngles: %f, %f, %f\n", eyeAngles[0], eyeAngles[1], eyeAngles[2]);
+	//CG_Printf("cg.refdef.viewangles: %f, %f, %f\n", cg.refdefViewAngles[0], cg.refdefViewAngles[1], cg.refdefViewAngles[2]);
 	
 	
 	
@@ -7676,7 +7676,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 			if ( ( (cg.snap->ps.legsAnim) == BOTH_FLIP_L )
 				|| ( (cg.snap->ps.legsAnim) == BOTH_ROLL_L ) )
 			{//Left rolls
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[2] += AngleNormalize180( (360 * LegAnimPoint) );
 				AngleNormalize180( eyeAngles[2] );
 				eyeRange = qfalse;
@@ -7685,7 +7685,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 			else if( ((cg.snap->ps.legsAnim) == BOTH_FLIP_R)
 					|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_R) )
 			{//Right rolls
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[2] += AngleNormalize180( ( 360 - (360 * LegAnimPoint) ) );
 				AngleNormalize180( eyeAngles[2] );
 				eyeRange = qfalse;
@@ -7733,7 +7733,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 			if ( ((cg.snap->ps.legsAnim) == BOTH_FLIP_F)
 				|| ((cg.snap->ps.legsAnim) == BOTH_ROLL_F) )
 			{//forward flips
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[0] += AngleNormalize180( 360 - (360 * LegAnimPoint) );
 				AngleNormalize180( eyeAngles[0] );
 				eyeRange = qfalse;
@@ -7743,7 +7743,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 					 || ((cg.snap->ps.legsAnim) == BOTH_ROLL_B)
 					 || ((cg.snap->ps.legsAnim) == BOTH_FLIP_BACK1) )
 			{//back flips
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[0] += AngleNormalize180( (360 * LegAnimPoint) );
 				AngleNormalize180( eyeAngles[0] );
 				eyeRange = qfalse;
@@ -7806,7 +7806,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 				//This technically has 2 spins and seems to have been labeled wrong
 				|| ((cg.snap->ps.legsAnim) == BOTH_FJSS_TR_BL) )
 			{//Left Spins
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[1] += AngleNormalize180( (360 - (360 * TorsoAnimPoint)) );
 				AngleNormalize180( eyeAngles[1] );
 				eyeRange = qfalse;
@@ -7838,7 +7838,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 					 //This technically has 2 spins and seems to have been labeled wrong
 					 || ((cg.snap->ps.legsAnim) == BOTH_FJSS_TL_BR) )
 			{//Right Spins
-				VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+				VectorCopy( cg.refdefViewAngles, eyeAngles );
 				eyeAngles[1] += AngleNormalize180( (360 * TorsoAnimPoint) );
 				AngleNormalize180( eyeAngles[1] );
 				eyeRange = qfalse;
@@ -7901,7 +7901,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 	
 	if ( UseRefDef )
 	{
-		VectorCopy( cg.snap->ps.viewangles, eyeAngles );
+		VectorCopy( cg.refdefViewAngles, eyeAngles );
 	}
 	else
 	{
@@ -7910,7 +7910,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 		{
 			if ( !cg_truemoveroll.integer )
 			{
-				eyeAngles[2] = cg.snap->ps.viewangles[2];
+				eyeAngles[2] = cg.refdefViewAngles[2];
 			}
 			else if ( cg_truemoveroll.integer == 1 )
 			{//dampen the movement leaning
@@ -7933,7 +7933,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 					fov = cg_fov.value;
 				}
 				
-				AngDiff = eyeAngles[i] - cg.snap->ps.viewangles[i];
+				AngDiff = eyeAngles[i] - cg.refdefViewAngles[i];
 				
 				AngDiff = AngleNormalize180( AngDiff );
 				if ( fabs( AngDiff ) > fov )
@@ -7949,7 +7949,7 @@ void SmoothTrueView(vec3_t eyeAngles)
 				}
 				else
 				{
-					eyeAngles[i] = cg.snap->ps.viewangles[i];
+					eyeAngles[i] = cg.refdefViewAngles[i];
 				}
 				AngleNormalize180( eyeAngles[i] );
 			}
@@ -8045,7 +8045,7 @@ void CG_Player( centity_t *cent ) {
 		return;
 	}
 
-	if(cent->currentState.number == 0 && !cg.renderingThirdPerson && !cg_trueguns.integer)//!cg_thirdPerson.integer )
+	if(cent->currentState.number == 0 && !cg.renderingThirdPerson && (!cg_trueguns.integer || cg.zoomMode))//!cg_thirdPerson.integer )
 	{
 		calcedMp = qtrue;
 	}
@@ -8096,7 +8096,7 @@ Ghoul2 Insert Start
 			{//no viewentity
 				if ( cent->currentState.number == cg.snap->ps.clientNum )
 				{//I am the player
-					if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
+					if ( cg.zoomMode || (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 					{//not using saber or fists
 						ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 					}
@@ -8104,7 +8104,7 @@ Ghoul2 Insert Start
 			}
 			else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 			{//I am the view entity
-				if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
+				if ( cg.zoomMode || (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 				{//not using first person saber test or, if so, not using saber
 					ent.renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -8446,6 +8446,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 		if ( cent->currentState.number != 0
 			|| cg.renderingThirdPerson
 			|| cg.snap->ps.stats[STAT_HEALTH] <= 0
+			|| ( cg_trueguns.integer && !cg.zoomMode )
 			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//First person saber
 			)
 		{//in some third person mode or NPC
@@ -8594,11 +8595,14 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 				//Trace to see if the bolt eye origin is ok to move to.  If it's not, place it at the last safe position.
 				CheckCameraLocation( OldeyeOrigin );
 				
+				//Singleplayer TrueView fix (ghoul2 axes calculated differently to in MP!)
+				eyeAngles[YAW] -= 90;
+
 				//Do all the Eye "movement" and simplified moves here.
 				SmoothTrueView(eyeAngles);
 				
 				//set the player view angles
-//				VectorCopy(eyeAngles, cg.refdef.viewangles);
+				VectorCopy( eyeAngles, cg.refdefViewAngles );
 				
 				//set the player view axis
 				AnglesToAxis( eyeAngles, cg.refdef.viewaxis );
@@ -8804,7 +8808,7 @@ SkipTrueView:
 			|| cg.renderingThirdPerson
 			|| cg.snap->ps.stats[STAT_HEALTH] <= 0
 			|| ( !cg.renderingThirdPerson && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )  //First person saber
-			|| cg_trueguns.integer
+			|| ( cg_trueguns.integer && !cg.zoomMode )
 			)
 		{//if NPC, third person, or dead, unless using saber
 			//Get eyePoint & eyeAngles
@@ -9355,7 +9359,7 @@ Ghoul2 Insert End
 		{//no viewentity
 			if ( cent->currentState.number == cg.snap->ps.clientNum )
 			{//I am the player
-				if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
+				if ( cg.zoomMode || (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 				{//not using saber or fists
 					renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 				}
@@ -9363,7 +9367,7 @@ Ghoul2 Insert End
 		}
 		else if ( cent->currentState.number == cg.snap->ps.viewEntity )
 		{//I am the view entity
-			if ( (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
+			if ( cg.zoomMode || (!cg_trueguns.integer && cg.snap->ps.weapon != WP_SABER && cg.snap->ps.weapon != WP_MELEE) || (cg.snap->ps.weapon == WP_SABER && cg_truesaberonly.integer) )
 			{//not using saber or fists
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}
@@ -9705,7 +9709,7 @@ Ghoul2 Insert End
 	}
 
 	//FIXME: for debug, allow to draw a cone of the NPC's FOV...
-	if ( cent->currentState.number == 0 && cg.renderingThirdPerson )
+	if ( cent->currentState.number == 0 && (cg.renderingThirdPerson || (cg_trueguns.integer && !cg.zoomMode)) )
 	{
 		playerState_t *ps = &cg.predicted_player_state;
 
