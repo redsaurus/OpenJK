@@ -1602,7 +1602,7 @@
 				hide			leveltext
 				uiScript  		"showforceleveldesc" "insanity"
 				
-				setitembackground	force_icon	"gfx/mp/NEW_f_icon_dk_insainity"
+				setitembackground	force_icon	"gfx/mp/NEW_f_icon_dk_insanity"
 				setitemtext		force_desc	@SPMOD_INGAME_FORCE_INSANITY_DESC
 				
 				show			force_icon
