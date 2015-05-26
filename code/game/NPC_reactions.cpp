@@ -537,7 +537,16 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 	if ( NPCInfo->ignorePain == qfalse )
 	{
 		NPCInfo->confusionTime = 0;//clear any charm or confusion, regardless
-		NPCInfo->insanityTime = 0;
+		if (NPCInfo->insanityTime && NPCInfo->insanityTime > level.time)
+		{
+			NPCInfo->insanityTime = 0;
+			NPC->client->ps.torsoAnimTimer = 0;
+			NPC->client->ps.weaponTime -= level.time - NPCInfo->insanityTime;
+			if (NPC->client->ps.weaponTime < 0)
+			{
+				NPC->client->ps.weaponTime = 0;
+			}
+		}
 		if ( NPC->ghoul2.size() && NPC->headBolt != -1 )
 		{
 			G_StopEffect("force/confusion", NPC->playerModel, NPC->headBolt, NPC->s.number );

@@ -139,6 +139,44 @@ LANG_ENGLISH		"Saber Throw:"
 REFERENCE			USES_SABER_THROW
 LANG_ENGLISH		"Throws lightsaber."
 
+REFERENCE			INGAME_FORCE_STASIS_DESC
+LANG_ENGLISH		"Force Stasis\nDuration: Variable\nArea of Effect: Objects or persons\nEffect: Allows Jedi to paralyse a living being or droid\n\n"
+
+REFERENCE			INGAME_FORCE_DESTRUCTION_DESC
+LANG_ENGLISH		"Force Destruction\nDuration: Instant\nArea of Effect: Projectile\nEffect: Allows Jedi to launch a projectile of force energy\n\n"
+
+REFERENCE			INGAME_FORCE_INSANITY_DESC
+LANG_ENGLISH		"Force Insanity\nDuration: Variable\nArea of Effect: Living persons only\nEffect: Allows Jedi to wrack mind of an enemy\n\n"
+
+REFERENCE           INGAME_FORCE_STASIS_LVL1_DESC
+LANG_ENGLISH        "Rank 1 - Jedi paralyses a single enemy for 5 seconds."
+
+REFERENCE           INGAME_FORCE_STASIS_LVL2_DESC
+LANG_ENGLISH        "Rank 2 - Jedi paralyses a single enemy for 10 seconds."
+
+REFERENCE           INGAME_FORCE_STASIS_LVL3_DESC
+LANG_ENGLISH        "Rank 3 - Jedi paralyses a single enemy for 15 seconds."
+
+REFERENCE           INGAME_FORCE_INSANITY_LVL1_DESC
+LANG_ENGLISH        "Rank 1 - Jedi wracks the mind of a single enemy for 5 seconds."
+
+REFERENCE           INGAME_FORCE_INSANITY_LVL2_DESC
+LANG_ENGLISH        "Rank 2 - Jedi wracks the mind of a single enemy for 10 seconds."
+
+REFERENCE           INGAME_FORCE_INSANITY_LVL3_DESC
+LANG_ENGLISH        "Rank 3 - Jedi wracks the mind of a single enemy for 15 seconds. The enemy then dies."
+
+REFERENCE           INGAME_FORCE_DESTRUCTION_LVL1_DESC
+LANG_ENGLISH        "Rank 1 - Jedi launches an orb of force energy."
+
+REFERENCE           INGAME_FORCE_DESTRUCTION_LVL2_DESC
+LANG_ENGLISH        "Rank 2 - Jedi launches a more powerful orb of force energy."
+
+REFERENCE           INGAME_FORCE_DESTRUCTION_LVL3_DESC
+LANG_ENGLISH        "Rank 3 - Jedi launches an extremely dangerous orb of force energy."
+
+
+
 ENDMARKER
 
 
