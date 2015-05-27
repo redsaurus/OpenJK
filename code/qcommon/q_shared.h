@@ -1429,6 +1429,9 @@ typedef enum
 	FP_INSANITY,//instant
 	FP_STASIS,//duration + instant?
 	FP_BLINDING,//instant
+	FP_DEADLYSIGHT,//duration
+	FP_REPULSE,//hold/duration
+	FP_INVULNERABILITY,//duration
 	NUM_FORCE_POWERS
 } forcePowers_t;
 
@@ -2276,6 +2279,7 @@ typedef struct playerState_s {
 	vec3_t		hyperSpaceAngles;
 	
 	int			stasisTime;
+	int			deadlySightLastChecked;
 } playerState_t;
 
 
@@ -2325,6 +2329,9 @@ typedef enum
 	GENCMD_FORCE_INSANITY,
 	GENCMD_FORCE_STASIS,
 	GENCMD_FORCE_BLINDING,
+	GENCMD_FORCE_DEADLYSIGHT,
+	GENCMD_FORCE_REPULSE,
+	GENCMD_FORCE_INVULNERABILITY,
 } genCmds_t;
 
 

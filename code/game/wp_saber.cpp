@@ -194,6 +194,9 @@ int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 	FORCE_DARKSIDE,//FP_INSANITY
 	FORCE_LIGHTSIDE,//FP_STASIS
 	FORCE_LIGHTSIDE,//FP_BLINDING
+	FORCE_DARKSIDE,//FP_DEADLYSIGHT
+	0,//FP_REPULSE
+	FORCE_LIGHTSIDE,//FP_INVULNERABILITY
 	//NUM_FORCE_POWERS
 };
 
@@ -220,6 +223,9 @@ int forcePowerNeeded[NUM_FORCE_POWERS] =
 	50,//FP_INSANITY
 	35,//FP_STASIS
 	20,//FP_BLINDING
+	90,//FP_DEADLYSIGHT
+	40,//FP_REPULSE
+	100,//FP_INVULNERABILITY
 	//NUM_FORCE_POWERS
 };
 
@@ -10279,7 +10285,8 @@ void WP_DebounceForceDeactivateTime( gentity_t *self )
 			|| self->client->ps.forcePowersActive&(1<<FP_PROTECT)
 			|| self->client->ps.forcePowersActive&(1<<FP_ABSORB)
 			|| self->client->ps.forcePowersActive&(1<<FP_RAGE)
-			|| self->client->ps.forcePowersActive&(1<<FP_SEE) )
+			|| self->client->ps.forcePowersActive&(1<<FP_SEE)
+			|| self->client->ps.forcePowersActive&(1<<FP_DEADLYSIGHT))
 		{//already running another power that can be manually, stopped don't debounce so long
 			self->client->ps.forceAllowDeactivateTime = level.time + 500;
 		}
@@ -13235,7 +13242,7 @@ void ForceBlinding( gentity_t *self )
 		return;
 	}
 	
-	gi.Printf(S_COLOR_BLUE"Used Force Blinding\n");
+	gi.Printf(S_COLOR_BLUE "Used Force Blinding\n");
 	
 	//TODO: CODE
 	
@@ -13250,6 +13257,102 @@ void ForceBlinding( gentity_t *self )
 	}
 }
 
+void ForceDeadlySight( gentity_t *self )
+{
+	
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	
+	if (self->client->ps.forceAllowDeactivateTime < level.time &&
+		(self->client->ps.forcePowersActive & (1 << FP_DEADLYSIGHT)) )
+	{
+		WP_ForcePowerStop( self, FP_DEADLYSIGHT );
+		return;
+	}
+	
+	if ( !WP_ForcePowerUsable( self, FP_DEADLYSIGHT, 0 ) )
+	{
+		return;
+	}
+	
+	WP_DebounceForceDeactivateTime( self );
+	
+	WP_ForcePowerStart( self, FP_DEADLYSIGHT, 0 );
+	
+	//TODO: CODE
+}
+
+void ForceRepulse( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_REPULSE, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_WHITE "Used Force Repulse\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_REPULSE, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
+
+void ForceInvulnerability( gentity_t *self )
+{
+	if ( self->health <= 0 )
+	{
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_INVULNERABILITY, 0 ) )
+	{
+		return;
+	}
+	
+	if ( self->client->ps.weaponTime >= 800 )
+	{//just did one!
+		return;
+	}
+	if ( self->client->ps.saberLockTime > level.time )
+	{//FIXME: can this be a way to break out?
+		return;
+	}
+	
+	gi.Printf(S_COLOR_BLUE "Used Force Invulnerability\n");
+	
+	//TODO: CODE
+	
+	WP_ForcePowerStart( self, FP_INVULNERABILITY, 0 );
+	
+	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
+	self->client->ps.saberBlocked = BLOCKED_NONE;
+	self->client->ps.weaponTime = 1000;
+	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
+	{
+		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
+	}
+}
 
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent)
 {
@@ -13473,6 +13576,16 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 	case FP_STASIS:
 		break;
 	case FP_BLINDING:
+		break;
+	case FP_DEADLYSIGHT:
+		duration = 5000;
+		self->client->ps.forcePowersActive |= ( 1 << forcePower );
+		G_SoundOnEnt( self, CHAN_ITEM, "sound/weapons/force/rage.mp3" );
+		self->s.loopSound = G_SoundIndex( "sound/weapons/force/rageloop.wav" );
+		break;
+	case FP_REPULSE:
+		break;
+	case FP_INVULNERABILITY:
 		break;
 	default:
 		break;
@@ -14006,6 +14119,13 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	case FP_STASIS:
 		break;
 	case FP_BLINDING:
+		break;
+	case FP_DEADLYSIGHT:
+		self->s.loopSound = 0;
+		break;
+	case FP_REPULSE:
+		break;
+	case FP_INVULNERABILITY:
 		break;
 	default:
 		break;
@@ -14868,6 +14988,104 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		break;
 	case FP_BLINDING:
 		break;
+	case FP_DEADLYSIGHT:
+		if (self->client->ps.deadlySightLastChecked < level.time)
+		{
+			vec3_t forward, mins, maxs;
+			int e, numListedEntities;
+			gentity_t	*entityList[MAX_GENTITIES];
+			gentity_t	*check = NULL;
+			float	dist, bestDist = Q3_INFINITE;
+			float minDot = 0.5f;
+			trace_t		tr;
+
+			int addTime = 400;
+			int radius = 1024;
+			
+			if (self->client->ps.forcePowerLevel[FP_DEADLYSIGHT] == FORCE_LEVEL_1)
+			{
+				addTime = 250;
+				radius = 1024;
+			}
+			else if (self->client->ps.forcePowerLevel[FP_DEADLYSIGHT] == FORCE_LEVEL_2)
+			{
+				addTime = 150;
+				radius = 1536;
+			}
+			else if (self->client->ps.forcePowerLevel[FP_DEADLYSIGHT] == FORCE_LEVEL_3)
+			{
+				addTime = 50;
+				radius = 2048;
+			}
+			self->client->ps.deadlySightLastChecked = level.time + addTime;
+			
+			AngleVectors( self->client->ps.viewangles, forward, NULL, NULL );
+			
+			for ( e = 0 ; e < 3 ; e++ )
+			{
+				mins[e] = self->currentOrigin[e] - radius;
+				maxs[e] = self->currentOrigin[e] + radius;
+			}
+			numListedEntities = gi.EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
+			
+			for ( e = 0 ; e < numListedEntities ; e++ )
+			{
+				check = entityList[e];
+				if ( check == self )
+				{//me
+					continue;
+				}
+				if ( !(check->inuse) )
+				{//freed
+					continue;
+				}
+				if ( !check->client )
+				{//not a client - FIXME: what about turrets?
+					continue;
+				}
+
+				if ( check->health <= 0 )
+				{//dead
+					continue;
+				}
+				
+				if ( !gi.inPVS( check->currentOrigin, self->currentOrigin ) )
+				{//can't potentially see them
+					continue;
+				}
+				
+				VectorSubtract( check->currentOrigin, self->currentOrigin, dir );
+				dist = VectorNormalize( dir );
+				
+				if ( DotProduct( dir, forward ) < minDot )
+				{//not in front
+					continue;
+				}
+				
+				//really should have a clear LOS to this thing...
+				gi.trace( &tr, self->currentOrigin, vec3_origin, vec3_origin, check->currentOrigin, self->s.number, MASK_SHOT, (EG2_Collision)0, 0 );
+				if ( tr.fraction < 1.0f && tr.entityNum != check->s.number )
+				{//must have clear shot
+					continue;
+				}
+				
+				G_Damage( check, self, self, 0, check->client->renderInfo.headPoint, 10, DAMAGE_NO_KNOCKBACK, MOD_SNIPER);
+				
+				if ( check->ghoul2.size() && check->headBolt != -1 )
+				{//FIXME: what if already playing effect?
+					G_PlayEffect( G_EffectIndex( "volumetric/black_smoke" ), check->playerModel, check->headBolt, check->s.number, check->currentOrigin, addTime, qtrue );
+				}
+				
+				//self->health = 0;
+				//GEntity_DieFunc( self, self, self, self->max_health, MOD_DESTRUCTION);
+
+			}
+		}
+		break;
+	case FP_REPULSE:
+		break;
+	case FP_INVULNERABILITY:
+		break;
 	default:
 		break;
 	}
@@ -14972,6 +15190,18 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 			case FP_BLINDING:
 				ForceBlinding( self );
 				//do only once
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
+				break;
+			case FP_DEADLYSIGHT:
+				ForceDeadlySight( self );
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
+				break;
+			case FP_REPULSE:
+				ForceRepulse( self );
+				self->client->ps.forcePowersForced &= ~(1<<forcePower);
+				break;
+			case FP_INVULNERABILITY:
+				ForceInvulnerability( self );
 				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			}
@@ -15152,7 +15382,7 @@ void WP_InitForcePowers( gentity_t *ent )
 		else
 		{
 			ent->client->ps.forcePowersKnown = ( 1 << FP_HEAL )|( 1 << FP_LEVITATION )|( 1 << FP_SPEED )|( 1 << FP_PUSH )|( 1 << FP_PULL )|( 1 << FP_TELEPATHY )|( 1 << FP_GRIP )|( 1 << FP_LIGHTNING)|( 1 << FP_SABERTHROW)|( 1 << FP_SABER_DEFENSE )|( 1 << FP_SABER_OFFENSE )|( 1<< FP_RAGE )|( 1<< FP_DRAIN )|( 1<< FP_PROTECT )|( 1<< FP_ABSORB )|( 1<< FP_SEE )|( 1 << FP_DESTRUCTION )
-				|( 1 << FP_INSANITY )|( 1 << FP_STASIS )/*|( 1 << FP_BLINDING )*/;
+				|( 1 << FP_INSANITY )|( 1 << FP_STASIS )|( 1 << FP_BLINDING )|(1 << FP_DEADLYSIGHT)|(1 << FP_REPULSE)|(1 << FP_INVULNERABILITY);
 			ent->client->ps.forcePowerLevel[FP_HEAL] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_PUSH] = FORCE_LEVEL_1;
@@ -15175,7 +15405,11 @@ void WP_InitForcePowers( gentity_t *ent )
 			ent->client->ps.forcePowerLevel[FP_DESTRUCTION] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_INSANITY] = FORCE_LEVEL_2;
 			ent->client->ps.forcePowerLevel[FP_STASIS] = FORCE_LEVEL_2;
-//			ent->client->ps.forcePowerLevel[FP_BLINDING] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_BLINDING] = FORCE_LEVEL_1;
+			
+			ent->client->ps.forcePowerLevel[FP_DEADLYSIGHT] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_REPULSE] = FORCE_LEVEL_1;
+			ent->client->ps.forcePowerLevel[FP_INVULNERABILITY] = FORCE_LEVEL_1;
 		}
 	}
 }

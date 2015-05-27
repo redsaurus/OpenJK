@@ -356,6 +356,9 @@ SetForceCmd SetForceTable[NUM_FORCE_POWERS] = {
 	{ "forceInsanity",		"setForceInsanity",		FORCE_LEVEL_3			},
 	{ "forceStasis",		"setForceStasis",		FORCE_LEVEL_3			},
 	{ "forceBlinding",		"setForceBlinding",		FORCE_LEVEL_3			},
+	{ "forceDeadlySight",	"setForceDeadlySight",	FORCE_LEVEL_3			},
+	{ "forceRepulse",		"setForceRepulse",		FORCE_LEVEL_3			},
+	{ "forceInvulnerability",	"setForceInvulnerability",	FORCE_LEVEL_3	},
 };
 
 static void Svcmd_ForceSetLevel_f( int forcePower )
@@ -880,6 +883,21 @@ qboolean	ConsoleCommand( void ) {
 	if ( Q_stricmp( cmd, "setForceBlinding" ) == 0 )
 	{
 		Svcmd_ForceSetLevel_f( FP_BLINDING );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceDeadlySight" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_DEADLYSIGHT );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceRepulse" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_REPULSE );
+		return qtrue;
+	}
+	if ( Q_stricmp( cmd, "setForceInvulnerability" ) == 0 )
+	{
+		Svcmd_ForceSetLevel_f( FP_INVULNERABILITY );
 		return qtrue;
 	}
 	if ( Q_stricmp( cmd, "setForceAll" ) == 0 )	

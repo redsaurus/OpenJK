@@ -14356,6 +14356,9 @@ extern void ForceDestruction( gentity_t *self );
 extern void ForceInsanity( gentity_t *self );
 extern void ForceStasis( gentity_t *self );
 extern void ForceBlinding( gentity_t *self );
+extern void ForceDeadlySight( gentity_t *self );
+extern void ForceRepulse( gentity_t *self );
+extern void ForceInvulnerability( gentity_t *self );
 
 void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 {
@@ -14410,6 +14413,15 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 				break;
 			case FP_BLINDING:
 				ForceBlinding( ent );
+				break;
+			case FP_DEADLYSIGHT:
+				ForceDeadlySight( ent );
+				break;
+			case FP_REPULSE:
+				ForceRepulse( ent );
+				break;
+			case FP_INVULNERABILITY:
+				ForceInvulnerability( ent );
 				break;
 			}
 		}

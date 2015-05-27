@@ -4731,6 +4731,10 @@ extern void ForceDestruction( gentity_t *ent );
 extern void ForceInsanity( gentity_t *ent );
 extern void ForceStasis( gentity_t *ent );
 extern void ForceBlinding( gentity_t *ent );
+extern void ForceDeadlySight( gentity_t *ent );
+extern void ForceRepulse( gentity_t *ent );
+extern void ForceInvulnerability( gentity_t *ent );
+
 static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 {
 	switch(cmd) {
@@ -4783,6 +4787,15 @@ static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 		break;
 	case GENCMD_FORCE_BLINDING:
 		ForceBlinding(ent);
+		break;
+	case GENCMD_FORCE_DEADLYSIGHT:
+		ForceDeadlySight(ent);
+		break;
+	case GENCMD_FORCE_REPULSE:
+		ForceRepulse(ent);
+		break;
+	case GENCMD_FORCE_INVULNERABILITY:
+		ForceInvulnerability(ent);
 		break;
 	}
 }

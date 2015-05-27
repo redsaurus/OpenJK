@@ -136,6 +136,15 @@ static void IN_UseGivenForce(void)
 	case FP_BLINDING:
 		genCmdNum = GENCMD_FORCE_BLINDING;
 		break;
+	case FP_DEADLYSIGHT:
+		genCmdNum = GENCMD_FORCE_DEADLYSIGHT;
+		break;
+	case FP_REPULSE:
+		genCmdNum = GENCMD_FORCE_REPULSE;
+		break;
+	case FP_INVULNERABILITY:
+		genCmdNum = GENCMD_FORCE_INVULNERABILITY;
+		break;
 	default:
 		assert(0);
 		break;

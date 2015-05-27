@@ -1006,6 +1006,10 @@ void set_mission_stats_cvars( void )
 	gi.cvar_set("ui_stats_insanity", va("%d",client->sess.missionStats.forceUsed[FP_INSANITY]));
 	gi.cvar_set("ui_stats_stasis", va("%d",client->sess.missionStats.forceUsed[FP_STASIS]));
 	gi.cvar_set("ui_stats_blinding", va("%d",client->sess.missionStats.forceUsed[FP_BLINDING]));
+	
+	gi.cvar_set("ui_stats_deadlysight", va("%d",client->sess.missionStats.forceUsed[FP_DEADLYSIGHT]));
+	gi.cvar_set("ui_stats_repulse", va("%d",client->sess.missionStats.forceUsed[FP_REPULSE]));
+	gi.cvar_set("ui_stats_invulnerability", va("%d",client->sess.missionStats.forceUsed[FP_INVULNERABILITY]));
 }
 
 #include "../cgame/cg_media.h"	//access to cgs
