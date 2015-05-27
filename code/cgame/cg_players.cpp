@@ -7568,8 +7568,8 @@ float GetSelfLegAnimPoint(void)
 	int			end		  = 0;
 	int			start	  = 0;
 	if (!!gi.G2API_GetBoneAnimIndex(&
-									cg_entities[cg.snap->ps.clientNum].gent->ghoul2[cg_entities[cg.snap->ps.clientNum].gent->playerModel],
-									cg_entities[cg.snap->ps.clientNum].gent->rootBone,
+									cg_entities[cg.snap->ps.viewEntity].gent->ghoul2[cg_entities[cg.snap->ps.viewEntity].gent->playerModel],
+									cg_entities[cg.snap->ps.viewEntity].gent->rootBone,
 									level.time,
 									&current,
 									&start,
@@ -7601,8 +7601,8 @@ float GetSelfTorsoAnimPoint(void)
 	int			end		  = 0;
 	int			start	  = 0;
 	if (!!gi.G2API_GetBoneAnimIndex(&
-									cg_entities[cg.snap->ps.clientNum].gent->ghoul2[cg_entities[cg.snap->ps.clientNum].gent->playerModel],
-									cg_entities[cg.snap->ps.clientNum].gent->lowerLumbarBone,
+									cg_entities[cg.snap->ps.viewEntity].gent->ghoul2[cg_entities[cg.snap->ps.viewEntity].gent->playerModel],
+									cg_entities[cg.snap->ps.viewEntity].gent->lowerLumbarBone,
 									level.time,
 									&current,
 									&start,
@@ -8499,7 +8499,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 
 		//[TrueView]
 		//Restrict True View Model changes to the player and do the True View camera view work.
-		if (cg.snap && cent->currentState.number == cg.snap->ps.clientNum)
+		if (cg.snap && cent->currentState.number == cg.snap->ps.viewEntity)
 		{
 			if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cent->currentState.weapon == WP_SABER
 											  || cent->currentState.weapon == WP_MELEE) && !cg.zoomMode)

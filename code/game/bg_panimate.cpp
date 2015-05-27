@@ -2374,7 +2374,7 @@ saberMoveName_t PM_AttackForEnemyPos( qboolean allowFB, qboolean allowStabDown )
 			}
 			//this is the default only if they're *right* in front...
 			if ( (pm->ps->clientNum&&!PM_ControlledByPlayer())
-				|| ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )
+				|| ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && BG_AllowThirdPersonSpecialMove( pm->ps ) && !cg.zoomMode) )
 			{//NPC or player not in 1st person
 				if ( PM_CheckFlipOverAttackMove( qtrue ) )
 				{//enemy must be close and in front
@@ -2455,7 +2455,7 @@ saberMoveName_t PM_AttackForEnemyPos( qboolean allowFB, qboolean allowStabDown )
 					else if ( pm->ps->saberAnimLevel != SS_FAST
 						&& pm->ps->saberAnimLevel != SS_STAFF )
 					{//higher level back spin-attacks
-						if ( (pm->ps->clientNum&&!PM_ControlledByPlayer()) || ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )
+						if ( (pm->ps->clientNum&&!PM_ControlledByPlayer()) || ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && BG_AllowThirdPersonSpecialMove( pm->ps ) && !cg.zoomMode) )
 						{
 							if ( (pm->ps->pm_flags&PMF_DUCKED) || pm->cmd.upmove < 0 )
 							{
@@ -3659,7 +3659,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 			{
 				return stabDownMove;
 			}
-			if ( ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )//player in third person, not zoomed in
+			if ( ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && BG_AllowThirdPersonSpecialMove( pm-> ps ) && !cg.zoomMode) )//player in third person, not zoomed in
 			{//player in thirdperson, not zoomed in
 				//flip-over attack logic
 				if ( !noSpecials && PM_CheckFlipOverAttackMove( qfalse ) )
@@ -3765,7 +3765,7 @@ saberMoveName_t PM_SaberAttackForMovement( int forwardmove, int rightmove, int c
 				}
 			}
 			else if ( (pm->ps->clientNum&&!PM_ControlledByPlayer()) //NPC
-				|| ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && cg.renderingThirdPerson && !cg.zoomMode) )//player in third person, not zooomed
+				|| ((pm->ps->clientNum < MAX_CLIENTS||PM_ControlledByPlayer()) && BG_AllowThirdPersonSpecialMove( pm->ps ) && !cg.zoomMode) )//player in third person, not zooomed
 			{//NPC or player in third person, not zoomed
 				if ( PM_CheckBackflipAttackMove() )
 				{

@@ -1598,7 +1598,7 @@ void PM_UpdateViewAngles( playerState_t *ps, usercmd_t *cmd, gentity_t *gent )
 	{	//only in the real pmove
 		if ( (cmd->buttons & BUTTON_USE) )
 		{//check leaning
-			if ( cg.renderingThirdPerson )
+			if ( BG_AllowThirdPersonSpecialMove( ps ) )
 			{//third person lean
 				if ( G_OkayToLean( ps, cmd, qtrue )
 					&& (cmd->rightmove || (cmd->forwardmove && g_debugMelee->integer ) ) )//pushing a direction
