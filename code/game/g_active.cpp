@@ -1634,7 +1634,11 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 		if ( newWeap != WP_NONE && ent->client->ps.weapon != newWeap )
 		{
 			G_RemoveWeaponModels( ent );
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << newWeap );
+			for ( int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				ent->client->ps.weapons[i] = 0;
+			}
+			ent->client->ps.weapons[newWeap] = 1;
 			ent->client->ps.ammo[weaponData[newWeap].ammoIndex] = 999;
 			ChangeWeapon( ent, newWeap );
 			ent->client->ps.weapon = newWeap;

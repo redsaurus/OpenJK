@@ -646,28 +646,20 @@ Player_CacheFromPrevLevel
 void Player_CacheFromPrevLevel(void)
 {
 	char	s[MAX_STRING_CHARS];
+	const char	*var;
 	int i;
 	
 	gi.Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
 	
 	if (s[0])	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 	{
-		int iDummy, bits, ibits;
+		int iDummy, ibits;
 
-		sscanf( s, "%i %i %i %i", 
+		sscanf( s, "%i %i %i",
 			&iDummy,//client->ps.stats[STAT_HEALTH],
 			&iDummy,//client->ps.stats[STAT_ARMOR],
-			&bits,	//client->ps.stats[STAT_WEAPONS]
 			&ibits	//client->ps.stats[STAT_ITEMS]
 			);
-
-		for ( i = 1 ; i < WP_NUM_WEAPONS ; i++ )
-		{
-			if ( bits & ( 1 << i ) ) 
-			{
-				RegisterItem( FindItemForWeapon( (weapon_t)i ) );
-			}
-		}
 
 extern gitem_t	*FindItemForInventory( int inv );
 
@@ -679,6 +671,28 @@ extern gitem_t	*FindItemForInventory( int inv );
 			}
 		}
 	}
+	
+	gi.Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+	i=0;
+	var = strtok( s, " " );
+	while( var != NULL )
+	{
+		/* While there are tokens in "s" */
+		if ( atoi(var) > 0 )
+		{
+			if (i == WP_NONE) //don't register!
+			{
+				i++;
+			}
+			else
+			{
+				RegisterItem( FindItemForWeapon( (weapon_t)i++ ) );
+			}
+		}
+		/* Get next token: */
+		var = strtok( NULL, " " );
+	}
+	assert (i==WP_NUM_WEAPONS);
 }
 
 /*
@@ -709,10 +723,9 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			unsigned int saber1BladeColor[8];
 			unsigned int saber2BladeColor[8];
 
-			sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %i %i %i", 
+			sscanf( s, "%i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %i %i %i",
 								&client->ps.stats[STAT_HEALTH],
 								&client->ps.stats[STAT_ARMOR],
-								&client->ps.stats[STAT_WEAPONS],
 								&client->ps.stats[STAT_ITEMS],
 								&client->ps.weapon,
 								&client->ps.weaponstate,
@@ -807,6 +820,19 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 //
 //			SetClientViewAngle( ent, ent->client->ps.viewangles);
 
+			//weapons
+			gi.Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+			i=0;
+			var = strtok( s, " " );
+			while( var != NULL )
+			{
+				/* While there are tokens in "s" */
+				client->ps.weapons[i++] = atoi(var);
+				/* Get next token: */
+				var = strtok( NULL, " " );
+			}
+			assert (i==WP_NUM_WEAPONS);
+			
 			//ammo
 			gi.Cvar_VariableStringBuffer( "playerammo", s, sizeof(s) );
 			i=0;
@@ -2564,19 +2590,23 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 
 		// give default weapons
 		//these are precached in g_items, ClearRegisteredItems()
-		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+		for ( int i = 0; i < MAX_WEAPONS; i++ )
+		{
+			client->ps.weapons[i] = 0;
+		}
+		client->ps.weapons[WP_NONE] = 1;
 		//client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
 		//ent->client->ps.inventory[INV_BACTA_CANISTER] = 1;
 
 		// give EITHER the saber or the stun baton..never both
 		if ( spawnPoint->spawnflags & 32 ) // STUN_BATON
 		{
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_STUN_BATON );
+			client->ps.weapons[WP_STUN_BATON] = 1;
 			client->ps.weapon = WP_STUN_BATON;
 		}
 		else
 		{	// give the saber because most test maps will not have the STUN BATON flag set
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//this is precached in SP_info_player_deathmatch 
+			client->ps.weapons[WP_SABER] = 1;	//this is precached in SP_info_player_deathmatch
 			client->ps.weapon = WP_SABER;
 		}
 		// force the base weapon up
@@ -2584,7 +2614,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 
 		for ( i = FIRST_WEAPON; i < WP_NUM_WEAPONS; i++ ) // don't give ammo for explosives
 		{
-			if ( playerUsableWeapons[i] && (client->ps.stats[STAT_WEAPONS]&(1<<i)) )
+			if ( playerUsableWeapons[i] && (client->ps.weapons[i]) )
 			{//if starting with this weapon, gimme max ammo for it
 				client->ps.ammo[weaponData[i].ammoIndex] = ammoData[weaponData[i].ammoIndex].max;
 			}
@@ -2713,14 +2743,18 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 
 		if ( spawnPoint->spawnflags & 64 )	//NOWEAPON
 		{//player starts with absolutely no weapons
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+			for ( int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				ent->client->ps.weapons[i] = 0;
+			}
+			ent->client->ps.weapons[WP_NONE] = 1;
 			ent->client->ps.ammo[weaponData[WP_NONE].ammoIndex] = 32000;
 			ent->client->ps.weapon = WP_NONE;
 			ent->client->ps.weaponstate = WEAPON_READY;
 			ent->client->ps.dualSabers = qfalse;
 		}
 
-		if ( ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ) )
+		if ( ent->client->ps.weapons[WP_SABER] )
 		{//set up so has lightsaber
 			WP_SaberInitBladeData( ent );
 			if ( (ent->weaponModel[0] <= 0 || (ent->weaponModel[1]<=0&&ent->client->ps.dualSabers)) //one or both of the saber models is not initialized
@@ -2776,7 +2810,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		G_CheckPlayerDarkSide();
 	}
 
-	if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER))
+	if ( (ent->client->ps.weapons[WP_SABER])
 		&& !ent->client->ps.saberStylesKnown )
 	{//um, if you have a saber, you need at least 1 style to use it with...
 		ent->client->ps.saberStylesKnown |= (1<<SS_MEDIUM);

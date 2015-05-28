@@ -3555,7 +3555,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				if ( weap >= WP_NONE && weap < WP_NUM_WEAPONS )
 				{
 					NPC->client->ps.weapon = weap;
-					NPC->client->ps.stats[STAT_WEAPONS] |= ( 1 << weap );
+					NPC->client->ps.weapons[weap] = 1;
 					if ( weap > WP_NONE )
 					{
 						RegisterItem( FindItemForWeapon( (weapon_t)(weap) ) );	//precache the weapon

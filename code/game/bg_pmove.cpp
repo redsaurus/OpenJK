@@ -8887,7 +8887,7 @@ static void PM_BeginWeaponChange( int weapon ) {
 		return;
 	}
 
-	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+	if ( !( pm->ps->weapons[weapon] ) ) {
 		return;
 	}
 
@@ -8971,7 +8971,7 @@ static void PM_FinishWeaponChange( void ) {
 		weapon = WP_NONE;
 	}
 
-	if ( !( pm->ps->stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
+	if ( !( pm->ps->weapons[weapon] ) ) {
 		weapon = WP_NONE;
 	}
 
@@ -8991,7 +8991,7 @@ static void PM_FinishWeaponChange( void ) {
 		dropped->s.radius = 10;
 		dropped->delay = level.time + 1000;
 		pm->ps->ammo[AMMO_EMPLACED] = 0;
-		pm->ps->stats[STAT_WEAPONS] &= ~(1 << WP_EMPLACED_GUN);
+		pm->ps->weapons[WP_EMPLACED_GUN] = 0;
 	}
 	
 	//int oldWeap = pm->ps->weapon;
@@ -12075,7 +12075,7 @@ void PM_WeaponLightsaber(void)
 		}
 	}
 
-	if ( pm->ps->stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+	if ( pm->ps->weapons[WP_SCEPTER]
 		&& !pm->ps->dualSabers
 		&& pm->gent
 		&& pm->gent->weaponModel[1] )

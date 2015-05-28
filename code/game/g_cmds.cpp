@@ -213,20 +213,26 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all || !Q_stricmp( name, "weapons" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << (WP_MELEE)) - ( 1 << WP_NONE );
+		for ( int i = 0; i < WP_MELEE; i++ )
+		{
+			ent->client->ps.weapons[i] = 1;
+		}
 		if ( !give_all )
 			return;
 	}
 	
 	if ( !give_all && !Q_stricmp( name, "weaponnum" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << atoi( args ));
+		ent->client->ps.weapons[ atoi(args) ] = 1;
 		return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "eweaps" ) )	//for developing, gives you all the weapons, including enemy
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (unsigned)(1 << WP_NUM_WEAPONS) - ( 1 << WP_NONE ); // NOTE: this wasn't giving the last weapon in the list
+		for ( int i = 0; i < WP_NUM_WEAPONS; i++ )
+		{
+			ent->client->ps.weapons[i] = 1;
+		}
 		return;
 	}
 
@@ -1374,7 +1380,7 @@ void Cmd_SaberDrop_f( gentity_t *ent, int saberNum )
 		&& ent->weaponModel[1] <= 0 )
 	{//no sabers left!
 		//remove saber from inventory
-		ent->client->ps.stats[STAT_WEAPONS] &= ~(1<<WP_SABER);
+		ent->client->ps.weapons[WP_SABER] = 0;
 		//change weapons
 		if ( ent->s.number < MAX_CLIENTS )
 		{//player

@@ -358,7 +358,7 @@ void eweb_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 	activator->client->ps.weapon = self->s.weapon;
 	Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-	activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+	activator->client->ps.weapons[WP_EMPLACED_GUN] = 1;
 
 	// Allow us to point from one to the other
 	activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -581,7 +581,7 @@ void emplaced_gun_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 		// swap the users weapon with the emplaced gun and add the ammo the gun has to the player
 		activator->client->ps.weapon = self->s.weapon;
 		Add_Ammo( activator, WP_EMPLACED_GUN, self->count );
-		activator->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_EMPLACED_GUN );
+		activator->client->ps.weapons[WP_EMPLACED_GUN] = 1;
 
 		// Allow us to point from one to the other
 		activator->owner = self; // kind of dumb, but when we are locked to the weapon, we are owned by it.
@@ -996,7 +996,7 @@ void ExitEmplacedWeapon( gentity_t *ent, qboolean detach = qfalse )
 	}
 
 	// Remove the emplaced gun from our inventory
-	ent->client->ps.stats[STAT_WEAPONS] &= ~( 1 << WP_EMPLACED_GUN );
+	ent->client->ps.weapons[WP_EMPLACED_GUN] = 0;
 
 extern void ChangeWeapon( gentity_t *ent, int newWeapon );
 extern void CG_ChangeWeapon( int num );

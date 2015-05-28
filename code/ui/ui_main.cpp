@@ -6245,7 +6245,10 @@ static void UI_ClearWeapons ( void )
 		playerState_t*		pState = cl->gentity->client;
 
 		// Clear out any weapons for the player
-		pState->stats[ STAT_WEAPONS ] = 0;
+		for ( int i = 0; i < MAX_WEAPONS; i++ )
+		{
+			pState->weapons[i] = 0;
+		}
 
 		pState->weapon = WP_NONE;
 
@@ -6269,7 +6272,7 @@ static void UI_GiveWeapon ( const int weaponIndex )
 
 		if (weaponIndex<WP_NUM_WEAPONS)
 		{
-			pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+			pState->weapons[weaponIndex] = 1;
 		}
 	}
 }
@@ -6431,7 +6434,7 @@ static void	UI_AddWeaponSelection ( const int weaponIndex, const int ammoIndex, 
 
 			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+				pState->weapons[weaponIndex] = 1;
 			}
 
 			// Give them ammo too
@@ -6536,7 +6539,7 @@ static void UI_RemoveWeaponSelection ( const int weaponSelectionIndex )
 
 			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~( 1 << weaponIndex );
+				pState->weapons[weaponIndex] = 0;
 			}
 
 			// Remove ammo too
@@ -6722,7 +6725,7 @@ static void	UI_AddThrowWeaponSelection ( const int weaponIndex, const int ammoIn
 
 			if ((weaponIndex>0) && (weaponIndex<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ] |= ( 1 << weaponIndex );
+				pState->weapons[weaponIndex] = 1;
 			}
 
 			// Give them ammo too
@@ -6801,7 +6804,7 @@ static void UI_RemoveThrowWeaponSelection ( void )
 
 			if ((uiInfo.selectedThrowWeapon>0) && (uiInfo.selectedThrowWeapon<WP_NUM_WEAPONS))
 			{
-				pState->stats[ STAT_WEAPONS ]  &= ~( 1 << uiInfo.selectedThrowWeapon );
+				pState->weapons[uiInfo.selectedThrowWeapon] = 0;
 			}
 
 			// Remove ammo too

@@ -591,7 +591,7 @@ void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum )
 void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 {
 	int saberNum = 0, maxSaber = 1;
-	if (!(ent && ent->client && (ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ))))
+	if (!(ent && ent->client && (ent->client->ps.weapons[WP_SABER])))
 	{
 		return;
 	}
@@ -7498,7 +7498,7 @@ void WP_SaberFireGun( gentity_t *self, usercmd_t *ucmd, int whichGun )
 		return;
 	}
 	
-	if ( !(self->client->ps.stats[STAT_WEAPONS] & (1<<whichGun)) )
+	if ( !(self->client->ps.weapons[whichGun]) )
 	{
 		return;
 	}
@@ -8567,7 +8567,7 @@ void WP_DropWeapon( gentity_t *dropper, vec3_t velocity )
 		}
 	}
 	//FIXME: does this work on the player?
-	dropper->client->ps.stats[STAT_WEAPONS] |= ( 1 << replaceWeap );
+	dropper->client->ps.weapons[replaceWeap] = 1;
 	if ( !dropper->s.number )
 	{
 		if ( oldWeap == WP_THERMAL )
@@ -8576,13 +8576,13 @@ void WP_DropWeapon( gentity_t *dropper, vec3_t velocity )
 		}
 		else
 		{
-			dropper->client->ps.stats[STAT_WEAPONS] &= ~( 1 << oldWeap );
+			dropper->client->ps.weapons[oldWeap] = 0;
 		}
 		CG_ChangeWeapon( replaceWeap );
 	}
 	else
 	{
-		dropper->client->ps.stats[STAT_WEAPONS] &= ~( 1 << oldWeap );
+		dropper->client->ps.weapons[oldWeap] = 0;
 	}
 	ChangeWeapon( dropper, replaceWeap );
 	dropper->s.weapon = replaceWeap;

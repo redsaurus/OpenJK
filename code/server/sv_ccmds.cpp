@@ -131,10 +131,9 @@ void SV_Player_EndOfLevelSave(void)
 						);
 #else
 				//				|general info				  |-force powers |-saber 1		|-saber 2										  |-general saber
-				s = va("%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
+				s = va("%i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %s %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i %i",
 						pState->stats[STAT_HEALTH],
 						pState->stats[STAT_ARMOR],
-						pState->stats[STAT_WEAPONS],
 						pState->stats[STAT_ITEMS],
 						pState->weapon,
 						pState->weaponstate,
@@ -193,6 +192,14 @@ void SV_Player_EndOfLevelSave(void)
 #endif
 		Cvar_Set( sCVARNAME_PLAYERSAVE, s );
 
+#ifndef JK2_MODE
+		s2 = "";
+		for (i=0;i< WP_NUM_WEAPONS; i++)
+		{
+			s2 = va("%s %i",s2, pState->weapons[i]);
+		}
+		Cvar_Set( "playerweaps", s2 );
+#endif
 		//ammo
 		s2 = "";
 		for (i=0;i< AMMO_MAX; i++)
@@ -259,6 +266,7 @@ extern void SCR_UnprecacheScreenshot();
 static void SV_Map_f( void ) 
 {
 	Cvar_Set( sCVARNAME_PLAYERSAVE, "");
+	Cvar_Set( "playerweaps", "");
 	Cvar_Set( "spawntarget", "" );
 	Cvar_Set("tier_storyinfo", "0");
 	Cvar_Set("tiers_complete", "");

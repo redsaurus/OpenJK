@@ -663,7 +663,7 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 		Vehicle_Register(ent);
 	}
 
-	if ( ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER) )
+	if ( ent->client->ps.weapons[WP_SCEPTER] )
 	{
 		if ( !ent->weaponModel[1] )
 		{//we have the scepter, so put it in our left hand if we don't already have a second weapon
@@ -944,12 +944,15 @@ void NPC_SetWeapons( gentity_t *ent )
 	int			bestWeap = WP_NONE;
 	int			weapons = NPC_WeaponsForTeam( ent->client->playerTeam, ent->spawnflags, ent->NPC_type );
 
-	ent->client->ps.stats[STAT_WEAPONS] = 0;
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		ent->client->ps.weapons[i] = 0;
+	}
 	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
 		if ( (weapons & ( 1 << curWeap )) )
 		{
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << curWeap );
+			ent->client->ps.weapons[curWeap] = 1;
 			RegisterItem( FindItemForWeapon( (weapon_t)(curWeap) ) );	//precache the weapon
 			ent->NPC->currentAmmo = ent->client->ps.ammo[weaponData[curWeap].ammoIndex] = 100;//FIXME: max ammo
 

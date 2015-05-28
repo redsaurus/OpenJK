@@ -146,7 +146,7 @@ void CG_ToggleBinoculars( void )
 		cg.zoomTime = cg.time;
 		cgi_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomEnd );
 
-		if( cg.weaponSelect == WP_NONE && cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ) )
+		if( cg.weaponSelect == WP_NONE && cg.snap->ps.weapons[WP_SABER] )
 		{
 			// FIXME: this is pretty damn ugly but whatever
 			cg.weaponSelect = WP_SABER;

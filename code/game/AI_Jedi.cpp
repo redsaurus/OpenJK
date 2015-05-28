@@ -1585,7 +1585,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			Kyle_TryGrab();
 			return;
 		}
-		else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+		else if ( NPC->client->ps.weapons[WP_SCEPTER]
 			&& !Q_irand( 0, 20 ) )
 		{
 			Tavion_StartScepterSlam();
@@ -1613,7 +1613,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 				Kyle_TryGrab();
 				return;
 			}
-			else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+			else if ( NPC->client->ps.weapons[WP_SCEPTER]
 				&& !Q_irand( 0, 20 ) )
 			{
 				Tavion_StartScepterSlam();
@@ -1793,7 +1793,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			{
 				ForceThrow( NPC, qtrue );
 			}
-			else if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+			else if ( NPC->client->ps.weapons[WP_SCEPTER]
 				&& !Q_irand( 0, 20 ) )
 			{
 				Tavion_StartScepterBeam();
@@ -5188,7 +5188,7 @@ static void Jedi_CombatIdle( int enemy_dist )
 	{//never taunt while raging or recovering from rage
 		return;
 	}
-	if ( NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER) )
+	if ( NPC->client->ps.weapons[WP_SCEPTER] )
 	{//never taunt when holding scepter
 		return;
 	}

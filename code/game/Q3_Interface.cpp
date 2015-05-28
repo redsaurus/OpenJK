@@ -3260,13 +3260,17 @@ void G_SetWeapon( gentity_t *self, int wp )
 	gitem_t *item = FindItemForWeapon( (weapon_t) wp);
 	RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
 
-	if ( self->client->ps.stats[STAT_WEAPONS]&( 1 << wp ) )
+	if ( self->client->ps.weapons[wp] )
 	{
 		hadWeapon = qtrue;
 	}
 	if ( self->NPC )
 	{//Should NPCs have only 1 weapon at a time?
-		self->client->ps.stats[STAT_WEAPONS] = ( 1 << wp );
+		for ( int i = 0; i < MAX_WEAPONS; i++ )
+		{
+			self->client->ps.weapons[i] = 0;
+		}
+		self->client->ps.weapons[wp] = 1;
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = 999;
 
 		ChangeWeapon( self, wp );
@@ -3276,7 +3280,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	}
 	else
 	{
-		self->client->ps.stats[STAT_WEAPONS] |= ( 1 << wp );
+		self->client->ps.weapons[wp] = 1;
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
 		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
@@ -6438,7 +6442,7 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.weapons[WP_SABER]) )
 		{//change to it right now
 			if ( ent->NPC )
 			{
@@ -6502,7 +6506,7 @@ static void Q3_SetSaberBladeActive( int entID, int iSaber, int iBlade, qboolean 
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.weapons[WP_SABER]) )
 		{//change to it right now
 			if ( ent->NPC )
 			{

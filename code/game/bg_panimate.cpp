@@ -4482,7 +4482,7 @@ void PM_SaberStartTransAnim( int saberAnimLevel, int anim, float *animSpeed, gen
 	}
 	if ( gent
 		&& gent->client
-		&& gent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER)
+		&& gent->client->ps.weapons[WP_SCEPTER]
 		&& gent->client->ps.dualSabers
 		&& saberAnimLevel == SS_DUAL
 		&& gent->weaponModel[1] )
