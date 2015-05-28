@@ -344,6 +344,13 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		case WP_NOGHRI_STICK:
 			attDelay += Q_irand( 0, 500 );
 			break;
+		case WP_SONIC_BLASTER:
+		case WP_E5_CARBINE:
+		case WP_DC15S_CARBINE:
+		case WP_DC15A_RIFLE:
+		case WP_Z6_ROTARY:
+			attDelay -= Q_irand( 0, 500 );
+			break;
 		/*
 		case WP_DEMP2:
 			break;
@@ -1027,6 +1034,20 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 		else
 			ent->NPC->burstSpacing = 750;//attack debounce
 		break;
+			
+	case WP_SONIC_BLASTER:
+	case WP_E5_CARBINE:
+	case WP_DC15S_CARBINE:
+	case WP_DC15A_RIFLE:
+	case WP_Z6_ROTARY:
+		if ( g_spskill->integer == 0 )
+			ent->NPC->burstSpacing = 1000;//attack debounce
+		else if ( g_spskill->integer == 1 )
+			ent->NPC->burstSpacing = 750;//attack debounce
+		else
+			ent->NPC->burstSpacing = 500;//attack debounce
+		break;
+
 
 	default:
 		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;

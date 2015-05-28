@@ -646,6 +646,21 @@ void CG_RegisterWeapon( int weaponNum ) {
 	case WP_TIE_FIGHTER:
 		theFxScheduler.RegisterEffect( "ships/imp_blastershot" );
 		break;
+			
+	case WP_E5_CARBINE:
+	case WP_DC15S_CARBINE:
+	case WP_SONIC_BLASTER:
+	case WP_DC15A_RIFLE:
+	case WP_Z6_ROTARY:
+		cgs.effects.blasterShotEffect			= theFxScheduler.RegisterEffect( "blaster/shot" );
+		theFxScheduler.RegisterEffect( "blaster/NPCshot" );
+		//		cgs.effects.blasterOverchargeEffect		= theFxScheduler.RegisterEffect( "blaster/overcharge" );
+		cgs.effects.blasterWallImpactEffect		= theFxScheduler.RegisterEffect( "blaster/wall_impact" );
+		cgs.effects.blasterFleshImpactEffect	= theFxScheduler.RegisterEffect( "blaster/flesh_impact" );
+		theFxScheduler.RegisterEffect( "blaster/deflect" );
+		theFxScheduler.RegisterEffect( "blaster/smoke_bolton" ); // note: this will be called game side
+		break;
+
 	}
 }
 
@@ -1790,6 +1805,13 @@ const char *weaponDesc[WP_NUM_WEAPONS - 1] =
 "TUSKEN_STAFF_DESC",
 "SCEPTER_DESC",
 "NOGHRI_STICK_DESC",
+
+"SONIC_BLASTER_DESC",
+
+"E5_CARBINE_DESC",
+"DC15S_CARBINE_DESC",
+"DC15A_RIFLE_DESC",
+"Z6_ROTARY_DESC",
 };
 
 /*
@@ -3402,6 +3424,15 @@ void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, 
 	case WP_NOGHRI_STICK:
 		FX_NoghriShotWeaponHitWall( origin, dir );
 		break;
+			
+	case WP_E5_CARBINE:
+	case WP_DC15S_CARBINE:
+	case WP_SONIC_BLASTER:
+	case WP_DC15A_RIFLE:
+	case WP_Z6_ROTARY:
+		FX_BlasterWeaponHitWall( origin, dir );
+		break;
+
 	}
 }
 
@@ -3541,6 +3572,14 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 
 	case WP_NOGHRI_STICK:
 		FX_NoghriShotWeaponHitPlayer( other, origin, dir, humanoid );
+		break;
+			
+	case WP_E5_CARBINE:
+	case WP_DC15S_CARBINE:
+	case WP_SONIC_BLASTER:
+	case WP_DC15A_RIFLE:
+	case WP_Z6_ROTARY:
+		FX_BlasterWeaponHitPlayer( other, origin, dir, humanoid );
 		break;
 	}
 }

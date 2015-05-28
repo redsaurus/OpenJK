@@ -263,6 +263,13 @@ gentity_t *TossClientItems( gentity_t *self )
 				case WP_NOGHRI_STICK:
 					dropped->count = 15;
 					break;
+				case WP_E5_CARBINE:
+				case WP_DC15S_CARBINE:
+				case WP_SONIC_BLASTER:
+				case WP_DC15A_RIFLE:
+				case WP_Z6_ROTARY:
+					dropped->count = 15;
+					break;
 				default:
 					dropped->count = 0;
 					break;

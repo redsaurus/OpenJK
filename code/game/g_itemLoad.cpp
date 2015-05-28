@@ -157,6 +157,17 @@ static void IT_Name(const char **holdBuf)
 		itemNum = ITM_SCEPTER_PICKUP;
 	else if (!Q_stricmp(tokenStr,"ITM_NOGHRI_STICK_PICKUP"))
 		itemNum = ITM_NOGHRI_STICK_PICKUP;
+	else if (!Q_stricmp(tokenStr,"ITM_SONIC_BLASTER_PICKUP"))
+		itemNum = ITM_SONIC_BLASTER_PICKUP;
+	else if (!Q_stricmp(tokenStr,"ITM_E5_PICKUP"))
+		itemNum = ITM_E5_PICKUP;
+	else if (!Q_stricmp(tokenStr,"ITM_DC15S_PICKUP"))
+		itemNum = ITM_DC15S_PICKUP;
+	else if (!Q_stricmp(tokenStr,"ITM_DC15A_PICKUP"))
+		itemNum = ITM_DC15A_PICKUP;
+	else if (!Q_stricmp(tokenStr,"ITM_Z6_PICKUP"))
+		itemNum = ITM_Z6_PICKUP;
+
 	//ammo
 	else if (!Q_stricmp(tokenStr,"ITM_AMMO_FORCE_PICKUP"))
 		itemNum = ITM_AMMO_FORCE_PICKUP;
@@ -376,6 +387,16 @@ static void IT_Tag(const char **holdBuf)
 		tag = WP_SCEPTER;
 	else if (!Q_stricmp(tokenStr,"WP_NOGHRI_STICK"))
 		tag = WP_NOGHRI_STICK;
+	else if (!Q_stricmp(tokenStr,"WP_SONIC_BLASTER"))
+		tag = WP_SONIC_BLASTER;
+	else if (!Q_stricmp(tokenStr,"WP_E5_CARBINE"))
+		tag = WP_E5_CARBINE;
+	else if (!Q_stricmp(tokenStr,"WP_DC15S_CARBINE"))
+		tag = WP_DC15S_CARBINE;
+	else if (!Q_stricmp(tokenStr,"WP_DC15A_RIFLE"))
+		tag = WP_DC15A_RIFLE;
+	else if (!Q_stricmp(tokenStr,"WP_Z6_ROTARY"))
+		tag = WP_Z6_ROTARY;
 	else if (!Q_stricmp(tokenStr,"AMMO_FORCE"))
 		tag = AMMO_FORCE;
 	else if (!Q_stricmp(tokenStr,"AMMO_BLASTER"))

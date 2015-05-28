@@ -76,6 +76,12 @@ float weaponSpeed[WP_NUM_WEAPONS][2] =
 	{ 0,0 },//WP_TUSKEN_STAFF,
 	{ 0,0 },//WP_SCEPTER,
 	{ 0,0 },//WP_NOGHRI_STICK,
+	{ 0,0 },//WP_SONIC_BLASTER,
+	{ 0,0 },//WP_E5_CARBINE,
+	{ 0,0 },//WP_DC15S_CARBINE,
+	{ 0,0 },//WP_DC15A_RIFLE,
+	{ 0,0 },//WP_Z6_ROTARY,
+
 };
 
 float WP_SpeedOfMissileForWeapon( int wp, qboolean alt_fire )
@@ -1536,6 +1542,14 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		{
 			WP_Melee( ent );
 		}
+		break;
+			
+	case WP_SONIC_BLASTER:
+	case WP_Z6_ROTARY:
+	case WP_E5_CARBINE:
+	case WP_DC15A_RIFLE:
+	case WP_DC15S_CARBINE:
+		WP_FireBlaster( ent, alt_fire );
 		break;
 
 	case WP_TUSKEN_STAFF:
