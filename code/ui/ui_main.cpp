@@ -3309,8 +3309,8 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							species->SkinHead = (skinName_t *)realloc(species->SkinHead, species->SkinHeadMax*sizeof(skinName_t));
 							species->HeadSwap = (headSwap_t *)realloc(species->HeadSwap, species->SkinHeadMax*sizeof(headSwap_t));
 						}
-						Q_strncpyz(species->SkinHead[species->SkinHeadCount++].name, skinname, SKIN_LENGTH, qtrue);
 						memset(&species->HeadSwap[species->SkinHeadCount], 0, sizeof(headSwap_t));
+						Q_strncpyz(species->SkinHead[species->SkinHeadCount++].name, skinname, SKIN_LENGTH, qtrue);
 						iSkinParts |= 1<<0;
 						int headSwapFileLen = ui.FS_FOpenFile(va("models/players/%s/%s.headswap",dirptr,skinname), &f, FS_READ);
 						if (f)
