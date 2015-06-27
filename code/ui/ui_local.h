@@ -132,8 +132,9 @@ typedef struct {
 } skinName_t;
 
 typedef struct {
-	char name[MODEL_LENGTH];
-} modelName_t;
+	char model[MODEL_LENGTH];
+	char skin[SKIN_LENGTH];
+} headSwap_t;
 
 typedef struct {
 	char shader[MAX_QPATH];
@@ -157,8 +158,7 @@ typedef struct {
 	int			Color2Count;
 	playerColor_t	*Color;
 	playerColor_t	*Color2;
-	modelName_t	*HeadSwapModel;
-	skinName_t	*HeadSwapSkin;
+	headSwap_t	*HeadSwap;
 } playerSpeciesInfo_t;
 
 typedef struct {

@@ -749,8 +749,8 @@ const char *UI_FeederItemText(float feederID, int index, int column, qhandle_t *
 	{
 		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count)
 		{
-			*handle = ui.R_RegisterShaderNoMip( uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Shader[index]);
-			return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Shader[index];
+			*handle = ui.R_RegisterShaderNoMip( uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2[index].shader);
+			return uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2[index].shader;
 		}
 	}
 	else if (feederID == FEEDER_SABER_SKIN_1)
@@ -848,7 +848,7 @@ qhandle_t UI_FeederItemImage(float feederID, int index)
 	{
 		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count)
 		{
-			return ui.R_RegisterShaderNoMip( uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Shader[index]);
+			return ui.R_RegisterShaderNoMip( uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2[index].shader);
 		}
 	}
 	else if (feederID == FEEDER_SABER_SKIN_1)
@@ -2182,18 +2182,18 @@ static void UI_FeederSelection(float feederID, int index, itemDef_t *item)
 		{
 			Cvar_Set("ui_char_skin_head", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[index].name);
 			
-			if (uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwapModel[index][0])
+			if (uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwap[index].model[0])
 			{
-				Cvar_Set("ui_char_head_model", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwapModel[index]);
+				Cvar_Set("ui_char_head_model", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwap[index].model);
 			}
 			else
 			{
 				Cvar_Set("ui_char_head_model", "");
 			}
 			
-			if (uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwapSkin[index][0])
+			if (uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwap[index].skin[0])
 			{
-				Cvar_Set("ui_char_head_skin", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwapSkin[index]);
+				Cvar_Set("ui_char_head_skin", uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].HeadSwap[index].skin);
 			}
 			else
 			{
@@ -2228,7 +2228,7 @@ extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 		extern void	Item_RunScript(itemDef_t *item, const char *s);		//from ui_shared;
 		if (index >= 0 && index < uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count)
 		{
-			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2ActionText[index]);
+			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2[index].actionText);
 		}
 	}
 	else if (feederID == FEEDER_SABER_SKIN_1)
@@ -2624,6 +2624,8 @@ static qboolean UI_ParseColor2Data(char* buf, playerSpeciesInfo_t &species)
 	p = buf;
 	COM_BeginParseSession();
 	species.Color2Count = 0;
+	species.Color2Max = 16;
+	species.Color2 = (playerColor_t *)malloc(species.Color2Max * sizeof(playerColor_t));
 	
 	while ( p )
 	{
@@ -2633,7 +2635,16 @@ static qboolean UI_ParseColor2Data(char* buf, playerSpeciesInfo_t &species)
 			COM_EndParseSession(  );
 			return species.Color2Count;
 		}
-		Q_strncpyz( species.Color2Shader[species.Color2Count], token, sizeof(species.Color2Shader[0]), qtrue );
+		
+		if (species.Color2Count >= species.Color2Max)
+		{
+			species.Color2Max *= 2;
+			species.Color2 = (playerColor_t *)realloc(species.Color2, species.Color2Max * sizeof(playerColor_t));
+		}
+		
+		memset(&species.Color2[species.Color2Count], 0, sizeof(playerColor_t));
+
+		Q_strncpyz( species.Color2[species.Color2Count].shader, token, MAX_QPATH, qtrue );
 		
 		token = COM_ParseExt( &p, qtrue );	//looking for action block {
 		if ( token[0] != '{' )
@@ -2642,7 +2653,6 @@ static qboolean UI_ParseColor2Data(char* buf, playerSpeciesInfo_t &species)
 			return qfalse;
 		}
 		
-		assert(!species.Color2ActionText[species.Color2Count][0]);
 		token = COM_ParseExt( &p, qtrue );	//looking for action commands
 		while (token[0] != '}')
 		{
@@ -2651,9 +2661,8 @@ static qboolean UI_ParseColor2Data(char* buf, playerSpeciesInfo_t &species)
 				COM_EndParseSession(  );
 				return qfalse;
 			}
-			assert((size_t)species.Color2Count < sizeof(species.Color2ActionText)/sizeof(species.Color2ActionText[0]) );
-			Q_strcat(species.Color2ActionText[species.Color2Count], sizeof(species.Color2ActionText[0]), token);
-			Q_strcat(species.Color2ActionText[species.Color2Count], sizeof(species.Color2ActionText[0]), " ");
+			Q_strcat(species.Color2[species.Color2Count].actionText, ACTION_BUFFER_SIZE, token);
+			Q_strcat(species.Color2[species.Color2Count].actionText, ACTION_BUFFER_SIZE, " ");
 			token = COM_ParseExt( &p, qtrue );	//looking for action commands or final }
 		}
 		species.Color2Count++;	//next color please
@@ -2683,7 +2692,6 @@ static qboolean UI_ParseHeadSwapData(char* buf, playerSpeciesInfo_t &species)
 		return qfalse;
 	}
 	
-	assert(!species.HeadSwapModel[count][0]);
 	token = COM_ParseExt( &p, qtrue );	//looking for model & skin commands!
 	while (token[0] != '}')
 	{
@@ -2700,7 +2708,7 @@ static qboolean UI_ParseHeadSwapData(char* buf, playerSpeciesInfo_t &species)
 				COM_EndParseSession();
 				return qfalse;
 			}
-			Q_strncpyz( species.HeadSwapModel[count], token, sizeof(species.HeadSwapModel[0]), qtrue );
+			Q_strncpyz( species.HeadSwap[count].model, token, MODEL_LENGTH, qtrue );
 		}
 		if ( !Q_stricmp( token, "skin" ) )
 		{
@@ -2710,7 +2718,7 @@ static qboolean UI_ParseHeadSwapData(char* buf, playerSpeciesInfo_t &species)
 				COM_EndParseSession();
 				return qfalse;
 			}
-			Q_strncpyz( species.HeadSwapSkin[count], token, sizeof(species.HeadSwapSkin[0]), qtrue );
+			Q_strncpyz( species.HeadSwap[count].skin, token, SKIN_LENGTH, qtrue );
 		}
 		token = COM_ParseExt( &p, qtrue );	//looking for action commands or final }
 	}
@@ -3114,7 +3122,9 @@ static void UI_FreeSpecies( playerSpeciesInfo_t *species )
 	free(species->SkinHead);
 	free(species->SkinTorso);
 	free(species->SkinLeg);
+	free(species->HeadSwap);
 	free(species->Color);
+	free(species->Color2);
 	memset(species, 0, sizeof(playerSpeciesInfo_t));
 }
 
@@ -3197,20 +3207,21 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			species->SkinLegMax = 8;
 
 			species->SkinHead = (skinName_t *)malloc(species->SkinHeadMax * sizeof(skinName_t));
+			species->HeadSwap = (headSwap_t *)malloc(species->SkinHeadMax * sizeof(headSwap_t));
 			species->SkinTorso = (skinName_t *)malloc(species->SkinTorsoMax * sizeof(skinName_t));
 			species->SkinLeg = (skinName_t *)malloc(species->SkinLegMax * sizeof(skinName_t));
 
 			Com_sprintf(fpath, 2048, "models/players/%s/PlayerChoice2.txt", dirptr);
 			filelen = ui.FS_FOpenFile(fpath, &f, FS_READ);
 			
-			uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color2Count = 0;
+			species->Color2Count = 0;
 			
 			if (f)
 			{
 				ui.FS_Read(&buffer, filelen, f);
 				ui.FS_FCloseFile(f);
 				buffer[filelen] = 0;	//ensure trailing NULL
-				if (!UI_ParseColor2Data(buffer,uiInfo.playerSpecies[uiInfo.playerSpeciesCount]))
+				if (!UI_ParseColor2Data(buffer,*species))
 				{
 					ui.Printf( "UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath );
 				}
@@ -3246,8 +3257,10 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 						{
 							species->SkinHeadMax *= 2;
 							species->SkinHead = (skinName_t *)realloc(species->SkinHead, species->SkinHeadMax*sizeof(skinName_t));
+							species->HeadSwap = (headSwap_t *)realloc(species->HeadSwap, species->SkinHeadMax*sizeof(headSwap_t));
 						}
 						Q_strncpyz(species->SkinHead[species->SkinHeadCount++].name, skinname, SKIN_LENGTH, qtrue);
+						memset(&species->HeadSwap[species->SkinHeadCount], 0, sizeof(headSwap_t));
 						iSkinParts |= 1<<0;
 						int headSwapFileLen = ui.FS_FOpenFile(va("models/players/%s/%s.headswap",dirptr,skinname), &f, FS_READ);
 						if (f)
@@ -3255,7 +3268,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							ui.FS_Read(&buffer, headSwapFileLen, f);
 							ui.FS_FCloseFile(f);
 							buffer[headSwapFileLen] = 0;
-							UI_ParseHeadSwapData(buffer,uiInfo.playerSpecies[uiInfo.playerSpeciesCount]);
+							UI_ParseHeadSwapData(buffer,*species);
 						}
 					} else
 					if (Q_stricmpn(skinname,"torso_",6) == 0)
