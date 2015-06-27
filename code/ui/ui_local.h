@@ -33,7 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_public.h"
 #include "ui_shared.h"
 
-#define MAX_CUSTOMSABERS 32
 #define MAX_DEFERRED_SCRIPT		1024
 
 //
@@ -162,29 +161,22 @@ typedef struct {
 } playerSpeciesInfo_t;
 
 typedef struct {
+	char name[32];
+	char desc[64];
+	int	count;
+	int max;
+	skinName_t *skins;
+} saberPartSkin_t;
+
+typedef struct {
 	char		SaberName[64];
 	char		SaberLongName[64];
-	char		FolderName[64];
-	char		Skin1Name[32];
-	char		Skin1Desc[64];
-	int			Skin1Count;
-	char		Skin1Names[MAX_CUSTOMSABERS][16];
-	char		Skin2Name[32];
-	char		Skin2Desc[64];
-	int			Skin2Count;
-	char		Skin2Names[MAX_CUSTOMSABERS][16];
-	char		Skin3Name[32];
-	char		Skin3Desc[64];
-	int			Skin3Count;
-	char		Skin3Names[MAX_CUSTOMSABERS][16];
-	char		Skin4Name[32];
-	char		Skin4Desc[64];
-	int			Skin4Count;
-	char		Skin4Names[MAX_CUSTOMSABERS][16];
-	char		Skin5Name[32];
-	char		Skin5Desc[64];
-	int			Skin5Count;
-	char		Skin5Names[MAX_CUSTOMSABERS][16];
+	char		FolderName[MAX_QPATH];
+	saberPartSkin_t	Skin1;
+	saberPartSkin_t Skin2;
+	saberPartSkin_t Skin3;
+	saberPartSkin_t Skin4;
+	saberPartSkin_t Skin5;
 } customSaberInfo_t;
 
 typedef struct {
@@ -202,8 +194,9 @@ typedef struct {
 	playerSpeciesInfo_t	*playerSpecies;
 	int					playerSpeciesIndex;
 	
+	int					customSabersMax;
 	int					customSabersCount;
-	customSaberInfo_t	customSabers[MAX_CUSTOMSABERS];
+	customSaberInfo_t	*customSabers;
 	int					customSabersIndex;
 
 

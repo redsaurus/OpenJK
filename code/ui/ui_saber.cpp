@@ -202,7 +202,7 @@ qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
 qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 {
 	qboolean isCustomSaber = qfalse;
-	for (int i = 0; i < MAX_CUSTOMSABERS; i++)
+	for (int i = 0; i < uiInfo.customSabersCount; i++)
 	{
 		if (uiInfo.customSabers[i].SaberName && uiInfo.customSabers[i].SaberName[0] && !Q_stricmp(saberName, uiInfo.customSabers[i].SaberName))
 		{
