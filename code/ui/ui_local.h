@@ -33,7 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_public.h"
 #include "ui_shared.h"
 
-#define MAX_PLAYERMODELS 512 //32
 #define MAX_CUSTOMSABERS 32
 #define MAX_DEFERRED_SCRIPT		1024
 
@@ -124,25 +123,42 @@ typedef struct {
 	const char *modDescr;
 } modInfo_t;
 
+#define SKIN_LENGTH			16
+#define MODEL_LENGTH		32
+#define ACTION_BUFFER_SIZE	128
+
+typedef struct {
+	char name[SKIN_LENGTH];
+} skinName_t;
+
+typedef struct {
+	char name[MODEL_LENGTH];
+} modelName_t;
+
+typedef struct {
+	char shader[MAX_QPATH];
+	char actionText[ACTION_BUFFER_SIZE];
+} playerColor_t;
+
 typedef struct {
 	char		Name[64];
 	int			SkinHeadCount;
-//	qhandle_t	SkinHeadIcons[MAX_PLAYERMODELS];
-	char		SkinHeadNames[MAX_PLAYERMODELS][16];
+	int			SkinHeadMax;
+	skinName_t	*SkinHead;
 	int			SkinTorsoCount;
-//	qhandle_t	SkinTorsoIcons[MAX_PLAYERMODELS];
-	char		SkinTorsoNames[MAX_PLAYERMODELS][16];
+	int			SkinTorsoMax;
+	skinName_t	*SkinTorso;
 	int			SkinLegCount;
-//	qhandle_t	SkinLegIcons[MAX_PLAYERMODELS];
-	char		SkinLegNames[MAX_PLAYERMODELS][16];
-	char		ColorShader[MAX_PLAYERMODELS][64];
+	int			SkinLegMax;
+	skinName_t	*SkinLeg;
+	int			ColorMax;
 	int			ColorCount;
-	char		ColorActionText[MAX_PLAYERMODELS][128];
-	char		Color2Shader[MAX_PLAYERMODELS][64];
+	int			Color2Max;
 	int			Color2Count;
-	char		Color2ActionText[MAX_PLAYERMODELS][128];
-	char		HeadSwapModel[MAX_PLAYERMODELS][32];
-	char		HeadSwapSkin[MAX_PLAYERMODELS][16];
+	playerColor_t	*Color;
+	playerColor_t	*Color2;
+	modelName_t	*HeadSwapModel;
+	skinName_t	*HeadSwapSkin;
 } playerSpeciesInfo_t;
 
 typedef struct {
@@ -181,8 +197,9 @@ typedef struct {
 	int modIndex;
 	int modCount;
 
+	int					playerSpeciesMax;
 	int					playerSpeciesCount;
-	playerSpeciesInfo_t	playerSpecies[MAX_PLAYERMODELS];
+	playerSpeciesInfo_t	*playerSpecies;
 	int					playerSpeciesIndex;
 	
 	int					customSabersCount;

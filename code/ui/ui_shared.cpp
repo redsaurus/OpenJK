@@ -2589,7 +2589,7 @@ int GetCurrentFeederIndex(itemDef_t * item)
 		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadCount;
 		for ( i = 0; i < max ; i++)
 		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHeadNames[i]))
+			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinHead[i].name))
 			{
 				return i;
 			}
@@ -2604,7 +2604,7 @@ int GetCurrentFeederIndex(itemDef_t * item)
 		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoCount;
 		for ( i = 0; i < max ; i++)
 		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorsoNames[i]))
+			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinTorso[i].name))
 			{
 				return i;
 			}
@@ -2619,7 +2619,7 @@ int GetCurrentFeederIndex(itemDef_t * item)
 		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegCount;
 		for ( i = 0; i < max ; i++)
 		{
-			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLegNames[i]))
+			if (!Q_stricmp(name, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].SkinLeg[i].name))
 			{
 				return i;
 			}
@@ -2646,7 +2646,7 @@ int GetCurrentFeederIndex(itemDef_t * item)
 		max = uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorCount;
 		for ( i = 0; i < max ; i++)
 		{
-			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].ColorActionText[i]);
+			Item_RunScript(item, uiInfo.playerSpecies[uiInfo.playerSpeciesIndex].Color[i].actionText);
 			newR = Cvar_VariableIntegerValue( "ui_char_color_red");
 			newG = Cvar_VariableIntegerValue( "ui_char_color_green");
 			newB = Cvar_VariableIntegerValue( "ui_char_color_blue");
