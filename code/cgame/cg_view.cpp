@@ -2105,7 +2105,9 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 								|| (cg.snap->ps.stats[STAT_HEALTH] <= 0)
 								|| (cg.snap->ps.eFlags&EF_HELD_BY_SAND_CREATURE)
 								|| ((g_entities[0].client&&g_entities[0].client->NPC_class==CLASS_ATST)
-								|| ((cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE) && !cg_fpls.integer) );
+								|| ((cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE) && !cg_fpls.integer)
+								|| (cg.snap->ps.weapon == WP_EMPLACED_GUN && !(cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON))
+								|| (!cg_trueguns.integer && (cg.snap->ps.weapon == WP_TUSKEN_RIFLE || cg.snap->ps.weapon == WP_NOGHRI_STICK) && cg.snap->ps.torsoAnim >= BOTH_TUSKENATTACK1 && cg.snap->ps.torsoAnim <= BOTH_TUSKENATTACK3));
 
 	if (cg_trueinvertsaber.integer == 2 && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
 	{//force thirdperson for sabers/melee if in cg_trueinvertsaber.integer == 2
