@@ -400,6 +400,10 @@ vmCvar_t	ui_saber2_skin3;
 vmCvar_t	ui_saber2_skin4;
 vmCvar_t	ui_saber2_skin5;
 
+vmCvar_t	ui_SFXSabers;
+vmCvar_t	ui_SFXSabersGlowSize;
+vmCvar_t	ui_SFXSabersCoreSize;
+
 
 //JLFCALLOUT MPMOVED
 vmCvar_t	ui_hideAcallout;
@@ -460,6 +464,10 @@ static cvarTable_t cvarTable[] =
 	{ &ui_saber2_skin3,		"ui_saber2_skin3",	"", 0},
 	{ &ui_saber2_skin4,		"ui_saber2_skin4",	"", 0},
 	{ &ui_saber2_skin5,		"ui_saber2_skin5",	"", 0},
+	
+	{ &ui_SFXSabers,	"cg_SFXSabers",	"0", CVAR_ARCHIVE },
+	{ &ui_SFXSabersGlowSize,	"cg_SFXSabersGlowSize",	"1.0", CVAR_ARCHIVE },
+	{ &ui_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
 
 //JLFCALLOUT MPMOVED

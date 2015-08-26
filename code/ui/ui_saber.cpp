@@ -57,6 +57,10 @@ extern vmCvar_t	ui_saber2_skin3;
 extern vmCvar_t	ui_saber2_skin4;
 extern vmCvar_t	ui_saber2_skin5;
 
+extern vmCvar_t	ui_SFXSabers;
+extern vmCvar_t	ui_SFXSabersGlowSize;
+extern vmCvar_t	ui_SFXSabersCoreSize;
+
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
 static qhandle_t orangeSaberGlowShader;
@@ -71,6 +75,11 @@ static qhandle_t purpleSaberGlowShader;
 static qhandle_t purpleSaberCoreShader;
 static qhandle_t rgbSaberGlowShader;
 static qhandle_t rgbSaberCoreShader;
+static qhandle_t blackSaberGlowShader;
+static qhandle_t blackSaberCoreShader;
+static qhandle_t rgbUnstableCoreShader;
+static qhandle_t SaberBladeShader;
+static qhandle_t blackSaberBladeShader;
 
 void UI_CacheSaberGlowGraphics( void )
 {//FIXME: these get fucked by vid_restarts
@@ -88,6 +97,11 @@ void UI_CacheSaberGlowGraphics( void )
 	purpleSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/purple_line" );
 	rgbSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/rgb_glow" );
 	rgbSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/rgb_line" );
+	blackSaberGlowShader		= re.RegisterShader( "gfx/effects/sabers/black_glow" );
+	blackSaberCoreShader		= re.RegisterShader( "gfx/effects/sabers/black_line" );
+	rgbUnstableCoreShader		= re.RegisterShader("gfx/effects/sabers/jkg/blade_unstable");
+	SaberBladeShader = re.RegisterShader( "SFX_Sabers/saber_blade" );
+	blackSaberBladeShader = re.RegisterShader( "SFX_Sabers/black_blade" );
 }
 
 qboolean UI_ParseLiteral( const char **data, const char *string ) 
@@ -422,7 +436,135 @@ void UI_SaberLoadParms( void )
 	}
 }
 
-void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int whichSaber )
+void UI_DoSFXSaber( vec3_t blade_muz, vec3_t blade_dir, float lengthMax, float radius, saber_colors_t color, saber_crystals_t crystals, int whichSaber )
+{
+	vec3_t	mid;
+	float	radiusmult, effectradius, coreradius;
+	float	blade_len;
+	float	effectalpha = 0.8f;
+	float	AngleScale = 1.0f;
+	
+	qhandle_t	glow = 0;
+	refEntity_t saber;
+	
+	blade_len = lengthMax;
+	
+	if ( blade_len < 0.5f )
+	{
+		return;
+	}
+	
+	switch( color )
+	{
+		case SABER_RED:
+			glow = redSaberGlowShader;
+			break;
+		case SABER_ORANGE:
+			glow = orangeSaberGlowShader;
+			break;
+		case SABER_YELLOW:
+			glow = yellowSaberGlowShader;
+			break;
+		case SABER_GREEN:
+			glow = greenSaberGlowShader;
+			break;
+		case SABER_PURPLE:
+			glow = purpleSaberGlowShader;
+			break;
+		case SABER_BLUE:
+			glow = blueSaberGlowShader;
+			break;
+		default://SABER_RGB
+			glow = rgbSaberGlowShader;
+			break;
+	}
+	
+	if ( crystals & SABER_CRYSTAL_BLACK )
+	{
+		glow = blackSaberGlowShader;
+	}
+	
+	VectorMA( blade_muz, blade_len * 0.5f, blade_dir, mid );
+	
+	memset( &saber, 0, sizeof( refEntity_t ));
+	
+	if (blade_len < lengthMax)
+	{
+		radiusmult = 0.5 + ((blade_len / lengthMax)/2);
+	}
+	else
+	{
+		radiusmult = 1.0;
+	}
+	
+	effectradius	= ((radius * 1.6) + crandom() * 0.1f)*radiusmult*ui_SFXSabersGlowSize.value;
+	coreradius		= ((radius * 0.4) + crandom() * 0.1f)*radiusmult*ui_SFXSabersCoreSize.value;
+	
+	if ( crystals & SABER_CRYSTAL_UNSTABLE )
+	{
+		coreradius *= 0.9;
+	}
+	
+	{
+		//saber.renderfx = rfx;
+		if(blade_len-((effectradius*AngleScale)/2) > 0)
+		{
+			saber.radius = effectradius*AngleScale;
+			saber.saberLength = (blade_len - (saber.radius/2));
+			VectorCopy( blade_muz, saber.origin );
+			VectorCopy( blade_dir, saber.axis[0] );
+			saber.reType = RT_SABER_GLOW;
+			saber.customShader = glow;
+			saber.shaderRGBA[0] = 0xff * effectalpha;
+			saber.shaderRGBA[1] = 0xff * effectalpha;
+			saber.shaderRGBA[2] = 0xff * effectalpha;
+			saber.shaderRGBA[3] = 0xff * effectalpha;
+			
+			if (color >= SABER_RGB)
+			{
+				if (whichSaber == 0)
+				{
+					saber.shaderRGBA[0] = ui_rgb_saber_red.integer * effectalpha;
+					saber.shaderRGBA[1] = ui_rgb_saber_green.integer * effectalpha;
+					saber.shaderRGBA[2] = ui_rgb_saber_blue.integer * effectalpha;
+				}
+				else
+				{
+					saber.shaderRGBA[0] = ui_rgb_saber2_red.integer * effectalpha;
+					saber.shaderRGBA[1] = ui_rgb_saber2_green.integer * effectalpha;
+					saber.shaderRGBA[2] = ui_rgb_saber2_blue.integer * effectalpha;
+				}
+			}
+			
+			DC->addRefEntityToScene( &saber );
+		}
+		
+		// Do the hot core
+		VectorMA( blade_muz, blade_len, blade_dir, saber.origin );
+		VectorMA( blade_muz, -1, blade_dir, saber.oldorigin );
+		
+		saber.customShader = SaberBladeShader;
+		if ( crystals & SABER_CRYSTAL_BLACK )
+		{
+			saber.customShader = blackSaberBladeShader;
+		}
+		else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+		{
+			saber.customShader = rgbUnstableCoreShader;
+		}
+		
+		saber.reType = RT_LINE;
+		
+		saber.radius = coreradius;
+		
+		saber.shaderTexCoord[0] = saber.shaderTexCoord[1] = 1.0f;
+		saber.shaderRGBA[0] = saber.shaderRGBA[1] = saber.shaderRGBA[2] = saber.shaderRGBA[3] = 0xff;
+		
+		DC->addRefEntityToScene( &saber );
+	}
+}
+
+void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, saber_crystals_t crystals, int whichSaber )
 {
 	vec3_t		mid, rgb={1,1,1};
 	qhandle_t	blade = 0, glow = 0;
@@ -473,24 +615,19 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 		default:
 			glow = rgbSaberGlowShader;
 			blade = rgbSaberCoreShader;
-			if (whichSaber == 0)
-			{
-				VectorSet( rgb, ui_rgb_saber_red.integer/255.0f, ui_rgb_saber_green.integer/255.0f, ui_rgb_saber_blue.integer/255.0f );
-			}
-			else
-			{
-				VectorSet( rgb, ui_rgb_saber2_red.integer/255.0f, ui_rgb_saber2_green.integer/255.0f, ui_rgb_saber2_blue.integer/255.0f );
-			}
 			break;
 	}
-
-	// always add a light because sabers cast a nice glow before they slice you in half!!  or something...
-	/*
-	if ( doLight )
-	{//FIXME: RGB combine all the colors of the sabers you're using into one averaged color!
-		cgi_R_AddLightToScene( mid, (length*2.0f) + (random()*8.0f), rgb[0], rgb[1], rgb[2] );
+	
+	if ( crystals & SABER_CRYSTAL_BLACK )
+	{
+		glow = blackSaberGlowShader;
+		blade = blackSaberCoreShader;
 	}
-	*/
+	else if ( crystals & SABER_CRYSTAL_UNSTABLE )
+	{
+		glow = rgbSaberGlowShader;
+		blade = rgbUnstableCoreShader;
+	}
 
 	memset( &saber, 0, sizeof( refEntity_t ));
 
@@ -537,6 +674,12 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 			saber.shaderRGBA[1] = ui_rgb_saber2_green.integer;
 			saber.shaderRGBA[2] = ui_rgb_saber2_blue.integer;
 		}
+	}
+	else if ( (crystals & SABER_CRYSTAL_UNSTABLE) && !(crystals & SABER_CRYSTAL_BLACK) )
+	{
+		saber.shaderRGBA[0] = 0xff * rgb[0];
+		saber.shaderRGBA[1] = 0xff * rgb[1];
+		saber.shaderRGBA[2] = 0xff * rgb[2];
 	}
 
 	DC->addRefEntityToScene( &saber );
@@ -879,7 +1022,14 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 		return;
 	}
 
-	UI_DoSaber( bladeOrigin, axis[0], bladeLength, bladeLength, bladeRadius, bladeColor, whichSaber );
+	if (ui_SFXSabers.integer)
+	{
+		UI_DoSFXSaber( bladeOrigin, axis[0], bladeLength, bladeRadius, bladeColor, SABER_CRYSTAL_DEFAULT, whichSaber);
+	}
+	else
+	{
+		UI_DoSaber( bladeOrigin, axis[0], bladeLength, bladeLength, bladeRadius, bladeColor, SABER_CRYSTAL_DEFAULT, whichSaber );
+	}
 }
 
 extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name );
