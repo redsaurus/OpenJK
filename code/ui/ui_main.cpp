@@ -29,8 +29,9 @@ USER INTERFACE MAIN
 =======================================================================
 */
 
-// leave this at the top of all UI_xxxx files for PCH reasons...
-//
+#include <algorithm>
+#include <vector>
+
 #include "../server/exe_headers.h"
 
 #include "ui_local.h"
@@ -2588,13 +2589,13 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 			COM_EndParseSession(  );
 			return species.ColorCount;
 		}
-		
+
 		if (species.ColorCount >= species.ColorMax)
 		{
 			species.ColorMax *= 2;
 			species.Color = (playerColor_t *)realloc(species.Color, species.ColorMax * sizeof(playerColor_t));
 		}
-		
+
 		memset(&species.Color[species.ColorCount], 0, sizeof(playerColor_t));
 
 		Q_strncpyz( species.Color[species.ColorCount].shader, token, MAX_QPATH, qtrue );
@@ -3189,7 +3190,7 @@ static void UI_FreeSpecies( playerSpeciesInfo_t *species )
 void UI_FreeAllSpecies( void )
 {
 	int i;
-	
+
 	for (i = 0; i < uiInfo.playerSpeciesCount; i++)
 	{
 		UI_FreeSpecies(&uiInfo.playerSpecies[i]);
@@ -3210,12 +3211,12 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 	int		dirlen;
 	int		i;
 	const int building = Cvar_VariableIntegerValue("com_buildscript");
-	
+
 	uiInfo.playerSpeciesCount = 0;
 	uiInfo.playerSpeciesIndex = 0;
 	uiInfo.playerSpeciesMax = 8;
 	uiInfo.playerSpecies = (playerSpeciesInfo_t *)malloc(uiInfo.playerSpeciesMax * sizeof(playerSpeciesInfo_t));
-	
+
 	// iterate directory of all player models
 	numdirs = ui.FS_GetFileList("models/players", "/", dirlist, 2048 );
 	dirptr  = dirlist;
@@ -3239,11 +3240,13 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 
 		if (f)
 		{
-			char buffer[2048];
-			playerSpeciesInfo_t *species;
-			ui.FS_Read(&buffer, filelen, f);
+			playerSpeciesInfo_t *species = NULL;
+
+			std::vector<char> buffer(filelen + 1);
+			ui.FS_Read(&buffer[0], filelen, f);
 			ui.FS_FCloseFile(f);
-			buffer[filelen] = 0;	//ensure trailing NULL
+
+			buffer[filelen] = 0;
 
 			//record this species
 			if (uiInfo.playerSpeciesCount >= uiInfo.playerSpeciesMax)
@@ -3255,11 +3258,11 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			memset(species, 0, sizeof(playerSpeciesInfo_t));
 			Q_strncpyz( species->Name, dirptr, MAX_QPATH, qtrue );
 
-			if (!UI_ParseColorData(buffer,*species))
+			if (!UI_ParseColorData(buffer.data(),*species))
 			{
 				ui.Printf( "UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath );
 			}
-			
+
 			species->SkinHeadMax = 8;
 			species->SkinTorsoMax = 8;
 			species->SkinLegMax = 8;

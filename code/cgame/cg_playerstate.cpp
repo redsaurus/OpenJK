@@ -39,7 +39,7 @@ CG_CheckAmmo
 If the ammo has gone low enough to generate the warning, play a sound
 ==============
 */
-void CG_CheckAmmo( void ) 
+void CG_CheckAmmo( void )
 {
 //	int		i;
 	int		total;
@@ -66,7 +66,7 @@ void CG_CheckAmmo( void )
 	if (!total)		// We're completely freak'in out!
 	{
 		cg.lowAmmoWarning = 2;
-	} 
+	}
 	else			// Got a little left
 	{
 		cg.lowAmmoWarning = 1;
@@ -141,7 +141,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 		}
 
 		cg.v_dmg_roll = kick * left;
-		
+
 		cg.v_dmg_pitch = -kick * front;
 
 		if ( front <= 0.1 ) {
@@ -329,7 +329,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	CG_CheckPlayerstateEvents( ps, ops );
 
 	// smooth the ducking viewheight change
-	if ( ps->viewheight != ops->viewheight ) 
+	if ( ps->viewheight != ops->viewheight )
 	{
 		if ( !cg.nextFrameTeleport )
 		{//when we crouch/uncrouch in mid-air, our viewhieght doesn't actually change in

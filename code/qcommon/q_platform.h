@@ -95,7 +95,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#endif
 
 	#define OS_STRING "macosx"
-	#define QINLINE /*inline*/ 
+	#define QINLINE /*inline*/
 	#define	PATH_SEP '/'
 
 	#if defined(__ppc__)
@@ -131,36 +131,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 	#define PATH_SEP '/'
 
+	#if !defined(ARCH_STRING)
+		#error ARCH_STRING should be defined by the build system
+	#endif
 
-	#if defined(__i386__)
-		#define ARCH_STRING "i386"
-	#elif defined(__x86_64__)
+	#if defined(__x86_64__)
 		#define idx64
-		#define ARCH_STRING "x86_64"
-	#elif defined(__powerpc64__)
-		#define ARCH_STRING "ppc64"
-	#elif defined(__powerpc__)
-		#define ARCH_STRING "ppc"
-	#elif defined(__s390__)
-		#define ARCH_STRING "s390"
-	#elif defined(__s390x__)
-		#define ARCH_STRING "s390x"
-	#elif defined(__ia64__)
-		#define ARCH_STRING "ia64"
-	#elif defined(__alpha__)
-		#define ARCH_STRING "alpha"
-	#elif defined(__sparc__)
-		#define ARCH_STRING "sparc"
-	#elif defined(__arm__)
-		#define ARCH_STRING "arm"
-	#elif defined(__cris__)
-		#define ARCH_STRING "cris"
-	#elif defined(__hppa__)
-		#define ARCH_STRING "hppa"
-	#elif defined(__mips__)
-		#define ARCH_STRING "mips"
-	#elif defined(__sh__)
-		#define ARCH_STRING "sh"
 	#endif
 
 	#if __FLOAT_WORD_ORDER == __BIG_ENDIAN
@@ -176,11 +152,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 	#include <sys/types.h>
 	#include <machine/endian.h>
-	
+
 	#ifndef __BSD__
 		#define __BSD__
 	#endif
-	
+
 	#if defined(__FreeBSD__)
 		#define OS_STRING "freebsd"
 	#elif defined(__OpenBSD__)
@@ -188,25 +164,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#elif defined(__NetBSD__)
 		#define OS_STRING "netbsd"
 	#endif
-	
+
 	#define QINLINE inline
 	#define PATH_SEP '/'
-	
-	#if defined(__i386__)
-		#define ARCH_STRING "i386"
-	#elif defined(__amd64__)
-		#define idx64
-		#define ARCH_STRING "amd64"
-	#elif defined(__axp__)
-		#define ARCH_STRING "alpha"
+
+	#if !defined(ARCH_STRING)
+		#error ARCH_STRING should be defined by the build system
 	#endif
-	
+
+	#if defined(__amd64__)
+		#define idx64
+	#endif
+
 	#if BYTE_ORDER == BIG_ENDIAN
 		#define Q3_BIG_ENDIAN
 	#else
 		#define Q3_LITTLE_ENDIAN
 	#endif
-	
+
 	#define DLL_EXT ".so"
 #endif
 

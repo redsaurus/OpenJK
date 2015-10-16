@@ -33,6 +33,8 @@ USER INTERFACE MAIN
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
 //#define PRE_RELEASE_TADEMO
 
+#include <stdlib.h>
+
 #include "ghoul2/G2.h"
 #include "ui_local.h"
 #include "qcommon/qfiles.h"
@@ -9577,9 +9579,9 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t *species,char*	
 			species->ColorMax *= 2;
 			species->Color = (playerColor_t *)realloc(species->Color, species->ColorMax * sizeof(playerColor_t));
 		}
-		
+
 		memset(&species->Color[species->ColorCount], 0, sizeof(playerColor_t));
-		
+
 		Q_strncpyz( species->Color[species->ColorCount].shader, token, MAX_QPATH );
 
 		token = COM_ParseExt( &p, qtrue );	//looking for action block {
@@ -9587,7 +9589,7 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t *species,char*	
 		{
 			return qfalse;
 		}
-		
+
 		token = COM_ParseExt( &p, qtrue );	//looking for action commands
 		while (token[0] != '}')
 		{
@@ -9616,7 +9618,7 @@ static void UI_FreeSpecies( playerSpeciesInfo_t *species )
 void UI_FreeAllSpecies( void )
 {
 	int i;
-	
+
 	for (i = 0; i < uiInfo.playerSpeciesCount; i++)
 	{
 		UI_FreeSpecies(&uiInfo.playerSpecies[i]);
@@ -9674,15 +9676,22 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 
 		if (f)
 		{
-			char buffer[2048];
 			playerSpeciesInfo_t *species;
-			char	skinname[64];
-			int		numfiles;
-			int		iSkinParts=0;
+			char                 skinname[64];
+			int                  numfiles;
+			int                  iSkinParts=0;
+			char                *buffer = NULL;
 
-			trap->FS_Read(&buffer, filelen, f);
+			buffer = malloc(filelen + 1);
+			if(!buffer)
+			{
+				Com_Error(ERR_FATAL, "Could not allocate buffer to read %s", fpath);
+			}
+
+			trap->FS_Read(buffer, filelen, f);
 			trap->FS_Close(f);
-			buffer[filelen] = 0;	//ensure trailing NULL
+
+			buffer[filelen] = 0;
 
 			//record this species
 			if (uiInfo.playerSpeciesCount >= uiInfo.playerSpeciesMax)
@@ -9698,14 +9707,16 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			{
 				Com_Printf(S_COLOR_RED"UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath);
 			}
-			
+
 			species->SkinHeadMax = 8;
 			species->SkinTorsoMax = 8;
 			species->SkinLegMax = 8;
-			
+
 			species->SkinHead = (skinName_t *)malloc(species->SkinHeadMax * sizeof(skinName_t));
 			species->SkinTorso = (skinName_t *)malloc(species->SkinTorsoMax * sizeof(skinName_t));
 			species->SkinLeg = (skinName_t *)malloc(species->SkinLegMax * sizeof(skinName_t));
+
+			free(buffer);
 
 			numfiles = trap->FS_GetFileList( va("models/players/%s",dirptr), ".skin", filelist, 2048 );
 			fileptr  = filelist;

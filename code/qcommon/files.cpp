@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef FINAL_BUILD
 #include "../client/client.h"
 #endif
-#include "minizip/unzip.h"
+#include <minizip/unzip.h>
 
 // for rmdir
 #if defined (_MSC_VER)
@@ -45,7 +45,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if defined(_WIN32)
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 /*
@@ -624,7 +624,7 @@ void FS_HomeRemove( const char *homePath ) {
 			fs_gamedir, homePath ) );
 }
 
-// The following functions with "UserGen" in them were added for savegame handling, 
+// The following functions with "UserGen" in them were added for savegame handling,
 //	since outside functions aren't supposed to know about full paths/dirs
 
 // "filename" is local to the current gamedir (eg "saves/blah.sav")
@@ -960,14 +960,23 @@ void FS_Rename( const char *from, const char *to ) {
 }
 
 /*
-==============
+===========
 FS_FCloseFile
 
-If the FILE pointer is an open pak file, leave it open.
+Close a file.
 
-For some reason, other dll's can't just cal fclose()
-on files returned by FS_FOpenFile...
-==============
+There are three cases handled:
+
+  * normal file: closed with fclose.
+
+  * file in pak3 archive: subfile is closed with unzCloseCurrentFile, but the
+    minizip handle to the pak3 remains open.
+
+  * file in pak3 archive, opened with "unique" flag: This file did not use
+    the system minizip handle to the pak3 file, but its own dedicated one.
+    The dedicated handle is closed with unzClose.
+
+===========
 */
 void FS_FCloseFile( fileHandle_t f ) {
 	if ( !fs_searchpaths ) {
@@ -1431,7 +1440,7 @@ long FS_FOpenFileRead( const char *filename, fileHandle_t *file, qboolean unique
 								FS_CreatePath( copypath );
 
 								bool bOk = true;
-								if (CopyFile( netpath, copypath, qtrue ))
+								if (!CopyFile( netpath, copypath, FALSE ))
 								{
 									DWORD dwAttrs = GetFileAttributes(copypath);
 									SetFileAttributes(copypath, dwAttrs & ~FILE_ATTRIBUTE_READONLY);
@@ -1790,7 +1799,7 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 	*buffer = buf;
 
 	Z_Label(buf, qpath);
-	
+
 	// PRECACE CHECKER!
 #ifndef FINAL_BUILD
 	if (com_sv_running && com_sv_running->integer && cls.state >= CA_ACTIVE) {	//com_cl_running
@@ -3157,4 +3166,10 @@ const char *FS_GetCurrentGameDir(bool emptybase)
 		return fs_gamedirvar->string;
 
 	return emptybase ? "" : BASEGAME;
+}
+
+qboolean FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFilePath )
+{
+	// SP doesn't need to do this.
+	return qfalse;
 }

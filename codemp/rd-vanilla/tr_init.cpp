@@ -100,6 +100,7 @@ cvar_t	*r_ext_multitexture;
 cvar_t	*r_ext_compiled_vertex_array;
 cvar_t	*r_ext_texture_env_add;
 cvar_t	*r_ext_texture_filter_anisotropic;
+cvar_t	*r_gammaShaders;
 
 cvar_t	*r_environmentMapping;
 
@@ -705,7 +706,7 @@ static void GLimp_InitExtensions( void )
 		qglGetIntegerv( GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners );
 
 	glConfigExt.doGammaCorrectionWithShaders = qfalse;
-	if ( bTexRectSupported && bARBVertexProgram && bARBFragmentProgram )
+	if ( r_gammaShaders->integer && qglActiveTextureARB && bTexRectSupported && bARBVertexProgram && bARBFragmentProgram )
 	{
 #if !defined(__APPLE__)
 		qglTexImage3D = (PFNGLTEXIMAGE3DPROC)ri->GL_GetProcAddress("glTexImage3D");
@@ -718,7 +719,7 @@ static void GLimp_InitExtensions( void )
 		glConfigExt.doGammaCorrectionWithShaders = qtrue;
 #endif
 	}
-	
+
 	// Only allow dynamic glows/flares if they have the hardware
 	if ( bTexRectSupported && bARBVertexProgram && qglActiveTextureARB && glConfig.maxActiveTextures >= 4 &&
 		( ( bNVRegisterCombiners && iNumGeneralCombiners >= 2 ) || bARBFragmentProgram ) )
@@ -1547,6 +1548,7 @@ void R_Register( void )
 	r_ext_compiled_vertex_array			= ri->Cvar_Get( "r_ext_compiled_vertex_array",		"1",						CVAR_ARCHIVE|CVAR_LATCH );
 	r_ext_texture_env_add				= ri->Cvar_Get( "r_ext_texture_env_add",			"1",						CVAR_ARCHIVE|CVAR_LATCH );
 	r_ext_texture_filter_anisotropic	= ri->Cvar_Get( "r_ext_texture_filter_anisotropic",	"16",						CVAR_ARCHIVE );
+	r_gammaShaders						= ri->Cvar_Get( "r_gammaShaders",					"0",						CVAR_ARCHIVE|CVAR_LATCH );
 	r_environmentMapping				= ri->Cvar_Get( "r_environmentMapping",				"1",						CVAR_ARCHIVE );
 	r_DynamicGlow						= ri->Cvar_Get( "r_DynamicGlow",					"0",						CVAR_ARCHIVE );
 	r_DynamicGlowPasses					= ri->Cvar_Get( "r_DynamicGlowPasses",				"5",						CVAR_ARCHIVE );
@@ -1568,7 +1570,7 @@ void R_Register( void )
 	r_uiFullScreen						= ri->Cvar_Get( "r_uifullscreen",					"0",						CVAR_NONE );
 	r_subdivisions						= ri->Cvar_Get( "r_subdivisions",					"4",						CVAR_ARCHIVE|CVAR_LATCH );
 	ri->Cvar_CheckRange( r_subdivisions, 4, 80, qfalse );
-	
+
 	r_fullbright						= ri->Cvar_Get( "r_fullbright",						"0",						CVAR_CHEAT );
 	r_intensity							= ri->Cvar_Get( "r_intensity",						"1",						CVAR_LATCH );
 	r_singleShader						= ri->Cvar_Get( "r_singleShader",					"0",						CVAR_CHEAT|CVAR_LATCH );

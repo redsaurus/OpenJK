@@ -220,7 +220,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 		if ( !give_all )
 			return;
 	}
-	
+
 	if ( !give_all && !Q_stricmp( name, "weaponnum" ) )
 	{
 		ent->client->ps.weapons[ atoi(args) ] = 1;
@@ -304,7 +304,7 @@ void Cmd_Fx( gentity_t *ent )
 		if ( gi.argc() == 3 )
 		{
 			// I guess, only allow one active at a time
-			while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+			while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 			{
 				G_FreeEntity( fx_ent );
 			}
@@ -328,7 +328,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	}
 	else if ( Q_stricmp( gi.argv(1), "stop" ) == 0 )
 	{
-		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 		{
 			G_FreeEntity( fx_ent );
 		}
@@ -337,7 +337,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	}
 	else if ( Q_stricmp( gi.argv(1), "delay" ) == 0 )
 	{
-		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 		{
 			if ( gi.argc() == 3 )
 			{
@@ -353,7 +353,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	}
 	else if ( Q_stricmp( gi.argv(1), "random" ) == 0 )
 	{
-		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 		{
 			if ( gi.argc() == 3 )
 			{
@@ -369,7 +369,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	}
 	else if ( Q_stricmp( gi.argv(1), "origin" ) == 0 )
 	{
-		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 		{
 			if ( gi.argc() == 5 )
 			{
@@ -381,7 +381,7 @@ extern void SP_fx_runner( gentity_t *ent );
 			}
 			else
 			{
-				gi.Printf( S_COLOR_GREEN"FX: current origin is: <%6.2f %6.2f %6.2f>\n", 
+				gi.Printf( S_COLOR_GREEN"FX: current origin is: <%6.2f %6.2f %6.2f>\n",
 									fx_ent->currentOrigin[0], fx_ent->currentOrigin[1], fx_ent->currentOrigin[2] );
 			}
 
@@ -390,7 +390,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	}
 	else if ( Q_stricmp( gi.argv(1), "dir" ) == 0 )
 	{
-		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL ) 
+		while (( fx_ent = G_Find( fx_ent, FOFS(classname), "cmd_fx")) != NULL )
 		{
 			if ( gi.argc() == 5 )
 			{
@@ -406,7 +406,7 @@ extern void SP_fx_runner( gentity_t *ent );
 			}
 			else
 			{
-				gi.Printf( S_COLOR_GREEN"FX: current dir is: <%6.2f %6.2f %6.2f>\n", 
+				gi.Printf( S_COLOR_GREEN"FX: current dir is: <%6.2f %6.2f %6.2f>\n",
 									fx_ent->s.angles[0], fx_ent->s.angles[1], fx_ent->s.angles[2] );
 			}
 
@@ -418,7 +418,7 @@ extern void SP_fx_runner( gentity_t *ent );
 	gi.Printf( S_COLOR_CYAN"commands:              sample usage:\n" );
 	gi.Printf( S_COLOR_CYAN"----------------------------------------------------------\n" );
 	gi.Printf( S_COLOR_CYAN"fx play <filename>     fx play sparks, fx play env/fire\n" );
-	gi.Printf( S_COLOR_CYAN"fx stop                fx stop\n" );		
+	gi.Printf( S_COLOR_CYAN"fx stop                fx stop\n" );
 	gi.Printf( S_COLOR_CYAN"fx delay <#>           fx delay 1000\n" );
 	gi.Printf( S_COLOR_CYAN"fx random <#>          fx random 200\n" );
 	gi.Printf( S_COLOR_CYAN"fx origin <#><#><#>    fx origin 10 20 30\n" );
@@ -464,7 +464,7 @@ void Cmd_Undying_f (gentity_t *ent)
 {
 	const char	*msg;
 
-	if ( !CheatsOk( ent ) ) 
+	if ( !CheatsOk( ent ) )
 	{
 		return;
 	}
@@ -597,7 +597,7 @@ void Cmd_Where_f( gentity_t *ent ) {
 	const char *s = gi.argv(1);
 	const int len = strlen(s);
 	gentity_t	*check;
-	
+
 	if ( gi.argc () < 2 ) {
 		gi.Printf("usage: where classname\n");
 		return;
@@ -631,7 +631,7 @@ void UserSpawn( gentity_t *ent, const char *name, int numargs )
 	vec3_t		vf;
 	vec3_t		angles;
 	gentity_t	*ent2;
-	
+
 	//Spawn the ent
 	ent2 = G_Spawn();
 	
@@ -732,13 +732,13 @@ Cmd_SetObjective_f
 */
 qboolean G_CheckPlayerDarkSide( void );
 
-void Cmd_SetObjective_f( gentity_t *ent ) 
+void Cmd_SetObjective_f( gentity_t *ent )
 {
 	int objectiveI,status,displayStatus;
 
 	if ( gi.argc() == 2 ) {
 		objectiveI = atoi(gi.argv(1));
-		gi.Printf("objective #%d  display status=%d, status=%d\n",objectiveI, 
+		gi.Printf("objective #%d  display status=%d, status=%d\n",objectiveI,
 			ent->client->sess.mission_objectives[objectiveI].display,
 			ent->client->sess.mission_objectives[objectiveI].status
 			);
@@ -749,7 +749,7 @@ void Cmd_SetObjective_f( gentity_t *ent )
 		return;
 	}
 
-	if ( !CheatsOk( ent ) ) 
+	if ( !CheatsOk( ent ) )
 	{
 		return;
 	}
@@ -768,7 +768,7 @@ void Cmd_SetObjective_f( gentity_t *ent )
 Cmd_ViewObjective_f
 =================
 */
-void Cmd_ViewObjective_f( gentity_t *ent ) 
+void Cmd_ViewObjective_f( gentity_t *ent )
 {
 	int objectiveI;
 
@@ -896,7 +896,7 @@ void Cmd_UseSeeker_f( gentity_t *ent )
 	if ( ent->client && ent->client->ps.inventory[INV_SEEKER] > 0 && level.time > ent->client->ps.powerups[PW_SEEKER] )
 	{
 		gentity_t	*tent = G_Spawn();
-	
+
 		if ( tent )
 		{
 			vec3_t	fwd, right, spot;
@@ -1013,8 +1013,8 @@ void G_Taunt( gentity_t *ent )
 {
 	if ( ent->client )
 	{
-		if ( ent->client->ps.weapon == WP_SABER 
-			&& (ent->client->ps.saberAnimLevel == SS_STAFF //ent->client->ps.saber[0].type == SABER_STAFF 
+		if ( ent->client->ps.weapon == WP_SABER
+			&& (ent->client->ps.saberAnimLevel == SS_STAFF //ent->client->ps.saber[0].type == SABER_STAFF
 				|| ent->client->ps.dualSabers) )
 		{
 			ent->client->ps.taunting = level.time + 100;
@@ -1292,17 +1292,17 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 		}
 		if ( anim != -1 )
 		{
-			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE ) 
+			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
 			{
 				int parts = SETANIM_TORSO;
-				if ( anim != BOTH_ENGAGETAUNT ) 
+				if ( anim != BOTH_ENGAGETAUNT )
 				{
 					parts = SETANIM_BOTH;
 					VectorClear( ent->client->ps.velocity );
 				}
 				NPC_SetAnim( ent, parts, anim, (SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD) );
 			}
-			if ( taunt != TAUNT_MEDITATE 
+			if ( taunt != TAUNT_MEDITATE
 				&& taunt != TAUNT_BOW )
 			{//no sound for meditate or bow
 				G_TauntSound( ent, taunt );
@@ -1333,7 +1333,7 @@ void Cmd_SaberDrop_f( gentity_t *ent, int saberNum )
 	{
 		return;
 	}
-	
+
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
 		return;
@@ -1356,7 +1356,7 @@ void Cmd_SaberDrop_f( gentity_t *ent, int saberNum )
 	{
 		return;
 	}
-	
+
 	if ( !ent->client->ps.saber[saberNum].name
 		|| !ent->client->ps.saber[saberNum].name[0] )
 	{
@@ -1366,11 +1366,11 @@ void Cmd_SaberDrop_f( gentity_t *ent, int saberNum )
 	//have a valid string to use for saberType
 
 	//turn it into a pick-uppable item!
-	if ( G_DropSaberItem( ent->client->ps.saber[saberNum].name, 
-			ent->client->ps.saber[saberNum].blade[0].color, 
-			(saberNum==0?ent->client->renderInfo.handRPoint:ent->client->renderInfo.handLPoint), 
-			ent->client->ps.velocity, 
-			ent->currentAngles ) 
+	if ( G_DropSaberItem( ent->client->ps.saber[saberNum].name,
+			ent->client->ps.saber[saberNum].blade[0].color,
+			(saberNum==0?ent->client->renderInfo.handRPoint:ent->client->renderInfo.handLPoint),
+			ent->client->ps.velocity,
+			ent->currentAngles )
 		!= NULL )
 	{//dropped it
 		WP_RemoveSaber( ent, saberNum );
@@ -1415,7 +1415,7 @@ void ClientCommand( int clientNum ) {
 		Cmd_Spawn( ent );
 		return;
 	}
-	
+
 	if (Q_stricmp (cmd, "give") == 0)
 		Cmd_Give_f (ent);
 	else if (Q_stricmp (cmd, "god") == 0)
