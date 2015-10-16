@@ -3282,7 +3282,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 				ui.FS_Read(&buffer, filelen, f);
 				ui.FS_FCloseFile(f);
 				buffer[filelen] = 0;	//ensure trailing NULL
-				if (!UI_ParseColor2Data(buffer,*species))
+				if (!UI_ParseColor2Data(buffer.data(),*species))
 				{
 					ui.Printf( "UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath );
 				}
@@ -3329,7 +3329,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							ui.FS_Read(&buffer, headSwapFileLen, f);
 							ui.FS_FCloseFile(f);
 							buffer[headSwapFileLen] = 0;
-							UI_ParseHeadSwapData(buffer,*species);
+							UI_ParseHeadSwapData(buffer.data(),*species);
 						}
 					} else
 					if (Q_stricmpn(skinname,"torso_",6) == 0)
