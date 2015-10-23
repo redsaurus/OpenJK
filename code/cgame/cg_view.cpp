@@ -2109,15 +2109,15 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView ) {
 								|| (cg.snap->ps.weapon == WP_EMPLACED_GUN && !(cg.snap->ps.eFlags & EF_LOCKED_TO_WEAPON))
 								|| (!cg_trueguns.integer && (cg.snap->ps.weapon == WP_TUSKEN_RIFLE || cg.snap->ps.weapon == WP_NOGHRI_STICK) && cg.snap->ps.torsoAnim >= BOTH_TUSKENATTACK1 && cg.snap->ps.torsoAnim <= BOTH_TUSKENATTACK3));
 
-	if (cg_trueinvertsaber.integer == 2 && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
+	if (cg_fpls.integer && cg_trueinvertsaber.integer == 2 && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
 	{//force thirdperson for sabers/melee if in cg_trueinvertsaber.integer == 2
 		cg.renderingThirdPerson = qtrue;
 	}
-	else if (cg_trueinvertsaber.integer == 1 && !cg_thirdPerson.integer && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
+	else if (cg_fpls.integer && cg_trueinvertsaber.integer == 1 && !cg_thirdPerson.integer && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
 	{
 		cg.renderingThirdPerson = qtrue;
 	}
-	else if (cg_trueinvertsaber.integer == 1 && cg_thirdPerson.integer && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
+	else if (cg_fpls.integer && cg_trueinvertsaber.integer == 1 && cg_thirdPerson.integer && (cg.snap->ps.weapon == WP_SABER || cg.snap->ps.weapon == WP_MELEE))
 	{
 		cg.renderingThirdPerson = qfalse;
 	}
