@@ -37,7 +37,7 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean a
 {
 	int velocity	= BLASTER_VELOCITY;
 	int	damage		= altFire ? weaponData[WP_BLASTER].altDamage : weaponData[WP_BLASTER].damage;
-
+	
 	if ( ent && ent->client && ent->client->NPC_class == CLASS_VEHICLE )
 	{
 		damage *= 3;
@@ -83,6 +83,17 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean a
 		{
 			damage = BLASTER_NPC_DAMAGE_HARD;
 		}
+	}
+	
+	if ( ent->s.weapon == WP_E5_CARBINE )
+	{
+		damage = altFire ? weaponData[WP_E5_CARBINE].altDamage : weaponData[WP_E5_CARBINE].damage;
+		missile->s.weapon = WP_E5_CARBINE;
+	}
+	else if ( ent->s.weapon == WP_DC15S_CARBINE )
+	{
+		damage = altFire ? weaponData[WP_DC15S_CARBINE].altDamage : weaponData[WP_DC15S_CARBINE].damage;
+		missile->s.weapon = WP_DC15S_CARBINE;
 	}
 
 //	if ( ent->client )

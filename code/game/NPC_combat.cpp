@@ -344,12 +344,19 @@ void G_AttackDelay( gentity_t *self, gentity_t *enemy )
 		case WP_NOGHRI_STICK:
 			attDelay += Q_irand( 0, 500 );
 			break;
-		case WP_SONIC_BLASTER:
 		case WP_E5_CARBINE:
-		case WP_DC15S_CARBINE:
-		case WP_DC15A_RIFLE:
-		case WP_Z6_ROTARY:
 			attDelay -= Q_irand( 0, 500 );
+			break;
+		case WP_DC15S_CARBINE:
+			attDelay -= Q_irand( 0, 500 );
+			break;
+		case WP_Z6_ROTARY:
+			attDelay += Q_irand( 0, 500 );
+			break;
+		case WP_DC15A_RIFLE:
+			break;
+		case WP_SONIC_BLASTER:
+			return;
 			break;
 		/*
 		case WP_DEMP2:
@@ -1035,11 +1042,48 @@ void ChangeWeapon( gentity_t *ent, int newWeapon )
 			ent->NPC->burstSpacing = 750;//attack debounce
 		break;
 			
-	case WP_SONIC_BLASTER:
 	case WP_E5_CARBINE:
+		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+		if ( g_spskill->integer == 0 )
+			ent->NPC->burstSpacing = 1000;//attack debounce
+		else if ( g_spskill->integer == 1 )
+			ent->NPC->burstSpacing = 750;//attack debounce
+		else
+			ent->NPC->burstSpacing = 500;//attack debounce
+		break;
+			
 	case WP_DC15S_CARBINE:
-	case WP_DC15A_RIFLE:
+		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+		if ( g_spskill->integer == 0 )
+			ent->NPC->burstSpacing = 1000;//attack debounce
+		else if ( g_spskill->integer == 1 )
+			ent->NPC->burstSpacing = 750;//attack debounce
+		else
+			ent->NPC->burstSpacing = 500;//attack debounce
+		break;
+			
 	case WP_Z6_ROTARY:
+		ent->NPC->aiFlags |= NPCAI_BURST_WEAPON;
+		ent->NPC->burstMin = 3;
+#ifdef BASE_SAVE_COMPAT
+		ent->NPC->burstMean = 6;
+#endif
+		ent->NPC->burstMax = 10;
+		if ( g_spskill->integer == 0 )
+			ent->NPC->burstSpacing = 1500;//attack debounce
+		else if ( g_spskill->integer == 1 )
+			ent->NPC->burstSpacing = 1000;//attack debounce
+		else
+			ent->NPC->burstSpacing = 500;//attack debounce
+		break;
+
+	case WP_SONIC_BLASTER:
+		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
+		ent->NPC->burstSpacing = 1000;//attackdebounce
+		break;
+
+	case WP_DC15A_RIFLE:
+		ent->NPC->aiFlags &= ~NPCAI_BURST_WEAPON;
 		if ( g_spskill->integer == 0 )
 			ent->NPC->burstSpacing = 1000;//attack debounce
 		else if ( g_spskill->integer == 1 )

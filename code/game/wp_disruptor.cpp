@@ -97,9 +97,15 @@ static void WP_DisruptorMainFire( gentity_t *ent )
 		render_impact = qfalse;
 	}
 
+	if ( ent->s.weapon == WP_SONIC_BLASTER )
+	{
+		damage = weaponData[WP_SONIC_BLASTER].damage;
+	}
+	
 	// always render a shot beam, doing this the old way because I don't much feel like overriding the effect.
 	tent = G_TempEntity( tr.endpos, EV_DISRUPTOR_MAIN_SHOT );
 	tent->svFlags |= SVF_BROADCAST;
+	tent->s.weapon = ent->s.weapon;
 	VectorCopy( muzzle, tent->s.origin2 );
 
 	if ( render_impact )

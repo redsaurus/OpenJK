@@ -76,11 +76,11 @@ float weaponSpeed[WP_NUM_WEAPONS][2] =
 	{ 0,0 },//WP_TUSKEN_STAFF,
 	{ 0,0 },//WP_SCEPTER,
 	{ 0,0 },//WP_NOGHRI_STICK,
-	{ 0,0 },//WP_SONIC_BLASTER,
-	{ 0,0 },//WP_E5_CARBINE,
-	{ 0,0 },//WP_DC15S_CARBINE,
-	{ 0,0 },//WP_DC15A_RIFLE,
-	{ 0,0 },//WP_Z6_ROTARY,
+	{ Q3_INFINITE,Q3_INFINITE },//WP_SONIC_BLASTER,
+	{ BLASTER_VELOCITY,BLASTER_VELOCITY },//WP_E5_CARBINE,
+	{ BLASTER_VELOCITY,BLASTER_VELOCITY },//WP_DC15S_CARBINE,
+	{ BRYAR_PISTOL_VEL,BRYAR_PISTOL_VEL },//WP_DC15A_RIFLE,
+	{ REPEATER_VELOCITY,REPEATER_VELOCITY },//WP_Z6_ROTARY,
 
 };
 
@@ -1544,12 +1544,51 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		}
 		break;
 			
-	case WP_SONIC_BLASTER:
-	case WP_Z6_ROTARY:
 	case WP_E5_CARBINE:
-	case WP_DC15A_RIFLE:
+		WP_FireBlaster( ent, alt_fire );
+		break;
+			
 	case WP_DC15S_CARBINE:
 		WP_FireBlaster( ent, alt_fire );
+		break;
+			
+	case WP_Z6_ROTARY:
+		WP_FireRepeater( ent, qfalse );
+		break;
+			
+	case WP_DC15A_RIFLE:
+		WP_FireBryarPistol( ent, qfalse );
+		break;
+			
+	case WP_SONIC_BLASTER:
+		if ( !alt_fire )
+		{
+			WP_FireDisruptor( ent, qfalse );
+		}
+		else
+		{
+			qboolean hasPush;
+			int forcePower, pushLevel;
+			
+			forcePower = ent->client->ps.forcePower;
+			hasPush = ent->client->ps.forcePowersKnown & (1 << FP_PUSH);
+			pushLevel = ent->client->ps.forcePowerLevel[FP_PUSH];
+			
+			forcePower = Q3_INFINITE;
+			ent->client->ps.forcePowersKnown |= (1 << FP_PUSH);
+			ent->client->ps.forcePowerLevel[FP_PUSH] = 3;
+			
+			ForceThrow( ent, qfalse, qfalse );
+			NPC_SetAnim( ent, SETANIM_TORSO, BOTH_ATTACK3, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART);
+			
+			ent->client->ps.forcePower = forcePower;
+			if (!hasPush)
+			{
+				ent->client->ps.forcePowersKnown &= ~(1 << FP_PUSH);
+			}
+			ent->client->ps.forcePowerLevel[FP_PUSH] = pushLevel;
+
+		}
 		break;
 
 	case WP_TUSKEN_STAFF:

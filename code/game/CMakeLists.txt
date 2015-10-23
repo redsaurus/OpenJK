@@ -215,6 +215,7 @@ set(SPGameCGameFiles
 	"${SPDir}/cgame/FX_Blaster.cpp"
 	"${SPDir}/cgame/FX_Bowcaster.cpp"
 	"${SPDir}/cgame/FX_BryarPistol.cpp"
+	"${SPDir}/cgame/FX_Clone.cpp"
 	"${SPDir}/cgame/FX_Concussion.cpp"
 	"${SPDir}/cgame/FX_DEMP2.cpp"
 	"${SPDir}/cgame/FX_Disruptor.cpp"

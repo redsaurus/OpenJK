@@ -648,17 +648,30 @@ void CG_RegisterWeapon( int weaponNum ) {
 		break;
 			
 	case WP_E5_CARBINE:
-	case WP_DC15S_CARBINE:
-	case WP_SONIC_BLASTER:
-	case WP_DC15A_RIFLE:
-	case WP_Z6_ROTARY:
 		cgs.effects.blasterShotEffect			= theFxScheduler.RegisterEffect( "blaster/shot" );
 		theFxScheduler.RegisterEffect( "blaster/NPCshot" );
-		//		cgs.effects.blasterOverchargeEffect		= theFxScheduler.RegisterEffect( "blaster/overcharge" );
 		cgs.effects.blasterWallImpactEffect		= theFxScheduler.RegisterEffect( "blaster/wall_impact" );
 		cgs.effects.blasterFleshImpactEffect	= theFxScheduler.RegisterEffect( "blaster/flesh_impact" );
-		theFxScheduler.RegisterEffect( "blaster/deflect" );
-		theFxScheduler.RegisterEffect( "blaster/smoke_bolton" ); // note: this will be called game side
+		break;
+
+	case WP_DC15S_CARBINE:
+	case WP_Z6_ROTARY:
+	case WP_DC15A_RIFLE:
+		cgs.effects.cloneBlasterShotEffect		= theFxScheduler.RegisterEffect( "clone/shot" );
+		cgs.effects.cloneBlasterWallImpactEffect		= theFxScheduler.RegisterEffect( "blaster/wall_impact" );
+		cgs.effects.cloneBlasterFleshImpactEffect	= theFxScheduler.RegisterEffect( "blaster/flesh_impact" );
+		break;
+
+	case WP_SONIC_BLASTER:
+		theFxScheduler.RegisterEffect( "disruptor/wall_impact" );
+		theFxScheduler.RegisterEffect( "disruptor/flesh_impact" );
+		theFxScheduler.RegisterEffect( "disruptor/line_cap" );
+		theFxScheduler.RegisterEffect( "disruptor/death_smoke" );
+			
+		cgi_R_RegisterShader( "gfx/misc/dr1" );
+		cgi_R_RegisterShader( "gfx/misc/whiteline2" );
+		cgi_R_RegisterShader( "gfx/effects/smokeTrail" );
+		cgi_R_RegisterShader( "gfx/effects/burn" );
 		break;
 
 	}
@@ -3426,13 +3439,14 @@ void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, 
 		break;
 			
 	case WP_E5_CARBINE:
-	case WP_DC15S_CARBINE:
-	case WP_SONIC_BLASTER:
-	case WP_DC15A_RIFLE:
-	case WP_Z6_ROTARY:
 		FX_BlasterWeaponHitWall( origin, dir );
 		break;
 
+	case WP_DC15S_CARBINE:
+	case WP_Z6_ROTARY:
+	case WP_DC15A_RIFLE:
+		FX_CloneBlasterWeaponHitWall( origin, dir );
+		break;
 	}
 }
 
@@ -3575,11 +3589,13 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 		break;
 			
 	case WP_E5_CARBINE:
-	case WP_DC15S_CARBINE:
-	case WP_SONIC_BLASTER:
-	case WP_DC15A_RIFLE:
-	case WP_Z6_ROTARY:
 		FX_BlasterWeaponHitPlayer( other, origin, dir, humanoid );
+		break;
+			
+	case WP_DC15S_CARBINE:
+	case WP_Z6_ROTARY:
+	case WP_DC15A_RIFLE:
+		FX_CloneBlasterWeaponHitPlayer( other, origin, dir, humanoid );
 		break;
 	}
 }

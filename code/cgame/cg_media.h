@@ -357,6 +357,11 @@ typedef struct
 	fxHandle_t	flechetteShotDeathEffect;
 	fxHandle_t	flechetteFleshImpactEffect;
 	fxHandle_t	flechetteRicochetEffect;
+	
+	// CLONE BLASTER
+	fxHandle_t	cloneBlasterShotEffect;
+	fxHandle_t	cloneBlasterWallImpactEffect;
+	fxHandle_t	cloneBlasterFleshImpactEffect;
 
 	//FORCE
 	fxHandle_t	forceConfusion;

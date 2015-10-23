@@ -80,6 +80,11 @@ void FX_TuskenShotProjectileThink( centity_t *cent, const struct weaponInfo_s *w
 //Noghri projectile
 void FX_NoghriShotProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
 
+//Clone projectile
+void FX_CloneBlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_CloneBlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon );
+
+
 // Table used to attach an extern missile function string to the actual cgame function
 func_t	funcs[] = {
 	{"bryar_func",			FX_BryarProjectileThink},
@@ -87,6 +92,8 @@ func_t	funcs[] = {
 	{"blaster_func",		FX_BlasterProjectileThink},
 	{"blaster_alt_func",	FX_BlasterAltFireThink},
 	{"bowcaster_func",		FX_BowcasterProjectileThink},
+	{"cloneblaster_func",		FX_CloneBlasterProjectileThink},
+	{"cloneblaster_alt_func",	FX_CloneBlasterAltFireThink},
 	{"repeater_func",		FX_RepeaterProjectileThink},
 	{"repeater_alt_func",	FX_RepeaterAltProjectileThink},
 	{"demp2_func",			FX_DEMP2_ProjectileThink},
@@ -270,12 +277,12 @@ const int defaultDamage[] = {
 	0,							// WP_TUSKEN_STAFF
 	0,							// WP_SCEPTER
 	0,							// WP_NOGHRI_STICK
-	0,							// WP_SONIC_BLASTER,
+	DISRUPTOR_MAIN_DAMAGE,		// WP_SONIC_BLASTER,
 	
-	0,							// WP_E5_CARBINE,
-	0,							// WP_DC15S_CARBINE,
-	0,							// WP_DC15A_RIFLE,
-	0,							// WP_Z6_ROTARY,
+	BLASTER_DAMAGE,				// WP_E5_CARBINE,
+	BLASTER_DAMAGE,				// WP_DC15S_CARBINE,
+	BRYAR_PISTOL_DAMAGE,		// WP_DC15A_RIFLE,
+	REPEATER_DAMAGE,			// WP_Z6_ROTARY,
 };
 
 const int defaultAltDamage[] = {
@@ -315,8 +322,8 @@ const int defaultAltDamage[] = {
 	0,						// WP_NOGHRI_STICK
 	0,						// WP_SONIC_BLASTER,
 	
-	0,						// WP_E5_CARBINE,
-	0,						// WP_DC15S_CARBINE,
+	BLASTER_DAMAGE,			// WP_E5_CARBINE,
+	BLASTER_DAMAGE,			// WP_DC15S_CARBINE,
 	0,						// WP_DC15A_RIFLE,
 	0,						// WP_Z6_ROTARY,
 };

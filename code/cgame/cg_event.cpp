@@ -546,7 +546,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_DISRUPTOR_MAIN_SHOT:
 		DEBUGNAME("EV_DISRUPTOR_MAIN_SHOT");
-		FX_DisruptorMainShot( cent->currentState.origin2, cent->lerpOrigin );
+		if ( cent->currentState.weapon == WP_SONIC_BLASTER )
+		{
+			FX_KothosBeam( cent->currentState.origin2, cent->lerpOrigin );
+		}
+		else
+		{
+			FX_DisruptorMainShot( cent->currentState.origin2, cent->lerpOrigin );
+		}
 		break;
 
 	case EV_DISRUPTOR_SNIPER_SHOT:
