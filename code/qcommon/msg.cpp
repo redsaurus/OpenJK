@@ -1018,6 +1018,8 @@ static const netField_t	playerStateFields[] =
 { PSF(serverViewOrg[1]), 0 },
 { PSF(serverViewOrg[2]), 0 },
 { PSF(forceRageRecoveryTime), 32 },
+
+{ PSF(stasisTime), 32 },
 };
 
 /*

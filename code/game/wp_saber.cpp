@@ -13187,6 +13187,16 @@ void ForceInsanity( gentity_t *self )
 	}
 }
 
+qboolean PlayerAffectedByStasis( void )
+{
+	gentity_t *ent = &g_entities[0];
+	if (ent && ent->client && ent->client->ps.stasisTime > (cg.time ? cg.time : level.time))
+	{
+		return qtrue;
+	}
+	return qfalse;
+}
+
 extern void PM_SetTorsoAnimTimer( gentity_t *ent, int *torsoAnimTimer, int time );
 void ForceStasis( gentity_t *self )
 {
@@ -13195,7 +13205,7 @@ void ForceStasis( gentity_t *self )
 	gentity_t	*traceEnt;
 	int anim, soundIndex;
 	float currentFrame, animSpeed;
-	int junk;
+	int junk, actualTime;
 	
 	if ( self->health <= 0 )
 	{
@@ -13241,16 +13251,44 @@ void ForceStasis( gentity_t *self )
 	if(traceEnt->health > 0 &&
 	   traceEnt->s.weapon != WP_SABER && traceEnt->client->NPC_class != CLASS_REBORN)
 	{
-		//doesn't affect jedi for now...but affects everything else??
-		if (traceEnt->client)
+		int modPowerLevel = WP_AbsorbConversion(traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_STASIS, self->client->ps.forcePowerLevel[FP_STASIS], forcePowerNeeded[FP_STASIS]);
+		int actualPowerLevel;
+		if (modPowerLevel == -1)
 		{
-			traceEnt->client->ps.stasisTime = level.time + stasisTime[self->client->ps.forcePowerLevel[FP_STASIS]];//stuck for 5-10 seconds
+			actualPowerLevel = self->client->ps.forcePowerLevel[FP_STASIS];
 		}
-		gi.G2API_GetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
-								  level.time, &currentFrame, &junk, &junk, &junk, &animSpeed, NULL );
-		gi.G2API_SetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
-								  currentFrame, currentFrame,
-								  BONE_ANIM_OVERRIDE_FREEZE/*|BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND*/, animSpeed, level.time, -1, 100 );
+		else
+		{
+			actualPowerLevel = modPowerLevel;
+		}
+		
+		if (actualPowerLevel > 0)
+		{
+			//doesn't affect jedi for now...but affects everything else??
+			if (traceEnt->client)
+			{
+				traceEnt->client->ps.stasisTime = level.time + stasisTime[actualPowerLevel];//stuck for 5-10 seconds
+				VectorClear(traceEnt->client->ps.velocity);
+			}
+			
+			if ( gi.G2API_HaveWeGhoul2Models( traceEnt->ghoul2 ) )
+			{
+				actualTime = (cg.time?cg.time:level.time);
+				gi.G2API_GetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
+										  level.time, &currentFrame, &junk, &junk, &junk, &animSpeed, NULL );
+				
+				gi.G2API_SetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->playerModel], traceEnt->rootBone,
+										  currentFrame, currentFrame+1,
+										  BONE_ANIM_OVERRIDE_FREEZE/*|BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND*/, animSpeed, level.time, currentFrame, 100 );
+				if (traceEnt->headModel > 0)
+				{
+					gi.G2API_SetBoneAnimIndex( &traceEnt->ghoul2[traceEnt->headModel], traceEnt->headRootBone,
+											  currentFrame, currentFrame+1,
+											  BONE_ANIM_OVERRIDE_FREEZE/*|BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND*/, animSpeed, level.time, currentFrame, 100 );
+				}
+			}
+		}
+		
 	}
 	
 	anim = BOTH_FORCEPUSH;
@@ -13421,7 +13459,8 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 		atPower != FP_DRAIN &&
 		atPower != FP_GRIP &&
 		atPower != FP_PUSH &&
-		atPower != FP_PULL)
+		atPower != FP_PULL &&
+		atPower != FP_STASIS)
 	{ //Only these powers can be absorbed
 		return -1;
 	}

@@ -4588,6 +4588,7 @@ void PM_SaberStartTransAnim( int anim, int entNum, int saberOffenseLevel, float 
 }
 */
 extern qboolean		player_locked;
+extern qboolean PlayerAffectedByStasis( void );
 extern qboolean		MatrixMode;
 float PM_GetTimeScaleMod( gentity_t *gent )
 {
@@ -4598,7 +4599,7 @@ float PM_GetTimeScaleMod( gentity_t *gent )
 			&& gent->client->ps.legsAnim != BOTH_FORCELONGLEAP_ATTACK
 			&& gent->client->ps.legsAnim != BOTH_FORCELONGLEAP_LAND )
 		{
-			if ( gent && gent->s.clientNum == 0 && !player_locked && gent->client->ps.forcePowersActive&(1<<FP_SPEED) )
+			if ( gent && gent->s.clientNum == 0 && !player_locked && !PlayerAffectedByStasis() && gent->client->ps.forcePowersActive&(1<<FP_SPEED) )
 			{
 				return (1.0 / g_timescale->value);
 			}

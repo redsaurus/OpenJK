@@ -2542,7 +2542,8 @@ static void CG_G2PlayerAngles( centity_t *cent, vec3_t legs[3], vec3_t angles )
 	qboolean	looking = qfalse, talking = qfalse;
 
 	if ( cent->gent
-		&& (cent->gent->flags&FL_NO_ANGLES) )
+		&& ((cent->gent->flags&FL_NO_ANGLES)
+		|| (cent->gent->client && cent->gent->client->ps.stasisTime > cg.time )))
 	{//flatten out all bone angles we might have been overriding
 		cent->lerpAngles[PITCH] = cent->lerpAngles[ROLL] = 0;
 		VectorCopy( cent->lerpAngles, angles );

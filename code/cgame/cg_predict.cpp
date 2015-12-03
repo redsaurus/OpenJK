@@ -637,6 +637,7 @@ to ease the jerk.
 =================
 */
 extern	qboolean	player_locked;
+extern qboolean PlayerAffectedByStasis( void );
 void CG_PredictPlayerState( void ) {
 	int			cmdNum, current;
 	playerState_t	oldPlayerState;
@@ -748,6 +749,7 @@ void CG_PredictPlayerState( void ) {
 
 		gentity_t *ent = &g_entities[0];//cheating and dirty, I know, but this is a SP game so prediction can cheat
 		if ( player_locked ||
+			PlayerAffectedByStasis() ||
 			(ent && !ent->s.number&&ent->aimDebounceTime>level.time) ||
 			(ent && ent->client && ent->client->ps.pm_time && (ent->client->ps.pm_flags&PMF_TIME_KNOCKBACK)) ||
 			(ent && ent->forcePushTime > level.time) )
