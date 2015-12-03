@@ -1085,6 +1085,11 @@ static qboolean PM_CheckJump( void )
 	{//can't jump when in a kicking anim
 		return qfalse;
 	}
+	
+	if ( pm->ps->weapon == WP_EMPLACED_GUN && !(pm->ps->eFlags & EF_LOCKED_TO_WEAPON))
+	{
+		return qfalse;
+	}
 	/*
 	if ( pm->cmd.buttons & BUTTON_FORCEJUMP )
 	{
@@ -3789,6 +3794,10 @@ static qboolean PM_TryRoll( void )
 		return qfalse;
 	}
 	if ( !pm->gent )
+	{
+		return qfalse;
+	}
+	if ( pm->ps->weapon == WP_EMPLACED_GUN && !(pm->ps->eFlags & EF_LOCKED_TO_WEAPON))
 	{
 		return qfalse;
 	}

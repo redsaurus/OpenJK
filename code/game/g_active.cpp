@@ -4704,6 +4704,15 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlay
 		{
 			client->ps.speed *= 0.75;
 		}
+		
+		if ( client->ps.weapon == WP_EMPLACED_GUN && !(client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+		{
+			if (!(ucmd->buttons & BUTTON_WALKING))
+			{
+				ucmd->buttons |= BUTTON_WALKING;
+				client->ps.speed *= 0.5;
+			}
+		}
 
 		if ( client->ps.weapon == WP_SABER )
 		{
