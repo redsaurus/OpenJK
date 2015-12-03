@@ -307,6 +307,16 @@ void ScaleModelAxis(refEntity_t	*ent)
 Ghoul2 Insert End
 */
 
+void CG_AddRadarEnt(centity_t *cent)
+{
+	static const size_t numRadarEnts = ARRAY_LEN( cg.radarEntities );
+	if (cg.radarEntityCount >= numRadarEnts)
+	{
+		return;
+	}
+	cg.radarEntities[cg.radarEntityCount++] = cent->currentState.number;
+}
+
 /*
 ==================
 CG_General
@@ -339,6 +349,11 @@ Ghoul2 Insert End
 	memset (&ent, 0, sizeof(ent));
 
 	// set frame
+	
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
 
 	if ( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM )
 	{
@@ -1113,6 +1128,12 @@ static void CG_Missile( centity_t *cent ) {
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;
 	}
+	
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
+
 	weapon = &cg_weapons[s1->weapon];
 	wData = &weaponData[s1->weapon];
 
@@ -1310,6 +1331,10 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
 
 	ent.renderfx = RF_NOSHADOW;
 
@@ -2488,6 +2513,9 @@ void CG_AddPacketEntities( qboolean isPortal ) {
 
 	AnglesToAxis( cg.autoAngles, cg.autoAxis );
 	AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast );
+	
+	// Reset radar entities
+	cg.radarEntityCount = 0;
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predicted_player_state;

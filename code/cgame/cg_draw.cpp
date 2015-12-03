@@ -3493,6 +3493,271 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 10;
 }
 
+/*
+ =====================
+ CG_DrawRadar
+ =====================
+ */
+float	cg_radarRange = 2500.0f;
+
+#define RADAR_RADIUS			60
+#define RADAR_X					(580 - RADAR_RADIUS)
+#define RADAR_CHAT_DURATION		6000
+#define	RADAR_MISSILE_RANGE					3000.0f
+#define	RADAR_ASTEROID_RANGE				10000.0f
+#define	RADAR_MIN_ASTEROID_SURF_WARN_DIST	1200.0f
+
+float CG_DrawRadar ( float y )
+{
+	vec4_t			color;
+	float			arrow_w;
+	float			arrow_h;
+	clientInfo_t	*local;
+	int				i;
+	float			arrowBaseScale;
+	float			zScale;
+	int				xOffset = 0;
+	
+	if (!cg.snap)
+	{
+		return y;
+	}
+	
+	// Make sure the radar should be showing
+	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 )
+	{
+		return y;
+	}
+	
+	if ((cg.snap->ps.viewEntity>0&&cg.snap->ps.viewEntity<ENTITYNUM_WORLD))
+	{
+		return y;
+	}
+
+	
+	local = &cgs.clientinfo[ cg.snap->ps.clientNum ];
+	if ( !local->infoValid )
+	{
+		return y;
+	}
+	
+	// Draw the radar background image
+	color[0] = color[1] = color[2] = 1.0f;
+	color[3] = 0.6f;
+	cgi_R_SetColor ( color );
+	CG_DrawPic( RADAR_X + xOffset, y, RADAR_RADIUS*2, RADAR_RADIUS*2, cgs.media.radarShader );
+	
+	// Draw all of the radar entities.  Draw them backwards so players are drawn last
+	for ( i = cg.radarEntityCount -1 ; i >= 0 ; i-- )
+	{
+		vec3_t		dirLook;
+		vec3_t		dirPlayer;
+		float		angleLook;
+		float		anglePlayer;
+		float		angle;
+		float		distance, actualDist;
+		centity_t*	cent;
+		
+		cent = &cg_entities[cg.radarEntities[i]];
+		
+		// Get the distances first
+		VectorSubtract ( cg.predicted_player_state.origin, cent->lerpOrigin, dirPlayer );
+		dirPlayer[2] = 0;
+		actualDist = distance = VectorNormalize ( dirPlayer );
+		
+		if ( distance > cg_radarRange * 0.8f)
+		{
+			if ( (cent->currentState.eFlags2 & EF2_RADAROBJECT) )//still want to draw the direction
+			{
+				distance = cg_radarRange*0.8f;
+			}
+			else
+			{
+				continue;
+			}
+		}
+		
+		distance  = distance / cg_radarRange;
+		distance *= RADAR_RADIUS;
+		
+		AngleVectors ( cg.predicted_player_state.viewangles, dirLook, NULL, NULL );
+		
+		dirLook[2] = 0;
+		anglePlayer = atan2(dirPlayer[0],dirPlayer[1]);
+		VectorNormalize ( dirLook );
+		angleLook = atan2(dirLook[0],dirLook[1]);
+		angle = angleLook - anglePlayer;
+		
+		switch ( cent->currentState.eType )
+		{
+			default:
+			{
+				float  x;
+				float  ly;
+				qhandle_t shader;
+				vec4_t    color;
+				
+				x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
+				ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
+				
+				arrowBaseScale = 9.0f;
+				shader = 0;
+				zScale = 1.0f;
+				
+				//we want to scale the thing up/down based on the relative Z (up/down) positioning
+				if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
+				{ //higher, scale up (between 16 and 24)
+					float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
+					
+					//max out to 1.5x scale at 512 units above local player's height
+					dif /= 1024.0f;
+					if (dif > 0.5f)
+					{
+						dif = 0.5f;
+					}
+					zScale += dif;
+				}
+				else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
+				{ //lower, scale down (between 16 and 8)
+					float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
+					
+					//half scale at 512 units below local player's height
+					dif /= 1024.0f;
+					if (dif > 0.5f)
+					{
+						dif = 0.5f;
+					}
+					zScale -= dif;
+				}
+				
+				arrowBaseScale *= zScale;
+				
+				color[0] = color[1] = color[2] = color[3] = 1.0f;
+				
+				// generic enemy index specifies a shader to use for the radar entity.
+				if ( cent->currentState.radarIcon )
+				{
+					shader = cgs.media.radarIcons[cent->currentState.radarIcon];
+				}
+				else
+				{
+					shader = cgs.media.siegeItemShader;
+				}
+				
+				if ( shader )
+				{
+					// Pulse the alpha if time2 is set.  time2 gets set when the entity takes pain
+					if ( (cent->currentState.time2 && cg.time - cent->currentState.time2 < 5000) ||
+						(cent->currentState.time2 == 0xFFFFFFFF) )
+					{
+						if ( (cg.time / 200) & 1 )
+						{
+							color[3] = 0.1f + 0.9f * (float) (cg.time % 200) / 200.0f;
+						}
+						else
+						{
+							color[3] = 1.0f - 0.9f * (float) (cg.time % 200) / 200.0f;
+						}
+					}
+					
+					cgi_R_SetColor ( color );
+					CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, shader );
+				}
+			}
+				break;
+				
+				
+			case ET_PLAYER:
+			{
+				qhandle_t shader;
+				vec4_t color;
+				
+				gentity_t *radarEnt = &g_entities[ cent->currentState.number ];
+				
+				switch ( radarEnt->client->playerTeam )
+				{
+					case TEAM_ENEMY:
+						VectorCopy ( colorTable[CT_RED], color );
+						break;
+					case TEAM_NEUTRAL:
+						VectorCopy ( colorTable[CT_YELLOW], color );
+						break;
+					case TEAM_PLAYER:
+						VectorCopy ( colorTable[CT_GREEN], color );
+						break;
+					default:
+						VectorCopy ( colorTable[CT_RED], color );
+						break;
+				}
+				
+				color[3] = 1.0f;
+				
+				arrowBaseScale = 16.0f;
+				zScale = 1.0f;
+				
+				cgi_R_SetColor ( color );
+				
+				if ( cent->currentState.radarIcon )
+				{
+					shader = cgs.media.radarIcons[cent->currentState.radarIcon];
+				}
+				else
+				{
+					shader = cgs.media.mAutomapPlayerIcon;
+				}
+				
+				//we want to scale the thing up/down based on the relative Z (up/down) positioning
+				if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
+				{ //higher, scale up (between 16 and 32)
+					float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
+					
+					//max out to 2x scale at 1024 units above local player's height
+					dif /= 1024.0f;
+					if (dif > 1.0f)
+					{
+						dif = 1.0f;
+					}
+					zScale += dif;
+				}
+				else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
+				{ //lower, scale down (between 16 and 8)
+					float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
+					
+					//half scale at 512 units below local player's height
+					dif /= 1024.0f;
+					if (dif > 0.5f)
+					{
+						dif = 0.5f;
+					}
+					zScale -= dif;
+				}
+				
+				arrowBaseScale *= zScale;
+				
+				arrow_w = arrowBaseScale * RADAR_RADIUS / 128;
+				arrow_h = arrowBaseScale * RADAR_RADIUS / 128;
+				
+				CG_DrawPic(0, 0, 0, 0, cgs.media.whiteShader);
+				CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + sin (angle) * distance + xOffset,
+								  y + RADAR_RADIUS + cos (angle) * distance,
+								  arrow_w, arrow_h,
+								  (360 - cent->lerpAngles[YAW]) + cg.predicted_player_state.viewangles[YAW], shader );
+				break;
+			}
+		}
+	}
+	
+	arrowBaseScale = 16.0f;
+	
+	arrow_w = arrowBaseScale * RADAR_RADIUS / 128;
+	arrow_h = arrowBaseScale * RADAR_RADIUS / 128;
+	
+	cgi_R_SetColor ( colorTable[CT_WHITE] );
+	CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + xOffset, y + RADAR_RADIUS, arrow_w, arrow_h,
+					  0, cgs.media.mAutomapPlayerIcon );
+	
+	return y+(RADAR_RADIUS*2);
+}
 
 /*
 =================
@@ -4052,6 +4317,9 @@ static void CG_Draw2D( void )
 	}
 	if (cg_drawTimer.integer) {
 		y=CG_DrawTimer(y);
+	}
+	if (cg_drawRadar.integer) {
+		y=CG_DrawRadar(y);
 	}
 
 	// don't draw center string if scoreboard is up

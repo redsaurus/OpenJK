@@ -514,7 +514,9 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 	overrides_t	overrides;	//for overriding certain third-person camera properties
-
+	
+	short		radarEntityCount;
+	short		radarEntities[32];
 } cg_t;
 
 
@@ -658,6 +660,7 @@ extern	vmCvar_t		cg_fovViewmodelAdjust;
 
 extern	vmCvar_t		cg_trueguns;
 extern	vmCvar_t		cg_fpls;
+extern	vmCvar_t		cg_drawRadar;
 
 extern	vmCvar_t		cg_trueroll;
 extern	vmCvar_t		cg_trueflip;

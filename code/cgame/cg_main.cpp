@@ -341,6 +341,8 @@ vmCvar_t	cg_ignitionFlare;
 vmCvar_t	cg_trueguns;
 vmCvar_t	cg_fpls;
 
+vmCvar_t	cg_drawRadar;
+
 vmCvar_t		cg_trueroll;
 vmCvar_t		cg_trueflip;
 vmCvar_t		cg_truespin;
@@ -472,6 +474,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
 	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"0", CVAR_ARCHIVE },
+	
+	{ &cg_drawRadar,	"cg_drawRadar", "0", CVAR_ARCHIVE },
 	
 	//True View Control cvars
 	{ &cg_trueguns, "cg_trueguns", "0", CVAR_ARCHIVE },
@@ -1184,7 +1188,7 @@ static void CG_RegisterEffects( void )
 
 		cgi_R_WorldEffectCommand( effectName );
 	}
-
+	
 	// Set up the glass effects mini-system.
 	CG_InitGlass();
 
@@ -1406,6 +1410,10 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.smallnumberShaders[i]		= cgi_R_RegisterShaderNoMip( sb_t_nums[i] );
 		cgs.media.chunkyNumberShaders[i]	= cgi_R_RegisterShaderNoMip( sb_c_nums[i] );
 	}
+	
+	cgs.media.radarShader			= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/radar.png" );
+	cgs.media.siegeItemShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/goalitem" );
+	cgs.media.mAutomapPlayerIcon	= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/arrow_w" );
 
 	// FIXME: conditionally do this??  Something must be wrong with inventory item caching..?
 	cgi_R_RegisterModel( "models/items/remote.md3" );
@@ -1824,6 +1832,21 @@ Ghoul2 Insert End
 		// Send off the terrainInfo to the renderer
 		cgi_RE_InitRendererTerrain( terrainInfo );
 	}
+	
+	const char *iconName;
+	
+	for ( i = 1 ; i < MAX_ICONS ; i++ )
+	{
+		iconName = ( char *)CG_ConfigString( CS_ICONS + i );
+		
+		if ( !iconName[0] )
+		{
+			break;
+		}
+		
+		cgs.media.radarIcons[i] = cgi_R_RegisterShaderNoMip( iconName );
+	}
+
 }
 
 //===========================================================================

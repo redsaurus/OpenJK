@@ -119,6 +119,11 @@ int G_BSPIndex( char *name )
 	return G_FindConfigstringIndex (name, CS_BSP_MODELS, MAX_SUB_BSP, qtrue);
 }
 
+int G_IconIndex( const char *name ) {
+	assert( name && name[0] );
+	return G_FindConfigstringIndex (name, CS_ICONS, MAX_ICONS, qtrue);
+}
+
 #define FX_ENT_RADIUS 32
 
 //-----------------------------

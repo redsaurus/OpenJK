@@ -1328,6 +1328,8 @@ typedef struct {
 #define MAX_FX				128
 #define MAX_WORLD_FX		66		// was 16 // was 4
 
+#define MAX_ICONS			32
+
 /*
 Ghoul2 Insert Start
 */
@@ -1379,7 +1381,8 @@ Ghoul2 Insert End
 */
 #define CS_DYNAMIC_MUSIC_STATE	(CS_CHARSKINS + MAX_CHARSKINS)
 #define CS_WORLD_FX				(CS_DYNAMIC_MUSIC_STATE + 1)
-#define CS_MAX					(CS_WORLD_FX + MAX_WORLD_FX)
+#define CS_ICONS				(CS_WORLD_FX + MAX_WORLD_FX)
+#define CS_MAX					(CS_ICONS + MAX_ICONS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -2371,7 +2374,7 @@ typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!
 	int		number;			// entity index
 	int		eType;			// entityType_t
 	int		eFlags;
-//	int		eFlags2;
+	int		eFlags2;
 
 	trajectory_t	pos;	// for calculating position
 	trajectory_t	apos;	// for calculating angles
@@ -2439,6 +2442,7 @@ Ghoul2 Insert End
 */
 
 	qboolean	isPortalEnt;
+	int radarIcon;
 
 } entityState_t;
 
