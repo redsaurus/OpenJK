@@ -85,3 +85,4 @@ void touchLaserTrap( gentity_t *ent, gentity_t *other, trace_t *trace );
 void CreateLaserTrap( gentity_t *laserTrap, vec3_t start, gentity_t *owner );
 void WP_PlaceLaserTrap( gentity_t *ent, qboolean alt_fire );
 void WP_FireTuskenRifle( gentity_t *ent );
+void WP_SonicBlast( gentity_t *self );

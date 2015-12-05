@@ -131,6 +131,7 @@ set(SPGameGameFiles
 	"${SPDir}/game/wp_rocket_launcher.cpp"
 	"${SPDir}/game/wp_saber.cpp"
 	"${SPDir}/game/wp_saberLoad.cpp"
+	"${SPDir}/game/wp_sonic_blaster.cpp"
 	"${SPDir}/game/wp_stun_baton.cpp"
 	"${SPDir}/game/wp_thermal.cpp"
 	"${SPDir}/game/wp_trip_mine.cpp"

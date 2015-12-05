@@ -1567,27 +1567,7 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		}
 		else
 		{
-			qboolean hasPush;
-			int forcePower, pushLevel;
-			
-			forcePower = ent->client->ps.forcePower;
-			hasPush = ent->client->ps.forcePowersKnown & (1 << FP_PUSH);
-			pushLevel = ent->client->ps.forcePowerLevel[FP_PUSH];
-			
-			forcePower = Q3_INFINITE;
-			ent->client->ps.forcePowersKnown |= (1 << FP_PUSH);
-			ent->client->ps.forcePowerLevel[FP_PUSH] = 3;
-			
-			ForceThrow( ent, qfalse, qfalse );
-			NPC_SetAnim( ent, SETANIM_TORSO, BOTH_ATTACK3, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART);
-			
-			ent->client->ps.forcePower = forcePower;
-			if (!hasPush)
-			{
-				ent->client->ps.forcePowersKnown &= ~(1 << FP_PUSH);
-			}
-			ent->client->ps.forcePowerLevel[FP_PUSH] = pushLevel;
-
+			WP_SonicBlast( ent );
 		}
 		break;
 

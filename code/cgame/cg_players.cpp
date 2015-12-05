@@ -4130,7 +4130,7 @@ extern void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, //qboolea
 //-------------------------------------------
 #define REFRACT_EFFECT_DURATION		500
 void CG_ForcePushBlur( const vec3_t org, qboolean darkSide = qfalse );
-static void CG_ForcePushRefraction( vec3_t org, centity_t *cent )
+static void CG_ForcePushRefraction( vec3_t org, centity_t *cent, float scaleFactor, vec3_t colour )
 {
 	refEntity_t ent;
 	vec3_t ang;
@@ -4230,6 +4230,11 @@ static void CG_ForcePushRefraction( vec3_t org, centity_t *cent )
 		ent.radius = 32;
 	}
 
+	if (scaleFactor)
+	{
+		scale *= scaleFactor;
+	}
+	
 	VectorScale(ent.axis[0], scale, ent.axis[0]);
 	VectorScale(ent.axis[1], scale, ent.axis[1]);
 	VectorScale(ent.axis[2], scale, ent.axis[2]);
@@ -4245,6 +4250,12 @@ static void CG_ForcePushRefraction( vec3_t org, centity_t *cent )
 	ent.shaderRGBA[2] = 255.0f;
 	ent.shaderRGBA[3] = alpha;
 
+	if (colour)
+	{
+		ent.shaderRGBA[0] = colour[0];
+		ent.shaderRGBA[1] = colour[1];
+		ent.shaderRGBA[2] = colour[2];
+	}
 
 	cgi_R_AddRefEntityToScene( &ent );
 }
@@ -9260,11 +9271,21 @@ SkipTrueView:
 		//"refraction" effect -rww
 		if ( cent->gent->client->ps.powerups[PW_FORCE_PUSH] > cg.time )
 		{
-			CG_ForcePushRefraction(cent->gent->client->renderInfo.handLPoint, cent);
+			CG_ForcePushRefraction(cent->gent->client->renderInfo.handLPoint, cent, 1.0f, NULL);
 		}
 		else if ( cent->gent->client->ps.powerups[PW_FORCE_PUSH_RHAND] > cg.time )
 		{
-			CG_ForcePushRefraction(cent->gent->client->renderInfo.handRPoint, cent);
+			CG_ForcePushRefraction(cent->gent->client->renderInfo.handRPoint, cent, 1.0f, NULL);
+		}
+		else if ( cent->gent->client->ps.powerups[PW_REFRACT_MUZZLE] > cg.time )
+		{
+			vec3_t orange;
+			VectorScale(colorTable[CT_VLTORANGE], 255.0f, orange);
+			CG_ForcePushRefraction(cent->gent->client->renderInfo.muzzlePoint, cent, 1.0f, orange);
+		}
+		else if ( cent->gent->client->ps.powerups[PW_FORCE_REPULSE] > cg.time )
+		{
+			CG_ForcePushRefraction(cent->gent->client->renderInfo.crotchPoint, cent, 2.0f, NULL);
 		}
 		else
 		{
