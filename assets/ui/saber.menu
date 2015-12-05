@@ -32,9 +32,6 @@
 			uiScript  			"resetsabercvardefaults"
 			uiScript  			"getsabercvars"
 			uiScript  			"updatefightingstylechoices"
-			hide				heads
-			show				torso
-			hide				lower
 			uiScript  			"saber_hilt"
 			uiScript  			"saber_color"
 			uiScript  			"saber2_hilt"
@@ -876,6 +873,68 @@
 			}
 		}
 
+//----------------------
+//CUSTOM SABER STUFF
+//----------------------
+
+		itemDef 
+		{
+			name				customicon
+			group				customicon
+			descText			@SPMOD_EDIT_CUSTOM
+			style				WINDOW_STYLE_SHADER
+			type				ITEM_TYPE_BUTTON
+			rect				208 124 24 24
+			background			"gfx/hud/useableHint"
+			forecolor			.75 .75 .75 1
+			border				0
+			visible				0
+			mouseEnter 
+			{ 
+				setitemcolor		customicon forecolor 1 1 1 1
+				setitemcolor		customicon bordercolor .66 .66 1 1
+			}
+			mouseExit 
+			{ 
+				setitemcolor		customicon forecolor .75 .75 .75 1
+				setitemcolor		customicon bordercolor .33 .33 .5 1
+			}	  	  
+			action 
+			{
+				play			"sound/interface/choose_blade.wav"
+				open			saber_custom
+			}
+		}
+		
+		itemDef 
+		{
+			name				customicon2
+			group				customicon2
+			descText			@SPMOD_EDIT_CUSTOM2
+			style				WINDOW_STYLE_SHADER
+			type				ITEM_TYPE_BUTTON
+			rect				208 150 24 24
+			background			"gfx/hud/useableHint"
+			forecolor			.75 .75 .75 1
+			border				0
+			visible				0
+			mouseEnter 
+			{ 
+				setitemcolor		customicon2 forecolor 1 1 1 1
+				setitemcolor		customicon2 bordercolor .66 .66 1 1
+			}
+			mouseExit 
+			{ 
+				setitemcolor		customicon2 forecolor .75 .75 .75 1
+				setitemcolor		customicon2 bordercolor .33 .33 .5 1
+			}	  	  
+			action 
+			{
+				play			"sound/interface/choose_blade.wav"
+				open			saber_custom2
+			}
+		}
+
 //----------------------------------------------------------------------------------------------
 //BLADE COLORS
 //----------------------------------------------------------------------------------------------
@@ -1691,534 +1750,7 @@
 
 			decoration
 		}
-
-//----------------------------------------------------------------------------------------------
-//	CUSTOM SABER STUFF!
-//----------------------------------------------------------------------------------------------
-
-		itemDef 
-		{
-			name				saberbox1
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				370 226 305 205
-			background			"white"
-			forecolor			0 0 0.2 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				saberbox2
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				370 239 1 177
-			background			"white"
-			forecolor			.65 .65 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				saberbox3
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				375 232 3 192
-			background			"white"
-			forecolor			.45 .45 1 1
-			visible				1
-			decoration
-		}
 		
-		itemDef 
-		{
-			name				saberbox4
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				370 232 5 3
-			background			"white"
-			forecolor			.45 .45 1 1
-			visible				1
-			decoration
-		}
-		
-		itemDef 
-		{
-			name				saberbox5
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				370 421 5 3
-			background			"white"
-			forecolor			.45 .45 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				boxsabertop
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				362 226 295 60
-			background			"gfx/menus/sabermenu_box_top"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				boxsabermiddle
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				362 286 295 85
-			background			"gfx/menus/sabermenu_box_middle"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}
-
-		itemDef 
-		{
-			name				boxsaberbottom
-			group				saberskin_menus
-			style				WINDOW_STYLE_SHADER
-			rect				362 371 295 60
-			background			"gfx/menus/sabermenu_box_bottom"
-			forecolor			1 1 1 1
-			visible				1
-			decoration
-		}	
-
-//----------------------------------------------------------------------------------------------
-//	APPEARANCE TABS
-//----------------------------------------------------------------------------------------------
-
-		// HEAD BUTTON
-		itemDef 
-		{
-			name				skin1but_glow
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				400 260 70 16
-			background			"gfx/menus/menu_buttonback"
-			forecolor			1 1 1 1
-			visible			0
-			decoration
-		}
-
-		itemDef 
-		{
-			name				skin1but
-			group				none
-			text				@MENUS_HEAD
-			descText			@MENUS_SELECT_HEAD
-			type				ITEM_TYPE_BUTTON
-			style				WINDOW_STYLE_EMPTY
-			rect				400 260 70 16
-			font				2
-			textscale			.9
-			textaligny			-5
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			backcolor			0 0 0 0
-			forecolor			1 .682 0 1
-			visible			1
-			 
-			mouseEnter 
-			{ 
-				show			skin1but_glow 
-			}
-			mouseExit 
-			{ 
-				hide			skin1but_glow 
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav"
-				show			heads
-				hide			torso
-				hide			lower
-				hide			skin4
-				hide			skin5
-				
-				setitemcolor		skin5but forecolor 1 .682 0 1
-				setitemcolor		skin4but forecolor 1 .682 0 1
-				setitemcolor		skin3but forecolor 1 .682 0 1
-				setitemcolor		skin2but forecolor 1 .682 0 1
-				setitemcolor		skin1but forecolor 1 1 1 1
-	
-			}
-		}
-
-
-		// TORSO BUTTON
-		itemDef 
-		{
-			name				skin2but_glow
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				480 260 70 16
-			background			"gfx/menus/menu_buttonback"
-			forecolor			1 1 1 1
-			visible				0
-			decoration
-		}
-
-		itemDef 
-		{
-			name				skin2but
-			group				none
-			text				@MENUS_TORSO
-			descText			@MENUS_SELECT_TORSO
-			type				ITEM_TYPE_BUTTON
-			style				WINDOW_STYLE_EMPTY
-			rect				480 260 70 16
-			font				2
-			textscale			.9
-			textaligny			-5
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			backcolor			0 0 0 0
-			forecolor			1 1 1 1
-			visible			1
-
-			mouseEnter 
-			{ 
-				show			skin2but_glow 
-			}
-			mouseExit 
-			{ 
-				hide			skin2but_glow 
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav"
-				show			torso
-				hide			heads
-				hide			lower
-				hide			skin4
-				hide			skin5
-				
-				setitemcolor		skin5but forecolor 1 .682 0 1
-				setitemcolor		skin4but forecolor 1 .682 0 1
-				setitemcolor		skin3but forecolor 1 .682 0 1
-				setitemcolor		skin2but forecolor 1 1 1 1
-				setitemcolor		skin1but forecolor 1 .682 0 1
-			}
-		}
-
-		// LEGS BUTTON
-		itemDef 
-		{
-			name				skin3but_glow
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				400 280 70 16
-			background			"gfx/menus/menu_buttonback"
-			forecolor			1 1 1 1
-			visible				0
-			decoration
-		}
-
-		itemDef 
-		{
-			name				skin3but
-			group				none
-			text				@MENUS_LEGS
-			descText			@MENUS_SELECT_LEGS
-			type				ITEM_TYPE_BUTTON
-			style				WINDOW_STYLE_EMPTY
-			rect				400 280 70 16
-			font				2
-			textscale			.9
-			textaligny			-5
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			backcolor			0 0 0 0
-			forecolor			1 .682 0 1
-			visible				1
-			 
-			mouseEnter 
-			{ 
-				show			skin3but_glow 
-			}
-			mouseExit 
-			{ 
-				hide			skin3but_glow 
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav"
-				show			lower
-				hide			heads
-				hide			torso
-				hide			skin4
-				hide			skin5
-				
-				setitemcolor		skin5but forecolor 1 .682 0 1
-				setitemcolor		skin4but forecolor 1 .682 0 1
-				setitemcolor		skin3but forecolor 1 1 1 1
-				setitemcolor		skin2but forecolor 1 .682 0 1
-				setitemcolor		skin1but forecolor 1 .682 0 1
-			}
-		}
-		
-		// SKIN4 BUTTON
-		itemDef 
-		{
-			name				skin4but_glow
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				480 280 70 16
-			background			"gfx/menus/menu_buttonback"
-			forecolor			1 1 1 1
-			visible				0
-			decoration
-		}
-
-		itemDef 
-		{
-			name				skin4but
-			group				none
-			text				@MENUS_LEGS
-			descText			@MENUS_SELECT_LEGS
-			type				ITEM_TYPE_BUTTON
-			style				WINDOW_STYLE_EMPTY
-			rect				480 280 70 16
-			font				2
-			textscale			.9
-			textaligny			-5
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			backcolor			0 0 0 0
-			forecolor			1 .682 0 1
-			visible				1
-			 
-			mouseEnter 
-			{ 
-				show			skin4but_glow 
-			}
-			mouseExit 
-			{ 
-				hide			skin4but_glow 
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav"
-				hide			lower
-				hide			heads
-				hide			torso
-				show			skin4
-				hide			skin5
-				
-				setitemcolor		skin5but forecolor 1 .682 0 1
-				setitemcolor		skin4but forecolor 1 1 1 1
-				setitemcolor		skin3but forecolor 1 .682 0 1
-				setitemcolor		skin2but forecolor 1 .682 0 1
-				setitemcolor		skin1but forecolor 1 .682 0 1
-			}
-		}
-		
-		// SKIN5 BUTTON
-		itemDef 
-		{
-			name				skin5but_glow
-			group				none
-			style				WINDOW_STYLE_SHADER
-			rect				560 260 70 16
-			background			"gfx/menus/menu_buttonback"
-			forecolor			1 1 1 1
-			visible				0
-			decoration
-		}
-
-		itemDef 
-		{
-			name				skin5but
-			group				none
-			text				@MENUS_LEGS
-			descText			@MENUS_SELECT_LEGS
-			type				ITEM_TYPE_BUTTON
-			style				WINDOW_STYLE_EMPTY
-			rect				560 260 70 16
-			font				2
-			textscale			.9
-			textaligny			-5
-			textalign			ITEM_ALIGN_LEFT
-			textstyle			1
-			textalignx			0
-			backcolor			0 0 0 0
-			forecolor			1 .682 0 1
-			visible				1
-			 
-			mouseEnter 
-			{ 
-				show			skin5but_glow 
-			}
-			mouseExit 
-			{ 
-				hide			skin5but_glow 
-			}	  	  
-			action 
-			{
-				play			"sound/interface/button1.wav"
-				hide			lower
-				hide			heads
-				hide			torso
-				hide			skin4
-				show			skin5
-				
-				setitemcolor		skin4but forecolor 1 .682 0 1
-				setitemcolor		skin5but forecolor 1 1 1 1
-				setitemcolor		skin3but forecolor 1 .682 0 1
-				setitemcolor		skin2but forecolor 1 .682 0 1
-				setitemcolor		skin1but forecolor 1 .682 0 1
-			}
-		}
-
-
-//----------------------------------------------------------------------------------------------
-//	APPEARANCE LISTBOXES
-//----------------------------------------------------------------------------------------------
-		itemDef
-		{
-			name				skin1listbox
-			group				heads
-			type				ITEM_TYPE_LISTBOX
-			style				WINDOW_STYLE_FILLED
-			descText			@MENUS_SELECT_HEAD
-			elementwidth			72
-			elementheight			72
-			elementtype			1 			//LISTBOX_IMAGE
-			feeder				25 			//FEEDER_PLAYER_SKIN_HEAD
-			horizontalscroll
-			border				1
-			bordersize			1
-			backcolor			.66 .66 1 .5
-			bordercolor			.66 .66 1 1
-			forecolor			-1			//use playercolor
-			rect				400 306 219 93
-			visible				0
-			action
-			{
-				play			"sound/interface/choose_head.wav"
-				uiScript 		"saber_hilt_nochange"
-			}
-		}
-
-		itemDef
-		{
-			name				skin2listbox
-			group				torso
-			type				ITEM_TYPE_LISTBOX
-			style				WINDOW_STYLE_FILLED
-			descText			@MENUS_SELECT_TORSO
-			elementwidth			72
-			elementheight			72
-			elementtype			1 			//LISTBOX_IMAGE
-			feeder				26 			//FEEDER_PLAYER_SKIN_TORSO
-			horizontalscroll
-			border				1
-			bordersize			1
-			backcolor			.66 .66 1 .5
-			bordercolor			.66 .66 1 1
-			forecolor			-1			//use playercolor
-			rect				400 306 219 93
-			visible				1
-			action
-			{
-				play			"sound/interface/choose_torso.wav"
-				uiScript 		"saber_hilt_nochange"
-			}
-		}
-
-		itemDef
-		{
-			name				skin3listbox
-			group				lower
-			type				ITEM_TYPE_LISTBOX
-			style				WINDOW_STYLE_FILLED
-			descText			@MENUS_SELECT_LEGS
-			elementwidth			72
-			elementheight			72
-			elementtype			1 			//LISTBOX_IMAGE
-			feeder				27 			//FEEDER_PLAYER_SKIN_LEGS
-			horizontalscroll
-			border				1
-			bordersize			1
-			backcolor			.66 .66 1 .5
-			bordercolor			.66 .66 1 1
-			forecolor			-1			//use playercolor
-			rect				400 306 219 93
-			visible				0
-			action
-			{
-				play			"sound/interface/choose_head.wav"
-				uiScript 		"saber_hilt_nochange"
-			}
-		}
-		
-		itemDef
-		{
-			name				skin4listbox
-			group				skin4
-			type				ITEM_TYPE_LISTBOX
-			style				WINDOW_STYLE_FILLED
-			descText			@MENUS_SELECT_LEGS
-			elementwidth			72
-			elementheight			72
-			elementtype			1 			//LISTBOX_IMAGE
-			feeder				28 			//FEEDER_PLAYER_SKIN_LEGS
-			horizontalscroll
-			border				1
-			bordersize			1
-			backcolor			.66 .66 1 .5
-			bordercolor			.66 .66 1 1
-			forecolor			-1			//use playercolor
-			rect				400 306 219 93
-			visible				0
-			action
-			{
-				play			"sound/interface/choose_head.wav"
-				uiScript 		"saber_hilt_nochange"
-			}
-		}
-		
-		itemDef
-		{
-			name				skin5listbox
-			group				skin5
-			type				ITEM_TYPE_LISTBOX
-			style				WINDOW_STYLE_FILLED
-			descText			@MENUS_SELECT_LEGS
-			elementwidth			72
-			elementheight			72
-			elementtype			1 			//LISTBOX_IMAGE
-			feeder				29 			//FEEDER_PLAYER_SKIN_LEGS
-			horizontalscroll
-			border				1
-			bordersize			1
-			backcolor			.66 .66 1 .5
-			bordercolor			.66 .66 1 1
-			forecolor			-1			//use playercolor
-			rect				400 306 219 93
-			visible				0
-			action
-			{
-				play			"sound/interface/choose_head.wav"
-				uiScript 		"saber_hilt_nochange"
-			}
-		}
-		
-	
-
 //----------------------------------------------------------------------------------------------
 //	OTHER MAIN MENU BUTTONS
 //----------------------------------------------------------------------------------------------

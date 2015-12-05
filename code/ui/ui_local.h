@@ -177,6 +177,7 @@ typedef struct {
 	saberPartSkin_t Skin3;
 	saberPartSkin_t Skin4;
 	saberPartSkin_t Skin5;
+	qboolean	isStaff;
 } customSaberInfo_t;
 
 typedef struct {
@@ -198,6 +199,7 @@ typedef struct {
 	int					customSabersCount;
 	customSaberInfo_t	*customSabers;
 	int					customSabersIndex;
+	int					customSabers2Index;
 
 
 	char		deferredScript [ MAX_DEFERRED_SCRIPT ];

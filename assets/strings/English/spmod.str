@@ -64,6 +64,21 @@ LANG_ENGLISH		"Noghri Stick"
 REFERENCE			INGAME_WEAPON_TUSKEN_RIFLE
 LANG_ENGLISH		"Tusken Rifle"
 
+REFERENCE			INGAME_WEAPON_SONIC_BLASTER
+LANG_ENGLISH		"Geonosian Sonic Blaster"
+
+REFERENCE			INGAME_WEAPON_E5
+LANG_ENGLISH		"E-5 Carbine"
+
+REFERENCE			INGAME_WEAPON_DC15S
+LANG_ENGLISH		"DC-15S Carbine"
+
+REFERENCE			INGAME_WEAPON_DC15A
+LANG_ENGLISH		"DC-15A Rifle"
+
+REFERENCE			INGAME_WEAPON_Z6
+LANG_ENGLISH		"Z-6 Rotary Cannon"
+
 REFERENCE           INGAME_MELEE_DESC
 LANG_ENGLISH        "Melee  \nWhen applied to a face a fist causes damage.\nPrimary Fire - Throws a punch.\nSecondary Fire - Throws a punch.\nAmmo Type - N/A"
 
@@ -72,6 +87,21 @@ LANG_ENGLISH        "Tusken Rifle  \nThe Tusken Rifle fires a highly damaging pr
 
 REFERENCE           INGAME_NOGHRI_STICK_DESC
 LANG_ENGLISH        "Noghri Stick  \nThe Noghri Stick fires a ball of poisonous gas.\nPrimary Fire - Fires a ball of poisionous gas that does damage over time.\nSecondary Fire - Melee attack.\nAmmo Type - Power cell"
+
+REFERENCE           INGAME_SONIC_BLASTER_DESC
+LANG_ENGLISH        "Geonosian Sonic Blaster  \nThe Sonic Blaster fires a wave of sound.\nPrimary Fire - Fires a concentrated shot.\nSecondary Fire - Fires a dispersed sound wave that knocks over enemies.\nAmmo Type - Power cell"
+
+REFERENCE           INGAME_E5_CARBINE_DESC
+LANG_ENGLISH        "E-5 Carbine  \nThe E-5 Carbine has similar accuracy and damage to an E-11 Blaster Rifle.\nPrimary Fire - Slow, single shot with moderate accuracy and great damage.\nSecondary Fire - Rapid, burst fire with low accuracy and expanded firing area.\nAmmo Type - Blaster Pack"
+
+REFERENCE           INGAME_DC15S_CARBINE_DESC
+LANG_ENGLISH        "DC-15S Carbine  \nThe DC-15S Carbine has similar accuracy and damage to an E-11 Blaster Rifle.\nPrimary Fire - Slow, single shot with moderate accuracy and great damage.\nSecondary Fire - Rapid, burst fire with low accuracy and expanded firing area.\nAmmo Type - Blaster Pack"
+
+REFERENCE           INGAME_DC15A_RIFLE_DESC
+LANG_ENGLISH        "DC-15A Rifle  \nThe DC-15A Rifle has slow rate of fire, but does heavy damage.\nPrimary Fire - Very slow, single shot with good accuracy and great damage.\nSecondary Fire - Slow single shot with good accuracy, great damage, and heavier ammo drain.\nAmmo Type - Blaster Pack"
+
+REFERENCE           INGAME_Z6_ROTARY_DESC
+LANG_ENGLISH        "Z-6 Rotary Cannon  \nThe Z-6 Rotary Cannon has an extremely high rate of fire and works well in a suppressive capacity. \nPrimary Fire - Fully automatic blaster fire.\nSecondary Fire - Slower rate of fire to conserve ammunition.\nAmmo Type - Blaster Pack"
 
 REFERENCE			SFX_SABERS
 LANG_ENGLISH		"SFX Sabers:"
@@ -186,6 +216,18 @@ LANG_ENGLISH		"TrueView first person view for guns."
 
 REFERENCE			FPLS_DESC
 LANG_ENGLISH		"First person lightsaber option using TrueView."
+
+REFERENCE			EDIT_CUSTOM
+LANG_ENGLISH		"Build your lightsaber."
+
+REFERENCE			EDIT_CUSTOM2
+LANG_ENGLISH		"Build your lightsaber."
+
+REFERENCE			CUSTOM_SABER_X
+LANG_ENGLISH		"X"
+
+REFERENCE			CUSTOM_SABER_CLOSE
+LANG_ENGLISH		"Finish building lightsaber."
 
 ENDMARKER
 

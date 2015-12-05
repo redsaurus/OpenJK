@@ -25,6 +25,8 @@
 	loadMenu { "ui/videodriver.menu"					}
 	loadMenu { "ui/saber.menu"						}
 	loadMenu { "ui/saberstyle.menu"						}
+	loadMenu { "ui/saber_custom.menu"					}
+	loadMenu { "ui/saber_custom2.menu"					}
 	loadMenu { "ui/saber_rgb.menu"						}
 	loadMenu { "ui/saber_rgb2.menu"						}
 
