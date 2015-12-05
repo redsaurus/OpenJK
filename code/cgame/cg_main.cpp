@@ -1412,8 +1412,8 @@ static void CG_RegisterGraphics( void ) {
 	}
 	
 	cgs.media.radarShader			= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/radar.png" );
-	cgs.media.siegeItemShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/goalitem" );
-	cgs.media.mAutomapPlayerIcon	= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/arrow_w" );
+	cgs.media.siegeItemShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/goalitem_new" );
+	cgs.media.mAutomapPlayerIcon	= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/arrow_w_new" );
 
 	// FIXME: conditionally do this??  Something must be wrong with inventory item caching..?
 	cgi_R_RegisterModel( "models/items/remote.md3" );

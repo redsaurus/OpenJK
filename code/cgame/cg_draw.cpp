@@ -3512,7 +3512,6 @@ float CG_DrawRadar ( float y )
 	vec4_t			color;
 	float			arrow_w;
 	float			arrow_h;
-	clientInfo_t	*local;
 	int				i;
 	float			arrowBaseScale;
 	float			zScale;
@@ -3534,13 +3533,6 @@ float CG_DrawRadar ( float y )
 		return y;
 	}
 
-	
-	local = &cgs.clientinfo[ cg.snap->ps.clientNum ];
-	if ( !local->infoValid )
-	{
-		return y;
-	}
-	
 	// Draw the radar background image
 	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 0.6f;
@@ -3674,10 +3666,16 @@ float CG_DrawRadar ( float y )
 				
 				gentity_t *radarEnt = &g_entities[ cent->currentState.number ];
 				
+				
+				if (radarEnt->client->ps.stats[STAT_HEALTH] <= 0)
+				{
+					continue;
+				}
+				
 				switch ( radarEnt->client->playerTeam )
 				{
 					case TEAM_ENEMY:
-						VectorCopy ( colorTable[CT_RED], color );
+						VectorCopy ( colorTable[CT_DKORANGE], color );
 						break;
 					case TEAM_NEUTRAL:
 						VectorCopy ( colorTable[CT_YELLOW], color );
@@ -3686,7 +3684,7 @@ float CG_DrawRadar ( float y )
 						VectorCopy ( colorTable[CT_GREEN], color );
 						break;
 					default:
-						VectorCopy ( colorTable[CT_RED], color );
+						VectorCopy ( colorTable[CT_DKORANGE], color );
 						break;
 				}
 				
