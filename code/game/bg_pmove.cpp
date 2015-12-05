@@ -13828,7 +13828,7 @@ static void PM_Weapon( void )
 									PM_CheckKick();
 								}
 							}
-							else if ( !(pm->ps->pm_flags&PMF_ATTACK_HELD) )
+							else// if ( !(pm->ps->pm_flags&PMF_ATTACK_HELD) )
 							{
 								anim = PM_PickAnim( pm->gent, BOTH_MELEE1, BOTH_MELEE2 );
 							}
@@ -14148,6 +14148,10 @@ static void PM_Weapon( void )
 
 		switch( pm->ps->weapon)
 		{
+		case WP_MELEE:
+			//melee with g_debugmelee on
+			addTime = pm->ps->torsoAnimTimer;
+			break;
 		case WP_REPEATER:
 			// repeater is supposed to do smoke after sustained bursts
 			pm->ps->weaponShotCount++;
