@@ -12907,6 +12907,7 @@ void WP_FireDestruction( gentity_t *ent, int forceLevel )
 	
 	missile->classname = "rocket_proj";
 	missile->s.weapon = WP_CONCUSSION;
+	missile->s.powerups |= PW_QUAD;
 	missile->mass = 10;
 	
 	// Do the damages
@@ -12967,8 +12968,6 @@ void ForceDestruction( gentity_t *self )
 	{//FIXME: can this be a way to break out?
 		return;
 	}
-	
-	CG_RegisterWeapon( WP_CONCUSSION ); // Temporary! Will have new effects etc soon.
 	
 	anim = BOTH_FORCEPUSH;
 	soundIndex = G_SoundIndex( "sound/weapons/force/rage.wav" );

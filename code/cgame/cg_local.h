@@ -1184,6 +1184,10 @@ void FX_CloneBlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *we
 void FX_CloneBlasterWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_CloneBlasterWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, qboolean humanoid );
 
+void FX_DestructionProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_DestructionHitWall( vec3_t origin, vec3_t normal );
+void FX_DestructionHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
+
 void CG_BounceEffect( centity_t *cent, int weapon, vec3_t origin, vec3_t normal );
 void CG_MissileStick( centity_t *cent, int weapon, vec3_t origin );
 

@@ -261,7 +261,11 @@ void CG_RegisterWeapon( int weaponNum ) {
 		cgs.effects.forceDrain		= theFxScheduler.RegisterEffect( "mp/drain" );
 		cgs.effects.forceDrainWide	= theFxScheduler.RegisterEffect( "mp/drainwide" );
 		//cgs.effects.forceDrained	= theFxScheduler.RegisterEffect( "mp/drainhit");
-
+			
+		cgs.effects.destructionProjectile = theFxScheduler.RegisterEffect( "destruction/shot" );
+		cgs.effects.destructionHit = theFxScheduler.RegisterEffect( "destruction/explosion" );
+		cgs.media.destructionSound = cgi_S_RegisterSound( "sound/weapons/concussion/missleloop.wav" );
+			
 		//saber sounds
 		//cgi_S_RegisterSound( "sound/weapons/saber/saberon.wav" );
 		//cgi_S_RegisterSound( "sound/weapons/saber/enemy_saber_on.wav" );
@@ -3391,7 +3395,14 @@ void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, 
 		break;
 
 	case WP_CONCUSSION:
-		FX_ConcHitWall( origin, dir );
+		if (cent->currentState.powerups & PW_QUAD)
+		{
+			FX_DestructionHitWall( origin, dir );
+		}
+		else
+		{
+			FX_ConcHitWall( origin, dir );
+		}
 		break;
 
 	case WP_THERMAL:
@@ -3542,7 +3553,14 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 		break;
 
 	case WP_CONCUSSION:
-		FX_ConcHitPlayer( origin, dir, humanoid );
+		if (cent->currentState.powerups & PW_QUAD)
+		{
+			FX_DestructionHitPlayer( origin, dir, humanoid );
+		}
+		else
+		{
+			FX_ConcHitPlayer( origin, dir, humanoid );
+		}
 		break;
 
 	case WP_THERMAL:

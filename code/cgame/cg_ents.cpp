@@ -1193,6 +1193,18 @@ static void CG_Missile( centity_t *cent ) {
 			return;
 		}
 	}
+	else if (s1->powerups & PW_QUAD)
+	{
+		if ( s1->weapon == WP_CONCUSSION )
+		{
+			FX_DestructionProjectileThink( cent, weapon );
+			cgi_R_AddLightToScene(cent->lerpOrigin, 125,
+								  1.0, 0.25, 0.75 );
+			cgi_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.destructionSound);
+			return;
+
+		}
+	}
 	else if ( cent->gent->alt_fire )
 	{
 		// add trails

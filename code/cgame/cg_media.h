@@ -331,6 +331,8 @@ typedef struct {
 
 	//new stuff for Jedi Academy
 	sfxHandle_t	drainSound;
+	
+	sfxHandle_t	destructionSound;
 
 } cgMedia_t;
 
@@ -381,6 +383,9 @@ typedef struct
 	fxHandle_t forceDrain;
 	fxHandle_t forceDrainWide;
 	fxHandle_t forceDrained;
+	
+	fxHandle_t destructionProjectile;
+	fxHandle_t destructionHit;
 
 	//footstep effects
 	fxHandle_t footstepMud;
