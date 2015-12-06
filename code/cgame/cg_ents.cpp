@@ -327,7 +327,14 @@ static void CG_General( centity_t *cent )
 	refEntity_t			ent;
 	entityState_t		*s1;
 
+//Check if it's a radar entity
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
+
 	s1 = &cent->currentState;
+	
 /*
 Ghoul2 Insert Start
 */
@@ -350,11 +357,6 @@ Ghoul2 Insert End
 
 	// set frame
 	
-	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
-	{
-		CG_AddRadarEnt(cent);
-	}
-
 	if ( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM )
 	{
 		// by setting the shader time to the current time, we can force an animating shader to not animate

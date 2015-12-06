@@ -446,6 +446,7 @@ typedef enum
 	useF_misc_weapon_shooter_use,
 	useF_eweb_use,
 	useF_TieFighterUse,
+	useF_radar_icon_use,
 } useFunc_t;
 
 // USE functions...
@@ -528,6 +529,7 @@ extern void item_spawn_use			( gentity_t *self, gentity_t *other, gentity_t *act
 extern void NPC_VehicleSpawnUse		( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void misc_weapon_shooter_use	( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void eweb_use				( gentity_t *self, gentity_t *other, gentity_t *activator );
+extern void radar_icon_use			( gentity_t *self, gentity_t *other, gentity_t *activator );
 
 //	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage,int mod,int hitLoc);
 typedef enum

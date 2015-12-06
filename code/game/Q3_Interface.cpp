@@ -507,6 +507,8 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_NO_ANGLES),
 	ENUM2STRING(SET_SABER_ORIGIN),
 	ENUM2STRING(SET_SKIN),
+	ENUM2STRING(SET_RADAR_ICON),
+	ENUM2STRING(SET_RADAR_OBJECT),
 
 	{ "",	SET_ }
 };
@@ -9581,7 +9583,25 @@ extern void G_SetHeadSkin( gentity_t *ent );
 			}
 		}
 		break;
-
+	case SET_RADAR_OBJECT:
+		if ( entID >= 0 && entID < ENTITYNUM_WORLD )
+		{
+			if ( (Q_stricmp("true",(char*)data)==0) )
+			{
+				g_entities[entID].s.eFlags2 |= EF2_RADAROBJECT;
+			}
+			else
+			{
+				g_entities[entID].s.eFlags2 &= ~EF2_RADAROBJECT;
+			}
+		}
+		break;
+	case SET_RADAR_ICON:
+		if ( entID >= 0 && entID < ENTITYNUM_WORLD )
+		{
+			ent->s.radarIcon = G_IconIndex((char*)data);
+		}
+		break;
 	default:
 		//DebugPrint( WL_ERROR, "Set: '%s' is not a valid set field\n", type_name );
 		SetVar( taskID, entID, type_name, data );

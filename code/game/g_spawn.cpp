@@ -621,6 +621,8 @@ void SP_emplaced_gun( gentity_t *self );
 
 void SP_misc_turbobattery( gentity_t *base );
 
+void SP_misc_radar_icon( gentity_t *self );
+
 
 spawn_t	spawns[] = {
 	{"info_player_start", SP_info_player_start},
@@ -861,6 +863,8 @@ spawn_t	spawns[] = {
 
 	{"emplaced_gun", SP_emplaced_gun},
 	{"emplaced_eweb", SP_emplaced_eweb},
+	
+	{"misc_radar_icon", SP_misc_radar_icon},
 
 	{NULL, NULL}
 };
