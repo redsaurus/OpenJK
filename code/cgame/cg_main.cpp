@@ -475,7 +475,7 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"0", CVAR_ARCHIVE },
 	
-	{ &cg_drawRadar,	"cg_drawRadar", "0", CVAR_ARCHIVE },
+	{ &cg_drawRadar,	"cg_drawRadar", "1", CVAR_ARCHIVE },
 	
 	//True View Control cvars
 	{ &cg_trueguns, "cg_trueguns", "0", CVAR_ARCHIVE },
@@ -1330,6 +1330,66 @@ HUDMenuItem_t otherHUDBits[] =
 	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
 };
 */
+
+extern int BG_SiegeGetPairedValue(char *buf, char *key, char *outbuf);
+
+void CG_LoadMinimapImages( void )
+{
+	int len = 0;
+	fileHandle_t f;
+	char minimapData[1024];
+	char readBuffer[MAX_QPATH];
+	char fileName[MAX_QPATH];
+	
+	cgs.radarMap.numMinimapImages = 0;
+
+	const char	*info	= CG_ConfigString( CS_SERVERINFO );
+	const char	*s		= Info_ValueForKey( info, "mapname" );
+
+	Com_sprintf(fileName, sizeof(fileName), "minimaps/%s.mmp", s);
+	
+	len = gi.FS_FOpenFile(fileName, &f, FS_READ);
+	
+	if (!f)
+	{
+		return;
+	}
+	
+	if (len >= 1024)
+	{
+		gi.FS_FCloseFile( f );
+		return;
+	}
+	
+	gi.FS_Read(minimapData, len, f);
+	gi.FS_FCloseFile( f );
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "bottomRight", readBuffer) )
+	{
+		return;
+	}
+	sscanf( readBuffer, "%f %f", &cgs.radarMap.bottomRight[0], &cgs.radarMap.bottomRight[1]);
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "topLeft", readBuffer) )
+	{
+		return;
+	}
+	sscanf( readBuffer, "%f %f", &cgs.radarMap.topLeft[0], &cgs.radarMap.topLeft[1]);
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "image", readBuffer) )
+	{
+		return;
+	}
+	cgs.radarMap.minimapImage[0] = cgi_R_RegisterShaderNoMip( readBuffer );
+	
+	if ( BG_SiegeGetPairedValue(minimapData, "height", readBuffer) )
+	{
+		cgs.radarMap.minimapHeights[0] = atof(readBuffer);
+	}
+	
+	cgs.radarMap.numMinimapImages = 1;	
+}
+
 extern void CG_NPC_Precache ( gentity_t *spawner );
 qboolean NPCsPrecached = qfalse;
 /*
@@ -1400,6 +1460,8 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( cgs.mapname );
 
 	cgi_R_LoadWorldMap( cgs.mapname );
+	
+	CG_LoadMinimapImages();
 
 	cg.loadLCARSStage = 4;
 	CG_LoadingString( "game media shaders" );
@@ -1414,6 +1476,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.radarShader			= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/radar.png" );
 	cgs.media.siegeItemShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/goalitem_new" );
 	cgs.media.mAutomapPlayerIcon	= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/arrow_w_new" );
+	cgs.media.radarMaskShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/spradar/mask" );
 
 	// FIXME: conditionally do this??  Something must be wrong with inventory item caching..?
 	cgi_R_RegisterModel( "models/items/remote.md3" );

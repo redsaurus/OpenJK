@@ -3532,7 +3532,29 @@ float CG_DrawRadar ( float y )
 	{
 		return y;
 	}
-
+	
+	if ( cgs.radarMap.numMinimapImages == 0 && cg_drawRadar.integer < 2 ) // only draw by default with cg_drawRadar 2
+	{
+		return y;
+	}
+	
+	if ( cgs.radarMap.numMinimapImages > 0 )
+	{
+		CG_DrawPic( RADAR_X + xOffset + RADAR_RADIUS*0.2f, y + RADAR_RADIUS*0.2f, RADAR_RADIUS*1.6f, RADAR_RADIUS*1.6f, cgs.media.radarMaskShader );
+		
+		vec2_t texBottomLeft;
+		vec2_t texTopRight;
+		
+		float xScale = 1.0f / (cgs.radarMap.bottomRight[0] - cgs.radarMap.topLeft[0]);
+		float yScale = 1.0f / (cgs.radarMap.topLeft[1] - cgs.radarMap.bottomRight[1]);
+		
+		texBottomLeft[0] = (cg.predicted_player_state.origin[0] - cg_radarRange - cgs.radarMap.topLeft[0])*xScale;
+		texBottomLeft[1] = (cg.predicted_player_state.origin[1] - cg_radarRange - cgs.radarMap.bottomRight[1])*yScale;
+		texTopRight[0] = (cg.predicted_player_state.origin[0] + cg_radarRange - cgs.radarMap.topLeft[0])*xScale;
+		texTopRight[1] = (cg.predicted_player_state.origin[1] + cg_radarRange - cgs.radarMap.bottomRight[1])*yScale;
+		cgi_R_DrawRotatePic2( RADAR_X + RADAR_RADIUS, RADAR_RADIUS + y, RADAR_RADIUS*2, RADAR_RADIUS*2, texBottomLeft[0], (1 - texTopRight[1]), texTopRight[0], (1 - texBottomLeft[1]), -90 + cg.predicted_player_state.viewangles[YAW], cgs.radarMap.minimapImage[0] );
+	}
+	
 	// Draw the radar background image
 	color[0] = color[1] = color[2] = 1.0f;
 	color[3] = 0.6f;

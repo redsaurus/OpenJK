@@ -280,6 +280,7 @@ typedef struct {
 	qhandle_t radarShader;
 	qhandle_t siegeItemShader;
 	qhandle_t mAutomapPlayerIcon;
+	qhandle_t radarMaskShader;
 	
 	qhandle_t radarIcons[MAX_ICONS];
 
@@ -400,6 +401,16 @@ typedef struct
 	fxHandle_t landingGravel;
 } cgEffects_t;
 
+#define MAX_MINIMAPS 1
+typedef struct
+{
+	int			numMinimapImages;
+	qhandle_t	minimapImage[MAX_MINIMAPS];
+	float		minimapHeights[MAX_MINIMAPS];
+	vec2_t		topLeft;
+	vec2_t		bottomRight;
+} cgRadarMap_t;
+
 
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
@@ -441,6 +452,8 @@ typedef struct {
 
 	// effects
 	cgEffects_t		effects;
+	
+	cgRadarMap_t	radarMap;
 
 } cgs_t;
 
