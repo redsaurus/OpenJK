@@ -824,6 +824,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	char bladeColorString[MAX_QPATH];
 	vec3_t	angles={0};
 	int whichSaber = 0;
+	int secondSaberModel;
 	
 	if ( item->flags&(ITF_ISANYSABER) && item->flags&(ITF_ISCHARACTER) )
 	{	//it's bolted to a dude!
@@ -840,7 +841,16 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 		return;
 	}
 
-	if ( (item->flags&ITF_ISSABER) && saberModel < 2 )
+	if (Cvar_VariableString( "ui_char_head_model" )[0])
+	{
+		secondSaberModel = 3;
+	}
+	else
+	{
+		secondSaberModel = 2;
+	}
+
+	if ( (item->flags&ITF_ISSABER) && saberModel < secondSaberModel )
 	{
 		whichSaber = 0;
 	}
