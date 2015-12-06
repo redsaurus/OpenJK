@@ -298,6 +298,7 @@ void SaveRegisteredItems( void );
 //
 int G_ModelIndex( const char *name );
 int	G_SoundIndex( const char *name );
+int	G_IconIndex( const char* name );
 /*
 Ghoul2 Insert Start
 */

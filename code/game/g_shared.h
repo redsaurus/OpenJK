@@ -855,6 +855,8 @@ Ghoul2 Insert End
 	//Force effects
 	int			forcePushTime;
 	int			forcePuller;	//who force-pulled me (so we don't damage them if we hit them)
+	
+	char		*radarIcon;
 };
 #endif //#ifdef GAME_INCLUDE
 

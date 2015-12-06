@@ -348,6 +348,7 @@ field_t fields[] = {
 
 	{"soundSet", FOFS(soundSet), F_LSTRING},
 	{"mass", FOFS(mass), F_FLOAT},		//really only used for pushable misc_model_breakables
+	{"icon", FOFS(radarIcon), F_LSTRING},
 
 //q3map stuff
 	{"scale", 0, F_IGNORE},

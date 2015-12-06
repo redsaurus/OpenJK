@@ -3549,6 +3549,7 @@ float CG_DrawRadar ( float y )
 		float		angle;
 		float		distance, actualDist;
 		centity_t*	cent;
+		qboolean	farAway = qfalse;
 		
 		cent = &cg_entities[cg.radarEntities[i]];
 		
@@ -3562,6 +3563,7 @@ float CG_DrawRadar ( float y )
 			if ( (cent->currentState.eFlags2 & EF2_RADAROBJECT) )//still want to draw the direction
 			{
 				distance = cg_radarRange*0.8f;
+				farAway = qtrue;
 			}
 			else
 			{
@@ -3596,30 +3598,33 @@ float CG_DrawRadar ( float y )
 				shader = 0;
 				zScale = 1.0f;
 				
-				//we want to scale the thing up/down based on the relative Z (up/down) positioning
-				if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
-				{ //higher, scale up (between 16 and 24)
-					float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
-					
-					//max out to 1.5x scale at 512 units above local player's height
-					dif /= 1024.0f;
-					if (dif > 0.5f)
-					{
-						dif = 0.5f;
+				if ( !farAway )
+				{
+					//we want to scale the thing up/down based on the relative Z (up/down) positioning
+					if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
+					{ //higher, scale up (between 16 and 24)
+						float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
+						
+						//max out to 1.5x scale at 512 units above local player's height
+						dif /= 1024.0f;
+						if (dif > 0.5f)
+						{
+							dif = 0.5f;
+						}
+						zScale += dif;
 					}
-					zScale += dif;
-				}
-				else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
-				{ //lower, scale down (between 16 and 8)
-					float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
-					
-					//half scale at 512 units below local player's height
-					dif /= 1024.0f;
-					if (dif > 0.5f)
-					{
-						dif = 0.5f;
+					else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
+					{ //lower, scale down (between 16 and 8)
+						float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
+						
+						//half scale at 512 units below local player's height
+						dif /= 1024.0f;
+						if (dif > 0.5f)
+						{
+							dif = 0.5f;
+						}
+						zScale -= dif;
 					}
-					zScale -= dif;
 				}
 				
 				arrowBaseScale *= zScale;
@@ -3704,30 +3709,33 @@ float CG_DrawRadar ( float y )
 					shader = cgs.media.mAutomapPlayerIcon;
 				}
 				
-				//we want to scale the thing up/down based on the relative Z (up/down) positioning
-				if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
-				{ //higher, scale up (between 16 and 32)
-					float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
-					
-					//max out to 2x scale at 1024 units above local player's height
-					dif /= 1024.0f;
-					if (dif > 1.0f)
-					{
-						dif = 1.0f;
+				if ( !farAway )
+				{
+					//we want to scale the thing up/down based on the relative Z (up/down) positioning
+					if (cent->lerpOrigin[2] > cg.predicted_player_state.origin[2])
+					{ //higher, scale up (between 16 and 32)
+						float dif = (cent->lerpOrigin[2] - cg.predicted_player_state.origin[2]);
+						
+						//max out to 2x scale at 1024 units above local player's height
+						dif /= 1024.0f;
+						if (dif > 1.0f)
+						{
+							dif = 1.0f;
+						}
+						zScale += dif;
 					}
-					zScale += dif;
-				}
-				else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
-				{ //lower, scale down (between 16 and 8)
-					float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
-					
-					//half scale at 512 units below local player's height
-					dif /= 1024.0f;
-					if (dif > 0.5f)
-					{
-						dif = 0.5f;
+					else if (cent->lerpOrigin[2] < cg.predicted_player_state.origin[2])
+					{ //lower, scale down (between 16 and 8)
+						float dif = (cg.predicted_player_state.origin[2] - cent->lerpOrigin[2]);
+						
+						//half scale at 512 units below local player's height
+						dif /= 1024.0f;
+						if (dif > 0.5f)
+						{
+							dif = 0.5f;
+						}
+						zScale -= dif;
 					}
-					zScale -= dif;
 				}
 				
 				arrowBaseScale *= zScale;

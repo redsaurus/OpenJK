@@ -1568,6 +1568,13 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 		newent->message = G_NewString(ent->message);//copy the key name
 		newent->flags |= FL_NO_KNOCKBACK;//don't fall off ledges
 	}
+	
+	if ( ent->radarIcon && ent->radarIcon[0] )
+	{
+		newent->svFlags |= SVF_BROADCAST;
+		newent->s.eFlags2 |= EF2_RADAROBJECT;
+		newent->s.radarIcon = G_IconIndex(ent->radarIcon);
+	}
 
 	// If this is a vehicle we need to see what kind it is so we properlly allocate it.
 	if ( Q_stricmp( ent->classname, "NPC_Vehicle" ) == 0 )
@@ -2052,6 +2059,11 @@ void SP_NPC_spawner( gentity_t *self)
 	if ( self->delay > 0 )
 	{
 		self->svFlags |= SVF_NPC_PRECACHE;
+	}
+	
+	if ( self->radarIcon && self->radarIcon[0] )
+	{
+		G_IconIndex(self->radarIcon);
 	}
 
 	//We have to load the animation.cfg now because spawnscripts are going to want to set anims and we need to know their length and if they're valid
