@@ -5468,6 +5468,7 @@ static const char *g_bindCommands[] = {
 #endif
 	"+force_grip",
 	"+force_lightning",
+	"+force_repulse",
 	"+forward",
 	"+left",
 	"+lookdown",

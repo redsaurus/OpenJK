@@ -3895,6 +3895,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			|| (ucmd->buttons&BUTTON_FORCEGRIP)
 			|| (ucmd->buttons&BUTTON_FORCE_LIGHTNING)
 			|| (ucmd->buttons&BUTTON_FORCE_DRAIN)
+			|| (ucmd->buttons&BUTTON_REPULSE)
 			|| ucmd->upmove )
 		{//stop the anim
 			if ( ent->client->ps.legsAnim == BOTH_MEDITATE

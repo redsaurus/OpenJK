@@ -225,7 +225,7 @@ int forcePowerNeeded[NUM_FORCE_POWERS] =
 	35,//FP_STASIS
 	20,//FP_BLINDING
 	90,//FP_DEADLYSIGHT
-	40,//FP_REPULSE
+	20,//FP_REPULSE
 	100,//FP_INVULNERABILITY
 	//NUM_FORCE_POWERS
 };
@@ -9173,7 +9173,7 @@ qboolean WP_ForceThrowable( gentity_t *ent, gentity_t *forwardEnt, gentity_t *se
 	return qtrue;
 }
 
-static qboolean ShouldPlayerResistForceThrow( gentity_t *player, gentity_t *attacker, qboolean pull )
+qboolean ShouldPlayerResistForceThrow( gentity_t *player, gentity_t *attacker, qboolean pull )
 {
 	if ( player->health <= 0 )
 	{
@@ -13386,33 +13386,48 @@ void ForceRepulse( gentity_t *self )
 	{
 		return;
 	}
-	if ( !WP_ForcePowerUsable( self, FP_REPULSE, 0 ) )
+	if ( !self->s.number && (cg.zoomMode || in_camera) )
+	{//can't repulse when zoomed in or in cinematic
+		return;
+	}
+	if ( self->client->ps.leanofs )
+	{//can't repulse while leaning
+		return;
+	}
+	if ( !WP_ForcePowerUsable( self, FP_REPULSE, 60 ) )
 	{
 		return;
 	}
-	
-	if ( self->client->ps.weaponTime >= 800 )
-	{//just did one!
+	if ( self->client->ps.repulseChargeStart )
+	{
 		return;
 	}
 	if ( self->client->ps.saberLockTime > level.time )
 	{//FIXME: can this be a way to break out?
 		return;
 	}
+	// Make sure to turn off Force Protection and Force Absorb.
+	if (self->client->ps.forcePowersActive & (1 << FP_PROTECT) )
+	{
+		WP_ForcePowerStop( self, FP_PROTECT );
+	}
+	if (self->client->ps.forcePowersActive & (1 << FP_ABSORB) )
+	{
+		WP_ForcePowerStop( self, FP_ABSORB );
+	}
 	
-	gi.Printf(S_COLOR_WHITE "Used Force Repulse\n");
+	self->client->ps.repulseChargeStart = level.time;
 	
-	//TODO: CODE
-	
-	WP_ForcePowerStart( self, FP_REPULSE, 0 );
+	NPC_SetAnim( self, SETANIM_TORSO, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
 	
 	self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
 	self->client->ps.saberBlocked = BLOCKED_NONE;
-	self->client->ps.weaponTime = 1000;
-	if ( self->client->ps.forcePowersActive&(1<<FP_SPEED) )
-	{
-		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
-	}
+	
+	self->s.loopSound = G_SoundIndex( "sound/weapons/force/lightning2.wav" );
+	
+	//FIXME: build-up or delay this until in proper part of anim
+	self->client->ps.weaponTime = self->client->ps.torsoAnimTimer;
+	WP_ForcePowerStart( self, FP_REPULSE, 1 );
 }
 
 void ForceInvulnerability( gentity_t *self )
@@ -13460,6 +13475,7 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 		atPower != FP_GRIP &&
 		atPower != FP_PUSH &&
 		atPower != FP_PULL &&
+		atPower != FP_REPULSE &&
 		atPower != FP_STASIS)
 	{ //Only these powers can be absorbed
 		return -1;
@@ -13681,6 +13697,9 @@ void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int override
 		self->s.loopSound = G_SoundIndex( "sound/weapons/force/rageloop.wav" );
 		break;
 	case FP_REPULSE:
+		self->client->ps.forcePowersActive |= ( 1 << forcePower );
+		self->client->ps.powerups[PW_FORCE_REPULSE] = Q3_INFINITE;
+		self->client->pushEffectFadeTime = 0;
 		break;
 	case FP_INVULNERABILITY:
 		break;
@@ -13871,6 +13890,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower, int ove
 	return WP_ForcePowerAvailable( self, forcePower, overrideAmt );
 }
 
+extern void ForceRepulseThrow( gentity_t *self, int chargeTime );
 void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 {
 	gentity_t	*gripEnt;
@@ -14221,6 +14241,14 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 		self->s.loopSound = 0;
 		break;
 	case FP_REPULSE:
+		self->client->ps.powerups[PW_FORCE_REPULSE] = 0;
+		if (self->client->ps.repulseChargeStart)
+		{
+			self->s.loopSound = 0;
+			ForceRepulseThrow(self, level.time - self->client->ps.repulseChargeStart);
+//			Com_Printf("charge time: %d\n", level.time - self->client->ps.repulseChargeStart);
+			self->client->ps.repulseChargeStart = 0;
+		}
 		break;
 	case FP_INVULNERABILITY:
 		break;
@@ -15180,6 +15208,37 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		}
 		break;
 	case FP_REPULSE:
+		if ( (!self->s.number && !(cmd->buttons&BUTTON_REPULSE)) )
+		{
+			WP_ForcePowerStop( self, FP_REPULSE );
+			return;
+		}
+		else if ( self->client->ps.repulseChargeStart && WP_ForcePowerAvailable(self, FP_REPULSE, forcePowerNeeded[FP_REPULSE] + 5) )
+		{
+			NPC_SetAnim( self, SETANIM_BOTH, BOTH_SWIM_IDLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+			if ( self->client->ps.torsoAnimTimer < 100 ){//we were already playing this anim, we didn't want to restart it, but we want to hold it for at least 100ms, sooo....
+				
+				self->client->ps.torsoAnimTimer = 100;
+			}
+			if ( self->client->ps.legsAnimTimer < 100 ){//we were already playing this anim, we didn't want to restart it, but we want to hold it for at least 100ms, sooo....
+				
+				self->client->ps.legsAnimTimer = 100;
+			}
+			if ( !Q_irand( 0, 4 ) )
+			{
+				WP_ForcePowerDrain(self, FP_REPULSE, 1);
+			}
+			VectorClear(self->client->ps.velocity);
+			cmd->forwardmove = 0;
+			cmd->rightmove = 0;
+			cmd->upmove = 0;
+			VectorClear(self->client->ps.moveDir);
+		}
+		else
+		{
+			WP_ForcePowerStop( self, FP_REPULSE );
+			return;
+		}
 		break;
 	case FP_INVULNERABILITY:
 		break;
@@ -15226,18 +15285,18 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_GRIP:
-				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCE_DRAIN|BUTTON_FORCE_LIGHTNING);
+				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCE_DRAIN|BUTTON_FORCE_LIGHTNING|BUTTON_SABERTHROW|BUTTON_REPULSE);
 				ucmd->buttons |= BUTTON_FORCEGRIP;
 				//holds until cleared
 				break;
 			case FP_LIGHTNING:
-				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_DRAIN);
+				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_DRAIN|BUTTON_SABERTHROW|BUTTON_REPULSE);
 				ucmd->buttons |= BUTTON_FORCE_LIGHTNING;
 				//holds until cleared
 				break;
 			case FP_SABERTHROW:
-				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_DRAIN|BUTTON_FORCE_LIGHTNING);
-				ucmd->buttons |= BUTTON_ALT_ATTACK;
+				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_DRAIN|BUTTON_FORCE_LIGHTNING|BUTTON_REPULSE);
+				ucmd->buttons |= BUTTON_SABERTHROW;
 				//holds until cleared?
 				break;
 			case FP_SABER_DEFENSE:
@@ -15262,7 +15321,7 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_DRAIN:
-				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_LIGHTNING);
+				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_LIGHTNING|BUTTON_SABERTHROW|BUTTON_REPULSE);
 				ucmd->buttons |= BUTTON_FORCE_DRAIN;
 				//holds until cleared
 				break;
@@ -15294,8 +15353,8 @@ void WP_CheckForcedPowers( gentity_t *self, usercmd_t *ucmd )
 				self->client->ps.forcePowersForced &= ~(1<<forcePower);
 				break;
 			case FP_REPULSE:
-				ForceRepulse( self );
-				self->client->ps.forcePowersForced &= ~(1<<forcePower);
+				ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_FORCEGRIP|BUTTON_FORCE_LIGHTNING|BUTTON_SABERTHROW|BUTTON_FORCE_DRAIN);
+				ucmd->buttons |= BUTTON_REPULSE;
 				break;
 			case FP_INVULNERABILITY:
 				ForceInvulnerability( self );
@@ -15361,6 +15420,11 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				return;
 			}
 		}
+	}
+	
+	if ( ucmd->buttons & BUTTON_REPULSE )
+	{
+		ForceRepulse( self );
 	}
 
 	if ( !self->s.number

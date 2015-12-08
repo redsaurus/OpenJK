@@ -14452,9 +14452,6 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			case FP_DEADLYSIGHT:
 				ForceDeadlySight( ent );
 				break;
-			case FP_REPULSE:
-				ForceRepulse( ent );
-				break;
 			case FP_INVULNERABILITY:
 				ForceInvulnerability( ent );
 				break;
@@ -14478,6 +14475,9 @@ void PM_CheckForceUseButton( gentity_t *ent, usercmd_t *ucmd  )
 			break;
 		case FP_SABERTHROW:
 			ucmd->buttons |= BUTTON_SABERTHROW;
+			break;
+		case FP_REPULSE:
+			ucmd->buttons |= BUTTON_REPULSE;
 			break;
 //		default:
 //			Com_Printf( "Use Force: Unhandled force: %d\n", showPowers[cg.forcepowerSelect]);

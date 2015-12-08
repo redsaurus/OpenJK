@@ -1357,7 +1357,7 @@ qboolean G_OkayToLean( playerState_t *ps, usercmd_t *cmd, qboolean interruptOkay
 				&& !ps->legsAnimTimer//not in any held legs anim
 				&& !ps->torsoAnimTimer) //not in any held torso anim
 			)
-		&& !(cmd->buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_LIGHTNING|BUTTON_USE_FORCE|BUTTON_FORCE_DRAIN|BUTTON_FORCEGRIP))//not trying to attack
+		&& !(cmd->buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_LIGHTNING|BUTTON_USE_FORCE|BUTTON_FORCE_DRAIN|BUTTON_FORCEGRIP|BUTTON_REPULSE))//not trying to attack
 		//&& (ps->forcePowersActive&(1<<FP_SPEED))
 		&& VectorCompare( ps->velocity, vec3_origin )//not moving
 		&& !cg_usingInFrontOf )//use button wouldn't be used for anything else

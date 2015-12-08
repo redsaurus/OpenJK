@@ -2273,6 +2273,7 @@ typedef struct playerState_s {
 	
 	int			stasisTime;
 	int			deadlySightLastChecked;
+	int			repulseChargeStart;
 } playerState_t;
 
 
@@ -2299,6 +2300,8 @@ typedef struct playerState_s {
 #define	BUTTON_FORCE_FOCUS	256			// any key whatsoever
 
 #define BUTTON_SABERTHROW	512			// set to 128 for base behaviour!
+
+#define BUTTON_REPULSE		1024
 
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set

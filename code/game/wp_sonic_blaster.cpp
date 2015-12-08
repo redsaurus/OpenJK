@@ -36,8 +36,8 @@ extern qboolean Jedi_WaitingAmbush( gentity_t *self );
 extern void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward );
 extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold = 0.0f );
 extern void WP_KnockdownTurret( gentity_t *self, gentity_t *pas );
-void WP_SaberDrop( gentity_t *self, gentity_t *saber );
-void WP_SaberReturn( gentity_t *self, gentity_t *saber );
+extern void WP_SaberDrop( gentity_t *self, gentity_t *saber );
+extern void WP_SaberReturn( gentity_t *self, gentity_t *saber );
 void WP_SonicBlast( gentity_t *self )
 {//FIXME: pass in a target ent so we (an NPC) can push/pull just one targeted ent.
 	//shove things in front of you away

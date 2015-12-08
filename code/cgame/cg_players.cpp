@@ -4166,7 +4166,11 @@ static void CG_ForcePushRefraction( vec3_t org, centity_t *cent, float scaleFact
 	}
 
 	//scale from 1.0f to 0.1f then hold at 0.1 for the rest of the duration
-	if (cent->gent->client->ps.forcePowersActive & ( 1 << FP_PULL ) )
+	if (cent->gent->client->ps.forcePowersActive & ( 1 << FP_REPULSE ) )
+	{
+		scale = 1.0f;
+	}
+	else if (cent->gent->client->ps.forcePowersActive & ( 1 << FP_PULL ) )
 	{
 		scale = (float)(REFRACT_EFFECT_DURATION-tDif)*0.003f;
 	}
@@ -4184,7 +4188,14 @@ static void CG_ForcePushRefraction( vec3_t org, centity_t *cent, float scaleFact
 	}
 
 	//start alpha at 244, fade to 10
-	alpha = (float)tDif*0.488f;
+	if (cent->gent->client->ps.forcePowersActive & ( 1 << FP_REPULSE ) )
+	{
+		alpha = 244.0f;
+	}
+	else
+	{
+		alpha = (float)tDif*0.488f;
+	}
 
 	if (alpha > 244.0f)
 	{
