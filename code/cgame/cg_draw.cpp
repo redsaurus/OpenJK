@@ -3765,11 +3765,24 @@ float CG_DrawRadar ( float y )
 				arrow_w = arrowBaseScale * RADAR_RADIUS / 128;
 				arrow_h = arrowBaseScale * RADAR_RADIUS / 128;
 				
-				CG_DrawPic(0, 0, 0, 0, cgs.media.whiteShader);
-				CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + sin (angle) * distance + xOffset,
+				if ( cent->currentState.radarIcon )
+				{
+					arrow_w *= 2.0f;
+					arrow_h *= 2.0f;
+					CG_DrawPic(0, 0, 0, 0, cgs.media.whiteShader);
+					CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + sin (angle) * distance + xOffset,
+									  y + RADAR_RADIUS + cos (angle) * distance,
+									  arrow_w, arrow_h,
+									  0, shader );
+				}
+				else
+				{
+					CG_DrawPic(0, 0, 0, 0, cgs.media.whiteShader);
+					CG_DrawRotatePic2( RADAR_X + RADAR_RADIUS + sin (angle) * distance + xOffset,
 								  y + RADAR_RADIUS + cos (angle) * distance,
 								  arrow_w, arrow_h,
 								  (360 - cent->lerpAngles[YAW]) + cg.predicted_player_state.viewangles[YAW], shader );
+				}
 				break;
 			}
 		}
