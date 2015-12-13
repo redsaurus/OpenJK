@@ -1524,6 +1524,9 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.blackSaberBladeShader = cgi_R_RegisterShader( "SFX_Sabers/black_blade" );
 	cgs.media.blackSaberEndShader = cgi_R_RegisterShader( "SFX_Sabers/black_end" );
 	
+	cgs.media.ignitionFlare = cgi_R_RegisterShader( "gfx/effects/flare1" );
+	cgs.media.blackIgnitionFlare = cgi_R_RegisterShader( "gfx/effects/sabers/flare1black" );
+	
 	cg.loadLCARSStage = 5;
 	CG_LoadingString( "game media models" );
 
@@ -1780,6 +1783,22 @@ Ghoul2 Insert End
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].g2WeaponMarkShader2 );
 						}
+						if ( g_entities[i].client->ps.saber[0].ignitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].ignitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[0].ignitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].ignitionFlare2 );
+						}
+						if ( g_entities[i].client->ps.saber[0].blackIgnitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].blackIgnitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[0].blackIgnitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].blackIgnitionFlare2 );
+						}
 						if ( g_entities[i].client->ps.saber[1].g2MarksShader[0] )
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].g2MarksShader );
@@ -1795,6 +1814,22 @@ Ghoul2 Insert End
 						if ( g_entities[i].client->ps.saber[1].g2WeaponMarkShader2[0] )
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].g2WeaponMarkShader2 );
+						}
+						if ( g_entities[i].client->ps.saber[1].ignitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].ignitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[1].ignitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].ignitionFlare2 );
+						}
+						if ( g_entities[i].client->ps.saber[1].blackIgnitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].blackIgnitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[1].blackIgnitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].blackIgnitionFlare2 );
 						}
 						CG_RegisterNPCCustomSounds( &g_entities[i].client->clientInfo );
 						//CG_RegisterNPCEffects( g_entities[i].client->playerTeam );

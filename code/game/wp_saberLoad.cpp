@@ -514,6 +514,10 @@ void WP_SaberSetDefaults( saberInfo_t *saber, qboolean setColors = qtrue )
 	saber->splashKnockback2 = 0.0f;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 //=========================================================================================================================================
 	saber->holsterPlace = HOLSTER_INVALID;
+	saber->ignitionFlare[0] = 0;
+	saber->ignitionFlare2[0] = 0;
+	saber->blackIgnitionFlare[0] = 0;
+	saber->blackIgnitionFlare2[0] = 0;
 }
 
 qboolean forcedRGBColours[MAX_BLADES];
@@ -1958,6 +1962,42 @@ static void Saber_ParseHolsterPlace( saberInfo_t *saber, const char **p ) {
 	if ( holsterType >= HOLSTER_NONE && holsterType <= HOLSTER_BACK )
 		saber->holsterPlace = (holster_locations_t)holsterType;
 }
+static void Saber_ParseIgnitionFlare( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->ignitionFlare, value, sizeof( saber->ignitionFlare ), qtrue );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlare2( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->ignitionFlare2, value, sizeof( saber->ignitionFlare2 ), qtrue );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlareBlack( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->blackIgnitionFlare, value, sizeof( saber->blackIgnitionFlare ), qtrue );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlareBlack2( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->blackIgnitionFlare2, value, sizeof( saber->blackIgnitionFlare2 ), qtrue );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
 
 /*
 ===============
@@ -2168,6 +2208,10 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "noClashFlare",			Saber_ParseNoClashFlare,		NULL	},
 	{ "noClashFlare2",			Saber_ParseNoClashFlare2,		NULL	},
 	{ "holsterPlace",			Saber_ParseHolsterPlace,		NULL	},
+	{ "ignitionFlare",			Saber_ParseIgnitionFlare,		NULL	},
+	{ "ignitionFlare2",			Saber_ParseIgnitionFlare2,		NULL	},
+	{ "ignitionFlareBlack",		Saber_ParseIgnitionFlareBlack,		NULL	},
+	{ "ignitionFlareBlack2",	Saber_ParseIgnitionFlareBlack2,		NULL	},
 	{ NULL,						NULL,							NULL	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];

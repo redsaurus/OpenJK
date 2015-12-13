@@ -276,6 +276,9 @@ typedef struct {
 	qhandle_t blackSaberBladeShader;
 	qhandle_t blackSaberEndShader;
 	
+	qhandle_t ignitionFlare;
+	qhandle_t blackIgnitionFlare;
+	
 	//Radar
 	qhandle_t radarShader;
 	qhandle_t siegeItemShader;

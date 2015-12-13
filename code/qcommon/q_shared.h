@@ -1665,6 +1665,10 @@ typedef struct
 	
 	saber_crystals_t crystals;
 	holster_locations_t holsterPlace;
+	char		ignitionFlare[MAX_QPATH];
+	char		ignitionFlare2[MAX_QPATH];
+	char		blackIgnitionFlare[MAX_QPATH];
+	char		blackIgnitionFlare2[MAX_QPATH];
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	int			bladeStyle2Start;			//0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)

@@ -8710,6 +8710,7 @@ SkipTrueView:
 								{
 									vec3_t org_;
 									vec3_t	RGB	= {1.0f,0.75f,0.0f};
+									qhandle_t shader = cgs.media.ignitionFlare;
 									
 									CG_RGBForSaberColor( cent->gent->client->ps.saber[saberNum].blade[bladeNum].color, RGB );
 									char *tagName = va( "*blade%d", bladeNum+1 );
@@ -8720,12 +8721,43 @@ SkipTrueView:
 									// work the matrix axis stuff into the original axis and origins used.
 									gi.G2API_GiveMeVectorFromMatrix(boltMatrix, ORIGIN, org_);
 									
-									qhandle_t shader = cgi_R_RegisterShader( "gfx/effects/flare1" );
-									
 									if ( cent->gent->client->ps.saber[saberNum].crystals & SABER_CRYSTAL_BLACK )
 									{
-										shader = cgi_R_RegisterShader( "gfx/effects/sabers/flare1black" );
+										shader = cgs.media.blackIgnitionFlare;
+										
+										if ( WP_SaberBladeUseSecondBladeStyle(&cent->gent->client->ps.saber[saberNum], bladeNum ))
+										{
+											if ( cent->gent->client->ps.saber[saberNum].blackIgnitionFlare2[0] )
+											{
+												shader = cgi_R_RegisterShader( cent->gent->client->ps.saber[saberNum].blackIgnitionFlare2 );
+											}
+										}
+										else
+										{
+											if ( cent->gent->client->ps.saber[saberNum].blackIgnitionFlare[0] )
+											{
+												shader = cgi_R_RegisterShader( cent->gent->client->ps.saber[saberNum].blackIgnitionFlare );
+											}
+										}
 									}
+									else
+									{
+										if ( WP_SaberBladeUseSecondBladeStyle(&cent->gent->client->ps.saber[saberNum], bladeNum ))
+										{
+											if ( cent->gent->client->ps.saber[saberNum].ignitionFlare2[0] )
+											{
+												shader = cgi_R_RegisterShader( cent->gent->client->ps.saber[saberNum].ignitionFlare2 );
+											}
+										}
+										else
+										{
+											if ( cent->gent->client->ps.saber[saberNum].ignitionFlare[0] )
+											{
+												shader = cgi_R_RegisterShader( cent->gent->client->ps.saber[saberNum].ignitionFlare );
+											}
+										}
+									}
+									
 									
 									FX_AddSprite( org_, cent->gent->client->ps.velocity, NULL, 40.0f, 0.0f, 1.0f, 0.7f, RGB, RGB, random() * 360, 0.0f, 100.0f, shader, FX_USE_ALPHA );
 								}

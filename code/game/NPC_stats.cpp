@@ -1864,6 +1864,22 @@ void CG_NPC_Precache ( gentity_t *spawner )
 			{
 				cgi_R_RegisterShader( saber.g2WeaponMarkShader2 );
 			}
+			if ( saber.ignitionFlare[0] )
+			{
+				cgi_R_RegisterShader( saber.ignitionFlare );
+			}
+			if ( saber.ignitionFlare2[0] )
+			{
+				cgi_R_RegisterShader( saber.ignitionFlare2 );
+			}
+			if ( saber.blackIgnitionFlare[0] )
+			{
+				cgi_R_RegisterShader( saber.blackIgnitionFlare );
+			}
+			if ( saber.blackIgnitionFlare2[0] )
+			{
+				cgi_R_RegisterShader( saber.blackIgnitionFlare2 );
+			}
 			continue;
 		}
 
