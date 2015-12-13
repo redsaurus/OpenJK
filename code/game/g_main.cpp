@@ -225,6 +225,8 @@ cvar_t	*g_MPmovement;
 cvar_t	*g_flippedHolsters;
 cvar_t	*g_noIgniteTwirl;
 
+cvar_t	*g_forceRegenTime;
+
 qboolean	stop_icarus = qfalse;
 
 extern char *G_GetLocationForEnt( gentity_t *ent );
@@ -724,6 +726,8 @@ void G_InitCvars( void ) {
 	g_flippedHolsters = gi.cvar( "g_flippedHolsters", "0", CVAR_ARCHIVE );//if 1, saber faces up when holstered not down
 	
 	g_noIgniteTwirl = gi.cvar( "g_noIgniteTwirl", "0", CVAR_ARCHIVE );//if 1, don't do ignite twirl
+	
+	g_forceRegenTime = gi.cvar( "g_forceRegenTime", "100", CVAR_ARCHIVE );//Force regen time cvar similar to MP
 }
 /*
 ============

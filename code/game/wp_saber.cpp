@@ -61,6 +61,7 @@ extern cvar_t	*g_debugMelee;
 extern cvar_t	*g_saberRestrictForce;
 extern cvar_t	*g_saberPickuppableDroppedSabers;
 extern cvar_t	*debug_subdivision;
+extern cvar_t	*g_forceRegenTime;
 
 
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
@@ -15532,11 +15533,20 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 	{//when not using the force, regenerate at 10 points per second
 		if ( self->client->ps.forcePowerRegenDebounceTime < level.time )
 		{
+			int regenTime;
 			WP_ForcePowerRegenerate( self, self->client->ps.forcePowerRegenAmount );
-			self->client->ps.forcePowerRegenDebounceTime = level.time + self->client->ps.forcePowerRegenRate;
+			if (!self->s.number && self->client->NPC_class == CLASS_PLAYER)
+			{
+				regenTime = Q_max(g_forceRegenTime->integer, 1);
+			}
+			else
+			{
+				regenTime = self->client->ps.forcePowerRegenRate;
+			}
+			self->client->ps.forcePowerRegenDebounceTime = level.time + regenTime;
 			if ( self->client->ps.forceRageRecoveryTime >= level.time )
 			{//regen half as fast
-				self->client->ps.forcePowerRegenDebounceTime += self->client->ps.forcePowerRegenRate;
+				self->client->ps.forcePowerRegenDebounceTime += regenTime;
 			}
 		}
 	}
