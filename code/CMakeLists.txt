@@ -29,6 +29,9 @@ endif(BuildSPGame)
 #    Add Modular Renderer project
 add_subdirectory("${SPDir}/rd-vanilla")
 
+#    Add Modular Renderer project
+add_subdirectory("${SPDir}/rd-rendsaurus")
+
 #    Add Engine Project
 if(BuildSPEngine OR BuildJK2SPEngine)
 	# Libraries
