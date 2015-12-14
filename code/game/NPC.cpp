@@ -87,6 +87,7 @@ static bState_t G_CurrentBState( gNPC_t *gNPC );
 
 extern int eventClearTime;
 
+extern void GM_Dying( gentity_t *self );
 void CorpsePhysics( gentity_t *self )
 {
 	// run the bot through the server like it was a real client
@@ -94,6 +95,10 @@ void CorpsePhysics( gentity_t *self )
 	ClientThink( self->s.number, &ucmd );
 	VectorCopy( self->s.origin, self->s.origin2 );
 
+	if ( self->client->NPC_class == CLASS_GALAKMECH )
+	{
+		GM_Dying( self );
+	}
 	//FIXME: match my pitch and roll for the slope of my groundPlane
 	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !(self->flags&FL_DISINTEGRATED) )
 	{//on the ground
@@ -1920,6 +1925,7 @@ extern void NPC_BSSD_Default( void );
 extern void NPC_BehaviorSet_Trooper( int bState );
 extern bool NPC_IsTrooper( gentity_t *ent );
 extern bool Pilot_MasterUpdate();
+extern void NPC_BSGM_Default( void );
 
 void NPC_RunBehavior( int team, int bState )
 {
@@ -2100,6 +2106,9 @@ void NPC_RunBehavior( int team, int bState )
 				return;
 			case CLASS_MARK2:
 				NPC_BehaviorSet_Mark2( bState );
+				return;
+			case CLASS_GALAKMECH:
+				NPC_BSGM_Default();
 				return;
 			default:
 				break;

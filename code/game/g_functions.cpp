@@ -378,6 +378,7 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	PAINCASE( CrystalCratePain )
 	PAINCASE( TurretPain )
 	PAINCASE( eweb_pain )
+	PAINCASE( NPC_GM_Pain )
 
 	default:
 		Com_Error(ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",self->e_PainFunc);

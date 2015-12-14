@@ -6535,14 +6535,28 @@ void PM_TorsoAnimation( void )
 					break;
 
 				case WP_REPEATER:
-					if ( weaponBusy )
-					{
-						PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONREADY3,SETANIM_FLAG_NORMAL);
-					}
-					else
-					{
-						PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONIDLE3,SETANIM_FLAG_NORMAL);
-					}
+						if ( pm->gent && pm->gent->client && pm->gent->client->NPC_class == CLASS_GALAKMECH )
+						{//
+							if ( pm->gent->alt_fire )
+							{
+								PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONIDLE3,SETANIM_FLAG_NORMAL);
+							}
+							else
+							{
+								PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONIDLE1,SETANIM_FLAG_NORMAL);
+							}
+						}
+						else
+						{
+							if ( weaponBusy )
+							{
+								PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONREADY3,SETANIM_FLAG_NORMAL);
+							}
+							else
+							{
+								PM_SetAnim(pm,SETANIM_TORSO,TORSO_WEAPONIDLE3,SETANIM_FLAG_NORMAL);
+							}
+						}
 					break;
 				case WP_TRIP_MINE:
 				case WP_DET_PACK:

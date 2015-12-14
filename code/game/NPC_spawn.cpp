@@ -240,6 +240,7 @@ void G_ClassSetDontFlee( gentity_t *self )
 extern void	Vehicle_Register(gentity_t *ent);
 extern void RT_FlyStart( gentity_t *self );
 extern void SandCreature_ClearTimers( gentity_t *ent );
+extern void NPC_GalakMech_Init( gentity_t *ent );
 void NPC_SetMiscDefaultData( gentity_t *ent )
 {
 	if ( ent->spawnflags & SFB_CINEMATIC )
@@ -480,6 +481,10 @@ void NPC_SetMiscDefaultData( gentity_t *ent )
 					//ent->NPC->scriptFlags |= SCF_ALT_FIRE;
 				}
 				break;
+			}
+			if ( !Q_stricmp( "galak_mech", ent->NPC_type ) )
+			{//starts with armor
+				NPC_GalakMech_Init( ent );
 			}
 		}
 		if ( ent->client->NPC_class == CLASS_PLAYER

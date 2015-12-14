@@ -1640,6 +1640,10 @@ typedef enum //# animNumber_e
 
 	BOTH_SIT6,
 	BOTH_SIT7,
+	BOTH_ALERT1,
+	BOTH_TRIUMPHANT1START,
+	BOTH_TRIUMPHANT1STARTGESTURE,
+	BOTH_TRIUMPHANT1STOP,
 
 	//=================================================
 	//ANIMS IN WHICH ONLY THE UPPER OBJECTS ARE IN MD3
@@ -1670,6 +1674,10 @@ typedef enum //# animNumber_e
 	TORSO_HANDSIGNAL3,
 	TORSO_HANDSIGNAL4,
 	TORSO_HANDSIGNAL5,
+	
+	TORSO_RAISEWEAP2,
+	TORSO_DROPWEAP2,
+	TORSO_WEAPONIDLE1,
 
 
 	//=================================================

@@ -586,6 +586,7 @@ extern void NPC_Seeker_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t
 extern void NPC_Remote_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void emplaced_gun_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Mark1_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
+extern void NPC_GM_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Sentry_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Mark2_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void PlayerPain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);

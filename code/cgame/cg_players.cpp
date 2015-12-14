@@ -4976,9 +4976,9 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 
 	// Galak Mech shield bubble
 	//------------------------------------------------------
-	if ( powerups & ( 1 << PW_GALAK_SHIELD ))
+	if ( powerups & ( 1 << PW_GALAK_SHIELD ) && cent->gent->client->NPC_class == CLASS_GALAKMECH )
 	{
-/*		refEntity_t tent;
+		refEntity_t tent;
 
 		memset( &tent, 0, sizeof( refEntity_t ));
 
@@ -5005,7 +5005,7 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 		tent.endTime = gent->fx_time + 1000;			// if you want the shell to build around the guy, pass in a time that is 1000ms after the start of the turn-on-effect
 		tent.customShader = cgi_R_RegisterShader( "gfx/effects/irid_shield" );
 
-		cgi_R_AddRefEntityToScene( &tent );*/
+		cgi_R_AddRefEntityToScene( &tent );
 	}
 
 	// Invincibility -- effect needs work

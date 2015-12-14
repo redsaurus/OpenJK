@@ -183,6 +183,7 @@ stringID_table_t ClassTable[] =
 	ENUM2STRING(CLASS_ASSASSIN_DROID),
 	ENUM2STRING(CLASS_HAZARD_TROOPER),
 	ENUM2STRING(CLASS_VEHICLE),
+	{ "CLASS_GALAK_MECH", CLASS_GALAKMECH },
 	{ "",	-1 }
 };
 
@@ -1431,6 +1432,7 @@ extern void NPC_Rosh_Dark_Precache( void );
 extern void NPC_Tusken_Precache( void );
 extern void NPC_Saboteur_Precache( void );
 extern void NPC_CultistDestroyer_Precache( void );
+extern void NPC_GalakMech_Precache( void );
 void NPC_Jawa_Precache( void )
 {
 	for ( int i = 1; i < 7; i++ )
@@ -1527,6 +1529,10 @@ void NPC_PrecacheByClassName( const char* type )
 	else if ( !Q_stricmp( "protocol", type ))
 	{
 		NPC_Protocol_Precache();
+	}
+	else if ( !Q_stricmp( "galak_mech", type ))
+	{
+		NPC_GalakMech_Precache();
 	}
 	else if ( !Q_stricmp( "boba_fett", type ))
 	{
