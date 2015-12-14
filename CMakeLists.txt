@@ -129,8 +129,8 @@ get_git_head_revision(GIT_REFSPEC GIT_SHA1)
 message("Git revision is ${GIT_SHA1}")
 
 # Binary names
-set(SPEngine "openjk_customsp.${Architecture}")
-set(SPGame "jacustomgame${Architecture}")
+set(SPEngine "ja_enhanced.${Architecture}")
+set(SPGame "jaenhancedgame${Architecture}")
 set(SPRDVanillaRenderer "rdcustomsp-vanilla_${Architecture}")
 set(SPRDRendsaurusRenderer "rdsp-rendsaurus_${Architecture}")
 set(MPEngine "openjk.${Architecture}")

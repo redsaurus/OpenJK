@@ -67,17 +67,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define HOMEPATH_NAME_WIN "OpenJO"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #else
-#define PRODUCT_NAME			"openjk_customsp"
+#define PRODUCT_NAME			"jaenhanced_sp"
 
-#define CLIENT_WINDOW_TITLE "OpenJK (SP)"
-#define CLIENT_CONSOLE_TITLE "OpenJK Console (SP)"
-#define HOMEPATH_NAME_UNIX "openjk"
-#define HOMEPATH_NAME_WIN "OpenJK"
+#define CLIENT_WINDOW_TITLE "Jedi Academy: Enhanced"
+#define CLIENT_CONSOLE_TITLE "Jedi Academy: Enhanced Console"
+#define HOMEPATH_NAME_UNIX "jaenhanced"
+#define HOMEPATH_NAME_WIN "JAEnhanced"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #endif
 
 #define	BASEGAME "base"
-#define OPENJKGAME "OpenJK"
+#define OPENJKGAME "jaenhanced"
 
 #define Q3CONFIG_NAME PRODUCT_NAME ".cfg"
 
