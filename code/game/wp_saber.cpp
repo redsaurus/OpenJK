@@ -13395,7 +13395,7 @@ void ForceRepulse( gentity_t *self )
 	{//can't repulse while leaning
 		return;
 	}
-	if ( !WP_ForcePowerUsable( self, FP_REPULSE, 60 ) )
+	if ( !WP_ForcePowerUsable( self, FP_REPULSE, 40 ) )
 	{
 		return;
 	}

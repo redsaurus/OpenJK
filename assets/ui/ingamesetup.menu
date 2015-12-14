@@ -30,6 +30,7 @@
 			hide				defaults
 			show				setup_background ;
 			show 				video ;
+			hide				jkenhanced ;
 			setitemcolor			video1menubutton forecolor 1 1 1 1 ;
 			setitemcolor			video2menubutton forecolor 1 .682 0 1 ;
 			setitemcolor			soundmenubutton forecolor 1 .682 0 1;

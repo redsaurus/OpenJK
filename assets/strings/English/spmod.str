@@ -154,6 +154,9 @@ LANG_ENGLISH		"Destruction:"
 REFERENCE			BLINDING
 LANG_ENGLISH		"Blinding:"
 
+REFERENCE			REPULSE
+LANG_ENGLISH		"Repulse:"
+
 REFERENCE			USES_STASIS_FORCE_ABILITY
 LANG_ENGLISH		"Uses Force Stasis ability."
 
@@ -165,6 +168,9 @@ LANG_ENGLISH		"Uses Force Destruction ability."
 
 REFERENCE			USES_BLINDING_FORCE_ABILITY
 LANG_ENGLISH		"Uses Force Blinding ability."
+
+REFERENCE			USES_REPULSE_FORCE_ABILITY
+LANG_ENGLISH		"Uses Force Repulse ability."
 
 REFERENCE			SABER_THROW
 LANG_ENGLISH		"Saber Throw:"
@@ -180,6 +186,9 @@ LANG_ENGLISH		"Force Destruction\nDuration: Instant\nArea of Effect: Projectile\
 
 REFERENCE			INGAME_FORCE_INSANITY_DESC
 LANG_ENGLISH		"Force Insanity\nDuration: Variable\nArea of Effect: Living persons only\nEffect: Allows Jedi to wrack mind of an enemy\n\n"
+
+REFERENCE			INGAME_FORCE_REPULSE_DESC
+LANG_ENGLISH		"Force Repulse\nDuration: Instant\nArea of Effect: Near Jedi\nEffect: Allows Jedi to push and damage nearby enemies\n\n"
 
 REFERENCE           INGAME_FORCE_STASIS_LVL1_DESC
 LANG_ENGLISH        "Rank 1 - Jedi paralyses a single enemy for 5 seconds."
@@ -207,6 +216,15 @@ LANG_ENGLISH        "Rank 2 - Jedi launches a more powerful orb of force energy.
 
 REFERENCE           INGAME_FORCE_DESTRUCTION_LVL3_DESC
 LANG_ENGLISH        "Rank 3 - Jedi launches an extremely dangerous orb of force energy."
+
+REFERENCE           INGAME_FORCE_REPULSE_LVL1_DESC
+LANG_ENGLISH        "Rank 1 - Jedi pushes enemies within a small radius. If power is charged, enemies take damage depending on charge time."
+
+REFERENCE           INGAME_FORCE_REPULSE_LVL2_DESC
+LANG_ENGLISH        "Rank 2 - Jedi pushes enemies within a medium radius. If power is charged, enemies take damage depending on charge time."
+
+REFERENCE           INGAME_FORCE_REPULSE_LVL3_DESC
+LANG_ENGLISH        "Rank 3 - Jedi pushes enemies within a large radius. If power is charged, enemies take damage depending on charge time."
 
 REFERENCE			TRUE_GUNS
 LANG_ENGLISH		"TrueView Guns:"

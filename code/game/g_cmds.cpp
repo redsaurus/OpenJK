@@ -1521,11 +1521,6 @@ void ClientCommand( int clientNum ) {
 		ent = G_GetSelfForPlayerCmd();
 		ForceDeadlySight(ent);
 	}
-	else if (Q_stricmp (cmd, "force_repulse") == 0)
-	{
-		ent = G_GetSelfForPlayerCmd();
-		ForceRepulse(ent);
-	}
 	else if (Q_stricmp (cmd, "force_invulnerability") == 0)
 	{
 		ent = G_GetSelfForPlayerCmd();

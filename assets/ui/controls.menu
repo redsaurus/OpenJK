@@ -2526,6 +2526,40 @@
 				hide			keybindstatus
 			}
 		}
+		
+		itemDef 
+		{
+			name				force18
+			group				forcecontrols
+			type				ITEM_TYPE_BIND
+			text				@SPMOD_REPULSE
+			cvar				"+force_repulse"
+			rect				430 236 170 12
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			89
+			textaligny			0
+			font				4
+			textscale			0.8
+			forecolor			.615 .615 .956 0.0
+			visible				0
+			descText			@SPMOD_USES_REPULSE_FORCE_ABILITY
+			action 
+			{ 
+				play			sound/interface/button1
+			}
+
+			mouseenter 
+			{ 
+				show			button_glow
+				setitemrect		button_glow	430 234 170 18
+				show			keybindstatus
+			}
+			mouseexit 
+			{ 
+				hide			button_glow
+				hide			keybindstatus
+			}
+		}
 
 		itemDef 
 		{
