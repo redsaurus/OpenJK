@@ -671,6 +671,8 @@ extern	vmCvar_t		cg_trueeyeposition;
 extern	vmCvar_t		cg_trueinvertsaber;
 extern	vmCvar_t		cg_truefov;
 
+extern	vmCvar_t		cg_scaleVehicleSensitivity;
+
 void CG_NewClientinfo( int clientNum );
 //
 // cg_main.c
