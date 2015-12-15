@@ -467,7 +467,7 @@ static cvarTable_t cvarTable[] =
 	{ &ui_saber2_skin4,		"ui_saber2_skin4",	"", 0},
 	{ &ui_saber2_skin5,		"ui_saber2_skin5",	"", 0},
 	
-	{ &ui_SFXSabers,	"cg_SFXSabers",	"0", CVAR_ARCHIVE },
+	{ &ui_SFXSabers,	"cg_SFXSabers",	"1", CVAR_ARCHIVE },
 	{ &ui_SFXSabersGlowSize,	"cg_SFXSabersGlowSize",	"1.0", CVAR_ARCHIVE },
 	{ &ui_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
