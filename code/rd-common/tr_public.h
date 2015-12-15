@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ghoul2/ghoul2_gore.h"
 
 #define JAE_REF_API_OFFSET	(1 << 10)
-#define	REF_API_VERSION		15 | JAE_REF_API_OFFSET
+#define	REF_API_VERSION		(15 | JAE_REF_API_OFFSET)
 
 typedef struct {
 	void				(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));

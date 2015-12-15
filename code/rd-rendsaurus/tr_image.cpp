@@ -1340,6 +1340,16 @@ void R_CreateBuiltinImages( void ) {
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	qglGenFramebuffersEXT(1, &tr.glowBuffer);
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.glowBuffer);
+	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow, 0);
+	qglGenRenderbuffersEXT(1, &tr.glowDepthStencil);
+	qglBindRenderbufferEXT(GL_RENDERBUFFER, tr.glowDepthStencil);
+	qglRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glConfig.vidWidth, glConfig.vidHeight);
+	qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, tr.glowDepthStencil);
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+
 
 	// Create the scene image. - AReis
 	tr.sceneImage = 1024 + giTextureBindNum++;
@@ -1349,6 +1359,16 @@ void R_CreateBuiltinImages( void ) {
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	qglGenFramebuffersEXT(1, &tr.frameBuffer);
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.frameBuffer);
+	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage, 0);
+	qglGenRenderbuffersEXT(1, &tr.rboDepthStencil);
+	qglBindRenderbufferEXT(GL_RENDERBUFFER, tr.rboDepthStencil);
+	qglRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glConfig.vidWidth, glConfig.vidHeight);
+	qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, tr.rboDepthStencil);
+	
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 
 	// Create the minimized scene blur image.
 	if ( r_DynamicGlowWidth->integer > glConfig.vidWidth  )
@@ -1366,9 +1386,18 @@ void R_CreateBuiltinImages( void ) {
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	
+	qglGenFramebuffersEXT(1, &tr.blurBuffer);
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.blurBuffer);
+	qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, tr.blurImage, 0);
+	qglGenRenderbuffersEXT(1, &tr.blurDepthStencil);
+	qglBindRenderbufferEXT(GL_RENDERBUFFER, tr.blurDepthStencil);
+	qglRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, r_DynamicGlowWidth->integer, r_DynamicGlowHeight->integer);
+	qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, tr.blurDepthStencil);
+	qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+	
 	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
 	qglEnable( GL_TEXTURE_2D );
-
 
 	// with overbright bits active, we need an image which is some fraction of full color,
 	// for default lightmaps, etc
@@ -1393,7 +1422,6 @@ void R_CreateBuiltinImages( void ) {
 	R_CreateDlightImage();
 	R_CreateFogImage();
 }
-
 
 /*
 ===============

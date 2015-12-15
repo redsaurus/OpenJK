@@ -107,6 +107,105 @@ const unsigned char g_strGlowPShaderARB[] =
 	\
 	END"
 };
+
+const unsigned char g_strPostProcVShaderARB[] =
+{
+	"!!ARBvp1.0\
+	\
+	# Input.\n\
+	ATTRIB	iPos		= vertex.position;\
+	ATTRIB	iColor		= vertex.color;\
+	ATTRIB	iTex0		= vertex.texcoord[0];\
+	\
+	# Output.\n\
+	OUTPUT	oPos		= result.position;\
+	OUTPUT	oColor		= result.color;\
+	OUTPUT	oTex0		= result.texcoord[0];\
+	\
+	# Constants.\n\
+	PARAM	ModelViewProj[4]= { state.matrix.mvp };\
+	PARAM	TexelOffset0	= program.env[0];\
+	PARAM	TexelOffset1	= program.env[1];\
+	PARAM	TexelOffset2	= program.env[2];\
+	PARAM	TexelOffset3	= program.env[3];\
+	\
+	# Main.\n\
+	DP4		oPos.x, ModelViewProj[0], iPos;\
+	DP4		oPos.y, ModelViewProj[1], iPos;\
+	DP4		oPos.z, ModelViewProj[2], iPos;\
+	DP4		oPos.w, ModelViewProj[3], iPos;\
+	MOV		oColor, iColor;\
+	# Notice the optimization of using one texture coord instead of all four.\n\
+	MOV		oTex0, iTex0;\
+	\
+	END"
+};
+
+const unsigned char g_strPostProcPShaderARB[] =
+{
+	"!!ARBfp1.0\
+	\
+	# Input.\n\
+	ATTRIB	iColor	= fragment.color.primary;\
+	\
+	# Output.\n\
+	OUTPUT	oColor	= result.color;\
+	\
+	# Constants.\n\
+	TEMP	r0;\
+	\
+	# Main.\n\
+	TEX			r0, fragment.texcoord[0], texture, RECT;\
+	\
+	MOV		oColor, r0;\
+	\
+	END"
+};
+
+const unsigned char g_strLinearBlurPShaderARB[] =
+{
+	"!!ARBfp1.0\
+	\
+	# Input.\n\
+	ATTRIB	iColor	= fragment.color.primary;\
+	\
+	# Output.\n\
+	OUTPUT	oColor	= result.color;\
+	\
+	PARAM	twoX = {2, 0, 0, 0};\
+	PARAM	twoY = {0, 2, 0, 0};\
+	# Constants.\n\
+	TEMP	texCoord;\
+	TEMP	r0;\
+	TEMP	r1;\
+	TEMP	r2;\
+	TEMP	r3;\
+	TEMP	r4;\
+	TEMP	r5;\
+	\
+	# Main.\n\
+	MOV			texCoord, fragment.texcoord[0];\
+	TEX			r0, texCoord, texture, RECT;\
+	ADD		texCoord, fragment.texcoord[0], twoX;\
+	TEX		r1, texCoord, texture, RECT;\
+	ADD		texCoord, fragment.texcoord[0], twoY;\
+	TEX		r2, texCoord, texture, RECT;\
+	SUB		texCoord, fragment.texcoord[0], twoX;\
+	TEX		r3, texCoord, texture, RECT;\
+	SUB		texCoord, fragment.texcoord[0], twoY;\
+	TEX		r4, texCoord, texture, RECT;\
+	\
+	ADD		r5, r0, r1;\
+	ADD		r5, r5, r2;\
+	ADD		r5, r5, r3;\
+	ADD		r5, r5, r4;\
+	MUL		r5, r5, 0.2;\
+	MOV		oColor, r5;\
+	\
+	END"
+};
+
+
 /***********************************************************************************************************/
 
 #define GL_PROGRAM_ERROR_STRING_ARB						0x8874
@@ -124,6 +223,14 @@ void ARB_InitGlowShaders(void) {
 		int iErrPos = 0;
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
+		
+		qglGenProgramsARB( 1, &tr.postProcVShader );
+		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.postProcVShader );
+		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strPostProcVShaderARB ), g_strPostProcVShaderARB );
+		
+		iErrPos = 0;
+		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
+		assert( iErrPos == -1 );
 	}
 
 	// NOTE: I make an assumption here. If you have (current) nvidia hardware, you obviously support register combiners instead of fragment
@@ -131,7 +238,7 @@ void ARB_InitGlowShaders(void) {
 	// if you always ask for regcoms before fragment shaders, you'll always just use regcoms (problem solved... for now). - AReis
 
 	// Load Pixel Shaders (either regcoms or fragprogs).
-	if ( qglCombinerParameteriNV )
+/*	if ( qglCombinerParameteriNV )
 	{
 		// The purpose of this regcom is to blend all the pixels together from the 4 texture units, but with their
 		// texture coordinates offset by 1 (or more) texels, effectively letting us blend adjoining pixels. The weight is
@@ -153,7 +260,7 @@ void ARB_InitGlowShaders(void) {
 		madd	r0, c0, t2, r0;
 		madd	r0, c0, t3, r0;
 		*/
-		tr.glowPShader = qglGenLists( 1 );
+/*		tr.glowPShader = qglGenLists( 1 );
 		qglNewList( tr.glowPShader, GL_COMPILE );
 			qglCombinerParameteriNV( GL_NUM_GENERAL_COMBINERS_NV, 2 );
 
@@ -178,7 +285,8 @@ void ARB_InitGlowShaders(void) {
 			qglFinalCombinerInputNV( GL_VARIABLE_D_NV, GL_SPARE1_NV,	GL_UNSIGNED_IDENTITY_NV, GL_RGB );
 		qglEndList();
 	}
-	else if ( qglGenProgramsARB )
+	else if ( qglGenProgramsARB )*/
+	if ( qglGenProgramsARB )
 	{
 		qglGenProgramsARB( 1, &tr.glowPShader );
 		qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.glowPShader );
@@ -186,6 +294,14 @@ void ARB_InitGlowShaders(void) {
 
 //		const GLubyte *strErr = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
 		int iErrPos = 0;
+		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
+		assert( iErrPos == -1 );
+		
+		qglGenProgramsARB( 1, &tr.postProcPShader );
+		qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.postProcPShader );
+		qglProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strPostProcPShaderARB ), g_strPostProcPShaderARB );
+
+		iErrPos = 0;
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
 	}

@@ -946,7 +946,7 @@ typedef struct {
 	qboolean	projection2D;	// if qtrue, drawstretchpic doesn't need to change modes
 	byte		color2D[4];
 	qboolean	vertexes2D;		// shader needs to be finished
-	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
+	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering	
 } backEndState_t;
 
 /*
@@ -991,6 +991,9 @@ typedef struct {
 	// Handle to the Glow Effect Pixel Shader. - AReis
 	GLuint					glowPShader;
 
+	GLuint					postProcVShader;
+	GLuint					postProcPShader;
+	
 	// Image the glowing objects are rendered to. - AReis
 	GLuint					screenGlow;
 
@@ -999,7 +1002,15 @@ typedef struct {
 
 	// Image used to downsample and blur scene to.	- AReis
 	GLuint					blurImage;
+	
+	GLuint					glowBuffer;
+	GLuint					glowDepthStencil;
+	GLuint					frameBuffer;
+	GLuint					rboDepthStencil;
+	GLuint					blurBuffer;
+	GLuint					blurDepthStencil;
 
+	
 	shader_t				*defaultShader;
 	shader_t				*shadowShader;
 	shader_t				*distortionShader;
@@ -1171,6 +1182,7 @@ extern cvar_t	*r_DynamicGlowSoft;
 extern cvar_t	*r_DynamicGlowWidth;
 extern cvar_t	*r_DynamicGlowHeight;
 
+extern	cvar_t	*r_FBOs;
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
 extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage

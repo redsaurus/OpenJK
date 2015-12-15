@@ -100,6 +100,8 @@ cvar_t	*r_DynamicGlowSoft;
 cvar_t	*r_DynamicGlowWidth;
 cvar_t	*r_DynamicGlowHeight;
 
+cvar_t	*r_FBOs;
+
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
 
@@ -227,6 +229,26 @@ PFNGLISPROGRAMARBPROC qglIsProgramARB;
 
 PFNGLLOCKARRAYSEXTPROC qglLockArraysEXT;
 PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
+
+PFNGLISRENDERBUFFEREXTPROC qglIsRenderbufferEXT;
+PFNGLBINDRENDERBUFFEREXTPROC qglBindRenderbufferEXT;
+PFNGLDELETERENDERBUFFERSEXTPROC qglDeleteRenderbuffersEXT;
+PFNGLGENRENDERBUFFERSEXTPROC qglGenRenderbuffersEXT;
+PFNGLRENDERBUFFERSTORAGEEXTPROC qglRenderbufferStorageEXT;
+PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC qglGetRenderbufferParameterivEXT;
+PFNGLISFRAMEBUFFEREXTPROC qglIsFramebufferEXT;
+PFNGLBINDFRAMEBUFFEREXTPROC qglBindFramebufferEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC qglDeleteFramebuffersEXT;
+PFNGLGENFRAMEBUFFERSEXTPROC qglGenFramebuffersEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC qglCheckFramebufferStatusEXT;
+PFNGLFRAMEBUFFERTEXTURE1DEXTPROC qglFramebufferTexture1DEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC qglFramebufferTexture2DEXT;
+PFNGLFRAMEBUFFERTEXTURE3DEXTPROC qglFramebufferTexture3DEXT;
+PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC qglGetFramebufferAttachmentParameterivEXT;
+PFNGLGENERATEMIPMAPEXTPROC qglGenerateMipmapEXT;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC qglFramebufferRenderbufferEXT;
+
+PFNGLBLITFRAMEBUFFEREXTPROC qglBlitFramebufferEXT;
 
 bool g_bTextureRectangleHack = false;
 
@@ -658,6 +680,45 @@ static void GLimp_InitExtensions( void )
 	if ( GL_CheckForExtension( "GL_NV_texture_rectangle" ) || GL_CheckForExtension( "GL_EXT_texture_rectangle" ) )
 	{
 		bTexRectSupported = true;
+	}
+	
+	// GL_EXT_framebuffer_object
+	//	glRefConfig.framebufferObject = qfalse;
+	if( GL_CheckForExtension("GL_EXT_framebuffer_object") )
+	{
+		//		glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &glRefConfig.maxRenderbufferSize);
+		//		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT, &glRefConfig.maxColorAttachments);
+		
+		qglIsRenderbufferEXT = (PFNGLISRENDERBUFFEREXTPROC) ri.GL_GetProcAddress("glIsRenderbufferEXT");
+		qglBindRenderbufferEXT = (PFNGLBINDRENDERBUFFEREXTPROC) ri.GL_GetProcAddress("glBindRenderbufferEXT");
+		qglDeleteRenderbuffersEXT = (PFNGLDELETERENDERBUFFERSEXTPROC) ri.GL_GetProcAddress("glDeleteRenderbuffersEXT");
+		qglGenRenderbuffersEXT = (PFNGLGENRENDERBUFFERSEXTPROC) ri.GL_GetProcAddress("glGenRenderbuffersEXT");
+		qglRenderbufferStorageEXT = (PFNGLRENDERBUFFERSTORAGEEXTPROC) ri.GL_GetProcAddress("glRenderbufferStorageEXT");
+		qglGetRenderbufferParameterivEXT = (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC) ri.GL_GetProcAddress("glGetRenderbufferParameterivEXT");
+		qglIsFramebufferEXT = (PFNGLISFRAMEBUFFEREXTPROC) ri.GL_GetProcAddress("glIsFramebufferEXT");
+		qglBindFramebufferEXT = (PFNGLBINDFRAMEBUFFEREXTPROC) ri.GL_GetProcAddress("glBindFramebufferEXT");
+		qglDeleteFramebuffersEXT = (PFNGLDELETEFRAMEBUFFERSEXTPROC) ri.GL_GetProcAddress("glDeleteFramebuffersEXT");
+		qglGenFramebuffersEXT = (PFNGLGENFRAMEBUFFERSEXTPROC) ri.GL_GetProcAddress("glGenFramebuffers");
+		qglCheckFramebufferStatusEXT = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC) ri.GL_GetProcAddress("glCheckFramebufferStatusEXT");
+		qglFramebufferTexture1DEXT = (PFNGLFRAMEBUFFERTEXTURE1DEXTPROC) ri.GL_GetProcAddress("glFramebufferTexture1DEXT");
+		qglFramebufferTexture2DEXT = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC) ri.GL_GetProcAddress("glFramebufferTexture2DEXT");
+		qglFramebufferTexture3DEXT = (PFNGLFRAMEBUFFERTEXTURE3DEXTPROC) ri.GL_GetProcAddress("glFramebufferTexture3DEXT");
+		qglFramebufferRenderbufferEXT = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC) ri.GL_GetProcAddress("glFramebufferRenderbufferEXT");
+		qglGetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC) ri.GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
+		qglGenerateMipmapEXT = (PFNGLGENERATEMIPMAPEXTPROC) ri.GL_GetProcAddress("glGenerateMipmapEXT");
+		
+		//		if(r_ext_framebuffer_object->value)
+		//			glRefConfig.framebufferObject = qtrue;
+		
+		//		ri.Printf(PRINT_ALL, result[glRefConfig.framebufferObject], extension);
+	}
+	
+	
+///	extension = "GL_EXT_framebuffer_blit";
+//	glRefConfig.framebufferBlit = qfalse;
+	if (GL_CheckForExtension("GL_EXT_framebuffer_blit"))
+	{
+		qglBlitFramebufferEXT = (PFNGLBLITFRAMEBUFFEREXTPROC )ri.GL_GetProcAddress("glBlitFramebufferEXT");
 	}
 
 	// Find out how many general combiners they have.
@@ -1511,6 +1572,8 @@ void R_Register( void )
 	r_DynamicGlowWidth = ri.Cvar_Get( "r_DynamicGlowWidth", "320", CVAR_ARCHIVE | CVAR_LATCH );
 	r_DynamicGlowHeight = ri.Cvar_Get( "r_DynamicGlowHeight", "240", CVAR_ARCHIVE | CVAR_LATCH );
 
+	r_FBOs = ri.Cvar_Get( "r_FBOs", "1", CVAR_ARCHIVE );
+
 	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
 	r_colorMipLevels = ri.Cvar_Get ("r_colorMipLevels", "0", CVAR_LATCH );
@@ -1770,39 +1833,53 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 	for ( size_t i = 0; i < numCommands; i++ )
 		ri.Cmd_RemoveCommand( commands[i].cmd );
 
-	if ( r_DynamicGlow && r_DynamicGlow->integer )
+	// Release the Glow Vertex Shader.
+	if ( tr.glowVShader )
 	{
-		// Release the Glow Vertex Shader.
-		if ( tr.glowVShader )
-		{
-			qglDeleteProgramsARB( 1, &tr.glowVShader );
-		}
-
-		// Release Pixel Shader.
-		if ( tr.glowPShader )
-		{
-			if ( qglCombinerParameteriNV  )
-			{
-				// Release the Glow Regcom call list.
-				qglDeleteLists( tr.glowPShader, 1 );
-			}
-			else if ( qglGenProgramsARB )
-			{
-				// Release the Glow Fragment Shader.
-				qglDeleteProgramsARB( 1, &tr.glowPShader );
-			}
-		}
-
-		// Release the scene glow texture.
-		qglDeleteTextures( 1, &tr.screenGlow );
-
-		// Release the scene texture.
-		qglDeleteTextures( 1, &tr.sceneImage );
-
-		// Release the blur texture.
-		qglDeleteTextures( 1, &tr.blurImage );
+		qglDeleteProgramsARB( 1, &tr.glowVShader );
 	}
 
+	// Release Pixel Shader.
+	if ( tr.glowPShader )
+	{
+/*		if ( qglCombinerParameteriNV  )
+		{
+			// Release the Glow Regcom call list.
+			qglDeleteLists( tr.glowPShader, 1 );
+		}
+		else if ( qglGenProgramsARB )*/
+		{
+			// Release the Glow Fragment Shader.
+			qglDeleteProgramsARB( 1, &tr.glowPShader );
+		}
+	}
+	
+	if ( tr.postProcVShader )
+	{
+		qglDeleteProgramsARB( 1, &tr.postProcVShader );
+	}
+	
+	if ( tr.postProcPShader )
+	{
+		qglDeleteProgramsARB(1, &tr.glowPShader );
+	}
+
+	// Release the scene glow texture.
+	qglDeleteTextures( 1, &tr.screenGlow );
+	qglDeleteRenderbuffersEXT(1, &tr.glowDepthStencil);
+	qglDeleteFramebuffersEXT(1, &tr.glowBuffer);
+
+	// Release the scene texture.
+	qglDeleteTextures( 1, &tr.sceneImage );
+	qglDeleteRenderbuffersEXT(1, &tr.rboDepthStencil);
+	qglDeleteFramebuffersEXT(1, &tr.frameBuffer);
+
+	// Release the blur texture.
+	qglDeleteTextures( 1, &tr.blurImage );
+	qglDeleteRenderbuffersEXT(1, &tr.blurDepthStencil);
+	qglDeleteFramebuffersEXT(1, &tr.blurBuffer);
+	
+	
 	R_ShutdownWorldEffects();
 	R_ShutdownFonts();
 	if ( tr.registered )

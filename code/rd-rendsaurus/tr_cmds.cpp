@@ -359,7 +359,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
-
+	
 	//
 	// do overdraw measurement
 	//
@@ -472,6 +472,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	if ( !tr.registered ) {
 		return;
 	}
+	
 	cmd = (swapBuffersCommand_t *) R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;

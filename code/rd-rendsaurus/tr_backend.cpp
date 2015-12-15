@@ -35,6 +35,7 @@ extern qboolean tr_distortionNegate; //tr_shadows.cpp
 extern void RB_CaptureScreenImage(void); //tr_shadows.cpp
 extern void RB_DistortionFill(void); //tr_shadows.cpp
 static void RB_DrawGlowOverlay();
+static void RB_DrawPostProcess();
 static void RB_BlurGlowTexture();
 
 // Whether we are currently rendering only glowing objects or not.
@@ -1320,10 +1321,22 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 	cmd = (const drawSurfsCommand_t *)data;
 
+	if (r_FBOs->integer){
+		if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ))
+		{
+			qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.frameBuffer);
+		}
+		else
+		{
+			qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+		}
+	}
+
 	backEnd.refdef = cmd->refdef;
 	backEnd.viewParms = cmd->viewParms;
 
 	RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
+
 
 	// Dynamic Glow/Flares:
 	/*
@@ -1333,36 +1346,53 @@ const void	*RB_DrawSurfs( const void *data ) {
 		four texture coordinate offsets that allow 'peeking' into adjacent pixels. In the register
 		combiner (pixel shader), I combine the adjacent pixels using a weighting factor. - Aurelio
 	*/
-
+	
 	// Render dynamic glowing/flaring objects.
 	if ( !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
 	{
-		// Copy the normal scene to texture.
-		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
-		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
-		qglEnable( GL_TEXTURE_2D );
-
+		if (!r_FBOs->integer)
+		{
+			// Copy the normal scene to texture.
+			qglDisable( GL_TEXTURE_2D );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
+			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight);
+			qglDisable( GL_TEXTURE_RECTANGLE_ARB );
+			qglEnable( GL_TEXTURE_2D );
+		}
+		else
+		{
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, tr.frameBuffer);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.glowBuffer);
+			qglBlitFramebufferEXT(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, tr.glowBuffer);
+		}
+		
 		// Just clear colors, but leave the depth buffer intact so we can 'share' it.
 		qglClearColor( 0.0f, 0.0f, 0.0f, 0.0f );
-		qglClear( GL_COLOR_BUFFER_BIT );
+		qglClear( GL_COLOR_BUFFER_BIT );// | GL_DEPTH_BUFFER_BIT );
 
 		// Render the glowing objects.
 		g_bRenderGlowingObjects = true;
 		RB_RenderDrawSurfList( cmd->drawSurfs, cmd->numDrawSurfs );
 		g_bRenderGlowingObjects = false;
 		qglFinish();
-
-		// Copy the glow scene to texture.
-		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0,  backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
-		qglEnable( GL_TEXTURE_2D );
-
+		
+		if (!r_FBOs->integer)
+		{
+			// Copy the glow scene to texture.
+			qglDisable( GL_TEXTURE_2D );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.screenGlow );
+			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0,  backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+			qglDisable( GL_TEXTURE_RECTANGLE_ARB );
+			qglEnable( GL_TEXTURE_2D );
+		}
+		else
+		{
+			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		}
+		
 		// Resize the viewport to the blur texture size.
 		const int oldViewWidth = backEnd.viewParms.viewportWidth;
 		const int oldViewHeight = backEnd.viewParms.viewportHeight;
@@ -1373,14 +1403,24 @@ const void	*RB_DrawSurfs( const void *data ) {
 		// Blur the scene.
 		RB_BlurGlowTexture();
 
-		// Copy the finished glow scene back to texture.
-		qglDisable( GL_TEXTURE_2D );
-		qglEnable( GL_TEXTURE_RECTANGLE_ARB );
-		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
-		qglDisable( GL_TEXTURE_RECTANGLE_ARB );
-		qglEnable( GL_TEXTURE_2D );
-
+		if (!r_FBOs->integer)
+		{
+			// Copy the finished glow scene back to texture.
+			qglDisable( GL_TEXTURE_2D );
+			qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
+			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+			qglDisable( GL_TEXTURE_RECTANGLE_ARB );
+			qglEnable( GL_TEXTURE_2D );
+		}
+		else
+		{
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.blurBuffer);
+			qglBlitFramebufferEXT(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		}
+		
 		// Set the viewport back to normal.
 		backEnd.viewParms.viewportWidth = oldViewWidth;
 		backEnd.viewParms.viewportHeight = oldViewHeight;
@@ -1390,7 +1430,12 @@ const void	*RB_DrawSurfs( const void *data ) {
 		// Draw the glow additively over the screen.
 		RB_DrawGlowOverlay();
 	}
-
+	else if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_FBOs->integer)
+	{
+		qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+		RB_DrawPostProcess();
+	}
+	
 	return (const void *)(cmd + 1);
 }
 
@@ -1531,6 +1576,7 @@ RB_SwapBuffers
 
 =============
 */
+
 extern void RB_RenderWorldEffects( void );
 const void	*RB_SwapBuffers( const void *data ) {
 	const swapBuffersCommand_t	*cmd;
@@ -1564,11 +1610,11 @@ const void	*RB_SwapBuffers( const void *data ) {
 		backEnd.pc.c_overDraw += sum;
 		R_Free( stencilReadback );
 	}
-
+	
     if ( !glState.finishCalled ) {
         qglFinish();
 	}
-
+	
     GLimp_LogComment( "***************** RB_SwapBuffers *****************\n\n\n" );
 
 	ri.WIN_Present(&window);
@@ -1817,8 +1863,18 @@ static inline void RB_BlurGlowTexture()
 			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 			// Copy the current image over.
-			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
-			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+			if (!r_FBOs->integer)
+			{
+				qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
+				qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+			}
+			else
+			{
+				qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+				qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.blurBuffer);
+				qglBlitFramebufferEXT(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+				qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+			}
 		}
 
 		// Draw the fullscreen quad.
@@ -1836,8 +1892,18 @@ static inline void RB_BlurGlowTexture()
 			qglVertex2f( backEnd.viewParms.viewportWidth, 0 );
 		qglEnd();
 
-		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
-		qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+		if (!r_FBOs->integer)
+		{
+			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
+			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
+		}
+		else
+		{
+			qglBindFramebufferEXT(GL_READ_FRAMEBUFFER_EXT, 0);
+			qglBindFramebufferEXT(GL_DRAW_FRAMEBUFFER_EXT, tr.blurBuffer);
+			qglBlitFramebufferEXT(backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, backEnd.viewParms.viewportX, backEnd.viewParms.viewportY, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+			qglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		}
 
 		// Increase the texel offsets.
 		// NOTE: This is possibly the most important input to the effect. Even by using an exponential function I've been able to
@@ -1897,6 +1963,11 @@ static inline void RB_DrawGlowOverlay()
 	// For debug purposes.
 	if ( r_DynamicGlow->integer != 2 )
 	{
+		qglEnable( GL_VERTEX_PROGRAM_ARB );
+		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.postProcVShader );
+		
+		BeginPixelShader( GL_FRAGMENT_PROGRAM_ARB, tr.postProcPShader );
+
 		// Render the normal scene texture.
 		qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
 		qglBegin(GL_QUADS);
@@ -1913,6 +1984,9 @@ static inline void RB_DrawGlowOverlay()
 			qglTexCoord2f( glConfig.vidWidth, glConfig.vidHeight );
 			qglVertex2f( glConfig.vidWidth, 0 );
 		qglEnd();
+		
+		qglDisable( GL_VERTEX_PROGRAM_ARB );
+		EndPixelShader();
 	}
 
 	// One and Inverse Src Color give a very soft addition, while one one is a bit stronger. With one one we can
@@ -1949,6 +2023,62 @@ static inline void RB_DrawGlowOverlay()
 	qglBlendFunc( GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR );
 	qglDisable( GL_BLEND );
 
+	qglMatrixMode(GL_PROJECTION);
+	qglPopMatrix();
+	qglMatrixMode(GL_MODELVIEW);
+	qglPopMatrix();
+}
+
+static inline void RB_DrawPostProcess()
+{
+	qglDisable (GL_CLIP_PLANE0);
+	GL_Cull( CT_TWO_SIDED );
+	
+	// Go into orthographic 2d mode.
+	qglMatrixMode(GL_PROJECTION);
+	qglPushMatrix();
+	qglLoadIdentity();
+	qglOrtho(0, glConfig.vidWidth, glConfig.vidHeight, 0, -1, 1);
+	qglMatrixMode(GL_MODELVIEW);
+	qglPushMatrix();
+	qglLoadIdentity();
+	
+	GL_State(GLS_DEPTHTEST_DISABLE);
+	
+	qglEnable( GL_VERTEX_PROGRAM_ARB );
+	qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.postProcVShader );
+	
+	BeginPixelShader( GL_FRAGMENT_PROGRAM_ARB, tr.postProcPShader );
+
+	
+	qglDisable( GL_TEXTURE_2D );
+	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
+	
+	// Now additively render the glow texture.
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage );
+	qglBegin(GL_QUADS);
+	qglColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+	qglTexCoord2f( 0, glConfig.vidHeight );
+	qglVertex2f( 0, 0 );
+	
+	qglTexCoord2f( 0, 0 );
+	qglVertex2f( 0, glConfig.vidHeight );
+	
+	qglTexCoord2f( glConfig.vidWidth, 0 );
+	qglVertex2f( glConfig.vidWidth, glConfig.vidHeight );
+	
+	qglTexCoord2f( glConfig.vidWidth, glConfig.vidHeight );
+	qglVertex2f( glConfig.vidWidth, 0 );
+	qglEnd();
+	
+	qglDisable( GL_TEXTURE_RECTANGLE_ARB );
+	qglEnable( GL_TEXTURE_2D );
+	qglBlendFunc( GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR );
+	qglDisable( GL_BLEND );
+	
+	qglDisable( GL_VERTEX_PROGRAM_ARB );
+	EndPixelShader();
+	
 	qglMatrixMode(GL_PROJECTION);
 	qglPopMatrix();
 	qglMatrixMode(GL_MODELVIEW);
