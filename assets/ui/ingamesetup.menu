@@ -1438,6 +1438,46 @@
 				show			applyChanges
 			}
 		}
+		
+		itemDef 
+		{	
+			name				renderer
+			group				video
+			type				ITEM_TYPE_MULTI
+			text				@SPMOD_RENDERER
+			rect				260 342 340 14
+			textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			cvar				"cl_renderer"
+			cvarStrList		
+			{ 
+				@SPMOD_VANILLA		"rdcustomsp"
+				@SPMOD_RENDSAURUS 	"rdsp-rendsaurus"
+			}
+			descText			@SPMOD_RENDERER_DESC
+
+			visible				0
+
+			mouseenter 
+			{ 
+				show			highlight12
+			}
+			mouseexit 
+			{ 
+				hide			highlight12
+			} 
+			action 
+			{
+				play			"sound/interface/button1.wav" ; 
+				uiScript		glCustom ;
+				setcvar			ui_r_modified	1 ;
+				show			applyChanges
+			}
+		}
 
 
 
@@ -1881,7 +1921,7 @@
 				play			"sound/interface/button1.wav"
 			} 
 		}
-
+		
 		itemDef 
 		{	
 			name				video_mode
@@ -1906,6 +1946,41 @@
 			{ 
 				show			button_glow
 				setitemrect		button_glow	260 359 340 20
+			}
+			mouseexit 
+			{ 
+				hide			button_glow
+			}
+			action 
+			{
+				play			"sound/interface/button1.wav"
+			} 
+		}
+		
+		itemDef 
+		{			
+			name				fbos
+			group				video2
+      		type				ITEM_TYPE_MULTI
+			text				@SPMOD_FBOS
+			cvar				"r_FBOs"	
+			cvarFloatList		{  @MENUS_OFF 0 @MENUS_ON 1 }
+			rect				260 375 340 14
+	   		textalign			ITEM_ALIGN_RIGHT
+			textalignx			174
+			textaligny			0
+			font 				4
+			textscale 			1
+			forecolor			.615 .615 .956 1
+			visible				0
+			descText			@SPMOD_FBOS_DESC
+			cvarTest			"cl_renderer"
+			hideCvar			{ "rdcustomsp-vanilla" }
+
+			mouseenter 
+			{ 
+				show			button_glow
+				setitemrect		button_glow	260 375 340 20
 			}
 			mouseexit 
 			{ 
