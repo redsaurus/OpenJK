@@ -13250,7 +13250,7 @@ void ForceStasis( gentity_t *self )
 	}
 	
 	if(traceEnt->health > 0 &&
-	   traceEnt->s.weapon != WP_SABER && traceEnt->client->NPC_class != CLASS_REBORN)
+	   traceEnt->s.weapon != WP_SABER && traceEnt->client && traceEnt->client->NPC_class != CLASS_REBORN)
 	{
 		int modPowerLevel = WP_AbsorbConversion(traceEnt, traceEnt->client->ps.forcePowerLevel[FP_ABSORB], self, FP_STASIS, self->client->ps.forcePowerLevel[FP_STASIS], forcePowerNeeded[FP_STASIS]);
 		int actualPowerLevel;
