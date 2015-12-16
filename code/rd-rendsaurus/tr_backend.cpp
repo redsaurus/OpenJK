@@ -1321,7 +1321,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 
 	cmd = (const drawSurfsCommand_t *)data;
 
-	if (r_FBOs->integer){
+	if (glConfig.supportsRenderBuffer && r_FBOs->integer){
 		if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ))
 		{
 			qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.frameBuffer);
@@ -1350,7 +1350,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 	// Render dynamic glowing/flaring objects.
 	if ( !(backEnd.refdef.rdflags & RDF_NOWORLDMODEL) && g_bDynamicGlowSupported && r_DynamicGlow->integer )
 	{
-		if (!r_FBOs->integer)
+		if (!glConfig.supportsRenderBuffer || !r_FBOs->integer)
 		{
 			// Copy the normal scene to texture.
 			qglDisable( GL_TEXTURE_2D );
@@ -1378,7 +1378,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 		g_bRenderGlowingObjects = false;
 		qglFinish();
 		
-		if (!r_FBOs->integer)
+		if (!glConfig.supportsRenderBuffer || !r_FBOs->integer)
 		{
 			// Copy the glow scene to texture.
 			qglDisable( GL_TEXTURE_2D );
@@ -1403,7 +1403,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 		// Blur the scene.
 		RB_BlurGlowTexture();
 
-		if (!r_FBOs->integer)
+		if (!glConfig.supportsRenderBuffer || !r_FBOs->integer)
 		{
 			// Copy the finished glow scene back to texture.
 			qglDisable( GL_TEXTURE_2D );
@@ -1430,7 +1430,7 @@ const void	*RB_DrawSurfs( const void *data ) {
 		// Draw the glow additively over the screen.
 		RB_DrawGlowOverlay();
 	}
-	else if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_FBOs->integer)
+	else if (!( backEnd.refdef.rdflags & RDF_NOWORLDMODEL ) && r_FBOs->integer && glConfig.supportsRenderBuffer)
 	{
 		qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 		RB_DrawPostProcess();
@@ -1863,7 +1863,7 @@ static inline void RB_BlurGlowTexture()
 			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
 			// Copy the current image over.
-			if (!r_FBOs->integer)
+			if (!glConfig.supportsRenderBuffer || !r_FBOs->integer)
 			{
 				qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 				qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
@@ -1892,7 +1892,7 @@ static inline void RB_BlurGlowTexture()
 			qglVertex2f( backEnd.viewParms.viewportWidth, 0 );
 		qglEnd();
 
-		if (!r_FBOs->integer)
+		if (!glConfig.supportsRenderBuffer || !r_FBOs->integer)
 		{
 			qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.blurImage );
 			qglCopyTexSubImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, 0, 0, backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
