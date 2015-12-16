@@ -373,9 +373,9 @@ Restart the video subsystem
 void CL_Vid_Restart_f( void ) {
 	S_StopAllSounds();		// don't let them loop during the restart
 	S_BeginRegistration();	// all sound handles are now invalid
-	CL_ShutdownRef(qtrue);
 	CL_ShutdownUI();
 	CL_ShutdownCGame();
+	CL_ShutdownRef(qtrue);
 
 	//rww - sof2mp does this here, but it seems to cause problems in this codebase.
 //	CM_ClearMap();
