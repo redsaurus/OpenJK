@@ -250,6 +250,24 @@ LANG_ENGLISH		"X"
 REFERENCE			CUSTOM_SABER_CLOSE
 LANG_ENGLISH		"Finish building lightsaber."
 
+REFERENCE			FBOS
+LANG_ENGLISH		"Framebuffer objects:"
+
+REFERENCE			FBOS_DESC
+LANG_ENGLISH		"Toggle framebuffer objects on or off."
+
+REFERENCE			RENDERER
+LANG_ENGLISH		"Renderer:"
+
+REFERENCE			VANILLA
+LANG_ENGLISH		"Vanilla"
+
+REFERENCE			RENDSAURUS
+LANG_ENGLISH		"rendsaurus"
+
+REFERENCE			RENDERER_DESC
+LANG_ENGLISH		"Select which renderer is used."
+
 ENDMARKER
 
 
