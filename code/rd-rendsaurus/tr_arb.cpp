@@ -124,10 +124,6 @@ const unsigned char g_strPostProcVShaderARB[] =
 	\
 	# Constants.\n\
 	PARAM	ModelViewProj[4]= { state.matrix.mvp };\
-	PARAM	TexelOffset0	= program.env[0];\
-	PARAM	TexelOffset1	= program.env[1];\
-	PARAM	TexelOffset2	= program.env[2];\
-	PARAM	TexelOffset3	= program.env[3];\
 	\
 	# Main.\n\
 	DP4		oPos.x, ModelViewProj[0], iPos;\
