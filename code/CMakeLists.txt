@@ -311,6 +311,7 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 
 	if(WIN32)
 		set(SPEngineWin32Files
+			"${SPDir}/win32/jkenhanced.ico"
 			"${SPDir}/win32/resource.h"
 			"${SPDir}/win32/winquake.rc"
 			)
