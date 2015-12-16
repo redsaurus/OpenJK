@@ -1779,14 +1779,14 @@ static inline void RB_BlurGlowTexture()
 	qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.glowVShader );
 
 	// Apply Pixel Shaders.
-	if ( qglCombinerParameterfvNV )
+/*	if ( qglCombinerParameterfvNV )
 	{
 		BeginPixelShader( GL_REGISTER_COMBINERS_NV, tr.glowPShader );
 
 		// Pass the blur weight to the regcom.
 		qglCombinerParameterfvNV( GL_CONSTANT_COLOR0_NV, (float*)&fBlurWeight );
 	}
-	else if ( qglProgramEnvParameter4fARB )
+	else if ( qglProgramEnvParameter4fARB )*/
 	{
 		BeginPixelShader( GL_FRAGMENT_PROGRAM_ARB, tr.glowPShader );
 
