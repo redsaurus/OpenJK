@@ -3395,7 +3395,7 @@ void CG_MissileHitWall( centity_t *cent, int weapon, vec3_t origin, vec3_t dir, 
 		break;
 
 	case WP_CONCUSSION:
-		if (cent->currentState.powerups & PW_QUAD)
+		if (cent->currentState.powerups & (1<<PW_FORCE_PROJECTILE))
 		{
 			FX_DestructionHitWall( origin, dir );
 		}
@@ -3553,7 +3553,7 @@ void CG_MissileHitPlayer( centity_t *cent, int weapon, vec3_t origin, vec3_t dir
 		break;
 
 	case WP_CONCUSSION:
-		if (cent->currentState.powerups & PW_QUAD)
+		if (cent->currentState.powerups & (1<<PW_FORCE_PROJECTILE))
 		{
 			FX_DestructionHitPlayer( origin, dir, humanoid );
 		}

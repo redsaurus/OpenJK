@@ -5535,6 +5535,28 @@ qboolean G_ImmuneToGas( gentity_t *ent )
 	return qfalse;
 }
 
+qboolean G_IsJediClass( gclient_t *client )
+{
+	if (!client)
+	{
+		return qfalse;
+	}
+	switch(client->NPC_class)
+	{
+		case CLASS_ALORA:
+		case CLASS_DESANN:
+		case CLASS_JEDI:
+		case CLASS_KYLE:
+		case CLASS_LUKE:
+		case CLASS_REBORN:
+		case CLASS_SHADOWTROOPER:
+		case CLASS_TAVION:
+			return qtrue;
+		default:
+			return qfalse;
+	}
+}
+
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *ent );
 extern void G_StartRoll( gentity_t *ent, int anim );
 extern void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int overrideAmt );
@@ -5850,6 +5872,30 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, const
 		else if ( targ->s.weapon == WP_TURRET )
 		{
 			damage *= 6;// more damage to turret things
+		}
+	}
+	
+	if ( targ->s.number >= MAX_CLIENTS && mod == MOD_DESTRUCTION ) //Destruction should do less damage to enemies
+	{
+		if ( targ->s.weapon == WP_SABER || G_IsJediClass(client))
+		{
+			if (client)
+			{
+				switch(client->ps.forcePowerLevel[FP_SABER_DEFENSE])
+				{
+					case FORCE_LEVEL_3:
+						damage *= 0.4;
+						break;
+					case FORCE_LEVEL_2:
+						damage *= 0.6;
+						break;
+					case FORCE_LEVEL_1:
+						damage *= 0.8;
+						break;
+					default:
+						break;
+				}
+			}
 		}
 	}
 

@@ -1195,7 +1195,7 @@ static void CG_Missile( centity_t *cent ) {
 			return;
 		}
 	}
-	else if (s1->powerups & PW_QUAD)
+	else if (s1->powerups & (1<<PW_FORCE_PROJECTILE))
 	{
 		if ( s1->weapon == WP_CONCUSSION )
 		{

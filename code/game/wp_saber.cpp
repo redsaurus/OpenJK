@@ -7961,7 +7961,7 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 			}
 			continue;
 		}
-		else if ( ent->splashDamage && ent->splashRadius )
+		else if ( ent->splashDamage && ent->splashRadius && !(ent->s.powerups & (1<<PW_FORCE_PROJECTILE)) )
 		{//exploding missile
 			//FIXME: handle tripmines and detpacks somehow...
 			//			maybe do a force-gesture that makes them explode?
@@ -9135,10 +9135,16 @@ qboolean WP_ForceThrowable( gentity_t *ent, gentity_t *forwardEnt, gentity_t *se
 	{
 		switch ( ent->s.weapon )
 		{//only missiles with mass are force-pushable
+		case WP_CONCUSSION:
+			//Don't push Destruction projectiles
+			if (ent->s.powerups & (1<<PW_FORCE_PROJECTILE))
+			{
+				return qfalse;
+			}
+			break;
 		case WP_SABER:
 		case WP_FLECHETTE:
 		case WP_ROCKET_LAUNCHER:
-		case WP_CONCUSSION:
 		case WP_THERMAL:
 		case WP_TRIP_MINE:
 		case WP_DET_PACK:
@@ -12909,7 +12915,7 @@ void WP_FireDestruction( gentity_t *ent, int forceLevel )
 	
 	missile->classname = "rocket_proj";
 	missile->s.weapon = WP_CONCUSSION;
-	missile->s.powerups |= PW_QUAD;
+	missile->s.powerups |= (1<<PW_FORCE_PROJECTILE);
 	missile->mass = 10;
 	
 	// Do the damages
