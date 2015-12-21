@@ -1003,6 +1003,9 @@ typedef struct {
 	// Image used to downsample and blur scene to.	- AReis
 	GLuint					blurImage;
 	
+	// Image the depth buffer and stencil buffers are rendererd to.
+	GLuint					depthStencilImage;
+	
 	GLuint					glowBuffer;
 	GLuint					glowDepthStencil;
 	GLuint					frameBuffer;

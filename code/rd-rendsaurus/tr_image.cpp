@@ -1363,15 +1363,27 @@ void R_CreateBuiltinImages( void ) {
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
 	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	
+	
+	tr.depthStencilImage = 1024 + giTextureBindNum++;
+	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, tr.depthStencilImage );
+	qglTexImage2D( GL_TEXTURE_RECTANGLE_ARB, 0, GL_DEPTH24_STENCIL8_EXT, glConfig.vidWidth, glConfig.vidHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0 );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	qglTexParameteri( GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+
 	if (glConfig.supportsRenderBuffer)
 	{
 		qglGenFramebuffersEXT(1, &tr.frameBuffer);
 		qglBindFramebufferEXT(GL_FRAMEBUFFER, tr.frameBuffer);
 		qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_RECTANGLE_ARB, tr.sceneImage, 0);
-		qglGenRenderbuffersEXT(1, &tr.rboDepthStencil);
-		qglBindRenderbufferEXT(GL_RENDERBUFFER, tr.rboDepthStencil);
-		qglRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glConfig.vidWidth, glConfig.vidHeight);
-		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, tr.rboDepthStencil);
+		qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE_ARB, tr.depthStencilImage, 0);
+		qglFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT_EXT, GL_TEXTURE_RECTANGLE_ARB, tr.depthStencilImage, 0);
+//		qglGenRenderbuffersEXT(1, &tr.rboDepthStencil);
+//		qglBindRenderbufferEXT(GL_RENDERBUFFER, tr.rboDepthStencil);
+//		qglRenderbufferStorageEXT(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_EXT, glConfig.vidWidth, glConfig.vidHeight);
+//		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER, tr.rboDepthStencil);
+//		qglFramebufferRenderbufferEXT(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER, tr.rboDepthStencil);
 		qglBindFramebufferEXT(GL_FRAMEBUFFER, 0);
 	}
 
