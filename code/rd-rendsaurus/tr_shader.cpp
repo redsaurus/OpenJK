@@ -3844,6 +3844,8 @@ static void CreateInternalShaders( void ) {
 	shader.defaultShader = true;
 
 	ARB_InitGlowShaders();
+	ARB_InitPostProcShaders();
+	ARB_InitGameShaders();
 }
 
 static void CreateExternalShaders( void ) {

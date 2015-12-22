@@ -158,6 +158,44 @@ const unsigned char g_strPostProcPShaderARB[] =
 	END"
 };
 
+const unsigned char g_strGeometryVShaderARB[] =
+{
+	"!!ARBvp1.0\
+	PARAM c[6] = { { 0 }, state.matrix.mvp.row[0..3], program.local[0] };\
+	TEMP R0;\
+	TEMP R1;\
+	DP3 R0.x, c[5], c[5];\
+	RSQ R0.x, R0.x;\
+	DP3 R0.y, vertex.normal, vertex.normal;\
+	MUL R1.xyz, R0.x, c[5];\
+	RSQ R0.y, R0.y;\
+	MUL R0.xyz, R0.y, vertex.normal;\
+	DP3 R0.x, R0, R1;\
+	MAX result.texcoord[1].x, R0, c[0];\
+	MOV result.color, vertex.color;\
+	MOV result.texcoord[0], vertex.texcoord[0];\
+	DP4 result.position.w, vertex.position, c[4];\
+	DP4 result.position.z, vertex.position, c[3];\
+	DP4 result.position.y, vertex.position, c[2];\
+	DP4 result.position.x, vertex.position, c[1];\
+	END"
+};
+
+const unsigned char g_strGeometryPShaderARB[] =
+{
+	"!!ARBfp1.0\
+	PARAM c[3] = { program.local[0..1], { 1 } };\
+	TEMP R0;\
+	TEMP R1;\
+	MUL R0.xyz, fragment.texcoord[1].x, c[0];\
+	ADD_SAT R0.xyz, R0, c[1];\
+	MOV R0.w, c[2].x;\
+	MUL R1, fragment.color.primary, R0;\
+	TEX R0, fragment.texcoord[0], texture[0], 2D;\
+	MUL result.color, R0, R1;\
+	END"
+};
+
 const unsigned char g_strLinearBlurPShaderARB[] =
 {
 	"!!ARBfp1.0\
@@ -217,14 +255,6 @@ void ARB_InitGlowShaders(void) {
 
 //		const GLubyte *strErr = qglGetString( GL_PROGRAM_ERROR_STRING_ARB );
 		int iErrPos = 0;
-		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
-		assert( iErrPos == -1 );
-		
-		qglGenProgramsARB( 1, &tr.postProcVShader );
-		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.postProcVShader );
-		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strPostProcVShaderARB ), g_strPostProcVShaderARB );
-		
-		iErrPos = 0;
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
 	}
@@ -292,13 +322,50 @@ void ARB_InitGlowShaders(void) {
 		int iErrPos = 0;
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
+	}
+}
+
+void ARB_InitPostProcShaders(void) {
+	// Allocate and Load the postprocessing shaders
+	if ( qglGenProgramsARB )
+	{
+		qglGenProgramsARB( 1, &tr.postProcVShader );
+		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.postProcVShader );
+		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strPostProcVShaderARB ), g_strPostProcVShaderARB );
+		
+		int iErrPos = 0;
+		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
+		assert( iErrPos == -1 );
 		
 		qglGenProgramsARB( 1, &tr.postProcPShader );
 		qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.postProcPShader );
 		qglProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strPostProcPShaderARB ), g_strPostProcPShaderARB );
-
+		
 		iErrPos = 0;
 		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
 		assert( iErrPos == -1 );
 	}
 }
+
+void ARB_InitGameShaders(void) {
+	// Allocate and Load the game shaders
+	if ( qglGenProgramsARB )
+	{
+		qglGenProgramsARB( 1, &tr.geometryVShader );
+		qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.geometryVShader );
+		qglProgramStringARB( GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strGeometryVShaderARB ), g_strGeometryVShaderARB );
+		
+		int iErrPos = 0;
+		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
+		assert( iErrPos == -1 );
+		
+		qglGenProgramsARB( 1, &tr.geometryPShader );
+		qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.geometryPShader );
+		qglProgramStringARB( GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, ( GLsizei ) strlen( ( char * ) g_strGeometryPShaderARB ), g_strGeometryPShaderARB );
+		
+		iErrPos = 0;
+		qglGetIntegerv( GL_PROGRAM_ERROR_POSITION_ARB, &iErrPos );
+		assert( iErrPos == -1 );
+	}
+}
+

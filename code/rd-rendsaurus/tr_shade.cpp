@@ -184,7 +184,6 @@ static void R_DrawElements( int numIndexes, const glIndex_t *indexes ) {
 		}
 	}
 
-
 	if ( primitives == 2 ) {
 		qglDrawElements( GL_TRIANGLES,
 						numIndexes,
@@ -2028,7 +2027,26 @@ static void RB_IterateStagesGeneric( shaderCommands_t *input )
 			//
 			// draw
 			//
+			if (!backEnd.projection2D && (backEnd.currentEntity->e.hModel||backEnd.currentEntity->e.ghoul2) && r_ARBShaders->integer)
+			{
+				qglEnable( GL_VERTEX_PROGRAM_ARB );
+				qglEnable( GL_FRAGMENT_PROGRAM_ARB );
+				qglBindProgramARB( GL_VERTEX_PROGRAM_ARB, tr.geometryVShader );
+				qglBindProgramARB( GL_FRAGMENT_PROGRAM_ARB, tr.geometryPShader );
+				
+				qglProgramLocalParameter4fARB( GL_VERTEX_PROGRAM_ARB, 0,  backEnd.currentEntity->lightDir[0], backEnd.currentEntity->lightDir[1], backEnd.currentEntity->lightDir[2], 1.0f );
+				qglProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 0, backEnd.currentEntity->directedLight[0]/255.0, backEnd.currentEntity->directedLight[1]/255.0, backEnd.currentEntity->directedLight[2]/255.0, 1.0f );
+				qglProgramLocalParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 1, backEnd.currentEntity->ambientLight[0]/255.0, backEnd.currentEntity->ambientLight[1]/255.0, backEnd.currentEntity->ambientLight[2]/255.0, 1.0f );
+
+			}
+		
 			R_DrawElements( input->numIndexes, input->indexes );
+			
+			if (!backEnd.projection2D && (backEnd.currentEntity->e.hModel||backEnd.currentEntity->e.ghoul2) && r_ARBShaders->integer)
+			{
+				qglDisable( GL_VERTEX_PROGRAM_ARB );
+				qglDisable( GL_FRAGMENT_PROGRAM_ARB );
+			}
 
 			if (lStencilled)
 			{ //re-enable the color buffer, disable stencil test
@@ -2106,6 +2124,8 @@ void RB_StageIteratorGeneric( void )
 	//
 	// lock XYZ
 	//
+	
+	qglNormalPointer (GL_FLOAT, 16, input->normal);
 	qglVertexPointer (3, GL_FLOAT, 16, input->xyz);	// padded for SIMD
 
 	if (qglLockArraysEXT)

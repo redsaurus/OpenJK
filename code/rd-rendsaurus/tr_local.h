@@ -994,6 +994,10 @@ typedef struct {
 	GLuint					postProcVShader;
 	GLuint					postProcPShader;
 	
+	//Handles to geometry vertex and pixel shaders
+	GLuint					geometryVShader;
+	GLuint					geometryPShader;
+	
 	// Image the glowing objects are rendered to. - AReis
 	GLuint					screenGlow;
 
@@ -1186,6 +1190,8 @@ extern cvar_t	*r_DynamicGlowWidth;
 extern cvar_t	*r_DynamicGlowHeight;
 
 extern	cvar_t	*r_FBOs;
+extern	cvar_t	*r_ARBShaders;
+
 extern	cvar_t	*r_nobind;						// turns off binding to appropriate textures
 extern	cvar_t	*r_singleShader;				// make most world faces use default shader
 extern	cvar_t	*r_colorMipLevels;				// development aid to see texture mip usage
@@ -1396,6 +1402,8 @@ void		R_ShaderList_f( void );
 // tr_arb.c
 //
 void ARB_InitGlowShaders( void );
+void ARB_InitPostProcShaders( void );
+void ARB_InitGameShaders( void );
 
 
 /*

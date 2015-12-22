@@ -101,6 +101,7 @@ cvar_t	*r_DynamicGlowWidth;
 cvar_t	*r_DynamicGlowHeight;
 
 cvar_t	*r_FBOs;
+cvar_t	*r_ARBShaders;
 
 cvar_t	*r_ignoreGLErrors;
 cvar_t	*r_logFile;
@@ -1286,6 +1287,7 @@ void GL_SetDefaultState( void )
 	// the vertex array is always enabled, but the color and texture
 	// arrays are enabled and disabled around the compiled vertex array call
 	qglEnableClientState (GL_VERTEX_ARRAY);
+	qglEnableClientState (GL_NORMAL_ARRAY);
 
 	//
 	// make sure our GL state vector is set correctly
@@ -1639,6 +1641,7 @@ void R_Register( void )
 	r_DynamicGlowHeight = ri.Cvar_Get( "r_DynamicGlowHeight", "240", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_FBOs = ri.Cvar_Get( "r_FBOs", "0", CVAR_ARCHIVE );
+	r_ARBShaders = ri.Cvar_Get( "r_ARBShaders", "0", CVAR_ARCHIVE );
 
 	r_picmip = ri.Cvar_Get ("r_picmip", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	ri.Cvar_CheckRange( r_picmip, 0, 16, qtrue );
@@ -1928,6 +1931,16 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 	if ( tr.postProcPShader )
 	{
 		qglDeleteProgramsARB(1, &tr.glowPShader );
+	}
+	
+	if ( tr.geometryVShader )
+	{
+		qglDeleteProgramsARB( 1, &tr.geometryVShader );
+	}
+	
+	if ( tr.geometryPShader )
+	{
+		qglDeleteProgramsARB(1, &tr.geometryPShader );
 	}
 
 	// Release the scene glow texture.

@@ -1136,6 +1136,7 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	int				numVertexes;
 
 	ent = backEnd.currentEntity;
+	
 	ambientLightInt = ent->ambientLightInt;
 	VectorCopy( ent->ambientLight, ambientLight );
 	VectorCopy( ent->directedLight, directedLight );
@@ -1145,6 +1146,18 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	normal = tess.normal[0];
 
 	numVertexes = tess.numVertexes;
+
+	if (r_ARBShaders->integer && (ent->e.hModel||ent->e.ghoul2))	//lighting is done by shader
+	{
+		for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
+		{
+			colors[i*4+0] = 255;
+			colors[i*4+1] = 255;
+			colors[i*4+2] = 255;
+			colors[i*4+3] = 255;
+		}
+		return;
+	}
 
 	for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
 	{
@@ -1199,6 +1212,7 @@ void RB_CalcDiffuseEntityColorNew( unsigned char *colors, int index )
 	}
 	
 	ent = backEnd.currentEntity;
+	
 	VectorCopy( ent->ambientLight, ambientLight );
 	VectorCopy( ent->directedLight, directedLight );
 	VectorCopy( ent->lightDir, lightDir );
@@ -1217,6 +1231,18 @@ void RB_CalcDiffuseEntityColorNew( unsigned char *colors, int index )
 	
 	numVertexes = tess.numVertexes;
 	
+	if (r_ARBShaders->integer && (ent->e.hModel||ent->e.ghoul2))	//lighting is done by shader
+	{
+		for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
+		{
+			colors[i*4+0] = ent->e.newShaderRGBA[index][0];
+			colors[i*4+1] = ent->e.newShaderRGBA[index][1];
+			colors[i*4+2] = ent->e.newShaderRGBA[index][2];
+			colors[i*4+3] = ent->e.newShaderRGBA[index][3];
+		}
+		return;
+	}
+
 	for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
 	{
 		incoming = DotProduct (normal, lightDir);
@@ -1287,6 +1313,18 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
 	normal = tess.normal[0];
 
 	numVertexes = tess.numVertexes;
+	
+	if (r_ARBShaders->integer && (ent->e.hModel||ent->e.ghoul2))	//lighting is done by shader
+	{
+		for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
+		{
+			colors[i*4+0] = ent->e.shaderRGBA[0];
+			colors[i*4+1] = ent->e.shaderRGBA[1];
+			colors[i*4+2] = ent->e.shaderRGBA[2];
+			colors[i*4+3] = ent->e.shaderRGBA[3];
+		}
+		return;
+	}
 
 	for ( i = 0 ; i < numVertexes ; i++, v += 4, normal += 4)
 	{
