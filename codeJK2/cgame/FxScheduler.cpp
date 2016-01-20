@@ -100,7 +100,7 @@ void CFxScheduler::Clean(bool bRemoveTemplates /*= true*/, int idToPreserve /*= 
 	while ( itr != mFxSchedule.end() )
 	{
 		next = itr;
-		next++;
+		++next;
 
 		delete *itr;
 		mFxSchedule.erase(itr);
@@ -1117,7 +1117,7 @@ void CFxScheduler::AddScheduledEffects( void )
 	while ( itr != mFxSchedule.end() )
 	{
 		next = itr;
-		next++;
+		++next;
 
 		if ( *(*itr) <= theFxHelper.mTime )
 		{
