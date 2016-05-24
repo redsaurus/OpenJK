@@ -7260,7 +7260,8 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 		{//don't even have it out
 			return;
 		}
-		else if ( (ucmd->buttons&BUTTON_SABERTHROW) && !(self->client->ps.pm_flags&PMF_SABERTHROW_HELD) )
+		else if ( ((ucmd->buttons&BUTTON_SABERTHROW) && !(self->client->ps.pm_flags&PMF_SABERTHROW_HELD))
+                 || (self->client->ps.saberAnimLevel != SS_KATARN && (ucmd->buttons&BUTTON_ALT_ATTACK) && !(self->client->ps.pm_flags&PMF_ALT_ATTACK_HELD)))
 		{//still holding it, not still holding attack from a previous throw, so throw it.
 			if ( !(self->client->ps.saberEventFlags&SEF_INWATER) && WP_SaberLaunch( self, saberent, qtrue ) )
 			{
@@ -7408,7 +7409,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 	{//saber still flying forward
 		if ( self->client->ps.forcePowerLevel[FP_SABERTHROW] > FORCE_LEVEL_2 )
 		{//still holding it out
-			if ( !(ucmd->buttons&BUTTON_SABERTHROW) && self->client->ps.forcePowerDebounce[FP_SABERTHROW] < level.time )
+			if ( !(ucmd->buttons&BUTTON_SABERTHROW) && !(self->client->ps.saberAnimLevel != SS_KATARN && ucmd->buttons&BUTTON_ALT_ATTACK) && self->client->ps.forcePowerDebounce[FP_SABERTHROW] < level.time )
 			{//done throwing, return to me
 				if ( self->client->ps.saber[0].Active() )
 				{//still on
@@ -7430,7 +7431,7 @@ void WP_SaberThrow( gentity_t *self, usercmd_t *ucmd )
 		}
 		else
 		{
-			if ( !(ucmd->buttons&BUTTON_SABERTHROW) && self->client->ps.forcePowerDebounce[FP_SABERTHROW] < level.time )
+			if ( !(ucmd->buttons&BUTTON_SABERTHROW) && !(self->client->ps.saberAnimLevel != SS_KATARN && ucmd->buttons&BUTTON_ALT_ATTACK) && self->client->ps.forcePowerDebounce[FP_SABERTHROW] < level.time )
 			{//not holding button and has been out at least 1 second, return to me
 				if ( self->client->ps.saber[0].Active() )
 				{//still on
