@@ -8504,7 +8504,7 @@ extern vmCvar_t	cg_thirdPersonAlpha;
 
 		//[TrueView]
 		//Restrict True View Model changes to the player and do the True View camera view work.
-		if (cg.snap && cent->currentState.number == cg.snap->ps.viewEntity)
+		if (cg.snap && cent->currentState.number == cg.snap->ps.viewEntity && cg_truebobbing.integer)
 		{
 			if ( !cg.renderingThirdPerson && (cg_trueguns.integer || cent->currentState.weapon == WP_SABER
 											  || cent->currentState.weapon == WP_MELEE) && !cg.zoomMode)

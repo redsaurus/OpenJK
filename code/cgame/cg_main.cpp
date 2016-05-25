@@ -351,6 +351,7 @@ vmCvar_t		cg_truesaberonly;
 vmCvar_t		cg_trueeyeposition;
 vmCvar_t		cg_trueinvertsaber;
 vmCvar_t		cg_truefov;
+vmCvar_t        cg_truebobbing;
 
 vmCvar_t	cg_smoothCamera;
 vmCvar_t	cg_speedTrail;
@@ -490,6 +491,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_trueeyeposition,	"cg_trueeyeposition",	"0.0", 0},
 	{ &cg_trueinvertsaber,	"cg_trueinvertsaber",	"0", CVAR_ARCHIVE},
 	{ &cg_truefov,	"cg_truefov",	"80", CVAR_ARCHIVE},
+    { &cg_truebobbing,	"cg_truebobbing",	"1", CVAR_ARCHIVE},
 
 	{ &cg_smoothCamera, "cg_smoothCamera", "1", CVAR_ARCHIVE },
 	{ &cg_speedTrail, "cg_speedTrail", "1", CVAR_ARCHIVE },
