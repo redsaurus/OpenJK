@@ -1827,10 +1827,13 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 CG_DrawHUD
 ================
 */
+extern void WorkshopDrawClientsideInformation();
 static void CG_DrawHUD( centity_t *cent )
 {
 	int value;
 	int	sectionXPos,sectionYPos,sectionWidth,sectionHeight;
+    
+    WorkshopDrawClientsideInformation();
 
 	if ( cg_hudFiles.integer )
 	{

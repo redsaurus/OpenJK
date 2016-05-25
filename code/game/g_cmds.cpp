@@ -1676,6 +1676,7 @@ void ClientCommand( int clientNum ) {
 			Cmd_SaberDrop_f( ent, saberNum );
 		}
 	}
+    else if (TryWorkshopCommand(ent)) {}
 	else
 	{
 		gi.SendServerCommand( clientNum, va("print \"Unknown command %s\n\"", cmd ) );

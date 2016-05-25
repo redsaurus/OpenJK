@@ -184,6 +184,7 @@ set(SPGameGameFiles
 	"${SPDir}/game/w_local.h"
 	"${SPDir}/game/wp_saber.h"
 	"${SPDir}/game/g_vehicles.h"
+	"${SPDir}/game/jke_aiworkshop.cpp"
 	)
 source_group("game" FILES ${SPGameGameFiles})
 set(SPGameFiles ${SPGameFiles} ${SPGameGameFiles})

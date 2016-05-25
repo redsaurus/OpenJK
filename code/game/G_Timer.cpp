@@ -414,3 +414,21 @@ qboolean TIMER_Start( gentity_t *self, const char *identifier, int duration )
 	}
 	return qfalse;
 }
+
+/*
+ -------------------------
+ TIMER_List
+ -------------------------
+ */
+std::vector<std::pair<std::string, int> > TIMER_List(gentity_t* ent) {
+    std::vector<std::pair<std::string, int> > returnValue;
+    gtimer_t *p = g_timers[ent->s.number];
+    
+    while (p) {
+        std::pair<std::string, int> pair = std::make_pair(p->id.c_str(), p->time - level.time);
+        returnValue.push_back(pair);
+        p = p->next;
+    }
+    
+    return returnValue;
+}

@@ -1958,6 +1958,8 @@ void G_RunFrame( int levelTime ) {
 
 	//Look to clear out old events
 	ClearPlayerAlertEvents();
+    
+    WorkshopThink();
 
 	//Run the frame for all entities
 //	for ( i = 0, ent = &g_entities[0]; i < globals.num_entities ; i++, ent++)
