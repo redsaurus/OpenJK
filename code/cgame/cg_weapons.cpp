@@ -3059,6 +3059,10 @@ void CG_Weapon_f( void )
 			i++;
 		}
 	}
+    else if (num == WP_BLASTER_PISTOL && cg.snap->ps.weapon == WP_BLASTER_PISTOL)
+    {
+        num = WP_BRYAR_PISTOL;
+    }
 
 	if (!CG_WeaponSelectable(num, cg.snap->ps.weapon, qfalse))
 	{
