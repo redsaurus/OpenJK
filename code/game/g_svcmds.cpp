@@ -1160,12 +1160,24 @@ qboolean	ConsoleCommand( void ) {
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][0] = atoi(gi.argv(2));
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][1] = atoi(gi.argv(3));
 			g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][2] = atoi(gi.argv(4));
-			if (tintIndex == 0)
+			if (tintIndex == TINT_NEW_ENT)
 			{
 				gi.cvar_set("g_char_color_2_red", gi.argv(2) );
 				gi.cvar_set("g_char_color_2_green", gi.argv(3) );
 				gi.cvar_set("g_char_color_2_blue", gi.argv(4) );
 			}
+            else if (tintIndex == TINT_HILT1)
+            {
+                gi.cvar_set("g_hilt_color_red", gi.argv(2) );
+                gi.cvar_set("g_hilt_color_green", gi.argv(3) );
+                gi.cvar_set("g_hilt_color_blue", gi.argv(4) );
+            }
+            else if (tintIndex == TINT_HILT2)
+            {
+                gi.cvar_set("g_hilt2_color_red", gi.argv(2) );
+                gi.cvar_set("g_hilt2_color_green", gi.argv(3) );
+                gi.cvar_set("g_hilt2_color_blue", gi.argv(4) );
+            }
 		}
 		else
 		{

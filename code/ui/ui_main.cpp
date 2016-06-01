@@ -402,6 +402,14 @@ vmCvar_t	ui_saber2_skin3;
 vmCvar_t	ui_saber2_skin4;
 vmCvar_t	ui_saber2_skin5;
 
+vmCvar_t    ui_hilt_color_red;
+vmCvar_t    ui_hilt_color_green;
+vmCvar_t    ui_hilt_color_blue;
+
+vmCvar_t    ui_hilt2_color_red;
+vmCvar_t    ui_hilt2_color_green;
+vmCvar_t    ui_hilt2_color_blue;
+
 vmCvar_t	ui_SFXSabers;
 vmCvar_t	ui_SFXSabersGlowSize;
 vmCvar_t	ui_SFXSabersCoreSize;
@@ -456,6 +464,14 @@ static cvarTable_t cvarTable[] =
 	{ &ui_rgb_saber2_blue,		"ui_rgb_saber2_blue",	"", 0},
 	{ &ui_rgb_saber2_green,		"ui_rgb_saber2_green",	"", 0},
 	
+    { &ui_hilt_color_red,		"ui_hilt_color_red",	"", 0},
+    { &ui_hilt_color_green,		"ui_hilt_color_green",	"", 0},
+    { &ui_hilt_color_blue,		"ui_hilt_color_blue",	"", 0},
+
+    { &ui_hilt2_color_red,		"ui_hilt2_color_red",	"", 0},
+    { &ui_hilt2_color_green,	"ui_hilt2_color_green",	"", 0},
+    { &ui_hilt2_color_blue,		"ui_hilt2_color_blue",	"", 0},
+
 	{ &ui_saber_skin1,		"ui_saber_skin1",	"", 0},
 	{ &ui_saber_skin2,		"ui_saber_skin2",	"", 0},
 	{ &ui_saber_skin3,		"ui_saber_skin3",	"", 0},
@@ -5330,7 +5346,14 @@ static void UI_UpdateSaberCvars ( void )
 	Cvar_Set ( "g_saber2_skin3", Cvar_VariableString ( "ui_saber2_skin3" ) );
 	Cvar_Set ( "g_saber2_skin4", Cvar_VariableString ( "ui_saber2_skin4" ) );
 	Cvar_Set ( "g_saber2_skin5", Cvar_VariableString ( "ui_saber2_skin5" ) );
+    
+    Cvar_Set ( "g_hilt_color_red", Cvar_VariableString ( "ui_hilt_color_red" ) );
+    Cvar_Set ( "g_hilt_color_blue", Cvar_VariableString ( "ui_hilt_color_blue" ) );
+    Cvar_Set ( "g_hilt_color_green", Cvar_VariableString ( "ui_hilt_color_green" ) );
 
+    Cvar_Set ( "g_hilt2_color_red", Cvar_VariableString ( "ui_hilt2_color_red" ) );
+    Cvar_Set ( "g_hilt2_color_blue", Cvar_VariableString ( "ui_hilt2_color_blue" ) );
+    Cvar_Set ( "g_hilt2_color_green", Cvar_VariableString ( "ui_hilt2_color_green" ) );
 }
 
 static void UI_UpdateFightingStyleChoices ( void )
@@ -7204,6 +7227,14 @@ static void UI_GetSaberCvars ( void )
 	Cvar_Set ( "ui_saber2_skin3", Cvar_VariableString ( "g_saber2_skin3" ) );
 	Cvar_Set ( "ui_saber2_skin4", Cvar_VariableString ( "g_saber2_skin4" ) );
 	Cvar_Set ( "ui_saber2_skin5", Cvar_VariableString ( "g_saber2_skin5" ) );
+    
+    Cvar_Set ( "ui_hilt_color_red", Cvar_VariableString ( "g_hilt_color_red" ) );
+    Cvar_Set ( "ui_hilt_color_blue", Cvar_VariableString ( "g_hilt_color_blue" ) );
+    Cvar_Set ( "ui_hilt_color_green", Cvar_VariableString ( "g_hilt_color_green" ) );
+    
+    Cvar_Set ( "ui_hilt2_color_red", Cvar_VariableString ( "g_hilt2_color_red" ) );
+    Cvar_Set ( "ui_hilt2_color_blue", Cvar_VariableString ( "g_hilt2_color_blue" ) );
+    Cvar_Set ( "ui_hilt2_color_green", Cvar_VariableString ( "g_hilt2_color_green" ) );
 
 }
 

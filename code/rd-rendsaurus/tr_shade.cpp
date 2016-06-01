@@ -1558,7 +1558,7 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 		case CGEN_ENTITY_NEW:
 			RB_CalcColorFromEntityNew( ( unsigned char * ) tess.svars.colors, pStage->rgbGenEntIndex + tintIndexOffset );
 			if ( forceAlphaGen == AGEN_IDENTITY &&
-				backEnd.currentEntity->e.newShaderRGBA[0][3] == 0xff
+				backEnd.currentEntity->e.newShaderRGBA[pStage->rgbGenEntIndex + tintIndexOffset][3] == 0xff
 				)
 			{
 				forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components

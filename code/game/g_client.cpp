@@ -57,6 +57,14 @@ extern cvar_t	*g_char_color_2_red;
 extern cvar_t	*g_char_color_2_green;
 extern cvar_t	*g_char_color_2_blue;
 
+extern cvar_t	*g_hilt_color_red;
+extern cvar_t	*g_hilt_color_green;
+extern cvar_t	*g_hilt_color_blue;
+
+extern cvar_t	*g_hilt2_color_red;
+extern cvar_t	*g_hilt2_color_green;
+extern cvar_t	*g_hilt2_color_blue;
+
 extern cvar_t	*g_saber_skin[MAX_SABER_PARTS];
 extern cvar_t	*g_saber2_skin[MAX_SABER_PARTS];
 
@@ -932,6 +940,26 @@ static void G_SetSkin( gentity_t *ent )
 		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
 		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
 	}
+    
+    if ( g_hilt_color_red->integer
+        || g_hilt_color_green->integer
+        || g_hilt_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][0] = g_hilt_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][1] = g_hilt_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][2] = g_hilt_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][3] = 255;
+    }
+    
+    if ( g_hilt2_color_red->integer
+        || g_hilt2_color_green->integer
+        || g_hilt2_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][0] = g_hilt2_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][1] = g_hilt2_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][2] = g_hilt2_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][3] = 255;
+    }
 }
 
 qboolean G_StandardHumanoid( gentity_t *self )
@@ -2151,6 +2179,26 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
 		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
 	}
+    
+    if ( g_hilt_color_red->integer
+        || g_hilt_color_green->integer
+        || g_hilt_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][0] = g_hilt_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][1] = g_hilt_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][2] = g_hilt_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][3] = 255;
+    }
+    
+    if ( g_hilt2_color_red->integer
+        || g_hilt2_color_green->integer
+        || g_hilt2_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][0] = g_hilt2_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][1] = g_hilt2_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][2] = g_hilt2_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][3] = 255;
+    }
 }
 
 void G_SetHeadSkin( gentity_t *ent )

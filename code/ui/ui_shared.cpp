@@ -51,6 +51,22 @@ extern vmCvar_t	ui_char_color_2_red;
 extern vmCvar_t	ui_char_color_2_green;
 extern vmCvar_t	ui_char_color_2_blue;
 
+extern vmCvar_t    ui_hilt_color_red;
+extern vmCvar_t    ui_hilt_color_green;
+extern vmCvar_t    ui_hilt_color_blue;
+
+extern vmCvar_t    ui_hilt2_color_red;
+extern vmCvar_t    ui_hilt2_color_green;
+extern vmCvar_t    ui_hilt2_color_blue;
+
+extern vmCvar_t	ui_rgb_saber_red;
+extern vmCvar_t	ui_rgb_saber_green;
+extern vmCvar_t	ui_rgb_saber_blue;
+
+extern vmCvar_t	ui_rgb_saber2_red;
+extern vmCvar_t	ui_rgb_saber2_green;
+extern vmCvar_t	ui_rgb_saber2_blue;
+
 void *UI_Alloc( int size );
 
 void		Controls_GetConfig( void );
@@ -7109,6 +7125,79 @@ Item_Model_Paint
 =================
 */
 extern void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, float curYaw );
+extern saber_colors_t TranslateSaberColor( const char *name );
+
+void UI_RGBForSaber( byte *rgba, int whichSaber )
+{
+    char bladeColorString[MAX_QPATH];
+
+    if ( whichSaber == 0 )
+    {
+        DC->getCVarString( "ui_saber_color", bladeColorString, sizeof(bladeColorString) );
+    }
+    else//if ( whichSaber == 1 ) - presumed
+    {
+        DC->getCVarString( "ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
+    }
+    
+    saber_colors_t bladeColor = TranslateSaberColor( bladeColorString );
+
+    switch( bladeColor )
+    {
+        case SABER_RED:
+            rgba[0] = 255;
+            rgba[1] = 51;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_ORANGE:
+            rgba[0] = 255;
+            rgba[1] = 128;
+            rgba[2] = 25;
+            rgba[3] = 255;
+            break;
+        case SABER_YELLOW:
+            rgba[0] = 255;
+            rgba[1] = 255;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_GREEN:
+            rgba[0] = 51;
+            rgba[1] = 255;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_BLUE:
+            rgba[0] = 51;
+            rgba[2] = 102;
+            rgba[3] = 255;
+            rgba[3] = 255;
+            break;
+        case SABER_PURPLE:
+            rgba[0] = 230;
+            rgba[1] = 51;
+            rgba[2] = 255;
+            rgba[3] = 255;
+            break;
+        default://SABER_RGB
+            if (whichSaber == 1)
+            {
+                rgba[0] = ui_rgb_saber2_red.integer;
+                rgba[1] = ui_rgb_saber2_green.integer;
+                rgba[2] = ui_rgb_saber2_blue.integer;
+                rgba[3] = 255;
+            }
+            else
+            {
+                rgba[0] = ui_rgb_saber_red.integer;
+                rgba[1] = ui_rgb_saber_green.integer;
+                rgba[2] = ui_rgb_saber_blue.integer;
+                rgba[3] = 255;
+            }
+            break;
+    }
+}
 
 void Item_Model_Paint(itemDef_t *item)
 {
@@ -7355,14 +7444,47 @@ void Item_Model_Paint(itemDef_t *item)
 			ent.shaderRGBA[1] = ui_char_color_green.integer;
 			ent.shaderRGBA[2] = ui_char_color_blue.integer;
 			ent.shaderRGBA[3] = 255;
-			ent.newShaderRGBA[0][0] = ui_char_color_2_red.integer;
-			ent.newShaderRGBA[0][1] = ui_char_color_2_green.integer;
-			ent.newShaderRGBA[0][2] = ui_char_color_2_blue.integer;
-			ent.newShaderRGBA[0][3] = 255;
+			ent.newShaderRGBA[TINT_NEW_ENT][0] = ui_char_color_2_red.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][1] = ui_char_color_2_green.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][2] = ui_char_color_2_blue.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][3] = 255;
 			UI_TalkingHead(item);
 		}
 		if ( item->flags&ITF_ISANYSABER )
 		{//UGH, draw the saber blade!
+            if ( item->flags&ITF_ISCHARACTER )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                ent.newShaderRGBA[TINT_HILT2][0] = ui_hilt2_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT2][1] = ui_hilt2_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT2][2] = ui_hilt2_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT2][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 0);
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE2], 1);
+            }
+            else if ( item->flags&ITF_ISSABER )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 0);
+            }
+            else if ( item->flags&ITF_ISSABER2 )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt2_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt2_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt2_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 1);
+            }
 			UI_SaberDrawBlades( item, origin, curYaw );
 		}
 	}

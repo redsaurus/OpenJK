@@ -294,6 +294,14 @@ void UI_Init( int apiVersion, uiimport_t *uiimport, qboolean inGameLoad )
 	ui.Cvar_Create( "g_char_color_2_red",		"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	ui.Cvar_Create( "g_char_color_2_green",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	ui.Cvar_Create( "g_char_color_2_blue",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    
+    ui.Cvar_Create( "g_hilt_color_red",		"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    ui.Cvar_Create( "g_hilt_color_green",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    ui.Cvar_Create( "g_hilt_color_blue",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+
+    ui.Cvar_Create( "g_hilt2_color_red",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    ui.Cvar_Create( "g_hilt2_color_green",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    ui.Cvar_Create( "g_hilt2_color_blue",	"255",		CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	
 	ui.Cvar_Create( "ui_forcepower_inc",	"0",		CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);
 	ui.Cvar_Create( "tier_storyinfo",		"0",		CVAR_ROM|CVAR_SAVEGAME|CVAR_NORESTART);

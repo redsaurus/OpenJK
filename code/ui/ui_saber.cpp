@@ -1251,6 +1251,7 @@ void UI_SaberAttachToChar( itemDef_t *item )
 					boltNum = DC->g2_AddBolt(&item->ghoul2[0], "*l_hand");
 				}
 				re.G2API_AttachG2Model(&item->ghoul2[g2Saber], &item->ghoul2[0], boltNum, 0);
+                re.G2API_SetTintType(&item->ghoul2[g2Saber], saberNum ? G2_TINT_SABER2 : G2_TINT_SABER);
 			}
 		}
 	}
