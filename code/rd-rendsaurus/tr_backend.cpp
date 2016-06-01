@@ -645,320 +645,326 @@ static postRender_t g_postRenders[MAX_POST_RENDERS];
 static int g_numPostRenders = 0;
 
 void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
-	shader_t		*shader, *oldShader;
-	int				fogNum, oldFogNum;
-	int				entityNum, oldEntityNum;
-	int				dlighted, oldDlighted;
-	int				depthRange, oldDepthRange;
-	int				i;
-	drawSurf_t		*drawSurf;
-	unsigned int	oldSort;
-	float			originalTime;
-	trRefEntity_t	*curEnt;
-	postRender_t	*pRender;
-	bool			didShadowPass = false;
-
-	if (g_bRenderGlowingObjects)
-	{ //only shadow on initial passes
-		didShadowPass = true;
-	}
-
-	// save original time for entity shader offsets
-	originalTime = backEnd.refdef.floatTime;
-
-	// clear the z buffer, set the modelview, etc
-	RB_BeginDrawingView ();
-
-	// draw everything
-	oldEntityNum = -1;
-	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
-	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
-	oldSort = (unsigned int) -1;
-	depthRange = qfalse;
-
-	backEnd.pc.c_surfaces += numDrawSurfs;
-
-	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
-		if ( drawSurf->sort == oldSort ) {
-			// fast path, same as previous sort
-			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
-			continue;
-		}
-		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
-
-		// If we're rendering glowing objects, but this shader has no stages with glow, skip it!
-		if ( g_bRenderGlowingObjects && !shader->hasGlow )
-		{
-			shader = oldShader;
-			entityNum = oldEntityNum;
-			fogNum = oldFogNum;
-			dlighted = oldDlighted;
-			continue;
-		}
-
-		oldSort = drawSurf->sort;
-
-		//
-		// change the tess parameters if needed
-		// a "entityMergable" shader is a shader that can have surfaces from seperate
-		// entities merged into a single batch, like smoke and blood puff sprites
-		if (entityNum != REFENTITYNUM_WORLD &&
-			g_numPostRenders < MAX_POST_RENDERS)
-		{
-			if ( (backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION)/* ||
-				(backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCE_ENT_ALPHA)*/)
-				//not sure if we need this alpha fix for sp or not, leaving it out for now -rww
-			{ //must render last
-				curEnt = &backEnd.refdef.entities[entityNum];
-				pRender = &g_postRenders[g_numPostRenders];
-
-				g_numPostRenders++;
-
-				depthRange = 0;
-				//figure this stuff out now and store it
-				if ( curEnt->e.renderfx & RF_NODEPTH )
-				{
-					depthRange = 2;
-				}
-				else if ( curEnt->e.renderfx & RF_DEPTHHACK )
-				{
-					depthRange = 1;
-				}
-				pRender->depthRange = depthRange;
-
-				//It is not necessary to update the old* values because
-				//we are not updating now with the current values.
-				depthRange = oldDepthRange;
-
-				//store off the ent num
-				pRender->entNum = entityNum;
-
-				//remember the other values necessary for rendering this surf
-				pRender->drawSurf = drawSurf;
-				pRender->dlighted = dlighted;
-				pRender->fogNum = fogNum;
-				pRender->shader = shader;
-
-				//assure the info is back to the last set state
-				shader = oldShader;
-				entityNum = oldEntityNum;
-				fogNum = oldFogNum;
-				dlighted = oldDlighted;
-
-				oldSort = (unsigned int)-1; //invalidate this thing, cause we may want to postrender more surfs of the same sort
-
-				//continue without bothering to begin a draw surf
-				continue;
-			}
-		}
-
-		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
-			|| ( entityNum != oldEntityNum && !shader->entityMergable ) )
-		{
-			if (oldShader != NULL) {
-				RB_EndSurface();
-
-				if (!didShadowPass && shader && shader->sort > SS_BANNER)
-				{
-					RB_ShadowFinish();
-					didShadowPass = true;
-				}
-			}
-			RB_BeginSurface( shader, fogNum );
-			oldShader = shader;
-			oldFogNum = fogNum;
-			oldDlighted = dlighted;
-		}
-
-		//
-		// change the modelview matrix if needed
-		//
-		if ( entityNum != oldEntityNum ) {
-			depthRange = qfalse;
-
-			if ( entityNum != REFENTITYNUM_WORLD ) {
-				backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
-				backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-
-				// set up the transformation matrix
-				R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori );
-
-				// set up the dynamic lighting if needed
-				if ( backEnd.currentEntity->needDlights ) {
-					R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-				}
-
-				if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
-					// No depth at all, very rare but some things for seeing through walls
-					depthRange = 2;
-				}
-				else if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
-					// hack the depth range to prevent view model from poking into walls
-					depthRange = qtrue;
-				}
-			} else {
-				backEnd.currentEntity = &tr.worldEntity;
-				backEnd.refdef.floatTime = originalTime;
-				backEnd.ori = backEnd.viewParms.world;
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-			}
-
-			qglLoadMatrixf( backEnd.ori.modelMatrix );
-
-			//
-			// change depthrange if needed
-			//
-			if ( oldDepthRange != depthRange ) {
-				switch ( depthRange ) {
-					default:
-					case 0:
-						qglDepthRange (0, 1);
-						break;
-
-					case 1:
-						qglDepthRange (0, .3);
-						break;
-
-					case 2:
-						qglDepthRange (0, 0);
-						break;
-				}
-
-				oldDepthRange = depthRange;
-			}
-
-			oldEntityNum = entityNum;
-		}
-
-		// add the triangles for this surface
-		rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
-	}
-
-	// draw the contents of the last shader batch
-	if (oldShader != NULL) {
-		RB_EndSurface();
-	}
-
-	if (tr_stencilled && tr_distortionPrePost)
-	{ //ok, cap it now
-		RB_CaptureScreenImage();
-		RB_DistortionFill();
-	}
-
-	//render distortion surfs (or anything else that needs to be post-rendered)
-	if (g_numPostRenders > 0)
-	{
-		int lastPostEnt = -1;
-
-		while (g_numPostRenders > 0)
-		{
-			g_numPostRenders--;
-			pRender = &g_postRenders[g_numPostRenders];
-
-			RB_BeginSurface( pRender->shader, pRender->fogNum );
-
-			backEnd.currentEntity = &backEnd.refdef.entities[pRender->entNum];
-
-			backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
-
-			// set up the transformation matrix
-			R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori );
-
-			// set up the dynamic lighting if needed
-			if ( backEnd.currentEntity->needDlights )
-			{
-				R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-			}
-
-			qglLoadMatrixf( backEnd.ori.modelMatrix );
-
-			depthRange = pRender->depthRange;
-			switch ( depthRange )
-			{
-				default:
-				case 0:
-					qglDepthRange (0, 1);
-					break;
-
-				case 1:
-					qglDepthRange (0, .3);
-					break;
-
-				case 2:
-					qglDepthRange (0, 0);
-					break;
-			}
-
-			if ((backEnd.currentEntity->e.renderfx & RF_DISTORTION) &&
-				lastPostEnt != pRender->entNum)
-			{ //do the capture now, we only need to do it once per ent
-				int x, y;
-				int rad = backEnd.currentEntity->e.radius;
-				//We are going to just bind this, and then the CopyTexImage is going to
-				//stomp over this texture num in texture memory.
-				GL_Bind( tr.screenImage );
-
-				if (R_WorldCoordToScreenCoord( backEnd.currentEntity->e.origin, &x, &y ))
-				{
-					int cX, cY;
-					cX = glConfig.vidWidth-x-(rad/2);
-					cY = glConfig.vidHeight-y-(rad/2);
-
-					if (cX+rad > glConfig.vidWidth)
-					{ //would it go off screen?
-						cX = glConfig.vidWidth-rad;
-					}
-					else if (cX < 0)
-					{ //cap it off at 0
-						cX = 0;
-					}
-
-					if (cY+rad > glConfig.vidHeight)
-					{ //would it go off screen?
-						cY = glConfig.vidHeight-rad;
-					}
-					else if (cY < 0)
-					{ //cap it off at 0
-						cY = 0;
-					}
-
-					//now copy a portion of the screen to this texture
-					qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, rad, rad, 0);
-
-					lastPostEnt = pRender->entNum;
-				}
-			}
-
-			rb_surfaceTable[ *pRender->drawSurf->surface ]( pRender->drawSurf->surface );
-			RB_EndSurface();
-		}
-	}
-
-	// go back to the world modelview matrix
-	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
-	if ( depthRange ) {
-		qglDepthRange (0, 1);
-	}
-
+    shader_t		*shader, *oldShader;
+    int				fogNum, oldFogNum;
+    int				entityNum, oldEntityNum;
+    int				dlighted, oldDlighted;
+    int				depthRange, oldDepthRange;
+    int				i;
+    drawSurf_t		*drawSurf;
+    unsigned int	oldSort;
+    float			originalTime;
+    trRefEntity_t	*curEnt;
+    postRender_t	*pRender;
+    bool			didShadowPass = false;
+    g2Tints_t       tintType, oldTintType;
+    
+    if (g_bRenderGlowingObjects)
+    { //only shadow on initial passes
+        didShadowPass = true;
+    }
+    
+    // save original time for entity shader offsets
+    originalTime = backEnd.refdef.floatTime;
+    
+    // clear the z buffer, set the modelview, etc
+    RB_BeginDrawingView ();
+    
+    // draw everything
+    oldEntityNum = -1;
+    backEnd.currentEntity = &tr.worldEntity;
+    oldShader = NULL;
+    oldFogNum = -1;
+    oldDepthRange = qfalse;
+    oldDlighted = qfalse;
+    oldSort = (unsigned int) -1;
+    oldTintType = G2_TINT_DEFAULT;
+    depthRange = qfalse;
+    
+    backEnd.pc.c_surfaces += numDrawSurfs;
+    
+    for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
+        if ( drawSurf->sort == oldSort && drawSurf->tintType == oldTintType ) {
+            // fast path, same as previous sort
+            rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
+            continue;
+        }
+        R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
+        
+        tintType = drawSurf->tintType;
+        
+        // If we're rendering glowing objects, but this shader has no stages with glow, skip it!
+        if ( g_bRenderGlowingObjects && !shader->hasGlow )
+        {
+            shader = oldShader;
+            entityNum = oldEntityNum;
+            fogNum = oldFogNum;
+            dlighted = oldDlighted;
+            continue;
+        }
+        
+        oldSort = drawSurf->sort;
+        
+        //
+        // change the tess parameters if needed
+        // a "entityMergable" shader is a shader that can have surfaces from seperate
+        // entities merged into a single batch, like smoke and blood puff sprites
+        if (entityNum != REFENTITYNUM_WORLD &&
+            g_numPostRenders < MAX_POST_RENDERS)
+        {
+            if ( (backEnd.refdef.entities[entityNum].e.renderfx & RF_DISTORTION)/* ||
+                                                                                 (backEnd.refdef.entities[entityNum].e.renderfx & RF_FORCE_ENT_ALPHA)*/)
+                //not sure if we need this alpha fix for sp or not, leaving it out for now -rww
+            { //must render last
+                curEnt = &backEnd.refdef.entities[entityNum];
+                pRender = &g_postRenders[g_numPostRenders];
+                
+                g_numPostRenders++;
+                
+                depthRange = 0;
+                //figure this stuff out now and store it
+                if ( curEnt->e.renderfx & RF_NODEPTH )
+                {
+                    depthRange = 2;
+                }
+                else if ( curEnt->e.renderfx & RF_DEPTHHACK )
+                {
+                    depthRange = 1;
+                }
+                pRender->depthRange = depthRange;
+                
+                //It is not necessary to update the old* values because
+                //we are not updating now with the current values.
+                depthRange = oldDepthRange;
+                
+                //store off the ent num
+                pRender->entNum = entityNum;
+                
+                //remember the other values necessary for rendering this surf
+                pRender->drawSurf = drawSurf;
+                pRender->dlighted = dlighted;
+                pRender->fogNum = fogNum;
+                pRender->shader = shader;
+                
+                //assure the info is back to the last set state
+                shader = oldShader;
+                entityNum = oldEntityNum;
+                fogNum = oldFogNum;
+                dlighted = oldDlighted;
+                tintType = oldTintType;
+                
+                oldSort = (unsigned int)-1; //invalidate this thing, cause we may want to postrender more surfs of the same sort
+                
+                //continue without bothering to begin a draw surf
+                continue;
+            }
+        }
+        
+        if (tintType != oldTintType || shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
+            || ( entityNum != oldEntityNum && !shader->entityMergable ) )
+        {
+            if (oldShader != NULL) {
+                RB_EndSurface();
+                
+                if (!didShadowPass && shader && shader->sort > SS_BANNER)
+                {
+                    RB_ShadowFinish();
+                    didShadowPass = true;
+                }
+            }
+            RB_BeginSurface( shader, fogNum );
+            oldShader = shader;
+            oldFogNum = fogNum;
+            oldDlighted = dlighted;
+            oldTintType = tintType;
+        }
+        
+        //
+        // change the modelview matrix if needed
+        //
+        if ( entityNum != oldEntityNum ) {
+            depthRange = qfalse;
+            
+            if ( entityNum != REFENTITYNUM_WORLD ) {
+                backEnd.currentEntity = &backEnd.refdef.entities[entityNum];
+                backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+                
+                // set up the transformation matrix
+                R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori );
+                
+                // set up the dynamic lighting if needed
+                if ( backEnd.currentEntity->needDlights ) {
+                    R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
+                }
+                
+                if ( backEnd.currentEntity->e.renderfx & RF_NODEPTH ) {
+                    // No depth at all, very rare but some things for seeing through walls
+                    depthRange = 2;
+                }
+                else if ( backEnd.currentEntity->e.renderfx & RF_DEPTHHACK ) {
+                    // hack the depth range to prevent view model from poking into walls
+                    depthRange = qtrue;
+                }
+            } else {
+                backEnd.currentEntity = &tr.worldEntity;
+                backEnd.refdef.floatTime = originalTime;
+                backEnd.ori = backEnd.viewParms.world;
+                R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
+            }
+            
+            qglLoadMatrixf( backEnd.ori.modelMatrix );
+            
+            //
+            // change depthrange if needed
+            //
+            if ( oldDepthRange != depthRange ) {
+                switch ( depthRange ) {
+                    default:
+                    case 0:
+                        qglDepthRange (0, 1);
+                        break;
+                        
+                    case 1:
+                        qglDepthRange (0, .3);
+                        break;
+                        
+                    case 2:
+                        qglDepthRange (0, 0);
+                        break;
+                }
+                
+                oldDepthRange = depthRange;
+            }
+            
+            oldEntityNum = entityNum;
+        }
+        
+        // add the triangles for this surface
+        rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
+    }
+    
+    // draw the contents of the last shader batch
+    if (oldShader != NULL) {
+        RB_EndSurface();
+    }
+    
+    if (tr_stencilled && tr_distortionPrePost)
+    { //ok, cap it now
+        RB_CaptureScreenImage();
+        RB_DistortionFill();
+    }
+    
+    //render distortion surfs (or anything else that needs to be post-rendered)
+    if (g_numPostRenders > 0)
+    {
+        int lastPostEnt = -1;
+        
+        while (g_numPostRenders > 0)
+        {
+            g_numPostRenders--;
+            pRender = &g_postRenders[g_numPostRenders];
+            
+            RB_BeginSurface( pRender->shader, pRender->fogNum );
+            
+            backEnd.currentEntity = &backEnd.refdef.entities[pRender->entNum];
+            
+            backEnd.refdef.floatTime = originalTime - backEnd.currentEntity->e.shaderTime;
+            
+            // set up the transformation matrix
+            R_RotateForEntity( backEnd.currentEntity, &backEnd.viewParms, &backEnd.ori );
+            
+            // set up the dynamic lighting if needed
+            if ( backEnd.currentEntity->needDlights )
+            {
+                R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
+            }
+            
+            qglLoadMatrixf( backEnd.ori.modelMatrix );
+            
+            depthRange = pRender->depthRange;
+            switch ( depthRange )
+            {
+                default:
+                case 0:
+                    qglDepthRange (0, 1);
+                    break;
+                    
+                case 1:
+                    qglDepthRange (0, .3);
+                    break;
+                    
+                case 2:
+                    qglDepthRange (0, 0);
+                    break;
+            }
+            
+            if ((backEnd.currentEntity->e.renderfx & RF_DISTORTION) &&
+                lastPostEnt != pRender->entNum)
+            { //do the capture now, we only need to do it once per ent
+                int x, y;
+                int rad = backEnd.currentEntity->e.radius;
+                //We are going to just bind this, and then the CopyTexImage is going to
+                //stomp over this texture num in texture memory.
+                GL_Bind( tr.screenImage );
+                
+                if (R_WorldCoordToScreenCoord( backEnd.currentEntity->e.origin, &x, &y ))
+                {
+                    int cX, cY;
+                    cX = glConfig.vidWidth-x-(rad/2);
+                    cY = glConfig.vidHeight-y-(rad/2);
+                    
+                    if (cX+rad > glConfig.vidWidth)
+                    { //would it go off screen?
+                        cX = glConfig.vidWidth-rad;
+                    }
+                    else if (cX < 0)
+                    { //cap it off at 0
+                        cX = 0;
+                    }
+                    
+                    if (cY+rad > glConfig.vidHeight)
+                    { //would it go off screen?
+                        cY = glConfig.vidHeight-rad;
+                    }
+                    else if (cY < 0)
+                    { //cap it off at 0
+                        cY = 0;
+                    }
+                    
+                    //now copy a portion of the screen to this texture
+                    qglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, cX, cY, rad, rad, 0);
+                    
+                    lastPostEnt = pRender->entNum;
+                }
+            }
+            
+            rb_surfaceTable[ *pRender->drawSurf->surface ]( pRender->drawSurf->surface );
+            RB_EndSurface();
+        }
+    }
+    
+    // go back to the world modelview matrix
+    qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
+    if ( depthRange ) {
+        qglDepthRange (0, 1);
+    }
+    
 #if 0
-	RB_DrawSun();
+    RB_DrawSun();
 #endif
-	if (tr_stencilled && !tr_distortionPrePost)
-	{ //draw in the stencil buffer's cutout
-		RB_DistortionFill();
-	}
-	if (!didShadowPass)
-	{
-		// darken down any stencil shadows
-		RB_ShadowFinish();
-		didShadowPass = true;
-	}
-
-// add light flares on lights that aren't obscured
-//	RB_RenderFlares();
+    if (tr_stencilled && !tr_distortionPrePost)
+    { //draw in the stencil buffer's cutout
+        RB_DistortionFill();
+    }
+    if (!didShadowPass)
+    {
+        // darken down any stencil shadows
+        RB_ShadowFinish();
+        didShadowPass = true;
+    }
+    
+    // add light flares on lights that aren't obscured
+    //	RB_RenderFlares();
 }
 
 

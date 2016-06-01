@@ -34,6 +34,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void		G2API_SetTime(int currentTime,int clock);
 int			G2API_GetTime(int argTime); // this may or may not return arg depending on ghoul2_time cvar
 
+typedef enum
+{
+    G2_TINT_DEFAULT,
+    G2_TINT_SABER,
+    G2_TINT_SABER2,
+    G2_TINT_MAX
+} g2Tints_t;
 
 //===================================================================
 //
@@ -286,6 +293,8 @@ public:
 	const model_s		*animModel;
 	int					currentAnimModelSize;
 	const mdxaHeader_t	*aHeader;
+    
+    g2Tints_t       tintType;
 
 	CGhoul2Info():
 	mModelindex(-1),
@@ -312,7 +321,8 @@ public:
 	currentModelSize(0),
 	animModel(0),
 	currentAnimModelSize(0),
-	aHeader(0)
+	aHeader(0),
+    tintType(G2_TINT_DEFAULT)
 	{
 		mFileName[0] = 0;
 	}

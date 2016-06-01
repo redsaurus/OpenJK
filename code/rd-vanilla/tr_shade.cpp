@@ -441,6 +441,8 @@ void RB_BeginSurface( shader_t *shader, int fogNum ) {
 
 	tess.fading = false;
 
+    tess.tintType = G2_TINT_DEFAULT;
+
 	tess.registration++;
 }
 
@@ -1369,6 +1371,8 @@ ComputeColors
 static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colorGen_t forceRGBGen )
 {
 	int i;
+    
+    int tintIndexOffset = 0;
 
 	if ( tess.shader != tr.projectionShadowShader && tess.shader != tr.shadowShader &&
 			( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))
@@ -1423,6 +1427,29 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 	{
 		forceAlphaGen = pStage->alphaGen;
 	}
+    
+    if ( pStage->rgbGenEntIndex == TINT_BLADE1 )
+    {
+        switch( tess.tintType )
+        {
+            case G2_TINT_SABER2:
+                tintIndexOffset = 1;
+                break;
+            default:
+                break;
+        }
+    }
+    else if ( pStage->rgbGenEntIndex == TINT_HILT1 )
+    {
+        switch( tess.tintType )
+        {
+            case G2_TINT_SABER2:
+                tintIndexOffset = 1;
+                break;
+            default:
+                break;
+        }
+    }
 
 	switch ( forceRGBGen )
 	{
@@ -1528,25 +1555,25 @@ static void ComputeColors( shaderStage_t *pStage, alphaGen_t forceAlphaGen, colo
 				baDest->ui = baSource->ui;
 			}
 			break;
-		case CGEN_ENTITY_NEW:
-			RB_CalcColorFromEntityNew( ( unsigned char * ) tess.svars.colors, pStage->rgbGenEntIndex );
-			if ( forceAlphaGen == AGEN_IDENTITY &&
-				backEnd.currentEntity->e.newShaderRGBA[0][3] == 0xff
-				)
-			{
-				forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components
-			}
-			break;
-		case CGEN_LIGHTING_DIFFUSE_ENTITY_NEW:
-			RB_CalcDiffuseEntityColorNew( ( unsigned char * ) tess.svars.colors, pStage->rgbGenEntIndex );
-			
-			if ( forceAlphaGen == AGEN_IDENTITY &&
-				backEnd.currentEntity->e.shaderRGBA[3] == 0xff
-				)
-			{
-				forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components
-			}
-			break;
+        case CGEN_ENTITY_NEW:
+            RB_CalcColorFromEntityNew( ( unsigned char * ) tess.svars.colors, pStage->rgbGenEntIndex + tintIndexOffset );
+            if ( forceAlphaGen == AGEN_IDENTITY &&
+                backEnd.currentEntity->e.newShaderRGBA[0][3] == 0xff
+                )
+            {
+                forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components
+            }
+            break;
+        case CGEN_LIGHTING_DIFFUSE_ENTITY_NEW:
+            RB_CalcDiffuseEntityColorNew( ( unsigned char * ) tess.svars.colors, pStage->rgbGenEntIndex + tintIndexOffset);
+            
+            if ( forceAlphaGen == AGEN_IDENTITY &&
+                backEnd.currentEntity->e.shaderRGBA[3] == 0xff
+                )
+            {
+                forceAlphaGen = AGEN_SKIP;	//already got it in this set since it does all 4 components
+            }
+            break;
 		}
 
 	//

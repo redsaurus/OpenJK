@@ -4686,6 +4686,34 @@ void CG_AddForceSightShell( refEntity_t *ent, centity_t *cent )
 	cgi_R_AddRefEntityToScene( ent );
 }
 
+static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
+{
+    switch( color )
+    {
+        case SABER_RED:
+            VectorSet( rgb, 1.0f, 0.2f, 0.2f );
+            break;
+        case SABER_ORANGE:
+            VectorSet( rgb, 1.0f, 0.5f, 0.1f );
+            break;
+        case SABER_YELLOW:
+            VectorSet( rgb, 1.0f, 1.0f, 0.2f );
+            break;
+        case SABER_GREEN:
+            VectorSet( rgb, 0.2f, 1.0f, 0.2f );
+            break;
+        case SABER_BLUE:
+            VectorSet( rgb, 0.2f, 0.4f, 1.0f );
+            break;
+        case SABER_PURPLE:
+            VectorSet( rgb, 0.9f, 0.2f, 1.0f );
+            break;
+        default://SABER_RGB
+            VectorSet( rgb, ((color) & 0xff)/255.0f, ((color >> 8) & 0xff)/255.0f, ((color >> 16) & 0xff)/255.0f );
+            break;
+    }
+}
+
 /*
 ===============
 CG_AddRefEntityWithPowerups
@@ -4728,14 +4756,50 @@ void CG_AddRefEntityWithPowerups( refEntity_t *ent, int powerups, centity_t *cen
 	ent->shaderRGBA[2] = gent->client->renderInfo.customRGBA[2];
 	ent->shaderRGBA[3] = gent->client->renderInfo.customRGBA[3];
 	
-	for (int index = 0; index < MAX_NEW_ENT_RGB; index++)
+	for (int index = 0; index < MAX_CVAR_TINT; index++)
 	{
 		ent->newShaderRGBA[index][0] = gent->client->renderInfo.newCustomRGBA[index][0];
 		ent->newShaderRGBA[index][1] = gent->client->renderInfo.newCustomRGBA[index][1];
 		ent->newShaderRGBA[index][2] = gent->client->renderInfo.newCustomRGBA[index][2];
 		ent->newShaderRGBA[index][3] = gent->client->renderInfo.newCustomRGBA[index][3];
 	}
-
+    
+    //get the saber colours
+    if (gent->client->ps.weapons[WP_SABER])
+    {
+        vec3_t rgb={1,1,1};
+        if ( gent->client->ps.saber[0].crystals & SABER_CRYSTAL_BLACK )
+        {
+            ent->newShaderRGBA[TINT_BLADE1][0] = 0;
+            ent->newShaderRGBA[TINT_BLADE1][1] = 0;
+            ent->newShaderRGBA[TINT_BLADE1][2] = 0;
+        }
+        else
+        {
+            CG_RGBForSaberColor( gent->client->ps.saber[0].blade[0].color, rgb );
+            ent->newShaderRGBA[TINT_BLADE1][0] = 0xff * rgb[0];
+            ent->newShaderRGBA[TINT_BLADE1][1] = 0xff * rgb[1];
+            ent->newShaderRGBA[TINT_BLADE1][2] = 0xff * rgb[2];
+        }
+        
+        if (gent->client->ps.dualSabers)
+        {
+            if ( gent->client->ps.saber[0].crystals & SABER_CRYSTAL_BLACK )
+            {
+                ent->newShaderRGBA[TINT_BLADE2][0] = 0;
+                ent->newShaderRGBA[TINT_BLADE2][1] = 0;
+                ent->newShaderRGBA[TINT_BLADE2][2] = 0;
+            }
+            else
+            {
+                CG_RGBForSaberColor( gent->client->ps.saber[1].blade[0].color, rgb );
+                ent->newShaderRGBA[TINT_BLADE2][0] = 0xff * rgb[0];
+                ent->newShaderRGBA[TINT_BLADE2][1] = 0xff * rgb[1];
+                ent->newShaderRGBA[TINT_BLADE2][2] = 0xff * rgb[2];
+            }
+        }
+    }
+    
 	// If certain states are active, we don't want to add in the regular body
 	if ( !gent->client->ps.powerups[PW_CLOAKED] &&
 		!gent->client->ps.powerups[PW_UNCLOAKING] &&
@@ -5745,34 +5809,6 @@ void CG_SaberDoWeaponHitMarks( gclient_t *client, gentity_t *saberEnt, gentity_t
 					lifeTime, saberNum+1, uaxis/*splashBackDir*/ );
 			}
 		}
-	}
-}
-
-static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
-{
-	switch( color )
-	{
-		case SABER_RED:
-			VectorSet( rgb, 1.0f, 0.2f, 0.2f );
-			break;
-		case SABER_ORANGE:
-			VectorSet( rgb, 1.0f, 0.5f, 0.1f );
-			break;
-		case SABER_YELLOW:
-			VectorSet( rgb, 1.0f, 1.0f, 0.2f );
-			break;
-		case SABER_GREEN:
-			VectorSet( rgb, 0.2f, 1.0f, 0.2f );
-			break;
-		case SABER_BLUE:
-			VectorSet( rgb, 0.2f, 0.4f, 1.0f );
-			break;
-		case SABER_PURPLE:
-			VectorSet( rgb, 0.9f, 0.2f, 1.0f );
-			break;
-		default://SABER_RGB
-			VectorSet( rgb, ((color) & 0xff)/255.0f, ((color >> 8) & 0xff)/255.0f, ((color >> 16) & 0xff)/255.0f );
-			break;
 	}
 }
 

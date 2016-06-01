@@ -226,4 +226,6 @@ void		G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore);
 void		G2API_ClearSkinGore ( CGhoul2Info_v &ghoul2 );
 //#endif
 
+void        G2API_SetTintType(CGhoul2Info *ghlInfo, g2Tints_t tintType);
+
 #endif // G2_H_INC

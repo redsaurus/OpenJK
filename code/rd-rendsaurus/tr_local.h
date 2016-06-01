@@ -590,6 +590,7 @@ Ghoul2 Insert End
 typedef struct drawSurf_s {
 	unsigned			sort;			// bit combination for fast compares
 	surfaceType_t		*surface;		// any of surface*_t
+    g2Tints_t           tintType;
 } drawSurf_t;
 
 #define	MAX_FACE_POINTS		64
@@ -1259,7 +1260,7 @@ void R_AddPolygonSurfaces( void );
 void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader,
 					 int *fogNum, int *dlightMap );
 
-void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fogIndex, int dlightMap );
+void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fogIndex, int dlightMap, g2Tints_t tintType = G2_TINT_DEFAULT );
 
 
 #define	CULL_IN		0		// completely unclipped
@@ -1456,6 +1457,8 @@ struct shaderCommands_s
 
 	//rww - doing a fade, don't compute shader color/alpha overrides
 	bool		fading;
+    
+    g2Tints_t   tintType;
 };
 
 #ifdef _MSC_VER
@@ -1615,6 +1618,7 @@ public:
 	float			fade;
 	float			impactTime; // this is a number between 0 and 1 that dictates the progression of the bullet impact
 #endif
+    g2Tints_t       tintType;
 
 #ifdef _G2_GORE
 	CRenderableSurface& operator= ( const CRenderableSurface& src )
@@ -1635,10 +1639,11 @@ CRenderableSurface():
 #ifdef _G2_GORE
 	surfaceData(0),
 	alternateTex(0),
-	goreChain(0)
+	goreChain(0),
 #else
-	surfaceData(0)
+	surfaceData(0),
 #endif
+    tintType(G2_TINT_DEFAULT)
 	{}
 
 	void Init()

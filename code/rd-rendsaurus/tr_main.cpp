@@ -1159,7 +1159,7 @@ static void R_RadixSort( drawSurf_t *source, int size )
 R_AddDrawSurf
 =================
 */
-void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fogIndex, int dlightMap )
+void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fogIndex, int dlightMap, g2Tints_t tintType )
 {
 	int			index;
 
@@ -1182,6 +1182,7 @@ void R_AddDrawSurf( const surfaceType_t *surface, const shader_t *shader, int fo
 	tr.refdef.drawSurfs[index].sort = (shader->sortedIndex << QSORT_SHADERNUM_SHIFT)
 		| tr.shiftedEntityNum | ( fogIndex << QSORT_FOGNUM_SHIFT ) | (int)dlightMap;
 	tr.refdef.drawSurfs[index].surface = (surfaceType_t *)surface;
+    tr.refdef.drawSurfs[index].tintType = tintType;
 	tr.refdef.numDrawSurfs++;
 }
 

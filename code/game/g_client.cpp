@@ -927,10 +927,10 @@ static void G_SetSkin( gentity_t *ent )
 		|| g_char_color_2_green->integer
 		|| g_char_color_2_blue->integer )
 	{
-		ent->client->renderInfo.newCustomRGBA[0][0] = g_char_color_2_red->integer;
-		ent->client->renderInfo.newCustomRGBA[0][1] = g_char_color_2_green->integer;
-		ent->client->renderInfo.newCustomRGBA[0][2] = g_char_color_2_blue->integer;
-		ent->client->renderInfo.newCustomRGBA[0][3] = 255;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
 	}
 }
 
@@ -2146,10 +2146,10 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 		|| g_char_color_2_green->integer
 		|| g_char_color_2_blue->integer )
 	{
-		ent->client->renderInfo.newCustomRGBA[0][0] = g_char_color_2_red->integer;
-		ent->client->renderInfo.newCustomRGBA[0][1] = g_char_color_2_green->integer;
-		ent->client->renderInfo.newCustomRGBA[0][2] = g_char_color_2_blue->integer;
-		ent->client->renderInfo.newCustomRGBA[0][3] = 255;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
 	}
 }
 

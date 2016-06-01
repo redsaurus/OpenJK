@@ -576,6 +576,8 @@ void WP_SaberAddG2SaberModels( gentity_t *ent, int specificSaberNum )
 		}
 		G_CreateG2AttachedWeaponModel( ent, ent->client->ps.saber[saberNum].model, handBolt, saberNum );
 
+        gi.G2API_SetTintType( &ent->ghoul2[ent->weaponModel[saberNum]], saberNum ? G2_TINT_SABER2 : G2_TINT_SABER );
+
 		if ( ent->client->ps.saber[saberNum].skin != NULL )
 		{//if this saber has a customSkin, use it
 			// lets see if it's out there
@@ -689,6 +691,8 @@ void WP_SaberAddHolsteredG2SaberModels( gentity_t *ent, int specificSaberNum )
 		}
 		G_CreateG2HolsteredWeaponModel( ent, ent->client->ps.saber[saberNum].model, handBolt, saberNum, angles, offset );
 		
+        gi.G2API_SetTintType( &ent->ghoul2[ent->holsterModel[saberNum]], saberNum ? G2_TINT_SABER2 : G2_TINT_SABER );
+        
 		if ( ent->client->ps.saber[saberNum].skin != NULL )
 		{//if this saber has a customSkin, use it
 			// lets see if it's out there

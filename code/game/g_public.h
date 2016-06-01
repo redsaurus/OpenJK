@@ -361,6 +361,8 @@ Ghoul2 Insert Start
 	void		(*G2API_AddSkinGore)(CGhoul2Info_v &ghoul2,SSkinGoreData &gore);
 	void		(*G2API_ClearSkinGore)( CGhoul2Info_v &ghoul2 );
 
+    void        (*G2API_SetTintType)(CGhoul2Info *ghlInfo, g2Tints_t tintType);
+    
 	void		(*RMG_Init)(int terrainID);
 
 	int			(*CM_RegisterTerrain)(const char *info);

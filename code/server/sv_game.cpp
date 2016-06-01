@@ -815,6 +815,12 @@ static void  SV_G2API_ClearSkinGore( CGhoul2Info_v &ghoul2 )
 }
 #endif
 
+static void SV_G2API_SetTintType( CGhoul2Info *ghlInfo, g2Tints_t tintType )
+{
+    return re.G2API_SetTintType( ghlInfo, tintType );
+}
+
+
 static IGhoul2InfoArray& SV_TheGhoul2InfoArray( void )
 {
 	return re.TheGhoul2InfoArray();
@@ -1029,6 +1035,8 @@ void SV_InitGameProgs (void) {
 	import.G2API_AddSkinGore = SV_G2API_AddSkinGore;
 	import.G2API_ClearSkinGore = SV_G2API_ClearSkinGore;
 
+    import.G2API_SetTintType = SV_G2API_SetTintType;
+    
 	import.SetActiveSubBSP = SV_SetActiveSubBSP;
 
 	import.RE_RegisterSkin = SV_RE_RegisterSkin;
