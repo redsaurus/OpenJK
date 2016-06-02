@@ -47,6 +47,7 @@ extern vmCvar_t	cg_SFXSabersGlowSize;
 extern vmCvar_t	cg_SFXSabersCoreSize;
 
 extern vmCvar_t cg_ignitionFlare;
+extern vmCvar_t cg_ignitionSpeed;
 
 //True View Camera Position Check Function
 extern void CheckCameraLocation( vec3_t OldeyeOrigin );
@@ -8681,11 +8682,11 @@ SkipTrueView:
 						{
 							if ( cent->gent->client->ps.stats[STAT_HEALTH] <= 0 )
 							{//dead, didn't actively turn it off
-								cent->gent->client->ps.saber[saberNum].blade[bladeNum].length -= cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100;
+								cent->gent->client->ps.saber[saberNum].blade[bladeNum].length -= cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100 * cg_ignitionSpeed.value;
 							}
 							else
 							{//actively turned it off, shrink faster
-								cent->gent->client->ps.saber[saberNum].blade[bladeNum].length -= cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100;
+								cent->gent->client->ps.saber[saberNum].blade[bladeNum].length -= cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100 * cg_ignitionSpeed.value;
 							}
 						}
 					}
@@ -8787,7 +8788,7 @@ SkipTrueView:
 								}
 								else
 								{
-									cent->gent->client->ps.saber[saberNum].blade[bladeNum].length += cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100;
+									cent->gent->client->ps.saber[saberNum].blade[bladeNum].length += cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax/10 * cg.frametime/100 * cg_ignitionSpeed.value;
 								}
 							}
 							if ( cent->gent->client->ps.saber[saberNum].blade[bladeNum].length > cent->gent->client->ps.saber[saberNum].blade[bladeNum].lengthMax )

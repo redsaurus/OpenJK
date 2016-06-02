@@ -337,6 +337,7 @@ vmCvar_t	cg_SFXSabersGlowSize;
 vmCvar_t	cg_SFXSabersCoreSize;
 
 vmCvar_t	cg_ignitionFlare;
+vmCvar_t    cg_ignitionSpeed;
 
 vmCvar_t	cg_trueguns;
 vmCvar_t	cg_fpls;
@@ -477,6 +478,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
 
 	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"1", CVAR_ARCHIVE },
+    { &cg_ignitionSpeed,	"cg_ignitionSpeed",	"1.0", CVAR_ARCHIVE },
 	
 	{ &cg_drawRadar,	"cg_drawRadar", "1", CVAR_ARCHIVE },
 	
