@@ -339,6 +339,12 @@ vmCvar_t	cg_SFXSabersCoreSize;
 vmCvar_t	cg_ignitionFlare;
 vmCvar_t    cg_ignitionSpeed;
 
+vmCvar_t    cg_gunMomentumDamp;
+vmCvar_t    cg_gunMomentumFall;
+vmCvar_t    cg_gunMomentumEnable;
+vmCvar_t    cg_gunMomentumInterval;
+
+
 vmCvar_t	cg_trueguns;
 vmCvar_t	cg_fpls;
 
@@ -480,6 +486,14 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"1", CVAR_ARCHIVE },
     { &cg_ignitionSpeed,	"cg_ignitionSpeed",	"1.0", CVAR_ARCHIVE },
 	
+    { &cg_ignitionSpeed,	"cg_ignitionSpeed",	"1.0", CVAR_ARCHIVE },
+    
+    { &cg_gunMomentumDamp, "cg_gunMomentumDamp", "0.001", CVAR_ARCHIVE },
+    { &cg_gunMomentumFall, "cg_gunMomentumFall", "0.5", CVAR_ARCHIVE },
+    { &cg_gunMomentumEnable, "cg_gunMomentumEnable", "0", CVAR_ARCHIVE },
+    { &cg_gunMomentumInterval, "cg_gunMomentumInterval", "75", CVAR_ARCHIVE },
+
+    
 	{ &cg_drawRadar,	"cg_drawRadar", "1", CVAR_ARCHIVE },
 	
 	//True View Control cvars

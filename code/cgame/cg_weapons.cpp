@@ -30,6 +30,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../game/anims.h"
 
+extern vmCvar_t    cg_gunMomentumDamp;
+extern vmCvar_t    cg_gunMomentumFall;
+extern vmCvar_t    cg_gunMomentumEnable;
+extern vmCvar_t    cg_gunMomentumInterval;
+
 extern void CG_LightningBolt( centity_t *cent, vec3_t origin );
 
 #define	PHASER_HOLDFRAME	2
@@ -1050,6 +1055,30 @@ void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles )
 	angles[ROLL] += scale * fracsin * 0.01;
 	angles[YAW] += scale * fracsin * 0.01;
 	angles[PITCH] += (scale * 0.5f ) * fracsin * 0.01;
+    
+    if ( cg_gunMomentumEnable.integer ) {
+        // sway viewmodel when changing viewangles
+        static vec3_t previousAngles = {0, 0, 0};
+        static int previousTime = 0;
+        
+        vec3_t deltaAngles;
+        AnglesSubtract( angles, previousAngles, deltaAngles );
+        VectorScale( deltaAngles, 1.0f, deltaAngles );
+        
+        const double dampTime = (double)(cg.time - previousTime) * (1.0 / (double)cg_gunMomentumInterval.integer);
+        const double dampRatio = std::pow( std::abs( (double)cg_gunMomentumDamp.value ), dampTime );
+        VectorMA( previousAngles, dampRatio, deltaAngles, angles );
+        VectorCopy( angles, previousAngles );
+        previousTime = cg.time;
+        
+        // move viewmodel downwards when jumping etc
+        static float previousOriginZ = 0.0f;
+        const float deltaZ = origin[2] - previousOriginZ;
+        if ( deltaZ > 0.0f ) {
+            origin[2] = origin[2] - deltaZ * cg_gunMomentumFall.value;
+        }
+        previousOriginZ = origin[2];
+    }
 }
 
 /*
