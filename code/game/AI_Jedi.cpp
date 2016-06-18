@@ -1234,7 +1234,7 @@ static void Jedi_AdjustSaberAnimLevel( gentity_t *self, int newLevel )
 
 static void Jedi_CheckDecreaseSaberAnimLevel( void )
 {
-	if ( !NPC->client->ps.weaponTime && !(ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS)) )
+	if ( !NPC->client->ps.weaponTime && !(ucmd.buttons&(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_SABERTHROW)) )
 	{//not attacking
 		if ( TIMER_Done( NPC, "saberLevelDebounce" ) && !Q_irand( 0, 10 ) )
 		{
@@ -1458,7 +1458,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 			&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
 			&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 		{//hold it out there
-			ucmd.buttons |= BUTTON_ALT_ATTACK;
+			ucmd.buttons |= BUTTON_SABERTHROW;
 			//FIXME: time limit?
 		}
 	}
@@ -1741,7 +1741,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 				&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
 				&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 			{//throw saber
-				ucmd.buttons |= BUTTON_ALT_ATTACK;
+				ucmd.buttons |= BUTTON_SABERTHROW;
 			}
 		}
 		else if ( NPC->enemy && NPC->enemy->client && //valid enemy
@@ -1919,7 +1919,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 								&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
 								&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 							{//throw saber
-								ucmd.buttons |= BUTTON_ALT_ATTACK;
+								ucmd.buttons |= BUTTON_SABERTHROW;
 							}
 						}
 					}
@@ -1929,7 +1929,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 							&& !(NPC->client->ps.forcePowersActive&(1 << FP_SPEED))
 							&& !(NPC->client->ps.saberEventFlags&SEF_INWATER) )//saber not in water
 						{//throw saber
-							ucmd.buttons |= BUTTON_ALT_ATTACK;
+							ucmd.buttons |= BUTTON_SABERTHROW;
 						}
 					}
 				}
@@ -5369,7 +5369,8 @@ static qboolean Jedi_AttackDecide( int enemy_dist )
 
 	if ( !(ucmd.buttons&BUTTON_ATTACK)
 		&& !(ucmd.buttons&BUTTON_ALT_ATTACK)
-		&& !(ucmd.buttons&BUTTON_FORCE_FOCUS) )
+		&& !(ucmd.buttons&BUTTON_FORCE_FOCUS)
+        && !(ucmd.buttons&BUTTON_SABERTHROW))
 	{//not already attacking
 		//Try to attack
 		WeaponThink( qtrue );
@@ -6920,7 +6921,7 @@ static void Jedi_Attack( void )
 		|| ((NPC->client->ps.forcePowersActive&(1<<FP_HEAL))&&NPC->client->ps.forcePowerLevel[FP_HEAL]<FORCE_LEVEL_3)
 		|| ((NPC->client->ps.saberEventFlags&SEF_INWATER)&&!NPC->client->ps.saberInFlight) )//saber in water
 	{
-		ucmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);
+		ucmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_SABERTHROW);
 	}
 
 	if ( (NPCInfo->scriptFlags&SCF_NO_ACROBATICS) )
@@ -6991,7 +6992,7 @@ static void Jedi_Attack( void )
 		//Sometimes Alora flips towards you instead of runs
 		if ( NPC->client->NPC_class == CLASS_ALORA )
 		{
-			if ( (ucmd.buttons&BUTTON_ALT_ATTACK) )
+			if ( (ucmd.buttons&BUTTON_SABERTHROW) )
 			{//chance of doing a special dual saber throw
 				if ( NPC->client->ps.saberAnimLevel == SS_DUAL
 					&& !NPC->client->ps.saberInFlight )

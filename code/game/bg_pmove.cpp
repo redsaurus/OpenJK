@@ -12272,7 +12272,7 @@ void PM_WeaponLightsaber(void)
 
 	if ( pm->ps->saberEventFlags&SEF_INWATER )//saber in water
 	{
-		pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);
+		pm->cmd.buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_SABERTHROW);
 	}
 
 	qboolean saberInAir = qtrue;
@@ -14623,7 +14623,11 @@ void PM_AdjustAttackStates( pmove_t *pm )
 	{//don't let the alt-attack be interpreted as an actual attack command
 		if ( pm->ps->saberInFlight )
 		{
-			pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+            if (pm->ps->saberAnimLevel != SS_KATARN)
+            {
+                pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
+            }
+            pm->cmd.buttons &= ~BUTTON_SABERTHROW;
 			//FIXME: what about alt-attack modifier button?
 			if ( (!pm->ps->dualSabers || !pm->ps->saber[1].Active()) )
 			{//saber not in hand, can't swing it

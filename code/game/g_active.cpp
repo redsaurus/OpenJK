@@ -422,7 +422,8 @@ void G_ChooseLookEnemy( gentity_t *self, usercmd_t *ucmd )
 		{
 			if ( (ucmd->buttons&BUTTON_ATTACK)
 				|| (ucmd->buttons&BUTTON_ALT_ATTACK)
-				|| (ucmd->buttons&BUTTON_FORCE_FOCUS) )
+				|| (ucmd->buttons&BUTTON_FORCE_FOCUS)
+                || (ucmd->buttons&BUTTON_SABERTHROW) )
 			{//if attacking, don't consider dead enemies
 				continue;
 			}
@@ -2544,7 +2545,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 	if ( (ent->client->ps.forcePowersActive&(1<<FP_DRAIN)) )
 	{//draining
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
-		ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);
+		ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_SABERTHROW);
 		if ( ent->NPC )
 		{
 			VectorClear( ent->client->ps.moveDir );
@@ -3896,6 +3897,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			|| (ucmd->buttons&BUTTON_FORCE_LIGHTNING)
 			|| (ucmd->buttons&BUTTON_FORCE_DRAIN)
 			|| (ucmd->buttons&BUTTON_REPULSE)
+            || (ucmd->buttons&BUTTON_SABERTHROW)
 			|| ucmd->upmove )
 		{//stop the anim
 			if ( ent->client->ps.legsAnim == BOTH_MEDITATE
