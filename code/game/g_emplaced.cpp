@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "b_local.h"
 #include "g_navigator.h"
 
+#define DAMAGE_DETACH -1
+
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt );
 
 //lock the owner into place relative to the cannon pos
@@ -228,12 +230,18 @@ void eweb_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 		G_UseTargets( self, attacker );
 	}
 
-	G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+    if ( damage != DAMAGE_DETACH )
+    {
+        G_RadiusDamage( self->currentOrigin, self, self->splashDamage, self->splashRadius, self, MOD_UNKNOWN );
+    }
 
 	VectorCopy( self->currentOrigin,  org );
 	org[2] += 20;
 
-	G_PlayEffect( "emplaced/explode", org );
+    if ( damage != DAMAGE_DETACH )
+    {
+        G_PlayEffect( "emplaced/explode", org );
+    }
 
 	// Turn the top of the eweb off.
 #define TURN_OFF			0x00000100//G2SURFACEFLAG_NODESCENDANTS
@@ -1094,7 +1102,7 @@ extern void CG_ChangeWeapon( int num );
 		// by keeping the owner, a dead npc can be pushed out of the chair without colliding with it
 		if ( ent->health > 0 && detach )
 		{
-			GEntity_DieFunc(ent->owner, ent->owner, ent->owner, 100, MOD_UNKNOWN);
+            GEntity_DieFunc(ent->owner, ent->owner, ent->owner, DAMAGE_DETACH, MOD_UNKNOWN );
 		}
 		ent->owner = NULL;
 	}
