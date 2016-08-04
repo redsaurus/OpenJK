@@ -682,25 +682,28 @@ extern gitem_t	*FindItemForInventory( int inv );
 	
 	gi.Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
 	i=0;
-	var = strtok( s, " " );
-	while( var != NULL )
-	{
-		/* While there are tokens in "s" */
-		if ( atoi(var) > 0 )
-		{
-			if (i == WP_NONE) //don't register!
-			{
-				i++;
-			}
-			else
-			{
-				RegisterItem( FindItemForWeapon( (weapon_t)i++ ) );
-			}
-		}
-		/* Get next token: */
-		var = strtok( NULL, " " );
-	}
-	assert (i==WP_NUM_WEAPONS);
+    if (s[0])
+    {
+        var = strtok( s, " " );
+        while( var != NULL )
+        {
+            /* While there are tokens in "s" */
+            if ( atoi(var) > 0 )
+            {
+                if (i == WP_NONE) //don't register!
+                {
+                    i++;
+                }
+                else
+                {
+                    RegisterItem( FindItemForWeapon( (weapon_t)i++ ) );
+                }
+            }
+            /* Get next token: */
+            var = strtok( NULL, " " );
+        }
+        assert (i==WP_NUM_WEAPONS);
+    }
 }
 
 /*
