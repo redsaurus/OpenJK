@@ -556,6 +556,12 @@ static void WriteGame(qboolean autosave)
 		Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
 		SG_Append(INT_ID('C','V','S','V'), &s, sizeof(s));
 
+        // write weapons...
+        //
+        memset(s,0,sizeof(s));
+        Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+        SG_Append(INT_ID('W','E','A','P'), &s, sizeof(s));
+
 		// write ammo...
 		//
 		memset(s,0,sizeof(s));
@@ -591,6 +597,12 @@ static qboolean ReadGame (void)
 		SG_Read(INT_ID('C','V','S','V'), (void *)&s, sizeof(s));
 		Cvar_Set( sCVARNAME_PLAYERSAVE, s );
 
+        // read weapons...
+        //
+        memset(s,0,sizeof(s));
+        SG_Read(INT_ID('W','E','A','P'), (void *)&s, sizeof(s));
+        Cvar_Set( "playerweaps", s );
+        
 		// read ammo...
 		//
 		memset(s,0,sizeof(s));
