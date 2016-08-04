@@ -4316,7 +4316,7 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 					}
 					else if ( enemy_dist < 56 )
 					{//he's very close, maybe we should be more inclined to block or throw
-						whichDefense = Q_irand( NPCInfo->stats.aggression, 12 );
+						whichDefense = Q_irand( Q_min(NPCInfo->stats.aggression, 12), 12 );
 					}
 					else
 					{
