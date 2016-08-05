@@ -6684,7 +6684,7 @@ Ghoul2 Insert Start
 			//New way, multiple blade tags:
 			char *tagName = va( "*blade%d", bladeNum+1 );
 			bolt = gi.G2API_AddBolt( &scent->gent->ghoul2[modelIndex], tagName );
-
+            
 			if ( bolt == -1 )
 			{
 				tagHack = qtrue;//use the hacked switch statement below to position and orient the blades
@@ -8731,6 +8731,17 @@ SkipTrueView:
 									CG_RGBForSaberColor( cent->gent->client->ps.saber[saberNum].blade[bladeNum].color, RGB );
 									char *tagName = va( "*blade%d", bladeNum+1 );
 									int bolt = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->weaponModel[saberNum]], tagName );
+                                    
+                                    if ( bolt == -1 )
+                                    {
+                                        //hmm, just fall back to the most basic tag (this will also make it work with pre-JKA saber models
+                                        bolt = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->weaponModel[saberNum]], "*flash" );
+                                        if ( bolt == -1 )
+                                        {//no tag_flash either?!!
+                                            bolt = 0;
+                                        }
+                                    }
+
 									mdxaBone_t	boltMatrix;
 									gi.G2API_GetBoltMatrix(cent->gent->ghoul2, cent->gent->weaponModel[saberNum], bolt, &boltMatrix, tempAngles, ent.origin, cg.time, cgs.model_draw, cent->currentState.modelScale);
 									
