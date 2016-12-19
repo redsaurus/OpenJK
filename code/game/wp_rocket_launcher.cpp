@@ -211,7 +211,7 @@ void WP_FireRocket( gentity_t *ent, qboolean alt_fire )
 			damage = damage/2;
 		}
 
-		damage = weaponData[WP_ROCKET_LAUNCHER].npcDmgMult;
+		damage *= weaponData[WP_ROCKET_LAUNCHER].npcDmgMult;
 	}
 
 	if ( alt_fire )

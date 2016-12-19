@@ -1,0 +1,147 @@
+Changes from base JA/OpenJK...
+
+v1.2 latest changes:
+- g_playerCheatPowers should work with saber off now
+- g_debugmelee at -1 prevents player from using any advanced melee abilities
+- g_moonJump cvar added
+- working on cultist AI, boba fett AI, grenadier AI, and melee AI
+- working on multi-weapon support
+- working on NPCs switching to melee when deciding to surrender
+- bug with rocket launcher damage should be fixed
+- version, dll, and game folder structure altered
+- frame rates should be better (use release build)
+- fix bug with saber deflect aiming (revert g_missile.cpp)
+- fix bug with boba firing slowly (use release build?)
+- fix bug with npc health/armor
+
+
+New Cvars
+------------------------------------------------------------------------------------------------------------------------------
+g_autoRoll - default=1, if 0 hold Use to roll
+g_char_forcePowerMax - default=100, controls total player FP, requires level restart
+g_char_forceRegen - default=100ms, controls player FP regen rate, requires level restart
+g_char_parryBonus - default=0, applied to player without needing a custom saber, requires level restart
+g_char_breakParryBonus - default=0, applied to player without needing a custom saber, requires level restart
+g_handicap - goes up to 200 now
+g_saberDamageScale - scales saber damage, and is saved with your savegame, stacks with g_saberMoreRealistic.
+g_saberDeflectAutoAim - if 0, blaster deflections must be aimed with crosshair, easier to aim with better Saber Defense
+g_saberForceDrains - if 1 special moves drain the amount of FP of the cvar below, katas not affected
+g_saberForceDrainAmount - if above cvar is 1, special moves drain this amount of FP, katas not affected
+g_saberLockSuperBreaks - if 0 no super breaks (1-hit KOs) ever happen after saber locks
+g_saberMoreRealistic - no longer write-protected
+g_weaponVelocity, g_weaponAltVelocity - multiply the speed of most player and NPC weapon projectiles
+
+Cheat Codes
+------------------------------------------------------------------------------------------------------------------------------
+- g_playerCheatPowers: 
+If 1, player can auto-push explosives, always dodges sniper shots, has increased jumping ability and resistance to force powers. 
+If 2, all previous effects plus FP usage is cut in half.
+If 3, unlimited fp and take no fall damage
+Set when before you load your game to get all effects. "iknowkungfu" now toggles g_playerCheatPowers to 1
+- g_moonJump:
+flip this on to do some crazy jumping.
+
+Gameplay mechanics
+------------------------------------------------------------------------------------------------------------------------------
+Force powers (activated with g_forceNewPowers 1)
+------------------------------------------------------------------------------------------------------------------------------
+- Force Jump: height for all levels increased by 25%
+- Force Pull: level 1 pulls weapons only, level 2 can knockdown, level 3 can pull toward you a little bit
+- ***Force Sense: gives limited snipershot dodging ability (you might need to hold down Use)
+- Force Speed: decreases FP cost of sniper shot dodging at Level 3 (for auto-dodging anyway)
+- **Force Protect 1/2/3: gives only 10/20/40% damage reduction against saber attacks instead of 25/50/75%
+- Force Heal: costs slightly fewer force points at Level 3
+
+NPC AI
+------------------------------------------------------------------------------------------------------------------------------
+NPC Jedi changes:
+- smarter use of new JA abilities; only use Force Rage if close and have >25% HP, and only kick/use saber katas if close (except CLASS_REBORN, they like to taunt you and show off sometimes when far away)
+- Less exploitable; if you disarm their saber throw (rather than just stand there), recover from knockdown faster, and activate their saber more quickly after being gripped/drained (all these effects generally increase with difficulty and NPC rank). Light Jedi don't attack surrendered/unarmed enemies (unless they have a dark side class like CLASS_REBORN, CLASS_DESANN etc.)
+- Also, now have their level of acrobatics determined by their move stat; 3 allows rolls and lean dodges, 4 allows cartwheels and flipping out of knockdown, this way you can restrict an NPC to be less acrobatic and more "technical"
+
+Force-only Cultists: react properly to explosives, sniper shots, and saber throws; *sometimes use quick punches if close, and in general try harder to dodge saber attacks/throws
+
+CLASS_BOBA, CLASS_MANDA, and CLASS_COMMANDO: (these have NOT been thoroughly tested...)
+- only an NPC with "undying 1" or the name boba_fett is invincible now
+- CLASS_MANDA acts like CLASS_BOBA but without a jetpack
+- CLASS_COMMANDO acts like CLASS_BOBA but without a jetpack or flamethrower
+
+Multi-weapon system:
+- NPCs should now change to the next best weapon they have when you disarm them
+- the boba-based classes support most player weapons now, and weapons are chosen randomly (can have more than 1 similar type of weapon)
+
+Other changes:
+- Grenadier Grans will use Melee sometimes even if the player is using a saber
+- **NPCs surrender more like JK2 (more consistent animation, once they decide to surrender near player they stay surrendered, but when you leave they will get sneaky)
+- Allied NPCs receive 150%/125%/100% HP for Padawan/Jedi/Jedi Knight difficulties now instead of 100%/125%/150% like enemies
+- Assassin Droids now fire even with their shields up
+- Class_Rodian with E11, and Class_Imperial at commander rank use alt-fire now always (like in JK2)
+- fixed a bug: Stormtroopers using Flechette and Repeater can now switch back to alt-fire if they switched to primary fire because the player was too close
+
+
+Saber System (activated with g_saberNewCombat 1)
+------------------------------------------------------------------------------------------------------------------------------
+- Saber Offense gives a base "attack strength/AS" (+2/+4/+6)
+- Saber Defense gives a base "defense strength/DS" (+2/+4/+6) and a number of defense points (DP;= 1 + SD level)
+- AS is modified by saber style (-2/0/+2/-1/+1/-1/+1 for Fast/Med/Strong/Duals/Staff/Tavion/Desann)
+
+How saber combat then works:
+- AS > DS = attack blocked but lose DP equivalent to AS - DS
+- all DP lost = guard crushed
+- DPs regenerate about 1 per second if walking/standing still
+- special attacks ignore DP: either crush guard or are blocked partially
+
+Other Changes: 
+- player's defense with Medium and Strong styles is improved (you can deflect slashes and blaster fire more rapidly, but still not as quickly as NPCs)
+- Saber Defense 0 no longer makes you invincible to blaster fire, but blaster fire will pass through your saber
+- a custom saber with "autoblocking 0" now has narrow block arc for the player (otherwise blocking is ridiculously easy);
+holding Use and standing still will allow you to block in this fashion at any time
+
+Melee changes
+--------------------------------------------------------------------------------------------------------------------------------
+- Player can kick with any saber type, use +forcefocus to saberthrow (bind this to a key, maybe your mousewheel click-down)
+- Player's melee abilities determined by Saber Offense (1 = punches and kicks, 2 = katas, 3 = spin kicks)
+- if you're not cheating (using g_debugMelee or iknowkungfu)... Player melee katas have less range, must be aimed more precisely, and do not work on certain types of enemies
+- Spin/Flip kicks do slightly more damage
+- Spin Kicks are possible on demand with Use+AltAttack, however costs 10 FP (the auto version doesn't cost any)
+- **To kick over a Jedi, must have Saber Offense >= their Saber Defense
+- Player punches do 7/5 damage instead of 6/3, and aren't randomized
+- **Force Speed punching should be more consistent and less cheap (never did actually test)
+- **Heavy/Slow Melee is specifically associated with Chewbacca, CLASS_GRAN, and CLASS_TRANDOSHAN. Other NPC types will punch
+more quickly but weakly if given WP_MELEE
+
+Other Minor Features
+----------------------------------------------------------------------------------------------------------------------------
+- visual effect for lightsaber-blocking Force Lightning, .efx file to use determined by "cg_lightningBlockEffect"
+- rolls and acrobatics are possible in 1st Person now
+
+New Modding Features
+------------------------------------------------------------------------------------------------------------------------------
+- some new fields you can put in NPC files...
+	dualPistols 1 -- gives an NPC dual pistols if have WP_BLASTER_PISTOL
+	cortosis 1 -- cuts damage in half from lightsabers, stacks on top of any other damage reductions
+	blastArmor 1 -- cuts damage in half from explosives and heavy weapons, stacks on top of any other damage reductions
+	magPlating 1 -- cuts damage in half from blasters, stacks on top of any other damage reductions
+	restrictJediPowers 1 -- restricts an NPC from using force powers they don't actually have (force pushing without Push 1 for example)
+	altFire 1 -- this actually works now
+	dontFlee 1 -- forces SCF_DONT_FLEE (an icarus script thing)
+	dontFire 1 -- forces SCF_DONT_FIRE (like how melee cultists don't punch)
+	rareFire 1 -- same AI as SCF_DONT_FIRE but allows punching sometimes with melee 
+	heavyMelee 1 -- forces heavy melee regardless of class
+
+- new fields are in the weapons.dat:
+1.) velocity, altVelocity: use an integer number (no decimals)
+2.) npcDmgMult, npcAltDmgMult, npcFireTimeMult, npcAltFireTimeMult: multipliers that use a decimal (like 0.7, 1.5, 2.3 etc.)
+*read the weaponshelp.txt for overview default values for these things are
+
+Future ideas
+----------------------------------------------------------------------------------------------------------------------------
+Things to do -
+- *savegame screenshots
+- *separate cvar for player HP and Shields
+- force push strong version, mindtrick changes
+- *camera controls (1st, 2nd, 3rd, 4th person)
+
+
+** not completely tested but should work
+*** incomplete/unfinished/not working completely

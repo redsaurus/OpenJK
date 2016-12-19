@@ -40,7 +40,7 @@ extern qboolean PM_SaberInIdle(int move);
 extern qboolean PM_SaberInAttack(int move);
 extern qboolean PM_SaberInTransitionAny(int move);
 extern qboolean PM_SaberInSpecialAttack(int anim);
-extern qboolean	PM_WalkingOrIdle(gentity_t *self);
+//extern qboolean	PM_WalkingOrIdle(gentity_t *self);
 
 //-------------------------------------------------------------------------
 void G_MissileBounceEffect(gentity_t *ent, vec3_t org, vec3_t dir, qboolean hitWorld)
@@ -183,16 +183,17 @@ void G_ReflectMissile(gentity_t *ent, gentity_t *missile, vec3_t forward, forceP
 		{//but need to be blocking for perfect reflection on higher difficulties
 			perfectReflection = qfalse;
 		}
-
+		/*
 		if (!PM_WalkingOrIdle(owner) || !PM_SaberInParry(owner->client->ps.saberMove))
 		{//but need to be blocking for perfect reflection on higher difficulties
 			perfectReflection = qfalse;
 		}
+		*/
 	}
 
 	if (perfectReflection)
 	{
-		if (!g_saberDeflectAutoAim->integer || owner->s.clientNum >= MAX_CLIENTS) //either by autoaim (lower difficulties)
+		if (g_saberDeflectAutoAim->integer || owner->s.clientNum >= MAX_CLIENTS) //either by autoaim (lower difficulties)
 		{
 			gentity_t *enemy;
 			if (owner->enemy && Q_irand(0, 3))
@@ -268,7 +269,7 @@ void G_ReflectMissile(gentity_t *ent, gentity_t *missile, vec3_t forward, forceP
 	}
 	if (!reflected)
 	{
-		if (!g_saberDeflectAutoAim->integer || owner->s.clientNum >= MAX_CLIENTS)
+		if (g_saberDeflectAutoAim->integer || owner->s.clientNum >= MAX_CLIENTS)
 		{
 			if (missile->owner && missile->s.weapon != WP_SABER)
 			{//bounce back at them if you can

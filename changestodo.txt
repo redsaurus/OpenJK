@@ -1,0 +1,11 @@
+- multiweapon support
+- parse .sab fields from NPC files and cvars (player)
+- camera control (smart 3rd person, 2nd person)
+- finish saber system; test save games, fix specials
+
+creative stuff:
+- jedi stats
+- saber throws
+- strong force push
+- force sense/speed dodging
+- npcs run at close range with weapon

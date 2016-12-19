@@ -33,7 +33,7 @@ void WP_Melee( gentity_t *ent )
 	trace_t		tr;
 	vec3_t		mins, maxs, end;
 	int			damage = weaponData[WP_MELEE].altDamage;
-	float		range = ent->s.number ? 48 : 32;
+	float		range = ent->s.number ? 64 : 32;
 
 	VectorMA( muzzle, range, forwardVec, end );
 
@@ -76,4 +76,19 @@ void WP_Melee( gentity_t *ent )
 
 		G_Damage( tr_ent, ent, ent, forwardVec, tr.endpos, damage, dflags, MOD_MELEE );
 	}
+}
+
+extern void NPC_ChangeWeapon(gentity_t* ent, int wp);
+void WP_MeleeTime(gentity_t *meleer)
+{ //were going to try melee attacks
+	if (!meleer || !meleer->client || !meleer->s.number)
+	{
+		return;
+	}
+
+	meleer->client->ps.stats[STAT_WEAPONS] |= 1 << WP_MELEE;
+
+	NPC_ChangeWeapon(meleer, WP_MELEE);
+	meleer->s.weapon = WP_MELEE;
+	meleer->NPC->last_ucmd.weapon = WP_MELEE;
 }

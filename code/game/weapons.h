@@ -83,6 +83,16 @@ typedef enum //# weapon_e
 	WP_NUM_WEAPONS
 } weapon_t;
 
+typedef enum {
+	WEAPS_ALL,
+	WEAPS_BLASTER,
+	WEAPS_HEAVY,
+	WEAPS_LIGHTBLASTER,
+	WEAPS_HEAVYBLASTER,
+	WEAPS_EXPLOSIVE,
+	WEAPS_OTHER
+} weaponGroup;
+
 #define FIRST_WEAPON		WP_SABER		// this is the first weapon for next and prev weapon switching
 #define MAX_PLAYER_WEAPONS	WP_STUN_BATON	// this is the max you can switch to and get with the give all. - FIXME: it's actually this one *minus* one... why?
 

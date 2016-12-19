@@ -237,10 +237,14 @@ cvar_t	*g_char_forceAffinity; //make into ui_cvars?
 cvar_t	*g_char_forceFocus;
 cvar_t	*g_char_forceSensitivity;
 
+//cvar_t	*g_handicap_hp;
+//cvar_t	*g_handicap_armor;
 cvar_t	*g_handicap_maxArmor;
+cvar_t	*g_handicap_matchNPChp;
 cvar_t	*g_saberDeflectAutoAim;
 cvar_t	*g_playerCheatPowers;
 cvar_t	*g_moonJump;
+cvar_t	*g_saberNewThrows;
 
 /*
 cvar_t	*g_char_moveSpeedScale;			1.0 - you move faster / slower when using this saber
@@ -781,10 +785,14 @@ void G_InitCvars( void ) {
 	g_weaponVelocity = gi.cvar("g_weaponVelocity", "1.0", CVAR_ARCHIVE | CVAR_CHEAT);
 	g_weaponAltVelocity = gi.cvar("g_weaponAltVelocity", "1.0", CVAR_ARCHIVE | CVAR_CHEAT);
 
+	//g_handicap_hp = gi.cvar("handicap_hp", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART | CVAR_USERINFO);
+	//g_handicap_armor = gi.cvar("handicap_armor", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART | CVAR_USERINFO);
 	g_handicap_maxArmor = gi.cvar("handicap_maxArmor", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
+	g_handicap_matchNPChp = gi.cvar("handicap_matchNPChp", "0", CVAR_CHEAT | CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
 	g_saberDeflectAutoAim = gi.cvar("g_saberDeflectAutoAim", "0", CVAR_SAVEGAME);
 	g_playerCheatPowers = gi.cvar("g_playerCheatPowers", "0", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_CHEAT);
 	g_moonJump = gi.cvar("g_moonJump", "0", CVAR_ARCHIVE | CVAR_CHEAT);
+	g_saberNewThrows = gi.cvar("g_saberNewThrows", "1", CVAR_ARCHIVE);
 	
 }
 /*
