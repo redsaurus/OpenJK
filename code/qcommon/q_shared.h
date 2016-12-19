@@ -77,7 +77,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define	BASEGAME "base"
-#define OPENJKGAME "Dusty's Patch"
+#define OPENJKGAME "OpenJK-DP"
 
 #define Q3CONFIG_NAME PRODUCT_NAME ".cfg"
 
