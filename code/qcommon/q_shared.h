@@ -69,10 +69,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #else
 #define PRODUCT_NAME			"dp_sp"
 
-#define CLIENT_WINDOW_TITLE "Dusty's Patch"
-#define CLIENT_CONSOLE_TITLE "DP Console"
+#define CLIENT_WINDOW_TITLE "OpenJK (DP)"
+#define CLIENT_CONSOLE_TITLE "OpenJK (DP) Console"
 #define HOMEPATH_NAME_UNIX "dp"
-#define HOMEPATH_NAME_WIN "Dusty's Patch"
+#define HOMEPATH_NAME_WIN "OpenJK-DP"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #endif
 
