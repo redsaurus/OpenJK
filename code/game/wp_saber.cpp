@@ -8992,6 +8992,7 @@ void WP_SaberBlockNonRandom(gentity_t *self, vec3_t hitloc, qboolean missileBloc
 	}
 }
 
+extern qboolean NPC_JediClass(int className);
 void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 { //allows melee force users to push/dodge explosives and saber throws which is normally tied to a saber block check
 

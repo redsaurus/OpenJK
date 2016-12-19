@@ -729,6 +729,7 @@ qboolean PM_AdjustAnglesForSaberLock( gentity_t *ent, usercmd_t *ucmd )
 	return qfalse;
 }
 
+extern qboolean NPC_JediClass(int className);
 int G_MinGetUpTime( gentity_t *ent )
 {
 	if ( ent
