@@ -36,7 +36,11 @@ extern void NPC_Jedi_RateNewEnemy( gentity_t *self, gentity_t *enemy );
 extern qboolean PM_DroidMelee( int npc_class );
 extern int delayedShutDown;
 extern qboolean G_ValidEnemy( gentity_t *self, gentity_t *enemy );
-extern qboolean NPC_JediClassGood(gentity_t *self);
+
+extern qboolean blasterWeap(int wp);
+extern qboolean	lightBlasterWeap(int wp);
+extern qboolean heavyBlasterWeap(int wp);
+extern qboolean heavyWeap(int wp);
 
 void ChangeWeapon( gentity_t *ent, int newWeapon );
 
@@ -638,51 +642,93 @@ void G_SetEnemy( gentity_t *self, gentity_t *enemy )
 	self->enemy = enemy;
 }
 
+qboolean HaveWeapon(gentity_t* ent, int weapon)
+{
+	return (ent->client->ps.stats[STAT_WEAPONS] & (1 << weapon));
+}
 
 /*
-int ChooseBestWeapon( void )
+	these funcs deals with NPC multi-weapon support.
+	currently supported:
+		- choose next "best" weapon
+		- choose a random weapon, optionally by "group" (heavy, blaster, melee, Boba-types do this)
+*/
+qboolean WeaponInGroup(int weapon, int wpnGroup, int altFire = 0)
+{//this and the funcs it calls do the heavy lifting for weapon grouping
+	if ((heavyWeap(weapon) && wpnGroup == WEAPS_HEAVY)
+		|| (lightBlasterWeap(weapon) && wpnGroup == WEAPS_LIGHTBLASTER)
+		|| (heavyBlasterWeap(weapon) && wpnGroup == WEAPS_HEAVYBLASTER)
+		|| (blasterWeap(weapon) && wpnGroup == WEAPS_BLASTER)
+		|| wpnGroup == WEAPS_ALL)
+	{
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+struct wpnList { //a helper struct
+	int list[MAX_WEAPONS];
+	int listSize = 0;
+};
+
+extern int allWeaponOrder[];
+wpnList getWeaponList(gentity_t *ent, int wpnGroup)
+{//give a list of what weapons this client has
+	int i = 0;
+	int weapon;
+	wpnList w;
+
+	for (int n = 0; n < MAX_WEAPONS; n++)
+	{
+		weapon = allWeaponOrder[n];
+
+		if (HaveWeapon(ent, weapon) && WeaponInGroup(weapon, wpnGroup))
+		{
+			w.list[i] = weapon;
+			w.listSize++;
+			i++;
+		}
+	}
+
+	while (i < MAX_WEAPONS) { //just incase
+		w.list[i] = WP_NONE;
+		i++;
+	}
+
+	return w;
+}
+
+int ChooseWeaponRandom(gentity_t *ent, int wpnGroup)
+{
+	wpnList w = getWeaponList(ent, wpnGroup);
+
+	if (w.listSize)
+		return w.list[Q_irand(0, w.listSize)];
+	else
+		return WP_NONE;
+}
+
+int ChooseBestWeapon(gentity_t* ent)
 {
 	int		n;
 	int		weapon;
 
 	// check weapons in the NPC's weapon preference order
-	for ( n = 0; n < MAX_WEAPONS; n++ )
+	for (n = 0; n < MAX_WEAPONS; n++)
 	{
-		weapon = NPCInfo->weaponOrder[n];
+		weapon = allWeaponOrder[n];
 
-		if ( weapon == WP_NONE )
-		{
-			break;
-		}
-
-		if ( !HaveWeapon( weapon ) )
+		if (!HaveWeapon(ent, weapon))
 		{
 			continue;
 		}
 
-		if ( client->ps.ammo[weaponData[weapon].ammoIndex] )
-		{
-			return weapon;
-		}
+		return weapon;
 	}
 
-	// check weapons serially (mainly in case a weapon is not on the NPC's list)
-	for ( weapon = 1; weapon < WP_NUM_WEAPONS; weapon++ )
-	{
-		if ( !HaveWeapon( weapon ) )
-		{
-			continue;
-		}
-
-		if ( client->ps.ammo[weaponData[weapon].ammoIndex] )
-		{
-			return weapon;
-		}
-	}
-
-	return client->ps.weapon;
+	return WP_NONE;
 }
-*/
 
 void ChangeWeapon( gentity_t *ent, int newWeapon )
 {
@@ -1066,6 +1112,31 @@ void NPC_ChangeWeapon( int newWeapon )
 		}
 	}
 }
+
+void NPC_ChangeWeapon(gentity_t* NPC, int newWeapon)
+{
+	qboolean	changing = qfalse;
+	if (newWeapon != NPC->client->ps.weapon)
+	{
+		changing = qtrue;
+	}
+	if (changing)
+	{
+		G_RemoveWeaponModels(NPC);
+	}
+	ChangeWeapon(NPC, newWeapon);
+	if (changing && NPC->client->ps.weapon != WP_NONE)
+	{
+		if (NPC->client->ps.weapon == WP_SABER)
+		{
+			WP_SaberAddG2SaberModels(NPC);
+		}
+		else
+		{
+			G_CreateG2AttachedWeaponModel(NPC, weaponData[NPC->client->ps.weapon].weaponMdl, NPC->handRBolt, 0);
+		}
+	}
+}
 /*
 void NPC_ApplyWeaponFireDelay(void)
 How long, if at all, in msec the actual fire should delay from the time the attack was started
@@ -1257,15 +1328,6 @@ void WeaponThink( qboolean inCombat )
 
 	ucmd.weapon = client->ps.weapon;
 	ShootThink();
-}
-
-/*
-HaveWeapon
-*/
-
-qboolean HaveWeapon( int weapon )
-{
-	return ( client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) );
 }
 
 qboolean EntIsGlass (gentity_t *check)

@@ -79,6 +79,7 @@ extern cvar_t	*g_char_parryBonus;
 extern cvar_t	*g_char_breakParryBonus;
 
 extern cvar_t	*g_playerCheatPowers;
+extern cvar_t	*g_saberNewThrows;
 
 extern qboolean WP_SaberBladeUseSecondBladeStyle(saberInfo_t *saber, int bladeNum);
 extern qboolean WP_SaberBladeDoTransitionDamage(saberInfo_t *saber, int bladeNum);
@@ -168,6 +169,13 @@ extern qboolean PM_LockedAnim(int anim);
 extern qboolean Rosh_BeingHealed(gentity_t *self);
 extern qboolean G_OkayToLean(playerState_t *ps, usercmd_t *cmd, qboolean interruptOkay);
 
+extern int ChooseBestWeapon(gentity_t* ent);
+extern int ChooseWeaponRandom();
+extern int ChooseBlasterRandom();
+extern int ChooseLightBlasterRandom();
+extern int ChooseHeavyBlasterRandom();
+extern int ChooseHeavyWeapRandom();
+
 int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacker, int atPower, int atPowerLevel, int atForceSpent);
 void WP_ForcePowerStart(gentity_t *self, forcePowers_t forcePower, int overrideAmt);
 void WP_ForcePowerStop(gentity_t *self, forcePowers_t forcePower);
@@ -204,69 +212,7 @@ qboolean g_noClashFlare = qfalse;
 int		g_saberFlashTime = 0;
 
 
-qboolean NPC_JediClass(gentity_t *self) {
-	switch (self->client->NPC_class) {
-		case CLASS_JEDI:
-		case CLASS_REBORN:
-		case CLASS_SHADOWTROOPER:
-		case CLASS_ALORA:
-		case CLASS_DESANN:
-		case CLASS_LUKE:
-		case CLASS_KYLE:
-		case CLASS_TAVION:
-		case CLASS_MORGANKATARN:
-			return qtrue;
-		default:
-			return qfalse;
-	}
-}
-
-qboolean NPC_JediClassGood(gentity_t *self) {
-	switch (self->client->NPC_class) {
-	case CLASS_JEDI:
-	case CLASS_LUKE:
-	case CLASS_KYLE:
-	case CLASS_MORGANKATARN:
-		return qtrue;
-	default:
-		return qfalse;
-	}
-}
-
-qboolean NPC_JediClassNonBoss(gentity_t *self) {
-	switch (self->client->NPC_class) {
-	case CLASS_JEDI:
-	case CLASS_REBORN:
-		return qtrue;
-	default:
-		return qfalse;
-	}
-}
-
-qboolean NPC_JediClassSemiBoss(gentity_t *self) {
-	switch (self->client->NPC_class) {
-	case CLASS_ALORA:
-	case CLASS_SHADOWTROOPER:
-		return qtrue;	
-	}
-
-	return qfalse;
-}
-
-qboolean NPC_JediClassBoss(gentity_t *self) {
-	switch (self->client->NPC_class) {
-	case CLASS_DESANN:
-	case CLASS_LUKE:
-	case CLASS_KYLE:
-	case CLASS_TAVION:
-	case CLASS_MORGANKATARN:
-		return qtrue;
-	default:
-		return qfalse;
-	}
-}
-
-qboolean PM_WalkingOrIdle(gentity_t *self)
+qboolean WP_SaberCanRegenBlockPoints(gentity_t *self)
 { //mainly for checking if we can guard well or regen block points
 	if ((PM_WalkingAnim(self->client->ps.legsAnim)
 		|| PM_StandingAnim(self->client->ps.legsAnim)
@@ -280,6 +226,7 @@ qboolean PM_WalkingOrIdle(gentity_t *self)
 	return qfalse;
 }
 
+/*
 void WP_CheckPlayerSaberEvents(gentity_t *self)
 {//the player needs this because his saberEventFlags aren't cleared by the code in AI_Jedi.cpp like for NPCs
 	if (self->s.number)
@@ -296,9 +243,7 @@ void WP_CheckPlayerSaberEvents(gentity_t *self)
 		self->client->ps.saberEventFlags &= ~SEF_EVENTS;
 	}
 }
-	
-
-
+*/	
 
 vec3_t	g_saberFlashPos = { 0, 0, 0 };
 
@@ -8319,16 +8264,24 @@ qboolean WP_SaberLaunch(gentity_t *self, gentity_t *saber, qboolean thrown, qboo
 	{//FIXME: make a table?
 	default:
 	case FORCE_LEVEL_1:
-		saber->s.apos.trDelta[1] = 800; //600
+		saber->s.apos.trDelta[1] = 600;
 		break;
 	case FORCE_LEVEL_2:
-		saber->s.apos.trDelta[1] = 900; //800
+		saber->s.apos.trDelta[1] = 800;
 		break;
 	case FORCE_LEVEL_3:
-		saber->s.apos.trDelta[1] = 1200; //1200
+		saber->s.apos.trDelta[1] = 1200;
 		break;
 	}
 
+	if (g_saberNewThrows->integer)
+	{
+		if (!self->client->ps.SaberStaff())
+		{
+			saber->s.apos.trDelta[1] += 300;
+		}
+	}
+	
 	//Take it out of my hand
 	self->client->ps.saberInFlight = qtrue;
 	self->client->ps.saberEntityState = SES_LEAVING;
@@ -9054,14 +9007,25 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 	vec3_t		traceTo, entDir;
 	qboolean	dodgeOnlySabers = qfalse;
 
+	if (!self->s.number && !g_playerCheatPowers->integer)
+	{
+		return;
+	}
+
 	if (self->NPC && (self->NPC->scriptFlags&SCF_IGNORE_ALERTS))
 	{//don't react to things flying at me...
 		return;
 	}
+
+	if (self->NPC && !NPC_JediClass(self->client->NPC_class))
+	{//can't do this auto-handling if I'm not a Jedi-type
+		return;
+	}
+
 	if (self->health <= 0)
 	{//dead push/evade
 		return;
-	}
+	}	
 
 	if (PM_InKnockDown(&self->client->ps))
 	{//can't dodge when knocked down
@@ -9073,9 +9037,8 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 		return;
 	}
 
-	if (self->NPC->rank > RANK_LT) //lower rank melee users can't do this stuff
-	{
-		/*
+	if ((!self->s.number && g_playerCheatPowers->integer) || self->NPC->rank > RANK_LT) //lower rank melee users can't do this stuff
+	{		
 		if (g_debugMelee->integer
 			&& (ucmd->buttons & BUTTON_USE)
 			&& cg.renderingThirdPerson
@@ -9084,8 +9047,7 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 		{
 		}
 		else
-		{
-			
+		{			
 			if (self->client->ps.forcePowersActive&(1 << FP_LIGHTNING))
 			{//can't block while zapping
 				return;
@@ -9104,10 +9066,8 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 			if (self->client->ps.forcePowersActive&(1 << FP_GRIP))
 			{//can't block while gripping (FIXME: or should it break the grip?  Pain should break the grip, I think...)
 				return;
-			}
-			
+			}			
 		}
-		*/
 
 		fwdangles[1] = self->client->ps.viewangles[1];
 		AngleVectors(fwdangles, forward, NULL, NULL);
@@ -9178,7 +9138,7 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 			}
 			else
 			{
-				if (ent->s.pos.trType == TR_STATIONARY && !self->s.number)
+				if (ent->s.pos.trType == TR_STATIONARY && !self->s.number && !g_playerCheatPowers->integer)
 				{//nothing you can do with a stationary missile if you're the player
 					continue;
 				}
@@ -9191,9 +9151,10 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 			//FIXME: handle detpacks, proximity mines and tripmines
 			if (ent->s.weapon == WP_THERMAL)
 			{//thermal detonator!
-				if (self->NPC && dist < ent->splashRadius)
+				if ((self->NPC || g_playerCheatPowers->integer) && dist < ent->splashRadius)
 				{
-					if (dist < ent->splashRadius &&
+					if (self->NPC &&
+						dist < ent->splashRadius &&
 						ent->nextthink < level.time + 600 &&
 						ent->count &&
 						self->client->ps.groundEntityNum != ENTITYNUM_NONE &&
@@ -9220,7 +9181,7 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 				//FIXME: handle tripmines and detpacks somehow... 
 				//			maybe do a force-gesture that makes them explode?  
 				//			But what if we're within it's splashradius?
-				if (!self->s.number)
+				if (!self->s.number && !g_playerCheatPowers->integer)
 				{//players don't auto-handle these at all
 					continue;
 				}
@@ -9272,7 +9233,8 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 								}
 							}
 						}
-						else if (dist < ent->splashRadius
+						else if (self->NPC
+							&& dist < ent->splashRadius
 							&& self->client->ps.groundEntityNum != ENTITYNUM_NONE
 							&& (DotProduct(dir, forward) < SABER_REFLECT_MISSILE_CONE
 							|| !WP_ForcePowerUsable(self, FP_PUSH, 0)))
@@ -9284,7 +9246,14 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 							if (!ent->owner || !OnSameTeam(self, ent->owner))
 							{
 								//FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]]
-								ForceThrow(self, qfalse);
+								if (!self->s.number && self->client->ps.forcePowerLevel[FP_PUSH] == 1 && dist >= 192)
+								{
+									//player with push 1 has to wait until it's closer otherwise the push misses
+								}
+								else
+								{
+									ForceThrow(self, qfalse);
+								}								
 							}
 						}
 						//otherwise, can't block it, so we're screwed
@@ -9294,7 +9263,7 @@ void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd)
 			}
 
 			//Reactions to Thrown Sabers
-			else if (!self->s.number)
+			else if (self->s.number || (!self->s.number && g_playerCheatPowers->integer))
 			{//player never auto-blocks thrown sabers
 				continue;
 			}//NPCs always try to block sabers coming from behind!
@@ -10251,29 +10220,18 @@ qboolean G_CheckEnemyPresence(gentity_t *ent, int dir, float radius, float toler
 //OTHER JEDI POWERS=========================================================================
 extern gentity_t *TossClientItems(gentity_t *self);
 extern void ChangeWeapon(gentity_t *ent, int newWeapon);
+extern int RemoveWeapon(gentity_t *ent, int wpnToRemove);
+extern void NPC_ChangeWeapon(gentity_t* dropper, int newWeapon);
 void WP_DropWeapon(gentity_t *dropper, vec3_t velocity)
 {
 	if (!dropper || !dropper->client)
 	{
 		return;
 	}
-	int	replaceWeap = WP_NONE;
 	int oldWeap = dropper->s.weapon;
 	gentity_t *weapon = TossClientItems(dropper);
-	if (oldWeap == WP_THERMAL && dropper->NPC)
-	{//Hmm, maybe all NPCs should go into melee?  Not too many, though, or they mob you and look silly
-		replaceWeap = WP_MELEE;
-	}
-	if (dropper->ghoul2.IsValid())
-	{
-		if (dropper->weaponModel[0] > 0)
-		{//NOTE: guess you never drop the left-hand weapon, eh?
-			gi.G2API_RemoveGhoul2Model(dropper->ghoul2, dropper->weaponModel[0]);
-			dropper->weaponModel[0] = -1;
-		}
-	}
-	//FIXME: does this work on the player?
-	dropper->client->ps.stats[STAT_WEAPONS] |= (1 << replaceWeap);
+
+	
 	if (!dropper->s.number)
 	{
 		if (oldWeap == WP_THERMAL)
@@ -10284,18 +10242,42 @@ void WP_DropWeapon(gentity_t *dropper, vec3_t velocity)
 		{
 			dropper->client->ps.stats[STAT_WEAPONS] &= ~(1 << oldWeap);
 		}
-		CG_ChangeWeapon(replaceWeap);
 	}
 	else
 	{
 		dropper->client->ps.stats[STAT_WEAPONS] &= ~(1 << oldWeap);
 	}
-	ChangeWeapon(dropper, replaceWeap);
-	dropper->s.weapon = replaceWeap;
+
+	int replaceWeap;
 	if (dropper->NPC)
 	{
-		dropper->NPC->last_ucmd.weapon = replaceWeap;
+		replaceWeap = ChooseBestWeapon(dropper);
 	}
+	else
+	{
+		replaceWeap = WP_NONE;
+		CG_ChangeWeapon(replaceWeap);
+	}
+
+	if (dropper->ghoul2.IsValid())
+	{
+		if (dropper->weaponModel[0] > 0)
+		{//NOTE: guess you never drop the left-hand weapon, eh?
+			gi.G2API_RemoveGhoul2Model(dropper->ghoul2, dropper->weaponModel[0]);
+			dropper->weaponModel[0] = -1;
+		}
+	}	
+	
+	NPC_ChangeWeapon(dropper, replaceWeap);
+	if (replaceWeap == WP_NONE)
+	{
+		dropper->s.weapon = replaceWeap;
+		if (dropper->NPC)
+		{
+			dropper->NPC->last_ucmd.weapon = replaceWeap;
+		}
+	}
+
 	if (weapon != NULL && velocity && !VectorCompare(velocity, vec3_origin))
 	{//weapon should have a direction to it's throw
 		VectorScale(velocity, 3, weapon->s.pos.trDelta);//NOTE: Presumes it is moving already...?
@@ -10992,17 +10974,7 @@ void ForceThrow(gentity_t *self, qboolean pull, qboolean fake)
 	if (self->health <= 0)
 	{
 		return;
-	}
-
-	if (!WP_ForcePowerUsable(self, FP_PUSH, 0) && !pull)
-	{//don't know this power
-		return;
-	}
-
-	if (!WP_ForcePowerUsable(self, FP_PULL, 0) && pull)
-	{//don't know this power
-		return;
-	}
+	}	
 
 	if (self->client->ps.leanofs)
 	{//can't force-throw while leaning
@@ -12082,7 +12054,7 @@ void ForceThrow(gentity_t *self, qboolean pull, qboolean fake)
 	}
 	if (pull)
 	{
-		if (self->NPC)
+		if (self->NPC || g_playerCheatPowers->integer > 1)
 		{//NPCs can push more often
 			//FIXME: vary by rank and game skill?
 			self->client->ps.forcePowerDebounce[FP_PULL] = level.time + 200;
@@ -12094,7 +12066,7 @@ void ForceThrow(gentity_t *self, qboolean pull, qboolean fake)
 	}
 	else
 	{
-		if (self->NPC)
+		if (self->NPC || g_playerCheatPowers->integer > 1)
 		{//NPCs can push more often
 			//FIXME: vary by rank and game skill?
 			self->client->ps.forcePowerDebounce[FP_PUSH] = level.time + 200;
@@ -14805,7 +14777,7 @@ int WP_AbsorbConversion(gentity_t *attacked, int atdAbsLevel, gentity_t *attacke
 void WP_SaberBlockPointsRegenerate(gentity_t *self)
 {
 	qboolean canRegen = qfalse;
-	if (PM_WalkingOrIdle(self))
+	if (WP_SaberCanRegenBlockPoints(self))
 	{
 		canRegen = qtrue;
 	}
@@ -14838,7 +14810,7 @@ void WP_SaberBlockPointsRegenerate(gentity_t *self)
 
 qboolean WP_SaberBlockCooldownDone(gentity_t *self)
 {//lets you cheat on the return animations for better defense
-	if (!PM_WalkingOrIdle(self))
+	if (!WP_SaberCanRegenBlockPoints(self)) //must be in a defensive state
 	{
 		return qfalse;
 	}
@@ -15590,17 +15562,17 @@ void WP_ForceForceThrow(gentity_t *thrower)
 	{
 		return;
 	}
-	if (thrower->NPC->stats.restrictJediPowers)
-	{
-		return;
-	}
 	qboolean removePush = qfalse;
 	qboolean relock = qfalse;
-	if (!(thrower->client->ps.forcePowersKnown&(1 << FP_PUSH)))
+	if (!(thrower->client->ps.forcePowersKnown&(1 << FP_PUSH)) && !thrower->NPC->stats.restrictJediPowers)
 	{//give them push just for this specific purpose
 		thrower->client->ps.forcePowersKnown |= (1 << FP_PUSH);
 		thrower->client->ps.forcePowerLevel[FP_PUSH] = FORCE_LEVEL_1;
 		removePush = qtrue;
+	}
+	else
+	{
+		return;
 	}
 
 	if (thrower->NPC
@@ -15879,8 +15851,7 @@ static void WP_ForcePowerRun(gentity_t *self, forcePowers_t forcePower, usercmd_
 						&& !Jedi_CultistDestroyer(gripEnt)
 						&& !Q_irand(0, 100 - (gripEnt->NPC->stats.evasion * 8) - (g_spskill->integer * 20)))
 					{//a jedi who broke free FIXME: maybe have some minimum grip length- a reaction time?
-						if (!(gripEnt->NPC->stats.restrictJediPowers)) WP_ForceForceThrow(gripEnt);
-						else ForceThrow(gripEnt, 0);
+						WP_ForceForceThrow(gripEnt);
 
 						if (gripEnt->NPC->rank >= RANK_COMMANDER //saber reactivation AI here.
 							|| (gripEnt->NPC->aiFlags&NPCAI_BOSS_CHARACTER))
@@ -15889,7 +15860,7 @@ static void WP_ForcePowerRun(gentity_t *self, forcePowers_t forcePower, usercmd_
 						}
 						else //if (gripEnt->NPC->rank >= RANK_LT_COMM)
 						{ //weaker/less skilled guys are stunned after a grip for longer
-							gripEnt->client->saberReactivateTime = level.time + 500;
+							gripEnt->client->saberReactivateTime = level.time + 800;
 						}
 						/*else
 						{
@@ -16334,8 +16305,7 @@ static void WP_ForcePowerRun(gentity_t *self, forcePowers_t forcePower, usercmd_
 					&& level.time - (self->client->ps.forcePowerDebounce[FP_DRAIN]>self->client->ps.forcePowerLevel[FP_DRAIN] * 500)//at level 1, I always get at least 500ms of drain, at level 3 I get 1500ms
 					&& !Q_irand(0, 100 - (drainEnt->NPC->stats.evasion * 8) - (g_spskill->integer * 15)))
 				{//a jedi who broke free FIXME: maybe have some minimum grip length- a reaction time?
-					if (!(drainEnt->NPC->stats.restrictJediPowers)) WP_ForceForceThrow(drainEnt);
-					else ForceThrow(drainEnt, 0);
+					WP_ForceForceThrow(drainEnt);
 					//FIXME: I need to go into some pushed back anim...
 
 					//saber reactivate time - same rules as for Grip
@@ -16346,7 +16316,7 @@ static void WP_ForcePowerRun(gentity_t *self, forcePowers_t forcePower, usercmd_
 					}
 					else /*if (drainEnt->NPC->rank >= RANK_LT_COMM)*/
 					{ //weaker/less skilled guys are stunned after a grip for longer
-						drainEnt->client->saberReactivateTime = level.time + 1000;
+						drainEnt->client->saberReactivateTime = level.time + 800;
 					}
 					/*else
 					{

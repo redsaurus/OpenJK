@@ -1709,6 +1709,7 @@ qboolean heavyWeap(int wp)
 	case WP_FLECHETTE:
 	case WP_ROCKET_LAUNCHER:
 	case WP_CONCUSSION:
+	case WP_THERMAL:
 		return true;
 	}
 

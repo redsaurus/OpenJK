@@ -219,9 +219,6 @@ extern qboolean G_EnoughPowerForSpecialMove( int forcePower, int cost, qboolean 
 extern void G_DrainPowerForSpecialMove( gentity_t *self, forcePowers_t fp, int cost, qboolean kataMove = qfalse );
 extern int G_CostForSpecialMove( int cost, qboolean kataMove = qfalse );
 extern gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, vec3_t saberPos, vec3_t saberVel, vec3_t saberAngles, gentity_t *copySaber = NULL );
-extern qboolean NPC_JediClass(gentity_t *self);
-extern qboolean NPC_JediClassNonBoss(gentity_t *self);
-extern qboolean NPC_JediClassBoss(gentity_t *self);
 
 typedef enum
 {

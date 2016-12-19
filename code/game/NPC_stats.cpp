@@ -1937,6 +1937,7 @@ extern qboolean blasterWeap(int wp);
 extern qboolean	lightBlasterWeap(int wp);
 extern qboolean heavyBlasterWeap(int wp);
 extern qboolean heavyWeap(int wp);
+extern cvar_t*	g_handicap_matchNPChp;
 
 qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 {
@@ -1971,20 +1972,6 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 	if ( NPC->NPC )
 	{
 		stats = &NPC->NPC->stats;
-/*
-	NPC->NPC->allWeaponOrder[0]	= WP_BRYAR_PISTOL;
-	NPC->NPC->allWeaponOrder[1]	= WP_SABER;
-	NPC->NPC->allWeaponOrder[2]	= WP_IMOD;
-	NPC->NPC->allWeaponOrder[3]	= WP_SCAVENGER_RIFLE;
-	NPC->NPC->allWeaponOrder[4]	= WP_TRICORDER;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[6]	= WP_NONE;
-	NPC->NPC->allWeaponOrder[7]	= WP_NONE;
-*/
-		NPC->NPC->weapList = new wpnList();
-		NPC->NPC->lightBlasterWeaps = new wpnList();
-		NPC->NPC->heavyBlasterWeaps = new wpnList();
-		NPC->NPC->heavyWeaps = new wpnList();
 
 		// fill in defaults
 		stats->sex			= SEX_MALE;
@@ -3089,7 +3076,10 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 				}
 				else if ( parsingPlayer )
 				{
-					NPC->client->ps.stats[STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = NPC->max_health = n;
+					if (g_handicap_matchNPChp->integer)
+						NPC->client->ps.stats[STAT_MAX_HEALTH] = NPC->client->pers.maxHealth = NPC->max_health = n;
+					else
+						NPC->client->ps.stats[STAT_MAX_HEALTH] = NPC->client->pers.maxHealth;
 				}
 				continue;
 			}
@@ -3549,19 +3539,7 @@ qboolean NPC_ParseParms( const char *NPCName, gentity_t *NPC )
 					{
 						RegisterItem( FindItemForWeapon( (weapon_t)(weap) ) );	//precache the weapon
 						NPC->client->ps.ammo[weaponData[weap].ammoIndex] = ammoData[weaponData[weap].ammoIndex].max;
-					}
-
-					if (!parsingPlayer)
-					{
-						/*
-						if (lightBlasterWeap(weap)) NPC->NPC->lightBlasterWeaps->add(weap);
-						if (heavyBlasterWeap(weap)) NPC->NPC->heavyBlasterWeaps->add(weap);
-						if (heavyWeap(weap)) NPC->NPC->heavyWeaps->add(weap);
-
-						NPC->NPC->weapList->add(weap);
-						*/
-					}
-					
+					}					
 				}
 				continue;
 			}

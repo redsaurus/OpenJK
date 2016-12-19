@@ -113,11 +113,10 @@ extern void NPC_StartFlee( gentity_t *enemy, vec3_t dangerPoint, int dangerLevel
 extern void G_StartFlee( gentity_t *self, gentity_t *enemy, vec3_t dangerPoint, int dangerLevel, int fleeTimeMin, int fleeTimeMax );
 
 //NPC_combat
-extern int ChooseBestWeapon( void );
 extern void NPC_ChangeWeapon( int newWeapon );
 extern void ShootThink( void );
 extern void WeaponThink( qboolean inCombat );
-extern qboolean HaveWeapon( int weapon );
+extern qboolean HaveWeapon( gentity_t* ent, int weapon );
 extern qboolean CanShoot ( gentity_t *ent, gentity_t *shooter );
 extern void NPC_CheckPossibleEnemy( gentity_t *other, visibility_t vis );
 extern gentity_t *NPC_PickEnemy (gentity_t *closestTo, int enemyTeam, qboolean checkVis, qboolean findPlayersFirst, qboolean findClosest);

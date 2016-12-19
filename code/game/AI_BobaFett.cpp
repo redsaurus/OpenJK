@@ -102,6 +102,12 @@ extern void		G_Knockdown( gentity_t *self, gentity_t *attacker, const vec3_t pus
 
 extern void CG_DrawEdge( vec3_t start, vec3_t end, int type );
 
+extern qboolean heavyWeap(int);
+extern qboolean blasterWeap(int);
+
+extern int ChooseBestWeapon(gentity_t* ent);
+extern int ChooseWeaponRandom(gentity_t *ent, int wpnGroup);
+
 ////////////////////////////////////////////////////////////////////////////////////////
 // External Data
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -654,56 +660,57 @@ void	Boba_Fire()
 	//------------------------------------------------------------------------
 	if (ucmd.buttons&BUTTON_ATTACK)
 	{
-		switch (NPC->s.weapon)
+		if (heavyWeap(NPC->s.weapon))
 		{
-		case WP_ROCKET_LAUNCHER:
-			TIMER_Set( NPC, "nextAttackDelay", Q_irand(1000, 2000));
+			if (NPC->s.weapon == WP_ROCKET_LAUNCHER)
+				TIMER_Set(NPC, "nextAttackDelay", Q_irand(1000, 2000));
 
 			// Occasionally Shoot A Homing Missile
 			//-------------------------------------
-			if (!Q_irand(0,3))
+			if (!Q_irand(0, 3))
 			{
 				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
-				NPC->client->fireDelay = Q_irand( 1000, 3000 );
+				ucmd.buttons |= BUTTON_ALT_ATTACK;
+				if (NPC->s.weapon == WP_ROCKET_LAUNCHER)
+					NPC->client->fireDelay = Q_irand(1000, 3000);
 			}
-			break;
-
-		case WP_DISRUPTOR:
+			
+		}
+		else if (NPC->s.weapon == WP_DISRUPTOR)
+		{
 			TIMER_Set(NPC, "nextAttackDelay", Q_irand(1000, 4000));
 
 			// Occasionally Alt-Fire
 			//-----------------------
-			if (!Q_irand(0,3))
+			if (!Q_irand(0, 3))
 			{
 				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
-				NPC->client->fireDelay = Q_irand( 1000, 3000 );
+				ucmd.buttons |= BUTTON_ALT_ATTACK;
+				NPC->client->fireDelay = Q_irand(1000, 3000);
 			}
-			break;
-
-		case WP_BLASTER:
-
+		}
+		else
+		{//blaster-type weapon
 			if (TIMER_Done(NPC, "nextBlasterAltFireDecide"))
 			{
- 			 	if (Q_irand(0, (NPC->count*2)+3)>2)
+				if (Q_irand(0, (NPC->count * 2) + 3)>2)
 				{
-			 		TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(3000, 8000));
+					TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(3000, 8000));
 					if (!(NPCInfo->scriptFlags&SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE On");
 						NPCInfo->scriptFlags |= SCF_ALT_FIRE;
-						NPC_ChangeWeapon(WP_BLASTER);			// Update Delay Timers
+						NPC_ChangeWeapon(NPC->s.weapon);	// Update Delay Timers
 					}
 				}
 				else
 				{
 					TIMER_Set(NPC, "nextBlasterAltFireDecide", Q_irand(2000, 5000));
-					if ( (NPCInfo->scriptFlags&SCF_ALT_FIRE))
+					if ((NPCInfo->scriptFlags&SCF_ALT_FIRE))
 					{
 						Boba_Printf("ALT FIRE Off");
-						NPCInfo->scriptFlags &=~SCF_ALT_FIRE;
-						NPC_ChangeWeapon(WP_BLASTER);			// Update Delay Timers
+						NPCInfo->scriptFlags &= ~SCF_ALT_FIRE;
+						NPC_ChangeWeapon(NPC->s.weapon);			// Update Delay Timers
 					}
 				}
 			}
@@ -713,9 +720,8 @@ void	Boba_Fire()
 			if (NPCInfo->scriptFlags&SCF_ALT_FIRE)
 			{
 				ucmd.buttons &= ~BUTTON_ATTACK;
-				ucmd.buttons |=  BUTTON_ALT_ATTACK;
+				ucmd.buttons |= BUTTON_ALT_ATTACK;
 			}
-			break;
 		}
 	}
 }
@@ -724,15 +730,24 @@ void	Boba_Fire()
 ////////////////////////////////////////////////////////////////////////////////////////
 // Call this function to see if Fett should fire his current weapon
 ////////////////////////////////////////////////////////////////////////////////////////
-void Boba_FireDecide( void )
+//helper function
+qboolean isBobaClass(int className)
+{
+	if (NPC->client->NPC_class == CLASS_BOBAFETT || NPC->client->NPC_class == CLASS_MANDA || NPC->client->NPC_class == CLASS_COMMANDO)
+		return qtrue;
+
+	return qfalse;
+}
+
+void Boba_FireDecide(void)
 {
 	// Any Reason Not To Shoot?
 	//--------------------------
 	if (!NPC ||											// Only NPCs
 		!NPC->client ||									// Only Clients
-		(NPC->client->NPC_class != CLASS_BOBAFETT || NPC->client->NPC_class != CLASS_MANDA || NPC->client->NPC_class != CLASS_COMMANDO) ||							  // Only Boba
+		!isBobaClass(NPC->client->NPC_class) ||							  // Only Boba
 		!NPC->enemy ||									// Only If There Is An Enemy
-		 NPC->s.weapon==WP_NONE ||						// Only If Using A Valid Weapon
+		NPC->s.weapon == WP_NONE ||						// Only If Using A Valid Weapon
 		!TIMER_Done(NPC, "nextAttackDelay") ||			// Only If Ready To Shoot Again
 		!Boba_CanSeeEnemy(NPC)							// Only If Enemy Recently Seen
 		)
@@ -742,24 +757,16 @@ void Boba_FireDecide( void )
 
 	// Now Check Weapon Specific Parameters To See If We Should Shoot Or Not
 	//-----------------------------------------------------------------------
-	switch (NPC->s.weapon)
+	if (heavyWeap(NPC->s.weapon))
 	{
-	case WP_ROCKET_LAUNCHER:
-		if (Distance(NPC->currentOrigin, NPC->enemy->currentOrigin)>400.0f)
+		if (Distance(NPC->currentOrigin, NPC->enemy->currentOrigin) > 400.0f)
 		{
 			Boba_Fire();
 		}
-		break;
-
-	case WP_DISRUPTOR:
-		// TODO: Add Conditions Here
+	}
+	else
+	{
 		Boba_Fire();
-		break;
-
-	case WP_BLASTER:
-		// TODO: Add Conditions Here
-		Boba_Fire();
-		break;
 	}
 }
 
@@ -810,7 +817,7 @@ void	Boba_TacticsSelect()
 	{
 		// If It's Been Long Enough Since Our Last Flame Blast, Try To Torch The Enemy
 		//-----------------------------------------------------------------------------
-		if (TIMER_Done(NPC, "nextFlameDelay"))
+		if (TIMER_Done(NPC, "nextFlameDelay") && (NPC->client->NPC_class == CLASS_BOBAFETT || NPC->client->NPC_class == CLASS_MANDA))
 		{
 			nextState = BTS_FLAMETHROW;
 		}
@@ -853,7 +860,7 @@ void	Boba_TacticsSelect()
 		}
 
 
- 		if (SnipePointsNear && TIMER_Done(NPC, "Boba_NoSniperTime"))
+ 		if (SnipePointsNear && TIMER_Done(NPC, "Boba_NoSniperTime") && HaveWeapon(NPC, WP_DISRUPTOR))
 		{
 			TIMER_Set(NPC, "Boba_NoSniperTime", 120000);				// Don't snipe again for a while
 			TIMER_Set(NPC, "Boba_TacticsSelect", Q_irand(35000, 45000));// More patience here
@@ -870,62 +877,50 @@ void	Boba_TacticsSelect()
 		}
 	}
 
-	switch (nextState) {
-		case BTS_FLAMETHROW:
-			if ((!NPC->client->NPC_class == CLASS_BOBAFETT && !NPC->client->NPC_class == CLASS_MANDA))
-			{
-				nextState = BTS_RIFLE;
-				break;
-			}
-		case BTS_MISSILE:
-			if (!HaveWeapon(WP_ROCKET_LAUNCHER))
-			{
-				nextState = BTS_RIFLE;
-				break;
-			}
-		case BTS_SNIPER:
-			if (!HaveWeapon(WP_DISRUPTOR))
-			{
-				nextState = BTS_RIFLE;
-				break;
-			}
-	}
-
-
 	// The Next State Has Been Selected, Now Change Weapon If Necessary
 	//------------------------------------------------------------------
-	if (nextState!=NPCInfo->localState)
+	NPCInfo->localState = nextState;
+	int weapon = 0;
+
+	switch (NPCInfo->localState)
 	{
-		NPCInfo->localState = nextState;
-		switch (NPCInfo->localState)
+	case BTS_SNIPER:
+		if (HaveWeapon(NPC, WP_DISRUPTOR))
 		{
-		case BTS_FLAMETHROW:
-			Boba_Printf("NEW TACTIC: Flame Thrower");
-			Boba_ChangeWeapon(WP_NONE);
-			Boba_DoFlameThrower(NPC);
-			break;
-
-		case BTS_RIFLE:
-			Boba_Printf("NEW TACTIC: Rifle");
-			Boba_ChangeWeapon(WP_BLASTER);
-			break;
-
-		case BTS_MISSILE:
-			Boba_Printf("NEW TACTIC: Rocket Launcher");
-			Boba_ChangeWeapon(WP_ROCKET_LAUNCHER);
-			break;
-
-		case BTS_SNIPER:
 			Boba_Printf("NEW TACTIC: Sniper");
 			Boba_ChangeWeapon(WP_DISRUPTOR);
 			break;
-
-		case BTS_AMBUSHWAIT:
-			Boba_Printf("NEW TACTIC: Ambush");
-			Boba_ChangeWeapon(WP_NONE);
-			break;
 		}
-	}
+			
+	case BTS_RIFLE:	
+		weapon = ChooseWeaponRandom(NPC, WEAPS_BLASTER);
+		if (weapon)
+		{
+			Boba_Printf("NEW TACTIC: Rifle");
+			Boba_ChangeWeapon(weapon);
+			break;
+		} //if no blasters overflow to next case
+
+	case BTS_MISSILE:
+		weapon = ChooseWeaponRandom(NPC, WEAPS_HEAVY);
+		if (weapon)
+		{
+			Boba_Printf("NEW TACTIC: Rocket Launcher");
+			Boba_ChangeWeapon(weapon);
+			break;
+		} //if no heavy weaps overflow to next case
+
+	case BTS_FLAMETHROW: //kinda stuck at this point if doesn't have flamethrower
+		Boba_Printf("NEW TACTIC: Flame Thrower");
+		Boba_ChangeWeapon(WP_NONE);
+		Boba_DoFlameThrower(NPC);
+		break;				
+
+	case BTS_AMBUSHWAIT:
+		Boba_Printf("NEW TACTIC: Ambush");
+		Boba_ChangeWeapon(WP_NONE);
+		break;
+	}	
 }
 
 

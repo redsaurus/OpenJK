@@ -93,7 +93,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	SCF_SAFE_REMOVE		0x80000000	//Remove NPC when it's safe (when player isn't looking)
 
 
-
 //#ifdef __DEBUG
 
 //Debug flag definitions
@@ -166,63 +165,6 @@ typedef struct gNPCstats_e
 	qboolean	rareFire;		
 	
 } gNPCstats_t;
-
-
-struct wpnNode {
-	wpnNode* nextWeap;
-	int thisWeap;
-
-	wpnNode(int wp) {
-		this->thisWeap = wp;
-		this->nextWeap = NULL;
-	}
-};
-
-struct wpnList { //NPCs use these to make a list of weaps they have, so they can choose from if need to switch weaps
-	wpnNode* head;
-	int size;
-
-	wpnList() {
-		this->head = NULL;
-		this->size = 0;
-	}
-
-	void add(int wp) {
-		if (size == 0) {
-			this->head = new wpnNode(wp);
-			this->size = 1;
-		}
-		else {
-			wpnNode nodeToInsertAfter = *head;
-			for (int i = 1; i < size; i++) {
-				nodeToInsertAfter = *(nodeToInsertAfter.nextWeap);
-			}
-
-			nodeToInsertAfter.nextWeap = new wpnNode(wp);
-			size++;
-		}
-	}
-
-	wpnNode* findAndReturn(int index) {
-		if (size == 0) return NULL;
-		else {
-			wpnNode* nodeToReturn = head;
-			for (int i = 1; i < size; i++) {
-				nodeToReturn = nodeToReturn->nextWeap;
-			}
-
-			return nodeToReturn;
-		}
-	}
-
-	int pickRand() {
-		if (size == 0) return -1;
-		else {
-			int choice = Q_irand(1, size);
-			return findAndReturn(choice)->thisWeap;
-		}
-	}
-};
 
 #define	MAX_ENEMY_POS_LAG	2400
 #define	ENEMY_POS_LAG_INTERVAL	100
@@ -399,11 +341,6 @@ typedef struct
 	int			ffireDebounce;
 	int			ffireFadeDebounce;
 
-	//Dusty additions
-	wpnList*	weapList;
-	wpnList*	lightBlasterWeaps;
-	wpnList*	heavyBlasterWeaps;
-	wpnList*	heavyWeaps;
 } gNPC_t;
 
 void G_SquadPathsInit(void);

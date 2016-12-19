@@ -483,9 +483,9 @@ struct gclient_s {
 
 	//new fields
 	int			saberReactivateTime;	//time after something deactivates a saber for AI to turn it back on
-	int			breakLimit;				
+	int			breakLimit;				//how many defense points
 	int			breakRecoveryTime;		//how long left to recover a defense point
-	int			breakCounter;			//how many strong attacks have we blocked recently?
+	int			breakCounter;			//how many defense points have we used/strong attacks have we blocked recently?
 	//qboolean	saberDropped;			//did we drop our saber throw?
 };
 
