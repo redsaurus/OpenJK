@@ -990,7 +990,10 @@ static void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 					{
 						if (cent->gent->client->ps.torsoAnim == BOTH_KYLE_PA_1
 							|| cent->gent->client->ps.torsoAnim == BOTH_KYLE_PA_2
-							|| cent->gent->client->ps.torsoAnim == BOTH_KYLE_PA_3)
+							|| cent->gent->client->ps.torsoAnim == BOTH_KYLE_PA_3
+							|| cent->gent->client->ps.torsoAnim == BOTH_PLAYER_PA_1
+							|| cent->gent->client->ps.torsoAnim == BOTH_PLAYER_PA_2
+							|| cent->gent->client->ps.torsoAnim == BOTH_PLAYER_PA_3)
 						{
 							if (Q_stristr(s, "force") && cent->gent && cent->gent->flags&FL_MELEEKATA_NOFORCEFX)
 							{

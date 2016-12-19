@@ -51,6 +51,7 @@ extern void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd );
 extern void WP_SaberBlockPointsRegenerate(gentity_t * self);
 extern void Jedi_MeleeEvasionDefense(gentity_t *self, usercmd_t *ucmd);
 extern void WP_CheckPlayerSaberEvents(gentity_t *self);
+extern qboolean NPC_JediClass(int className);
 
 extern gentity_t *SeekerAcquiresTarget ( gentity_t *ent, vec3_t pos );
 extern void FireSeeker( gentity_t *owner, gentity_t *target, vec3_t origin, vec3_t dir );
@@ -2943,7 +2944,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			VectorClear( ent->client->ps.moveDir );
 		}
 		overridAngles = PM_AdjustAnglesForGrapple( ent, ucmd )?qtrue:overridAngles;
-		//if ( g_debugMelee->integer )
+		if ( g_debugMelee->integer > -1 )
 		{//actually do some damage during sequence
 			int damage = 0;
 			int dflags = (DAMAGE_NO_KNOCKBACK|DAMAGE_NO_ARMOR|DAMAGE_NO_KILL);
@@ -5337,7 +5338,7 @@ extern cvar_t	*g_skippingcin;
 		{
 			WP_SaberStartMissileBlockCheck(ent, ucmd);
 		}
-		else if (ent->s.number)
+		else if (NPC_JediClass(ent->client->NPC_class) || !ent->s.number)
 		{//we may be a non-saber force user
 			Jedi_MeleeEvasionDefense(ent, ucmd);
 		}

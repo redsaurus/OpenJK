@@ -11237,6 +11237,15 @@ qboolean PM_CheckAltKickAttack(void)
 	return qfalse;
 }
 
+qboolean PM_CheckAltKickAttackMelee(void)
+{//only used by a melee npc for now
+	if (!PM_FlippingAnim(pm->ps->legsAnim) || pm->ps->legsAnimTimer <= 250)
+	{
+		return qtrue;
+	}
+	return qfalse;
+}
+
 qboolean PM_CheckUpsideDownAttack(void)
 {
 	if (pm->ps->saberMove != LS_READY)
@@ -13797,7 +13806,7 @@ static void PM_Weapon(void)
 						int anim = -1;
 						if ((pm->ps->clientNum < MAX_CLIENTS || PM_ControlledByPlayer())
 							&& !(g_debugMelee->integer < 0) )
-						{//saber offense
+						{//player melee usage
 							if ((pm->cmd.buttons&BUTTON_ALT_ATTACK))
 							{
 								if ((pm->cmd.buttons&BUTTON_ATTACK) && pm->ps->forcePowerLevel[FP_SABER_OFFENSE] > 1
@@ -13828,8 +13837,18 @@ static void PM_Weapon(void)
 							}
 						}
 						else
-						{
-							anim = PM_PickAnim(pm->gent, BOTH_MELEE1, BOTH_MELEE2); //is this even used?
+						{//NPC trying to punch or kick
+							if (pm->ps->saberMoveNext) //must be kicking... or doing something related to a kata???
+							{
+							//if (!(pm->ps->pm_flags&PMF_ALT_ATTACK_HELD))
+							//	{
+									PM_WeaponLightsaber(); //kind of an ugly hack, but hey, technically kicks are saber moves...
+							//	}
+							}
+							else
+							{
+								anim = PM_PickAnim(pm->gent, BOTH_MELEE1, BOTH_MELEE2); //is this even used?
+							}							
 						}
 						if (anim != -1)
 						{

@@ -5406,7 +5406,7 @@ void PM_SetAnimFinal(int *torsoAnim, int *legsAnim,
 	if (*torsoAnim == BOTH_MELEE1 || *torsoAnim == BOTH_MELEE2)
 	{//non-heavy punches are faster FIXME: Give player heavy punch cheat?		
 		if (gent->s.number == 0 || !(gent->NPC->aiFlags&NPCAI_HEAVY_MELEE)) {
-			timeScaleMod *= 1.25;
+			timeScaleMod *= 1.5;
 		}				
 	}
 	
@@ -5948,7 +5948,7 @@ void PM_TorsoAnimLightsaber()
 							|| pm->ps->legsAnim == BOTH_WALKBACK_DUAL)
 							&& pm->ps->saberBlockingTime < cg.time)
 						{//running w/1-handed weapon uses full-body anim
-							PM_SetAnim(pm, SETANIM_TORSO, pm->ps->legsAnim, SETANIM_FLAG_NORMAL);
+							PM_SetAnim(pm, SETANIM_TORSO, pm->ps->legsAnim, SETANIM_FLAG_NORMAL, 1000);
 						}
 						else
 						{

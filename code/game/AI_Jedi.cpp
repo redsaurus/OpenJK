@@ -1256,7 +1256,8 @@ static void Jedi_CheckDecreaseSaberAnimLevel( void )
 
 static qboolean Jedi_DecideKick( int enemy_dist )
 { 
-	if ( enemy_dist > 0 )
+	if ( enemy_dist > 0 
+		|| (enemy_dist > 128 && NPC->client->NPC_class == CLASS_REBORN && !Q_irand(0,3))) //reborn like to show off a little
 	{
 		return qfalse;
 	} 
@@ -1330,8 +1331,8 @@ void Kyle_TryGrab( void )
 qboolean Kyle_CanDoGrab( void )
 {
 	if ( (NPC->client->NPC_class == CLASS_KYLE && (NPC->spawnflags&1))
-		|| NPCInfo->stats.saberMeleeKatas)
-	{//Boss Kyle
+		|| (NPCInfo->stats.saberMeleeKatas && NPC->s.weapon == WP_SABER) || (NPCInfo->stats.meleeKatas && NPC->s.weapon == WP_MELEE))
+	{//Boss Kyle or NPC with special fields
 		if ( NPC->enemy && NPC->enemy->client )
 		{//have a valid enemy
 			if ( TIMER_Done( NPC, "grabEnemyDebounce" ) )
@@ -1404,7 +1405,7 @@ static void Jedi_CombatDistance( int enemy_dist )
 		TIMER_Set( NPC, "attackDelay", Q_irand( 0, 1000 ) );
 	}
 
-	if ( NPC->client->NPC_class == CLASS_BOBAFETT || NPC->client->NPC_class == CLASS_MANDA )
+	if (NPC->client->NPC_class == CLASS_BOBAFETT || NPC->client->NPC_class == CLASS_MANDA || NPC->client->NPC_class == CLASS_COMMANDO)
 	{
 		if ( !TIMER_Done( NPC, "flameTime" ) )
 		{
@@ -1568,7 +1569,11 @@ static void Jedi_CombatDistance( int enemy_dist )
 					if ( G_PickAutoMultiKick( NPC, qfalse, qtrue ) != LS_NONE
 						|| (G_CanKickEntity(NPC, NPC->enemy ) && G_PickAutoKick( NPC, NPC->enemy, qtrue ) != LS_NONE ) )
 					{//kicked!
-						TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+						int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+						if (kickFreqIncrease > 0)
+							TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease*1000));
+						else
+							TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 						return;
 					}
 				}
@@ -1608,7 +1613,11 @@ static void Jedi_CombatDistance( int enemy_dist )
 			if ( G_PickAutoMultiKick( NPC, qfalse, qtrue ) != LS_NONE
 				|| (G_CanKickEntity(NPC, NPC->enemy ) && G_PickAutoKick( NPC, NPC->enemy, qtrue ) != LS_NONE ) )
 			{//kicked!
-				TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+				int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+				if (kickFreqIncrease > 0)
+					TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease * 1000));
+				else
+					TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 				return;
 			}
 		}
@@ -1636,7 +1645,11 @@ static void Jedi_CombatDistance( int enemy_dist )
 				if ( G_PickAutoMultiKick( NPC, qfalse, qtrue ) != LS_NONE
 					|| (G_CanKickEntity(NPC, NPC->enemy ) && G_PickAutoKick( NPC, NPC->enemy, qtrue ) != LS_NONE ) )
 				{//kicked!
-					TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+					int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+					if (kickFreqIncrease > 0)
+						TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease * 1000));
+					else
+						TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 					return;
 				}
 			}
@@ -1969,7 +1982,11 @@ static void Jedi_CombatDistance( int enemy_dist )
 				if ( G_PickAutoMultiKick( NPC, qfalse, qtrue ) != LS_NONE
 					|| (G_CanKickEntity(NPC, NPC->enemy ) && G_PickAutoKick( NPC, NPC->enemy, qtrue ) != LS_NONE ) )
 				{//kicked!
-					TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+					int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+					if (kickFreqIncrease > 0)
+						TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease * 1000));
+					else
+						TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 					return;
 				}
 			}
@@ -2485,7 +2502,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 		&& !PM_InRoll( &self->client->ps )
 		&& !PM_InKnockDown( &self->client->ps )
 		&& !PM_SaberInSpecialAttack( self->client->ps.torsoAnim )
-		&& self->NPC->stats.move >= 3)
+		&& self->NPC->stats.move > 3)
 	{
 		vec3_t fwd, right, traceto, mins = {self->mins[0],self->mins[1],self->mins[2]+STEPSIZE}, maxs = {self->maxs[0],self->maxs[1],24}, fwdAngles = {0, self->client->ps.viewangles[YAW], 0};
 		trace_t	trace;
@@ -2508,8 +2525,7 @@ evasionType_t Jedi_CheckFlipEvasions( gentity_t *self, float rightdot, float zdi
 				allowCartWheels = qfalse;
 			}
 		}
-		if (self->client->ps.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1
-			|| self->NPC->stats.move < 4)
+		if (self->client->ps.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1 && self->s.weapon != WP_SABER)
 		{ //can't do no-handed cartwheels without a bit of force jumping ability or teh moves
 			allowCartWheels = qfalse;
 		}
@@ -3144,7 +3160,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 		{//either it will miss by a bit (and 25% chance) OR our saber is not in-hand OR saber is off
 			if ( self->NPC 
 				&& (self->NPC->rank == RANK_CREWMAN || self->NPC->rank >= RANK_LT_JG)
-				&& self->NPC->stats.move >= 3)
+				&& self->NPC->stats.move > 3)
 			{//acrobat or fencer or above
 				if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE &&//on the ground
 					!(self->client->ps.pm_flags&PMF_DUCKED)&&cmd->upmove>=0&&TIMER_Done( self, "duck" )//not ducking
@@ -3169,7 +3185,7 @@ evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc
 	if ((self->client->NPC_class == CLASS_BOBAFETT || self->client->NPC_class == CLASS_MANDA || self->client->NPC_class == CLASS_COMMANDO //boba fett
 				|| (self->client->NPC_class == CLASS_REBORN && self->s.weapon != WP_SABER) //non-saber reborn (cultist)
 			)
-			&& self->NPC->stats.move >= 3
+			//&& self->NPC->stats.move >= 3
 			&& !Q_irand( 0, 2 ) 
 		)
 	{
@@ -4449,7 +4465,11 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 						)
 					)
 				{//kicked
-					TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+					int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+					if (kickFreqIncrease > 0)
+						TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease * 1000));
+					else
+						TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 				}
 				else if ( (NPCInfo->rank == RANK_ENSIGN || NPCInfo->rank > RANK_LT_JG) && TIMER_Done( NPC, "parryTime" ) )
 				{//FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]]
@@ -4475,9 +4495,13 @@ static void Jedi_EvasionSaber( vec3_t enemy_movedir, float enemy_dist, vec3_t en
 				if ( !Q_irand( 0, 5 ) || !Jedi_Strafe( 300, 1000, 0, 1000, qfalse ) )
 				{//certain chance they will pick an alternative evasion
 					//if couldn't strafe, try a different kind of evasion...
-					if ((NPC->s.weapon == WP_SABER || NPCInfo->stats.meleeKicks) && Jedi_DecideKick(enemy_dist) && G_CanKickEntity(NPC, NPC->enemy) && G_PickAutoKick(NPC, NPC->enemy, qtrue) != LS_NONE)
+					if ((NPC->s.weapon == WP_SABER || /*NPCInfo->stats.meleeKicks*/ NPC->s.weapon == WP_MELEE) && Jedi_DecideKick(enemy_dist) && G_CanKickEntity(NPC, NPC->enemy) && G_PickAutoKick(NPC, NPC->enemy, qtrue) != LS_NONE)
 					{//kicked!
-						TIMER_Set( NPC, "kickDebounce", Q_irand( 3000, 10000 ) );
+						int kickFreqIncrease = NPC->NPC->stats.meleeKicks - 1;
+						if (kickFreqIncrease > 0)
+							TIMER_Set(NPC, "kickDebounce", Q_irand(3000, 10000 - kickFreqIncrease * 1000));
+						else
+							TIMER_Set(NPC, "kickDebounce", (Q_irand(3000, 10000)));
 					}
 					else if ( shooting_lightning || throwing_saber || enemy_dist < 80 )
 					{
@@ -5397,11 +5421,6 @@ static qboolean Jedi_AttackDecide( int enemy_dist )
 		return qfalse;
 	}
 
-	if (!TIMER_Done(NPC, "attackDelay") && NPC->s.weapon == WP_MELEE)
-	{
-		return qfalse;
-	}
-
 	if ( Jedi_CultistDestroyer( NPC ) )
 	{//destroyer
 		if ( enemy_dist <= 32 )
@@ -5496,32 +5515,37 @@ static qboolean Jedi_AttackDecide( int enemy_dist )
 		return qfalse;
 	}
 
-	if ( (NPCInfo->scriptFlags&SCF_DONT_FIRE && NPCInfo->stats.rareFire) )
-	{//melee cultists punch rarely
-		if (NPC->s.weapon == WP_MELEE 			
-			&& enemy_dist <= 0
-			&& ucmd.forwardmove >= 0 //if moving backwards punch tends to miss
-			&& (NPC->client->ps.groundEntityNum != ENTITYNUM_NONE
-				&& NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_NONE)) //both on ground
-		{
-			if (!(NPC->client->ps.forcePowerDebounce[FP_PUSH] > level.time || NPC->client->ps.forcePowerDebounce[FP_PULL] > level.time 
-				|| NPC->client->ps.forcePowerDebounce[FP_DRAIN] > level.time || NPC->client->ps.forcePowerDebounce[FP_LIGHTNING] > level.time))
-			{//not in the middle of pushing, pulling, draining, or zapping
-				if ((level.time - NPC->client->ps.forcePowerDebounce[FP_PUSH] < 1000 
-						|| level.time - NPC->client->ps.forcePowerDebounce[FP_PUSH] < 1000)) 
-				{//we already tried to push/pull and aren't using another force power
+	
+	if (NPC->s.weapon == WP_MELEE 			
+		&& enemy_dist < -20
+		&& ucmd.forwardmove >= 0 //if moving backwards punch tends to miss
+		&& (NPC->client->ps.groundEntityNum != ENTITYNUM_NONE
+			&& NPC->enemy->client->ps.groundEntityNum != ENTITYNUM_NONE)) //both on ground
+	{		
+		if (!(NPC->client->ps.forcePowerDebounce[FP_PUSH] > level.time || NPC->client->ps.forcePowerDebounce[FP_PULL] > level.time
+			|| NPC->client->ps.forcePowerDebounce[FP_DRAIN] > level.time || NPC->client->ps.forcePowerDebounce[FP_LIGHTNING] > level.time))
+		{//not in the middle of pushing, pulling, draining, or zapping
+			if ((level.time - NPC->client->ps.forcePowerDebounce[FP_PUSH] < 1000
+				|| level.time - NPC->client->ps.forcePowerDebounce[FP_PUSH] < 1000))
+			{//we already tried to push/pull and aren't using another force power
+				if ((NPCInfo->scriptFlags&SCF_DONT_FIRE && NPCInfo->stats.rareFire))
+				{//melee cultists punch *rarely*
 					if (!Q_irand(0, 6) - NPCInfo->stats.aggression)
 					{
-						TIMER_Set(NPC, "attackDelay", Q_irand(1000, 3000)); //single punches only, don't try again for a while
+						TIMER_Set(NPC, "parryTime", 4000); //single punches only, don't try again for a while
 					}
 				}
-			}						
-		}
-		else {
-			return qfalse;
-		}
-		
+				else
+				{
+					//no delays or anything, punch normally
+				}					
+			}
+		}						
 	}
+	else { //no punching
+		return qfalse;
+	}
+	
 
 	if ( !(ucmd.buttons&BUTTON_ATTACK) 
 		&& !(ucmd.buttons&BUTTON_ALT_ATTACK) 
@@ -6737,8 +6761,10 @@ qboolean Jedi_CheckKataAttack( void )
 						if ( Q_irand( 0, g_spskill->integer+1 ) //50% chance on easy, 66% on medium, 75% on hard
 							&& !Q_irand( 0, 9 ) )//10% chance overall
 						{//base on skill level
-							if ( enemy_in_range || (enemy_near && enemy_approaching)  ) //need to actually be close to the enemy
-							{
+							if ( enemy_in_range //enemy is in saber range
+								|| (enemy_near && enemy_approaching) //is moving into range
+								|| (NPC->client->NPC_class == CLASS_REBORN && !enemy_near && !enemy_approaching && !enemy_in_range) )
+							{//reborn like to show off a little...
 								ucmd.upmove = 0;
 								VectorClear( NPC->client->ps.moveDir );
 								if ( g_saberNewControlScheme->integer )

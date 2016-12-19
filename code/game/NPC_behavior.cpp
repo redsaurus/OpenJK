@@ -1577,8 +1577,34 @@ void NPC_Surrender( void )
 	}
 }
 
-extern int NPC_CheckMultipleEnemies(gentity_t *closestTo, int enemyTeam, qboolean checkVis);
+qboolean NPC_CheckUseMelee(gentity_t* NPC, int relNumEnemies)
+{
+	int chance = relNumEnemies;
 
+	if (NPC->health < 25 || (NPC->health < 0.25*NPC->max_health && NPC->enemy->client->ps.weapon == WP_SABER))
+	{
+		chance -= 4;
+	}
+
+	if (NPC->enemy->enemy && DistanceSquared(NPC->currentOrigin, NPC->enemy->currentOrigin) < 64 * 64)
+	{//enemy is close and distracted
+		chance++;
+	}
+
+	if (NPC->enemy->painDebounceTime < level.time - 3000) //enemy in pain
+		chance++;
+	if (NPC->enemy->client->ps.forcePowerDebounce[FP_SABER_DEFENSE] < level.time - 1000) //enemy busy being attacked
+		chance++;
+	if (NPC->NPC->aiFlags&NPCAI_HEAVY_MELEE || NPC->client->NPC_class == CLASS_WOOKIEE)
+		chance++;
+
+	chance += NPC->NPC->stats.aggression - 3;
+	
+	return chance;
+}
+
+extern int NPC_CheckMultipleEnemies(gentity_t *closestTo, int enemyTeam, qboolean checkVis);
+extern void WP_MeleeTime(gentity_t* meleer);
 qboolean NPC_CheckSurrender(qboolean noEscape = qfalse)
 {
 	if (!g_AIsurrender->integer
@@ -1608,8 +1634,7 @@ qboolean NPC_CheckSurrender(qboolean noEscape = qfalse)
 
 			if (numEnemies == 1 && (NPC->enemy->s.weapon == WP_MELEE || NPC->enemy->s.weapon == WP_NONE))
 			{//maybe we should try to melee fight? Or at least don't officially surrender... just kind of stand there
-				//FIXME: If the enemy is attacking me with melee I should fight back or run...
-				return qfalse;
+				WP_MeleeTime(NPC);
 			}
 
 			if (noEscape)

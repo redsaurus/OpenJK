@@ -48,7 +48,7 @@ extern qboolean FlyingCreature( gentity_t *ent );
 #define	REALIZE_THRESHOLD	0.6f
 #define CAUTIOUS_THRESHOLD	( REALIZE_THRESHOLD * 0.75 )
 
-#define MELEE_CHANCE		1000000
+#define MELEE_CHANCE		1800
 
 qboolean NPC_CheckPlayerTeamStealth( void );
 
@@ -519,10 +519,9 @@ void NPC_BSGrenadier_Attack( void )
 	}
 
 	//See if we should switch to melee attack
-	if ( (enemyDist < 16384 && enemyUsingSaber)
-		|| (enemyDist < 64*64 && !Q_irand(0,50))) //chance to try punching if player is super close
-		// 50% chance if enemy very close to use melee on saber wielding enemy
-	{//enemy is close and not using saber or very close and random chance
+	if ( (enemyDist < 16384 && !enemyUsingSaber)
+		|| (enemyDist < 64*64 && !Q_irand(0, MELEE_CHANCE) && TIMER_Done(NPC, "sleepTime")))
+	{//enemy is close and not using saber or very close and random chance and we weren't just using melee
 		if ( NPC->client->ps.weapon == WP_THERMAL )
 		{//grenadier
 			trace_t	trace;
@@ -532,9 +531,9 @@ void NPC_BSGrenadier_Attack( void )
 				//reset fire-timing variables
 				if (NPCInfo->aiFlags&NPCAI_HEAVY_MELEE)
 				{
-					if (enemyUsingSaber && !Q_irand(0,MELEE_CHANCE) /*&& TIMER_Done(NPC, "sleepTime")*/)
+					if (enemyUsingSaber)
 					{
-						TIMER_Set(NPC, "sleepTime", Q_irand(2000, 5000));//keep using melee for a short while
+						TIMER_Set(NPC, "sleepTime", Q_irand(1000, 2500));//keep using melee for a short while
 						NPC_ChangeWeapon(WP_MELEE);
 						if (!(NPCInfo->scriptFlags&SCF_CHASE_ENEMIES))//NPCInfo->behaviorState == BS_STAND_AND_SHOOT )
 						{//FIXME: should we be overriding scriptFlags?
@@ -554,24 +553,17 @@ void NPC_BSGrenadier_Attack( void )
 			}
 		}
 	}
-	else if ( enemyDist > 65536 || enemyUsingSaber )//256
-	{//enemy is far or using saber
+	else if (enemyDist > 65536 || (enemyUsingSaber && TIMER_Done(NPC, "sleepTime")))//256
+	{//enemy is far or using saber and sleep time is done
 		if ( NPC->client->ps.weapon == WP_MELEE && (NPC->client->ps.stats[STAT_WEAPONS]&(1<<WP_THERMAL)) )
 		{//fisticuffs, make switch to thermal if have it
 			//reset fire-timing variables
-			if (enemyUsingSaber && enemyDist < 64*64)
-			{//if enemy is close and using saber, wait until we've at least had a short chance to use melee
-				if (!Q_irand(0,MELEE_CHANCE)/*TIMER_Done(NPC, "sleepTime")*/)
-				{
-					TIMER_Set(NPC, "sleepTime", Q_irand(1500, 3000));
-					NPC_ChangeWeapon(WP_THERMAL);
-				}
-			}
-			else
-			{
-				NPC_ChangeWeapon(WP_THERMAL);
+			if (enemyUsingSaber && enemyDist < 16384)
+			{//if enemy is close and using saber
+				TIMER_Set(NPC, "sleepTime", Q_irand(2500, 5000)); //don't allow switching to melee at this distance for a bit				
 			}
 			
+			NPC_ChangeWeapon(WP_THERMAL);						
 		}
 	}
 
