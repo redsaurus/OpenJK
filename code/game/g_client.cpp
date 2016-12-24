@@ -604,7 +604,7 @@ void ClientBegin( int clientNum, usercmd_t *cmd, SavedGameJustLoaded_e eSavedGam
 
 		client->pers.connected = CON_CONNECTED;
 		client->pers.teamState.state = TEAM_BEGIN;
-		_VectorCopy( cmd->angles, client->pers.cmd_angles );
+		VectorCopyM( cmd->angles, client->pers.cmd_angles );
 
 		memset( &client->ps, 0, sizeof( client->ps ) );
 		if( gi.Cvar_VariableIntegerValue( "g_clearstats" ) )
@@ -696,6 +696,8 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 
 		if (strlen(s))	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 		{//				|general info				  |-force powers |-saber 1										   |-saber 2										  |-general saber
+			int saber1BladeActive[8];
+			int saber2BladeActive[8];
 			unsigned int saber1BladeColor[8];
 			unsigned int saber2BladeColor[8];
 
@@ -718,14 +720,14 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&client->ps.forcePowerRegenAmount,
 								//saber 1 data
 								saber0Name,
-								&client->ps.saber[0].blade[0].active,
-								&client->ps.saber[0].blade[1].active,
-								&client->ps.saber[0].blade[2].active,
-								&client->ps.saber[0].blade[3].active,
-								&client->ps.saber[0].blade[4].active,
-								&client->ps.saber[0].blade[5].active,
-								&client->ps.saber[0].blade[6].active,
-								&client->ps.saber[0].blade[7].active,
+								&saber1BladeActive[0],
+								&saber1BladeActive[1],
+								&saber1BladeActive[2],
+								&saber1BladeActive[3],
+								&saber1BladeActive[4],
+								&saber1BladeActive[5],
+								&saber1BladeActive[6],
+								&saber1BladeActive[7],
 								&saber1BladeColor[0],
 								&saber1BladeColor[1],
 								&saber1BladeColor[2],
@@ -736,14 +738,14 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&saber1BladeColor[7],
 								//saber 2 data
 								saber1Name,
-								&client->ps.saber[1].blade[0].active,
-								&client->ps.saber[1].blade[1].active,
-								&client->ps.saber[1].blade[2].active,
-								&client->ps.saber[1].blade[3].active,
-								&client->ps.saber[1].blade[4].active,
-								&client->ps.saber[1].blade[5].active,
-								&client->ps.saber[1].blade[6].active,
-								&client->ps.saber[1].blade[7].active,
+								&saber2BladeActive[0],
+								&saber2BladeActive[1],
+								&saber2BladeActive[2],
+								&saber2BladeActive[3],
+								&saber2BladeActive[4],
+								&saber2BladeActive[5],
+								&saber2BladeActive[6],
+								&saber2BladeActive[7],
 								&saber2BladeColor[0],
 								&saber2BladeColor[1],
 								&saber2BladeColor[2],
@@ -760,7 +762,9 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 					);
 			for (int j = 0; j < 8; j++)
 			{
+				client->ps.saber[0].blade[j].active = saber1BladeActive[j] ? qtrue : qfalse;
 				client->ps.saber[0].blade[j].color = (saber_colors_t)saber1BladeColor[j];
+				client->ps.saber[1].blade[j].active = saber2BladeActive[j] ? qtrue : qfalse;
 				client->ps.saber[1].blade[j].color = (saber_colors_t)saber2BladeColor[j];
 			}
 
@@ -2388,7 +2392,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		client->ps.commandTime = level.time - 100;
 		ucmd = client->pers.lastCommand;
 		ucmd.serverTime = level.time;
-		_VectorCopy( client->pers.cmd_angles, ucmd.angles );
+		VectorCopyM( client->pers.cmd_angles, ucmd.angles );
 		ucmd.weapon = client->ps.weapon;	// client think calls Pmove which sets the client->ps.weapon to ucmd.weapon, so ...
 		ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 		ClientThink( ent-g_entities, &ucmd );

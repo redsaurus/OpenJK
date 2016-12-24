@@ -123,11 +123,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 		#define OS_STRING "kFreeBSD"
 	#endif
 
-	#ifdef __clang__
-		#define QINLINE static inline
-	#else
-		#define QINLINE inline
-	#endif
+	#define QINLINE inline
 
 	#define PATH_SEP '/'
 
@@ -209,6 +205,26 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#endif
 #endif
 
+#if defined (_MSC_VER)
+	#if _MSC_VER >= 1600
+		#include <stdint.h>
+	#else
+		typedef signed __int64 int64_t;
+		typedef signed __int32 int32_t;
+		typedef signed __int16 int16_t;
+		typedef signed __int8  int8_t;
+		typedef unsigned __int64 uint64_t;
+		typedef unsigned __int32 uint32_t;
+		typedef unsigned __int16 uint16_t;
+		typedef unsigned __int8  uint8_t;
+	#endif
+#else // not using MSVC
+	#if !defined(__STDC_LIMIT_MACROS)
+		#define __STDC_LIMIT_MACROS
+	#endif
+	#include <stdint.h>
+#endif
+
 // catch missing defines in above blocks
 #if !defined(OS_STRING)
 	#error "Operating system not supported"
@@ -279,17 +295,17 @@ static inline uint32_t LongSwap(uint32_t v)
 }
 #endif
 
-static void CopyShortSwap( void *dest, const void *src )
+static QINLINE void CopyShortSwap( void *dest, const void *src )
 {
     *(uint16_t*)dest = ShortSwap(*(uint16_t*)src);
 }
 
-static void CopyLongSwap( void *dest, const void *src )
+static QINLINE void CopyLongSwap( void *dest, const void *src )
 {
     *(uint32_t*)dest = LongSwap(*(uint32_t*)src);
 }
 
-static float FloatSwap(float f)
+static QINLINE float FloatSwap(float f)
 {
     float out;
     CopyLongSwap(&out, &f);
@@ -320,6 +336,21 @@ static float FloatSwap(float f)
 	#error "Endianness not defined"
 #endif
 
+typedef unsigned char byte;
+typedef unsigned short word;
+typedef unsigned long ulong;
+
+typedef enum { qfalse, qtrue } qboolean;
+
+// 32 bit field aliasing
+typedef union byteAlias_u {
+	float f;
+	int32_t i;
+	uint32_t ui;
+	qboolean qb;
+	byte b[4];
+	char c[4];
+} byteAlias_t;
 
 // platform string
 #if defined(NDEBUG)

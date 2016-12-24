@@ -130,11 +130,6 @@ static void		UI_NormalThrowSelection ( void );
 static void		UI_HighLightThrowSelection( void );
 static void		UI_ClearInventory ( void );
 static void		UI_GiveInventory ( const int itemIndex, const int amount );
-static void		UI_AddInventorySelection ( const int inventoryIndex, const int amount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile );
-static void		UI_RemoveInventorySelection ( const int inventoryIndex );
-static void		UI_HighLightInventorySelection ( const int selectionslot );
-static void		UI_NormalInventorySelection ( const int selectionslot );
-static void		UI_InitInventorySelect( void );
 static void		UI_ForcePowerWeaponsButton(qboolean activeFlag);
 static void		UI_UpdateCharacterSkin( void );
 static void		UI_UpdateCharacter( qboolean changedModel );
@@ -143,14 +138,22 @@ static void		UI_UpdateSaberHilt( qboolean secondSaber );
 //static void		UI_UpdateSaberColor( qboolean secondSaber );
 static void		UI_InitWeaponSelect( void );
 static void		UI_WeaponHelpActive( void );
+
+#ifndef JK2_MODE
 static void		UI_UpdateFightingStyle ( void );
 static void		UI_UpdateFightingStyleChoices ( void );
 static void		UI_CalcForceStatus(void);
+#endif // !JK2_MODE
+
 static void		UI_DecrementForcePowerLevel( void );
 static void		UI_DecrementCurrentForcePower ( void );
 static void		UI_ShutdownForceHelp( void );
 static void		UI_ForceHelpActive( void );
+
+#ifndef JK2_MODE
 static void		UI_DemoSetForceLevels( void );
+#endif // !JK2_MODE
+
 static void		UI_RecordForceLevels( void );
 static void		UI_RecordWeapons( void );
 static void		UI_ResetCharacterListBoxes( void );
@@ -378,8 +381,6 @@ vmCvar_t	ui_char_color_green;
 vmCvar_t	ui_char_color_blue;
 vmCvar_t	ui_PrecacheModels;
 
-vmCvar_t	ui_saveGameUseScreenshot;
-
 static cvarTable_t cvarTable[] =
 {
 	{ &ui_menuFiles,			"ui_menuFiles",			"ui/menus.txt", CVAR_ARCHIVE },
@@ -407,7 +408,6 @@ static cvarTable_t cvarTable[] =
 	{ &ui_char_color_blue,		"ui_char_color_blue",	"", 0},
 
 	{ &ui_PrecacheModels,		"ui_PrecacheModels",	"1", CVAR_ARCHIVE},
-	{ &ui_PrecacheModels, "ui_saveGameUseScreenshot", "0", CVAR_ARCHIVE },
 };
 
 #define FP_UPDATED_NONE -1
@@ -1217,10 +1217,12 @@ static qboolean UI_RunMenuScript ( const char **args )
 				UI_ResetSaberCvars();
 			}
     	}
+#ifndef JK2_MODE
 		else if (Q_stricmp(name, "updatefightingstylechoices") == 0)
 		{
 			UI_UpdateFightingStyleChoices();
 		}
+#endif // !JK2_MODE
 		else if (Q_stricmp(name, "initallocforcepower") == 0)
 		{
 			const char *forceName;
@@ -1247,10 +1249,12 @@ static qboolean UI_RunMenuScript ( const char **args )
 		{
 			UI_ForceHelpActive();
 		}
+#ifndef JK2_MODE
 		else if (Q_stricmp(name, "demosetforcelevels") == 0)
 		{
 			UI_DemoSetForceLevels();
 		}
+#endif // !JK2_MODE
 		else if (Q_stricmp(name, "recordforcelevels") == 0)
 		{
 			UI_RecordForceLevels();
@@ -1297,10 +1301,12 @@ static qboolean UI_RunMenuScript ( const char **args )
 				UI_LoadMissionSelectMenu(cvarName);
 			}
 		}
+#ifndef JK2_MODE
 		else if (Q_stricmp(name, "calcforcestatus") == 0)
 		{
 			UI_CalcForceStatus();
 		}
+#endif // !JK2_MODE
 		else if (Q_stricmp(name, "giveweapon") == 0)
 		{
 			const char *weaponIndex;
@@ -1465,89 +1471,12 @@ static qboolean UI_RunMenuScript ( const char **args )
 			String_Parse(args, &amount);
 			UI_GiveInventory(atoi(inventoryIndex),atoi(amount));
 		}
-
-		else if (Q_stricmp(name, "addinventoryselection") == 0)
-		{
-			const char *inventoryIndex;
-			String_Parse(args, &inventoryIndex);
-			if (!inventoryIndex)
-			{
-				return qfalse;
-			}
-						
-			const char *amount;
-			String_Parse(args, &amount);
-			if (!amount)
-			{
-				return qfalse;
-			}
-			
-			const char *itemName;
-			String_Parse(args, &itemName);
-			if (!itemName)
-			{
-				return qfalse;
-			}
-			
-			const char *litItemName;
-			String_Parse(args, &litItemName);
-			if (!litItemName)
-			{
-				return qfalse;
-			}
-			
-			const char *backgroundName;
-			String_Parse(args, &backgroundName);
-			if (!backgroundName)
-			{
-				return qfalse;
-			}
-			
-			const char *soundfile = NULL;
-			String_Parse(args, &soundfile);
-			
-			UI_AddInventorySelection(atoi(inventoryIndex),atoi(amount),itemName,litItemName, backgroundName, soundfile);
-		}
-		else if (Q_stricmp(name, "removeinventoryselection") == 0)
-		{
-			const char *inventoryIndex;
-			String_Parse(args, &inventoryIndex);
-			if (inventoryIndex)
-			{
-				UI_RemoveInventorySelection(atoi(inventoryIndex));
-			}
-		}
-		else if (Q_stricmp(name, "normalinventoryselection") == 0)
-		{
-			const char *slotIndex;
-			String_Parse(args, &slotIndex);
-			if (!slotIndex)
-			{
-				return qfalse;
-			}
-			
-			UI_NormalInventorySelection(atoi(slotIndex));
-		}
-		else if (Q_stricmp(name, "highlightinventoryselection") == 0)
-		{
-			const char *slotIndex;
-			String_Parse(args, &slotIndex);
-			if (!slotIndex)
-			{
-				return qfalse;
-			}
-			
-			UI_HighLightInventorySelection(atoi(slotIndex));
-		}
-		else if (Q_stricmp(name, "initinventoryselect") == 0)
-		{
-			UI_InitInventorySelect();
-		}
-
+#ifndef JK2_MODE
 		else if (Q_stricmp(name, "updatefightingstyle") == 0)
 		{
 			UI_UpdateFightingStyle();
 		}
+#endif // !JK2_MODE
 		else if (Q_stricmp(name, "update") == 0)
 		{
 			if (String_Parse(args, &name2))
@@ -1635,6 +1564,7 @@ const char *kyleForceStatusSounds[] =
 };
 
 
+#ifndef JK2_MODE
 static void UI_CalcForceStatus(void)
 {
 	float		lightSide,darkSide,total;
@@ -1750,6 +1680,7 @@ static void UI_CalcForceStatus(void)
 		DC->startLocalSound(DC->registerSound(kyleForceStatusSounds[index], qfalse), CHAN_VOICE );
 	}
 }
+#endif // !JK2_MODE
 
 /*
 =================
@@ -2106,12 +2037,13 @@ static qboolean UI_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, 
 //because the ui can be loaded while the game/cgame are not loaded. So we're going to recreate what we need here.
 #undef MAX_ANIM_FILES
 #define MAX_ANIM_FILES 4
-typedef struct
+class ui_animFileSet_t
 {
+public:
 	char			filename[MAX_QPATH];
 	animation_t		animations[MAX_ANIMATIONS];
-} animFileSet_t;
-static animFileSet_t	ui_knownAnimFileSets[MAX_ANIM_FILES];
+}; // ui_animFileSet_t
+static ui_animFileSet_t	ui_knownAnimFileSets[MAX_ANIM_FILES];
 
 int				ui_numKnownAnimFileSets;
 
@@ -2234,7 +2166,7 @@ qboolean UI_ParseAnimFileSet( const char *animCFG, int *animFileIndex )
 	int			i;
 	char		*slash;
 
-	Q_strncpyz( strippedName, animCFG, sizeof(strippedName), qtrue);
+	Q_strncpyz( strippedName, animCFG, sizeof(strippedName));
 	slash = strrchr( strippedName, '/' );
 	if ( slash )
 	{
@@ -2352,7 +2284,7 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 		if ( token[0] == 0 )
 		{
 			COM_EndParseSession(  );
-			return species.ColorCount;
+			return (qboolean)(species.ColorCount != 0);
 		}
 
 		if (species.ColorCount >= species.ColorMax)
@@ -2363,7 +2295,7 @@ static qboolean UI_ParseColorData(char* buf, playerSpeciesInfo_t &species)
 
 		memset(&species.Color[species.ColorCount], 0, sizeof(playerColor_t));
 
-		Q_strncpyz( species.Color[species.ColorCount].shader, token, MAX_QPATH, qtrue );
+		Q_strncpyz( species.Color[species.ColorCount].shader, token, MAX_QPATH );
 
 		token = COM_ParseExt( &p, qtrue );	//looking for action block {
 		if ( token[0] != '{' )
@@ -2396,7 +2328,7 @@ bIsImageFile
 builds path and scans for valid image extentions
 =================
 */
-static bool bIsImageFile(const char* dirptr, const char* skinname, qboolean building)
+static qboolean IsImageFile(const char* dirptr, const char* skinname, qboolean building)
 {
 	char fpath[MAX_QPATH];
 	int f;
@@ -2418,10 +2350,10 @@ static bool bIsImageFile(const char* dirptr, const char* skinname, qboolean buil
 	{
 		ui.FS_FCloseFile(f);
 		if ( building ) ui.R_RegisterShaderNoMip(fpath);
-		return true;
+		return qtrue;
 	}
 
-	return false;
+	return qfalse;
 }
 
 static void UI_FreeSpecies( playerSpeciesInfo_t *species )
@@ -2451,12 +2383,27 @@ PlayerModel_BuildList
 */
 static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 {
+	static const size_t DIR_LIST_SIZE = 16384;
+
 	int		numdirs;
-	char	dirlist[2048];
+	size_t	dirListSize = DIR_LIST_SIZE;
+	char	stackDirList[8192];
+	char	*dirlist;
 	char*	dirptr;
 	int		dirlen;
 	int		i;
 	const int building = Cvar_VariableIntegerValue("com_buildscript");
+
+	dirlist = (char *)malloc(DIR_LIST_SIZE);
+	if ( !dirlist )
+	{
+		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %u bytes of memory for player model "
+			"directory list. Using stack allocated buffer of %u bytes instead.",
+			DIR_LIST_SIZE, sizeof(stackDirList));
+
+		dirlist = stackDirList;
+		dirListSize = sizeof(stackDirList);
+	}
 
 	uiInfo.playerSpeciesCount = 0;
 	uiInfo.playerSpeciesIndex = 0;
@@ -2464,28 +2411,36 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 	uiInfo.playerSpecies = (playerSpeciesInfo_t *)malloc(uiInfo.playerSpeciesMax * sizeof(playerSpeciesInfo_t));
 
 	// iterate directory of all player models
-	numdirs = ui.FS_GetFileList("models/players", "/", dirlist, 2048 );
+	numdirs = ui.FS_GetFileList("models/players", "/", dirlist, dirListSize );
 	dirptr  = dirlist;
 	for (i=0; i<numdirs; i++,dirptr+=dirlen+1)
 	{
-		char	filelist[2048];
 		char*	fileptr;
 		int		filelen;
 		int f = 0;
-		char fpath[2048];
+		char fpath[MAX_QPATH];
 
 		dirlen = strlen(dirptr);
 
-		if (dirlen && dirptr[dirlen-1]=='/') dirptr[dirlen-1]='\0';
+		if (dirlen)
+		{
+			if (dirptr[dirlen-1]=='/')
+				dirptr[dirlen-1]='\0';
+		}
+		else
+		{
+			continue;
+		}
 
 		if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
 			continue;
 
-		Com_sprintf(fpath, 2048, "models/players/%s/PlayerChoice.txt", dirptr);
+		Com_sprintf(fpath, sizeof(fpath), "models/players/%s/PlayerChoice.txt", dirptr);
 		filelen = ui.FS_FOpenFile(fpath, &f, FS_READ);
 
 		if (f)
 		{
+			char filelist[2048];
 			playerSpeciesInfo_t *species = NULL;
 
 			std::vector<char> buffer(filelen + 1);
@@ -2502,8 +2457,8 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			}
 			species = &uiInfo.playerSpecies[uiInfo.playerSpeciesCount];
 			memset(species, 0, sizeof(playerSpeciesInfo_t));
-			Q_strncpyz( species->Name, dirptr, MAX_QPATH, qtrue );
-			
+			Q_strncpyz( species->Name, dirptr, MAX_QPATH );
+
 			if (!UI_ParseColorData(buffer.data(),*species))
 			{
 				ui.Printf( "UI_BuildPlayerModel_List: Errors parsing '%s'\n", fpath );
@@ -2522,7 +2477,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			int		numfiles;
 			int		iSkinParts=0;
 
-			numfiles = ui.FS_GetFileList( va("models/players/%s",dirptr), ".skin", filelist, 2048 );
+			numfiles = ui.FS_GetFileList( va("models/players/%s",dirptr), ".skin", filelist, sizeof(filelist) );
 			fileptr  = filelist;
 			for (j=0; j<numfiles; j++,fileptr+=filelen+1)
 			{
@@ -2539,7 +2494,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 				filelen = strlen(fileptr);
 				COM_StripExtension(fileptr,skinname, sizeof(skinname));
 
-				if (bIsImageFile(dirptr, skinname, building))
+				if (IsImageFile(dirptr, skinname, (qboolean)(building != 0)))
 				{ //if it exists
 					if (Q_stricmpn(skinname,"head_",5) == 0)
 					{
@@ -2548,7 +2503,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							species->SkinHeadMax *= 2;
 							species->SkinHead = (skinName_t *)realloc(species->SkinHead, species->SkinHeadMax*sizeof(skinName_t));
 						}
-						Q_strncpyz(species->SkinHead[species->SkinHeadCount++].name, skinname, SKIN_LENGTH, qtrue);
+						Q_strncpyz(species->SkinHead[species->SkinHeadCount++].name, skinname, SKIN_LENGTH);
 						iSkinParts |= 1<<0;
 					} else
 					if (Q_stricmpn(skinname,"torso_",6) == 0)
@@ -2558,7 +2513,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							species->SkinTorsoMax *= 2;
 							species->SkinTorso = (skinName_t *)realloc(species->SkinTorso, species->SkinTorsoMax*sizeof(skinName_t));
 						}
-						Q_strncpyz(species->SkinTorso[species->SkinTorsoCount++].name, skinname, SKIN_LENGTH, qtrue);
+						Q_strncpyz(species->SkinTorso[species->SkinTorsoCount++].name, skinname, SKIN_LENGTH);
 						iSkinParts |= 1<<1;
 					} else
 					if (Q_stricmpn(skinname,"lower_",6) == 0)
@@ -2568,7 +2523,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 							species->SkinLegMax *= 2;
 							species->SkinLeg = (skinName_t *)realloc(species->SkinLeg, species->SkinLegMax*sizeof(skinName_t));
 						}
-						Q_strncpyz(species->SkinLeg[species->SkinLegCount++].name, skinname, SKIN_LENGTH, qtrue);
+						Q_strncpyz(species->SkinLeg[species->SkinLegCount++].name, skinname, SKIN_LENGTH);
 						iSkinParts |= 1<<2;
 					}
 
@@ -2593,6 +2548,10 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 		}
 	}
 
+	if ( dirlist != stackDirList )
+	{
+		free(dirlist);
+	}
 }
 
 /*
@@ -3824,7 +3783,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 		case UI_ALLMAPS_SELECTION://saved game thumbnail
 
 			int levelshot;
-
+			levelshot = ui.R_RegisterShaderNoMip( va( "levelshots/%s", s_savedata[s_savegame.currentLine].currentSaveFileMap ) );
 #ifdef JK2_MODE
 			if (screenShotBuf[0])
 			{
@@ -3832,47 +3791,14 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 			}
 			else
 #endif
-				
-			if (ui_saveGameUseScreenshot.integer)
+			if (levelshot)
 			{
-				if (s_savedata[s_savegame.currentLine].currentSaveFileName)
-				{
-					//To avoid error messages when these screenshots are missing
-					fileHandle_t fp;
-					ui.FS_FOpenFile(va("saves/screenshots/%s.jpg", s_savedata[s_savegame.currentLine].currentSaveFileName), &fp, FS_READ);
-					if (fp)
-					{
-						ui.FS_FCloseFile(fp);
-						levelshot = ui.R_RegisterShaderNoMip(va("saves/screenshots/%s", s_savedata[s_savegame.currentLine].currentSaveFileName));
-					}
-				}
-				if (!levelshot) //no screenshot, just use levelshot
-				{
-					levelshot = ui.R_RegisterShaderNoMip(va("levelshots/%s", s_savedata[s_savegame.currentLine].currentSaveFileMap));
-				}
-				if (levelshot)
-				{
-					ui.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, levelshot);
-				}
-				else
-				{
-					UI_DrawHandlePic(x, y, w, h, uis.menuBackShader);
-				}
+				ui.R_DrawStretchPic( x, y, w, h, 0, 0, 1, 1, levelshot );
 			}
 			else
 			{
-				levelshot = ui.R_RegisterShaderNoMip(va("levelshots/%s", s_savedata[s_savegame.currentLine].currentSaveFileMap));
-
-				if (levelshot)
-				{
-					ui.R_DrawStretchPic(x, y, w, h, 0, 0, 1, 1, levelshot);
-				}
-				else
-				{
-					UI_DrawHandlePic(x, y, w, h, uis.menuBackShader);
-				}
+				UI_DrawHandlePic(x, y, w, h, uis.menuBackShader);
 			}
-			
 
 			ui.R_Font_DrawString(	x,		// int ox
 									y+h,	// int oy
@@ -4130,9 +4056,9 @@ UI_InGameMenu
 */
 void UI_InGameMenu(const char*menuID)
 {
-
+#ifdef JK2_MODE
 	ui.PrecacheScreenshot();
-
+#endif
 	Menus_CloseByName("mainhud");
 
 	if (menuID)
@@ -4373,6 +4299,7 @@ static void UI_UpdateSaberCvars ( void )
 	Cvar_Set ( "g_saber2_color", Cvar_VariableString ( "ui_saber2_color" ) );
 }
 
+#ifndef JK2_MODE
 static void UI_UpdateFightingStyleChoices ( void )
 {
 	//
@@ -4471,6 +4398,7 @@ static void UI_UpdateFightingStyleChoices ( void )
 		}
 	}
 }
+#endif // !JK2_MODE
 
 #define MAX_POWER_ENUMS 16
 
@@ -4481,26 +4409,42 @@ typedef struct {
 
 static powerEnum_t powerEnums[MAX_POWER_ENUMS] =
 {
+#ifndef JK2_MODE
 	{ "absorb",		FP_ABSORB },
+#endif // !JK2_MODE
+
 	{ "heal",			FP_HEAL },
 	{ "mindtrick",	FP_TELEPATHY },
+
+#ifndef JK2_MODE
 	{ "protect",		FP_PROTECT },
+#endif // !JK2_MODE
 
 				// Core powers
 	{ "jump",			FP_LEVITATION },
 	{ "pull",			FP_PULL },
 	{ "push",			FP_PUSH },
+
+#ifndef JK2_MODE
 	{ "sense",		FP_SEE },
+#endif // !JK2_MODE
+
 	{ "speed",		FP_SPEED },
 	{ "sabdef",		FP_SABER_DEFENSE },
 	{ "saboff",		FP_SABER_OFFENSE },
 	{ "sabthrow",		FP_SABERTHROW },
 
 				// Dark powers
+#ifndef JK2_MODE
 	{ "drain",		FP_DRAIN },
+#endif // !JK2_MODE
+
 	{ "grip",			FP_GRIP },
 	{ "lightning",	FP_LIGHTNING },
+
+#ifndef JK2_MODE
 	{ "rage",			FP_RAGE },
+#endif // !JK2_MODE
 };
 
 
@@ -4723,6 +4667,7 @@ static void	UI_ForceHelpActive( void )
 	}
 }
 
+#ifndef JK2_MODE
 // Set the force levels depending on the level chosen
 static void	UI_DemoSetForceLevels( void )
 {
@@ -4807,6 +4752,7 @@ static void	UI_DemoSetForceLevels( void )
 		uiInfo.forcePowerLevel[FP_RAGE]=Q_max(pState->forcePowerLevel[FP_RAGE], uiInfo.forcePowerLevel[FP_RAGE]);
 	}
 }
+#endif // !JK2_MODE
 
 // record the force levels into a cvar so when restoring player from map transition
 // the force levels are set up correctly
@@ -5298,6 +5244,7 @@ static void UI_ResetForceLevels ( void )
 }
 
 
+#ifndef JK2_MODE
 // Set the Players known saber style
 static void UI_UpdateFightingStyle ( void )
 {
@@ -5342,6 +5289,7 @@ static void UI_UpdateFightingStyle ( void )
 		Cvar_Set ( "g_fighting_style", va("%d",saberStyle) );
 	}
 }
+#endif // !JK2_MODE
 
 static void UI_ResetCharacterListBoxes( void )
 {
@@ -6163,345 +6111,6 @@ static void	UI_HighLightThrowSelection ( void )
 
 	item = (itemDef_s *) Menu_FindItemByName( menu, "chosenthrowweapon_icon" );
 	item->window.background = uiInfo.litThrowableIcon;
-}
-
-//. Find inventory allocation screen NEXT button and make active/inactive
-static void UI_InventoryAllocBeginButton(qboolean activeFlag)
-{
-	menuDef_t	*menu;
-	menu = Menu_GetFocused();	// Get current menu
-	
-	if (!menu)
-	{
-		return;
-	}
-		
-	// Find begin button
-	itemDef_t	*item;
-	item = Menu_FindItemByName(menu, "nextbutton");
-	
-	if (item)
-	{
-		// Make it active
-		if (activeFlag)
-		{
-			item->window.flags &= ~WINDOW_INACTIVE;
-		}
-		else
-		{
-			item->window.flags |= WINDOW_INACTIVE;
-		}
-	}
-}
-
-// If we have both inventory items, turn on the begin mission button,
-static void UI_InventorySelectionsComplete( void )
-{
-	// We need two inventory items
-	if (( uiInfo.selectedInventory1 != NOWEAPON ) &&
-		( uiInfo.selectedInventory2 != NOWEAPON ))
-	{
-		UI_InventoryAllocBeginButton(qtrue);	// Turn it on
-	}
-	else
-	{
-		UI_InventoryAllocBeginButton(qfalse);	// Turn it off
-	}
-}
-
-// Update the player weapons with the chosen weapon
-static void	UI_AddInventorySelection ( const int inventoryIndex, const int amount, const char *iconItemName,const char *litIconItemName, const char *hexBackground, const char *soundfile )
-{
-	itemDef_s  *item, *iconItem,*litIconItem;
-	menuDef_t	*menu;
-	
-	menu = Menu_GetFocused();	// Get current menu
-	
-	if (!menu)
-	{
-		return;
-	}
-	
-	iconItem = (itemDef_s *) Menu_FindItemByName(menu, iconItemName );
-	litIconItem = (itemDef_s *) Menu_FindItemByName(menu, litIconItemName );
-	
-	const char *chosenItemName, *chosenButtonName;
-	
-	// has this weapon already been chosen?
-	if (inventoryIndex == uiInfo.selectedInventory1)
-	{
-		UI_RemoveInventorySelection ( 1 );
-		return;
-	}
-	else if (inventoryIndex == uiInfo.selectedInventory2)
-	{
-		UI_RemoveInventorySelection ( 2 );
-		return;
-	}
-	
-	// See if either slot is empty
-	if ( uiInfo.selectedInventory1 == NOWEAPON )
-	{
-		chosenItemName = "choseninventory1_icon";
-		chosenButtonName = "choseninventory1_button";
-		uiInfo.selectedInventory1 = inventoryIndex;
-		
-		memcpy( uiInfo.selectedInventory1ItemName,hexBackground,sizeof(uiInfo.selectedInventory1ItemName));
-		
-		//Save the lit and unlit icons for the selected weapon slot
-		uiInfo.litInventory1Icon = litIconItem->window.background;
-		uiInfo.unlitInventory1Icon = iconItem->window.background;
-		
-		uiInfo.inventory1ItemButton = uiInfo.runScriptItem;
-		uiInfo.inventory1ItemButton->descText = "@MENUS_CLICKREMOVE";
-	}
-	else if ( uiInfo.selectedWeapon2 == NOWEAPON )
-	{
-		chosenItemName = "choseninventory2_icon";
-		chosenButtonName = "choseninventory2_button";
-		uiInfo.selectedInventory2 = inventoryIndex;
-		
-		memcpy( uiInfo.selectedInventory2ItemName,hexBackground,sizeof(uiInfo.selectedInventory2ItemName));
-		
-		//Save the lit and unlit icons for the selected weapon slot
-		uiInfo.litInventory2Icon = litIconItem->window.background;
-		uiInfo.unlitInventory2Icon = iconItem->window.background;
-		
-		uiInfo.inventory2ItemButton = uiInfo.runScriptItem;
-		uiInfo.inventory2ItemButton->descText = "@MENUS_CLICKREMOVE";
-	}
-	else	// Both slots are used, can't add it.
-	{
-		return;
-	}
-	
-	item = (itemDef_s *) Menu_FindItemByName(menu, chosenItemName );
-	if ((item) && (iconItem))
-	{
-		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
-	}
-	
-	// Turn on chosenweapon button so player can unchoose the weapon
-	item = (itemDef_s *) Menu_FindItemByName(menu, chosenButtonName );
-	if (item)
-	{
-		item->window.background = iconItem->window.background;
-		item->window.flags |= WINDOW_VISIBLE;
-	}
-	
-	// Switch hex background to be 'on'
-	item = (itemDef_s *) Menu_FindItemByName(menu, hexBackground );
-	if (item)
-	{
-		item->window.foreColor[0] = 0;
-		item->window.foreColor[1] = 1;
-		item->window.foreColor[2] = 0;
-		item->window.foreColor[3] = 1;
-		
-	}
-	
-	// Get player state
-	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
-	
-	// NOTE : this UIScript can now be run from outside the game, so don't
-	// return out here, just skip this part
-	if (cl)
-	{
-		// Add weapon
-		if (cl->gentity && cl->gentity->client)
-		{
-			playerState_t*	pState = cl->gentity->client;
-			
-			if ((inventoryIndex>0) && (inventoryIndex<MAX_INVENTORY))
-			{
-				pState->inventory[ inventoryIndex ] = amount;
-			}
-		}
-	}
-	
-	if( soundfile )
-	{
-		DC->startLocalSound(DC->registerSound(soundfile, qfalse), CHAN_LOCAL );
-	}
-	
-	UI_InventorySelectionsComplete();	// Test to see if the mission begin button should turn on or off
-	
-	
-}
-
-
-// Update the player weapons with the chosen weapon
-static void UI_RemoveInventorySelection ( const int inventorySelectionIndex )
-{
-	itemDef_s  *item;
-	menuDef_t	*menu;
-	const char *chosenItemName, *chosenButtonName,*background;
-	int		inventoryIndex;
-	
-	menu = Menu_GetFocused();	// Get current menu
-	
-	// Which item has it?
-	if ( inventorySelectionIndex == 1 )
-	{
-		chosenItemName = "choseninventory1_icon";
-		chosenButtonName = "choseninventory1_button";
-		background = uiInfo.selectedInventory1ItemName;
-		inventoryIndex = uiInfo.selectedInventory1;
-		
-		if (uiInfo.inventory1ItemButton)
-		{
-			uiInfo.inventory1ItemButton->descText = "@MENUS_CLICKSELECT";
-			uiInfo.inventory1ItemButton = NULL;
-		}
-	}
-	else if ( inventorySelectionIndex == 2 )
-	{
-		chosenItemName = "choseninventory2_icon";
-		chosenButtonName = "choseninventory2_button";
-		background = uiInfo.selectedInventory2ItemName;
-		inventoryIndex = uiInfo.selectedInventory2;
-		
-		if (uiInfo.inventory2ItemButton)
-		{
-			uiInfo.inventory2ItemButton->descText = "@MENUS_CLICKSELECT";
-			uiInfo.inventory2ItemButton = NULL;
-		}
-	}
-	else
-	{
-		return;
-	}
-	
-	// Reset background of upper icon
-	item = (itemDef_s *) Menu_FindItemByName( menu, background );
-	if ( item )
-	{
-		item->window.foreColor[0] = 0.0f;
-		item->window.foreColor[1] = 0.5f;
-		item->window.foreColor[2] = 0.0f;
-		item->window.foreColor[3] = 1.0f;
-	}
-	
-	// Hide it icon
-	item = (itemDef_s *) Menu_FindItemByName( menu, chosenItemName );
-	if ( item )
-	{
-		item->window.flags &= ~WINDOW_VISIBLE;
-	}
-	
-	// Hide button
-	item = (itemDef_s *) Menu_FindItemByName( menu, chosenButtonName );
-	if ( item )
-	{
-		item->window.flags &= ~WINDOW_VISIBLE;
-	}
-	
-	// Get player state
-	client_t* cl = &svs.clients[0];	// 0 because only ever us as a player
-	
-	// NOTE : this UIScript can now be run from outside the game, so don't
-	// return out here, just skip this part
-	if (cl)	// No client, get out
-	{
-		
-		// Remove weapon
-		if (cl->gentity && cl->gentity->client)
-		{
-			playerState_t*	pState = cl->gentity->client;
-			
-			if ((inventoryIndex>=0) && (inventoryIndex<MAX_INVENTORY))
-			{
-				pState->inventory[ inventoryIndex ] = 0;
-			}
-		}
-		
-	}
-	
-	// Now do a little clean up
-	if ( inventorySelectionIndex == 1 )
-	{
-		uiInfo.selectedInventory1 = NOWEAPON;
-		memset(uiInfo.selectedInventory1ItemName,0,sizeof(uiInfo.selectedInventory1ItemName));
-	}
-	else if ( inventorySelectionIndex == 2 )
-	{
-		uiInfo.selectedInventory2 = NOWEAPON;
-		memset(uiInfo.selectedInventory2ItemName,0,sizeof(uiInfo.selectedInventory2ItemName));
-	}
-	
-	DC->startLocalSound(DC->registerSound("sound/interface/weapon_deselect.mp3", qfalse), CHAN_LOCAL );
-	
-	UI_InventorySelectionsComplete();	// Test to see if the mission begin button should turn on or off
-	
-	
-}
-
-static void	UI_NormalInventorySelection ( const int selectionslot )
-{
-	itemDef_s  *item;
-	menuDef_t	*menu;
-	
-	menu = Menu_GetFocused();	// Get current menu
-	if (!menu)
-	{
-		return;
-	}
-	
-	if (selectionslot == 1)
-	{
-		item = (itemDef_s *) Menu_FindItemByName( menu, "choseninventory1_icon" );
-		if (item)
-		{
-			item->window.background = uiInfo.unlitInventory1Icon;
-		}
-	}
-	
-	if (selectionslot == 2)
-	{
-		item = (itemDef_s *) Menu_FindItemByName( menu, "choseninventory2_icon" );
-		if (item)
-		{
-			item->window.background = uiInfo.unlitInventory2Icon;
-		}
-	}
-}
-
-static void	UI_HighLightInventorySelection ( const int selectionslot )
-{
-	itemDef_s  *item;
-	menuDef_t	*menu;
-	
-	menu = Menu_GetFocused();	// Get current menu
-	if (!menu)
-	{
-		return;
-	}
-	
-	if (selectionslot == 1)
-	{
-		item = (itemDef_s *) Menu_FindItemByName( menu, "choseninventory1_icon" );
-		if (item)
-		{
-			item->window.background = uiInfo.litInventory1Icon;
-		}
-	}
-	
-	if (selectionslot == 2)
-	{
-		item = (itemDef_s *) Menu_FindItemByName( menu, "choseninventory2_icon" );
-		if (item)
-		{
-			item->window.background = uiInfo.litInventory2Icon;
-		}
-	}
-}
-
-static void UI_InitInventorySelect( void )
-{
-	UI_InventoryAllocBeginButton(qfalse);
-	uiInfo.selectedInventory1 = NOWEAPON;
-	uiInfo.selectedInventory2 = NOWEAPON;
 }
 
 static void UI_GetSaberCvars ( void )

@@ -228,11 +228,14 @@ set(JK2SPGameFiles ${JK2SPGameFiles} ${JK2SPGameUIFiles})
 set(JK2SPGameCommonFiles
 	#We only have JKA qcommon files now.
 	"${SPDir}/qcommon/tri_coll_test.cpp"
-	"${SPDir}/qcommon/q_math.cpp"
 	"${SPDir}/qcommon/q_shared.cpp"
 	"${SPDir}/qcommon/q_shared.h"
 	"${SPDir}/qcommon/strippublic.h"
-	
+	"${SPDir}/qcommon/ojk_i_saved_game.h"
+	"${SPDir}/qcommon/ojk_saved_game_class_archivers.h"
+	"${SPDir}/qcommon/ojk_saved_game_helper.h"
+	"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
+	"${SPDir}/qcommon/ojk_scope_guard.h"
 	${SharedCommonFiles}
 	)
 source_group("common" FILES ${JK2SPGameCommonFiles})

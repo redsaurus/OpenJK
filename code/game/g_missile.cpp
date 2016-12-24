@@ -764,7 +764,8 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace, int hitLoc = HL_NONE)
 	}
 	// check for bounce
 	//OR: if the surfaceParm is has a reflect property (magnetic shielding) and the missile isn't an exploding missile
-	qboolean bounce = !!((!other->takedamage && (ent->s.eFlags&(EF_BOUNCE | EF_BOUNCE_HALF))) || (((trace->surfaceFlags&SURF_FORCEFIELD) || (other->flags&FL_SHIELDED)) && !ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK));
+
+	qboolean bounce = (qboolean)( (!other->takedamage && (ent->s.eFlags&(EF_BOUNCE|EF_BOUNCE_HALF))) || (((trace->surfaceFlags&SURF_FORCEFIELD)||(other->flags&FL_SHIELDED))&&!ent->splashDamage&&!ent->splashRadius&&ent->s.weapon != WP_NOGHRI_STICK) );
 
 	if (ent->dflags & DAMAGE_HEAVY_WEAP_CLASS)
 	{
@@ -825,7 +826,8 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace, int hitLoc = HL_NONE)
 		{
 			G_MissileAddAlerts(ent);
 		}
-		G_MissileBounceEffect(ent, trace->endpos, trace->plane.normal, trace->entityNum == ENTITYNUM_WORLD);
+
+		G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (qboolean)(trace->entityNum==ENTITYNUM_WORLD) );
 
 		return;
 	}
@@ -846,7 +848,8 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace, int hitLoc = HL_NONE)
 			{
 				ent->s.eFlags &= ~EF_BOUNCE_SHRAPNEL;
 			}
-			G_MissileBounceEffect(ent, trace->endpos, trace->plane.normal, trace->entityNum == ENTITYNUM_WORLD);
+
+			G_MissileBounceEffect( ent, trace->endpos, trace->plane.normal, (qboolean)(trace->entityNum==ENTITYNUM_WORLD) );
 			return;
 		}
 	}

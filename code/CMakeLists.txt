@@ -154,7 +154,6 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/qcommon/msg.cpp"
 		"${SPDir}/qcommon/net_chan.cpp"
 
-		"${SPDir}/qcommon/q_math.cpp"
 		"${SPDir}/qcommon/q_shared.cpp"
 		"${SPDir}/qcommon/q_shared.h"
 
@@ -173,7 +172,14 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/qcommon/stv_version.h"
 		"${SPDir}/qcommon/timing.h"
 		"${SPDir}/qcommon/MiniHeap.h"
-		
+
+		"${SPDir}/qcommon/ojk_i_saved_game.h"
+		"${SPDir}/qcommon/ojk_saved_game.h"
+		"${SPDir}/qcommon/ojk_saved_game.cpp"
+		"${SPDir}/qcommon/ojk_saved_game_helper.h"
+		"${SPDir}/qcommon/ojk_saved_game_helper_fwd.h"
+		"${SPDir}/qcommon/ojk_scope_guard.h"
+
 		${SharedCommonFiles}
 		)
 	source_group("common" FILES ${SPEngineCommonFiles})
@@ -275,7 +281,8 @@ if(BuildSPEngine OR BuildJK2SPEngine)
 		"${SPDir}/rd-common/tr_public.h"
 		"${SPDir}/rd-common/tr_types.h"
 		)
-
+	source_group("renderer" FILES ${SPEngineRendererFiles})
+	set(SPEngineFiles ${SPEngineFiles} ${SPEngineRendererFiles})
 
 	# UI files
 	set(SPEngineUIFiles

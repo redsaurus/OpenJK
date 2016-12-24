@@ -103,7 +103,7 @@ void CFxScheduler::Clean(bool bRemoveTemplates /*= true*/, int idToPreserve /*= 
 		next = itr;
 		++next;
 
-		delete *itr;
+		mScheduledEffectsPool.Free (*itr);
 		mFxSchedule.erase(itr);
 
 		itr = next;
@@ -594,7 +594,6 @@ void CFxScheduler::PlayEffect( const char *file, int clientID )
 	CPrimitiveTemplate		*prim;
 	int						i = 0;
 	int						count = 0, delay = 0;
-	SScheduledEffect		*sfx;
 	float					factor = 0.0f;
 
 	if ( id < 1 || id >= FX_MAX_EFFECTS || !mEffectTemplates[id].mInUse )
@@ -647,9 +646,14 @@ void CFxScheduler::PlayEffect( const char *file, int clientID )
 			}
 			else
 			{
-				// We have to create a new scheduled effect so that we can create it at a later point
-				//	you should avoid this because it's much more expensive
-				sfx = new SScheduledEffect;
+				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
+
+				if ( sfx == NULL )
+				{
+					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
+					return;
+				}
+
 				sfx->mStartTime = theFxHelper.mTime + delay;
 				sfx->mpTemplate = prim;
 				sfx->mClientID = clientID;
@@ -694,7 +698,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, int clientID, int delay
 	// handle RGB color
 	if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
 	{
-		float perc = random();
+		float perc = Q_flrand(0.0f, 1.0f);
 
 		VectorSet( sRGB, fx->mRedStart.GetVal( perc ), fx->mGreenStart.GetVal( perc ), fx->mBlueStart.GetVal( perc ) );
 		VectorSet( eRGB, fx->mRedEnd.GetVal( perc ), fx->mGreenEnd.GetVal( perc ), fx->mBlueEnd.GetVal( perc ) );
@@ -840,7 +844,6 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 	CPrimitiveTemplate		*prim;
 	int						i = 0;
 	int						count = 0, delay = 0;
-	SScheduledEffect		*sfx;
 	float					factor = 0.0f;
 	bool					forceScheduling = false;
 
@@ -929,9 +932,14 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, vec3_t axis[3], const int 
 			}
 			else
 			{
-				// We have to create a new scheduled effect so that we can create it at a later point
-				//	you should avoid this because it's much more expensive
-				sfx = new SScheduledEffect;
+				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
+
+				if ( sfx == NULL )
+				{
+					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
+					return;
+				}
+
 				sfx->mStartTime = theFxHelper.mTime + delay;
 				sfx->mpTemplate = prim;
 				sfx->mClientID = -1;
@@ -1066,36 +1074,33 @@ void CFxScheduler::AddScheduledEffects( void )
 	vec3_t						origin;
 	vec3_t						axis[3];
 	int							oldEntNum = -1, oldBoltIndex = -1, oldModelNum = -1;
-	qboolean					doesBoltExist  = false;
+	qboolean					doesBoltExist  = qfalse;
 
-	itr = mFxSchedule.begin();
-
-	while ( itr != mFxSchedule.end() )
+	for ( itr = mFxSchedule.begin(); itr != mFxSchedule.end(); /* do nothing */ )
 	{
-		next = itr;
-		++next;
+		SScheduledEffect *effect = *itr;
 
-		if ( *(*itr) <= theFxHelper.mTime )
+		if ( effect->mStartTime <= theFxHelper.mTime )
 		{
-			if ( (*itr)->mClientID >= 0 )
+			if ( effect->mClientID >= 0 )
 			{
-				CreateEffect( (*itr)->mpTemplate, (*itr)->mClientID,
-								theFxHelper.mTime - (*itr)->mStartTime );
+				CreateEffect( effect->mpTemplate, effect->mClientID,
+								theFxHelper.mTime - effect->mStartTime );
 			}
-			else if ((*itr)->mBoltNum == -1)
+			else if (effect->mBoltNum == -1)
 			{// ok, are we spawning a bolt on effect or a normal one?
-				if ( (*itr)->mEntNum != -1 )
+				if ( effect->mEntNum != -1 )
 				{
 					// Find out where the entity currently is
-					CreateEffect( (*itr)->mpTemplate,
-								cg_entities[(*itr)->mEntNum].lerpOrigin, (*itr)->mAxis,
-								theFxHelper.mTime - (*itr)->mStartTime );
+					CreateEffect( effect->mpTemplate,
+								cg_entities[effect->mEntNum].lerpOrigin, effect->mAxis,
+								theFxHelper.mTime - effect->mStartTime );
 				}
 				else
 				{
-					CreateEffect( (*itr)->mpTemplate,
-								(*itr)->mOrigin, (*itr)->mAxis,
-								theFxHelper.mTime - (*itr)->mStartTime );
+					CreateEffect( effect->mpTemplate,
+								effect->mOrigin, effect->mAxis,
+								theFxHelper.mTime - effect->mStartTime );
 				}
 			}
 			else
@@ -1105,17 +1110,17 @@ void CFxScheduler::AddScheduledEffects( void )
 
 				doesBoltExist=qfalse;
 				// do we need to go and re-get the bolt matrix again? Since it takes time lets try and do it only once
-				if (((*itr)->mModelNum != oldModelNum) || ((*itr)->mEntNum != oldEntNum) || ((*itr)->mBoltNum != oldBoltIndex))
+				if ((effect->mModelNum != oldModelNum) || (effect->mEntNum != oldEntNum) || (effect->mBoltNum != oldBoltIndex))
 				{
-					if (cg_entities[(*itr)->mEntNum].gent->ghoul2.IsValid())
+					if (cg_entities[effect->mEntNum].gent->ghoul2.IsValid())
 					{
-						if ((*itr)->mModelNum>=0&&(*itr)->mModelNum<cg_entities[(*itr)->mEntNum].gent->ghoul2.size())
+						if (effect->mModelNum>=0&&effect->mModelNum<cg_entities[effect->mEntNum].gent->ghoul2.size())
 						{
-							if (cg_entities[(*itr)->mEntNum].gent->ghoul2[(*itr)->mModelNum].mModelindex>=0)
+							if (cg_entities[effect->mEntNum].gent->ghoul2[effect->mModelNum].mModelindex>=0)
 							{
 
 								// go away and get me the bolt position for this frame please
-								doesBoltExist = gi.G2API_GetBoltMatrix(cg_entities[(*itr)->mEntNum].gent->ghoul2, (*itr)->mModelNum, (*itr)->mBoltNum, &boltMatrix, cg_entities[(*itr)->mEntNum].lerpAngles, cg_entities[(*itr)->mEntNum].lerpOrigin, cg.time, cgs.model_draw, cg_entities[(*itr)->mEntNum].currentState.modelScale);
+								doesBoltExist = gi.G2API_GetBoltMatrix(cg_entities[effect->mEntNum].gent->ghoul2, effect->mModelNum, effect->mBoltNum, &boltMatrix, cg_entities[effect->mEntNum].lerpAngles, cg_entities[effect->mEntNum].lerpOrigin, cg.time, cgs.model_draw, cg_entities[effect->mEntNum].currentState.modelScale);
 								// set up the axis and origin we need for the actual effect spawning
 	   							origin[0] = boltMatrix.matrix[0][3];
 								origin[1] = boltMatrix.matrix[1][3];
@@ -1136,26 +1141,27 @@ void CFxScheduler::AddScheduledEffects( void )
 						}
 					}
 
-					oldModelNum = (*itr)->mModelNum;
-					oldEntNum = (*itr)->mEntNum;
-					oldBoltIndex = (*itr)->mBoltNum;
+					oldModelNum = effect->mModelNum;
+					oldEntNum = effect->mEntNum;
+					oldBoltIndex = effect->mBoltNum;
 				}
 
 				// only do this if we found the bolt
 				if (doesBoltExist)
 				{
-					CreateEffect( (*itr)->mpTemplate,
+					CreateEffect( effect->mpTemplate,
 									origin, axis,
-									theFxHelper.mTime - (*itr)->mStartTime );
+									theFxHelper.mTime - effect->mStartTime );
 				}
 			}
 
-			// Get 'em out of there.
-			delete *itr;
-			mFxSchedule.erase(itr);
+			mScheduledEffectsPool.Free( effect );
+			itr = mFxSchedule.erase( itr );
 		}
-
-		itr = next;
+		else
+		{
+			++itr;
+		}
 	}
 
 	// Add all active effects into the scene
@@ -1190,7 +1196,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 	if( fx->mSpawnFlags & FX_RAND_ROT_AROUND_FWD )
 	{
-		RotatePointAroundVector( ax[1], ax[0], axis[1], random()*360.0f );
+		RotatePointAroundVector( ax[1], ax[0], axis[1], Q_flrand(0.0f, 1.0f)*360.0f );
 		CrossProduct( ax[0], ax[1], ax[2] );
 	}
 
@@ -1217,8 +1223,8 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 		float x, y;
 		float width, height;
 
-		x = DEG2RAD( random() * 360.0f );
-		y = DEG2RAD( random() * 180.0f );
+		x = DEG2RAD( Q_flrand(0.0f, 1.0f) * 360.0f );
+		y = DEG2RAD( Q_flrand(0.0f, 1.0f) * 180.0f );
 
 		width = fx->mRadius.GetVal();
 		height = fx->mHeight.GetVal();
@@ -1240,8 +1246,8 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 
 		// set up our point, then rotate around the current direction to.  Make unrotated cylinder centered around 0,0,0
 		VectorScale( ax[1], fx->mRadius.GetVal(), pt );
-		VectorMA( pt, crandom() * 0.5f * fx->mHeight.GetVal(), ax[0], pt );
-		RotatePointAroundVector( temp, ax[0], pt, random() * 360.0f );
+		VectorMA( pt, Q_flrand(-1.0f, 1.0f) * 0.5f * fx->mHeight.GetVal(), ax[0], pt );
+		RotatePointAroundVector( temp, ax[0], pt, Q_flrand(0.0f, 1.0f) * 360.0f );
 
 		VectorAdd( org, temp, org );
 
@@ -1381,7 +1387,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ve
 	{
 		if ( fx->mSpawnFlags & FX_RGB_COMPONENT_INTERP )
 		{
-			float perc = random();
+			float perc = Q_flrand(0.0f, 1.0f);
 
 			VectorSet( sRGB, fx->mRedStart.GetVal( perc ), fx->mGreenStart.GetVal( perc ), fx->mBlueStart.GetVal( perc ) );
 			VectorSet( eRGB, fx->mRedEnd.GetVal( perc ), fx->mGreenEnd.GetVal( perc ), fx->mBlueEnd.GetVal( perc ) );

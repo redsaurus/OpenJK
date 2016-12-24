@@ -1045,7 +1045,7 @@ void NPC_Begin (gentity_t *ent)
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	memset( &ucmd, 0, sizeof( ucmd ) );
-	_VectorCopy( client->pers.cmd_angles, ucmd.angles );
+	VectorCopyM( client->pers.cmd_angles, ucmd.angles );
 	
 	ent->client->ps.groundEntityNum = ENTITYNUM_NONE;
 
@@ -1222,7 +1222,7 @@ void NPC_Spawn_Go( gentity_t *ent )
 	newent->NPC->tempGoal->owner = newent;
 	newent->NPC->tempGoal->svFlags |= SVF_NOCLIENT;
 
-	newent->client = (gclient_s *)G_Alloc (sizeof(gclient_s));
+	newent->client = (gclient_t *)G_Alloc (sizeof(gclient_t));
 	
 	if ( newent->client == NULL ) 
 	{
