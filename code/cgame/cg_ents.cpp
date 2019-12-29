@@ -307,6 +307,16 @@ void ScaleModelAxis(refEntity_t	*ent)
 Ghoul2 Insert End
 */
 
+void CG_AddRadarEnt(centity_t *cent)
+{
+	static const size_t numRadarEnts = ARRAY_LEN( cg.radarEntities );
+	if (cg.radarEntityCount >= numRadarEnts)
+	{
+		return;
+	}
+	cg.radarEntities[cg.radarEntityCount++] = cent->currentState.number;
+}
+
 /*
 ==================
 CG_General
@@ -317,7 +327,14 @@ static void CG_General( centity_t *cent )
 	refEntity_t			ent;
 	entityState_t		*s1;
 
+//Check if it's a radar entity
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
+
 	s1 = &cent->currentState;
+	
 /*
 Ghoul2 Insert Start
 */
@@ -339,7 +356,7 @@ Ghoul2 Insert End
 	memset (&ent, 0, sizeof(ent));
 
 	// set frame
-
+	
 	if ( cent->currentState.eFlags & EF_DISABLE_SHADER_ANIM )
 	{
 		// by setting the shader time to the current time, we can force an animating shader to not animate
@@ -1115,6 +1132,12 @@ static void CG_Missile( centity_t *cent ) {
 	if ( s1->weapon >= WP_NUM_WEAPONS ) {
 		s1->weapon = 0;
 	}
+	
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
+
 	weapon = &cg_weapons[s1->weapon];
 	wData = &weaponData[s1->weapon];
 
@@ -1172,6 +1195,18 @@ static void CG_Missile( centity_t *cent ) {
 		if ( !g_vehWeaponInfo[s1->otherEntityNum2].iModel )
 		{
 			return;
+		}
+	}
+	else if (s1->powerups & (1<<PW_FORCE_PROJECTILE))
+	{
+		if ( s1->weapon == WP_CONCUSSION )
+		{
+			FX_DestructionProjectileThink( cent, weapon );
+			cgi_R_AddLightToScene(cent->lerpOrigin, 125,
+								  1.0, 0.25, 0.75 );
+			cgi_S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.destructionSound);
+			return;
+
 		}
 	}
 	else if ( cent->gent->alt_fire )
@@ -1312,6 +1347,10 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+	if (cent->currentState.eFlags2 & EF2_RADAROBJECT)
+	{
+		CG_AddRadarEnt(cent);
+	}
 
 	ent.renderfx = RF_NOSHADOW;
 
@@ -2490,6 +2529,9 @@ void CG_AddPacketEntities( qboolean isPortal ) {
 
 	AnglesToAxis( cg.autoAngles, cg.autoAxis );
 	AnglesToAxis( cg.autoAnglesFast, cg.autoAxisFast );
+	
+	// Reset radar entities
+	cg.radarEntityCount = 0;
 
 	// generate and add the entity from the playerstate
 	ps = &cg.predicted_player_state;

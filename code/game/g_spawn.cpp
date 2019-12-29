@@ -348,6 +348,7 @@ field_t fields[] = {
 
 	{"soundSet", FOFS(soundSet), F_LSTRING},
 	{"mass", FOFS(mass), F_FLOAT},		//really only used for pushable misc_model_breakables
+	{"icon", FOFS(radarIcon), F_LSTRING},
 
 //q3map stuff
 	{"scale", 0, F_IGNORE},
@@ -415,6 +416,8 @@ void SP_trigger_location( gentity_t *ent );
 void SP_trigger_visible( gentity_t *self );
 void SP_trigger_space(gentity_t *self);
 void SP_trigger_shipboundary(gentity_t *self);
+void SP_trigger_hyperspace(gentity_t *self);
+void SP_trigger_asteroid_field(gentity_t *self);
 
 void SP_target_give (gentity_t *ent);
 void SP_target_delay (gentity_t *ent);
@@ -618,6 +621,8 @@ void SP_emplaced_gun( gentity_t *self );
 
 void SP_misc_turbobattery( gentity_t *base );
 
+void SP_misc_radar_icon( gentity_t *self );
+
 
 spawn_t	spawns[] = {
 	{"info_player_start", SP_info_player_start},
@@ -653,6 +658,8 @@ spawn_t	spawns[] = {
 	{"trigger_visible", SP_trigger_visible},
 	{"trigger_space", SP_trigger_space},
 	{"trigger_shipboundary", SP_trigger_shipboundary},
+	{ "trigger_hyperspace",	SP_trigger_hyperspace },
+	{ "trigger_asteroid_field",	SP_trigger_asteroid_field },
 
 	{"target_give", SP_target_give},
 	{"target_delay", SP_target_delay},
@@ -856,6 +863,8 @@ spawn_t	spawns[] = {
 
 	{"emplaced_gun", SP_emplaced_gun},
 	{"emplaced_eweb", SP_emplaced_eweb},
+	
+	{"misc_radar_icon", SP_misc_radar_icon},
 
 	{NULL, NULL}
 };
@@ -1628,6 +1637,25 @@ void G_SubBSPSpawnEntitiesFromString(const char *entityString, vec3_t posOffset,
 	}
 }
 
+void G_SpawnExtraEntitiesFromString( const char *entityString ) {
+	const char		*entities;
+	
+	entities = entityString;
+	
+	// allow calls to G_Spawn*()
+	spawning = qtrue;
+	NPCsPrecached = qfalse;
+	numSpawnVars = 0;
+
+	// parse ents
+	while( G_ParseSpawnVars( &entities ) )
+	{
+		G_SpawnGEntityFromSpawnVars();
+	}
+
+	spawning = qfalse;			// any future calls to G_Spawn*() will be errors
+}
+
 void G_SpawnEntitiesFromString( const char *entityString ) {
 	const char		*entities;
 
@@ -1687,4 +1715,22 @@ void G_SpawnEntitiesFromString( const char *entityString ) {
 		G_Error( "Errors loading map, check the console for them." );
 	}
 }
+
+void G_LoadExtraEntitiesFile( void )
+{
+	int			len;
+	char		*buffer;
+	
+	len = gi.FS_ReadFile( va( "mapentities/%s.eent", level.mapname), (void **) &buffer );
+	
+	if ( len == -1 )
+	{
+		return;
+	}
+	
+	G_SpawnExtraEntitiesFromString( buffer );
+	
+	gi.FS_FreeFile( buffer );
+}
+
 

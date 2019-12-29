@@ -47,6 +47,26 @@ extern vmCvar_t	ui_char_color_red;
 extern vmCvar_t	ui_char_color_green;
 extern vmCvar_t	ui_char_color_blue;
 
+extern vmCvar_t	ui_char_color_2_red;
+extern vmCvar_t	ui_char_color_2_green;
+extern vmCvar_t	ui_char_color_2_blue;
+
+extern vmCvar_t    ui_hilt_color_red;
+extern vmCvar_t    ui_hilt_color_green;
+extern vmCvar_t    ui_hilt_color_blue;
+
+extern vmCvar_t    ui_hilt2_color_red;
+extern vmCvar_t    ui_hilt2_color_green;
+extern vmCvar_t    ui_hilt2_color_blue;
+
+extern vmCvar_t	ui_rgb_saber_red;
+extern vmCvar_t	ui_rgb_saber_green;
+extern vmCvar_t	ui_rgb_saber_blue;
+
+extern vmCvar_t	ui_rgb_saber2_red;
+extern vmCvar_t	ui_rgb_saber2_green;
+extern vmCvar_t	ui_rgb_saber2_blue;
+
 void *UI_Alloc( int size );
 
 void		Controls_GetConfig( void );
@@ -176,6 +196,7 @@ const char *types [] = {
 "ITEM_TYPE_MULTI",
 "ITEM_TYPE_BIND",
 "ITEM_TYPE_TEXTSCROLL",
+"ITEM_TYPE_SLIDER_INTEGER",
 NULL
 };
 
@@ -1957,6 +1978,28 @@ void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, floa
 	}
 }
 
+void Menu_ToggleDecorationByName(menuDef_t *menu, const char *p)
+{
+	itemDef_t *item;
+	int i;
+	int count = Menu_ItemsMatchingGroup(menu, p);
+	for (i = 0; i < count; i++)
+	{
+		item = Menu_GetMatchingItemByNumber(menu, i, p);
+		if (item != NULL)
+		{
+			if (item->window.flags & WINDOW_DECORATION)
+			{
+				item->window.flags &= ~WINDOW_DECORATION;
+			}
+			else
+			{
+				item->window.flags |= WINDOW_DECORATION;
+			}
+		}
+	}
+}
+
 void Menu_ItemDisable(menuDef_t *menu, const char *name, qboolean disableFlag)
 {
 	int	j,count;
@@ -2937,6 +2980,18 @@ qboolean Script_Orbit(itemDef_t *item, const char **args)
 	return qtrue;
 }
 
+qboolean Script_ToggleDecoration(itemDef_t *item, const char **args)
+{
+	const char *name;
+	
+	if (String_Parse(args, &name))
+	{
+		Menu_ToggleDecorationByName((menuDef_t *) item->parent, name);
+	}
+	
+	return qtrue;
+}
+
 
 commandDef_t commandList[] =
 {
@@ -2972,7 +3027,8 @@ commandDef_t commandList[] =
   {"delay",			&Script_Delay},					// works on this (script)
   {"transition3",   &Script_Transition3},			// model exclusive transition
   {"incrementfeeder", &Script_IncrementFeeder},
-  {"decrementfeeder", &Script_DecrementFeeder}
+  {"decrementfeeder", &Script_DecrementFeeder},
+	{"toggledecoration", &Script_ToggleDecoration}
 };
 
 int scriptCommandCount = sizeof(commandList) / sizeof(commandDef_t);
@@ -3190,6 +3246,10 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name )
 	{ //it's a ghoul2 model then
 		if ( item->ghoul2.size() && item->ghoul2[0].mModelindex >= 0)
 		{
+			if ( item->ghoul2.size() > 1 && item->ghoul2[1].mModelindex >= 0)
+			{
+				DC->g2_RemoveGhoul2Model( item->ghoul2, 1 );
+			}
 			DC->g2_RemoveGhoul2Model( item->ghoul2, 0 );
 			item->flags &= ~ITF_G2VALID;
 		}
@@ -3216,7 +3276,46 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name )
 	return qtrue;
 }
 
-qboolean ItemParse_asset_model( itemDef_t *item )
+qboolean ItemParse_asset_model_go_head( itemDef_t *item, const char *name, qboolean cleanuponly )
+{
+	modelDef_t *modelPtr;
+	Item_ValidateTypeData(item);
+	modelPtr = (modelDef_t*)item->typeData;
+	
+	//Cleanup also done in ItemParse_asset_model_go
+	if ( item->ghoul2.size() > 1 && item->ghoul2[1].mModelindex >= 0 )
+	{
+		DC->g2_RemoveGhoul2Model( item->ghoul2, 1 );
+	}
+	
+	if ( cleanuponly )
+	{
+		return qtrue;
+	}
+	
+	if (!Q_stricmp(&name[strlen(name) - 4], ".glm"))
+	{ //it's a ghoul2 model then
+		int g2Model = DC->g2_InitGhoul2Model(item->ghoul2, name, 0, 0, 0, 0, 0);
+		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
+
+		if (g2Model >= 0)
+		{
+			if (modelPtr->g2anim)
+			{ //does the menu request this model be playing an animation?
+				DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qfalse);
+				//need to sync the head and body!
+				DC->g2hilev_SetAnim(&item->ghoul2[0], "model_root", modelPtr->g2anim, qfalse);
+			}
+			if ( modelPtr->g2skin2 )
+			{
+				DC->g2_SetSkin( &item->ghoul2[1], modelPtr->g2skin2, modelPtr->g2skin2 );//this is going to set the surfs on/off matching the skin file
+			}
+		}
+	}
+	return qtrue;
+}
+
+qboolean ItemParse_asset_model( itemDef_t *item ) 
 {
 	const char *temp;
 	Item_ValidateTypeData(item);
@@ -3413,7 +3512,46 @@ qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 	return qtrue;
 }
 
-qboolean ItemParse_model_g2skin( itemDef_t *item )
+qboolean ItemParse_model_g2skin_go_head( itemDef_t *item, const char *skinName )
+{
+	modelDef_t *modelPtr;
+
+	Item_ValidateTypeData(item);
+	modelPtr = (modelDef_t*)item->typeData;
+	
+	if (!skinName || !skinName[0])
+	{ //it was parsed cor~rectly so still return true.
+		modelPtr->g2skin2 = 0;
+		DC->g2_SetSkin( &item->ghoul2[1], -1, 0 );//turn off custom skin
+		return qtrue;
+	}
+
+	modelPtr->g2skin2 = DC->registerSkin(skinName);
+//	Com_Printf("loaded skin %d\n", modelPtr->g2skin2);
+	if ( item->ghoul2.IsValid() && item->ghoul2.size() > 1 &&  item->ghoul2[1].mModelindex >= 0 )
+	{
+		DC->g2_SetSkin( &item->ghoul2[1], modelPtr->g2skin2, modelPtr->g2skin2 );//this is going to set the surfs on/off matching the skin file
+	}
+//	Com_Printf("forced skin %d\n", item->ghoul2[1].mCustomSkin);
+	
+	return qtrue;
+}
+
+void ItemParse_swapheads( itemDef_t *item )
+{
+	if ( item->ghoul2.IsValid() )
+	{
+		DC->g2_SetSurfaceOnOff( &item->ghoul2[0], "head", G2SURFACEFLAG_NODESCENDANTS);
+		DC->g2_SetSurfaceOnOff( &item->ghoul2[0], "torso_cap_head", 0x00);
+		if (item->ghoul2[1].mValid && item->ghoul2[1].mModelindex >= 0)
+		{
+			DC->g2_SetRootSurface( item->ghoul2, 1, "head");
+			DC->g2_SetSurfaceOnOff( &item->ghoul2[1], "head_cap_torso", 0x00);//show caps so don't get such bad seams
+		}
+	}
+}
+
+qboolean ItemParse_model_g2skin( itemDef_t *item ) 
 {
 	const char *skinName;
 
@@ -4389,6 +4527,7 @@ qboolean ItemParse_cvar( itemDef_t *item)
 			case ITEM_TYPE_YESNO:
 			case ITEM_TYPE_BIND:
 			case ITEM_TYPE_SLIDER:
+			case ITEM_TYPE_SLIDER_INTEGER:
 			case ITEM_TYPE_TEXT:
 			case ITEM_TYPE_TEXTSCROLL:
 				editPtr = (editFieldDef_t*)item->typeData;
@@ -4788,8 +4927,8 @@ void Item_ValidateTypeData(itemDef_t *item)
 	{
 		item->typeData = UI_Alloc(sizeof(listBoxDef_t));
 		memset(item->typeData, 0, sizeof(listBoxDef_t));
-	}
-	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_TEXT)
+	} 
+	else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_BIND || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_SLIDER_INTEGER || item->type == ITEM_TYPE_TEXT)
 	{
 		item->typeData = UI_Alloc(sizeof(editFieldDef_t));
 		memset(item->typeData, 0, sizeof(editFieldDef_t));
@@ -5469,6 +5608,7 @@ static const char *g_bindCommands[] = {
 #endif
 	"+force_grip",
 	"+force_lightning",
+	"+force_repulse",
 	"+forward",
 	"+left",
 	"+lookdown",
@@ -5479,6 +5619,7 @@ static const char *g_bindCommands[] = {
 	"+moveright",
 	"+moveup",
 	"+right",
+	"+saber_throw",
 	"+speed",
 	"+strafe",
 	"+use",
@@ -5489,10 +5630,15 @@ static const char *g_bindCommands[] = {
 	"exitview",
 #ifndef JK2_MODE
 	"force_absorb",
+	"force_blinding",
+	"force_destruction",
+	"force_deadlysight",
 #endif
 	"force_distract",
 	"force_heal",
 #ifndef JK2_MODE
+	"force_insanity",
+	"force_invulnerability",
 	"force_protect",
 #endif
 	"force_pull",
@@ -5501,6 +5647,9 @@ static const char *g_bindCommands[] = {
 	"force_sight",
 #endif
 	"force_speed",
+#ifndef JK2_MODE
+	"force_stasis",
+#endif
 	"force_throw",
 	"forcenext",
 	"forceprev",
@@ -7107,6 +7256,79 @@ Item_Model_Paint
 =================
 */
 extern void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, float curYaw );
+extern saber_colors_t TranslateSaberColor( const char *name );
+
+void UI_RGBForSaber( byte *rgba, int whichSaber )
+{
+    char bladeColorString[MAX_QPATH];
+
+    if ( whichSaber == 0 )
+    {
+        DC->getCVarString( "ui_saber_color", bladeColorString, sizeof(bladeColorString) );
+    }
+    else//if ( whichSaber == 1 ) - presumed
+    {
+        DC->getCVarString( "ui_saber2_color", bladeColorString, sizeof(bladeColorString) );
+    }
+    
+    saber_colors_t bladeColor = TranslateSaberColor( bladeColorString );
+
+    switch( bladeColor )
+    {
+        case SABER_RED:
+            rgba[0] = 255;
+            rgba[1] = 51;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_ORANGE:
+            rgba[0] = 255;
+            rgba[1] = 128;
+            rgba[2] = 25;
+            rgba[3] = 255;
+            break;
+        case SABER_YELLOW:
+            rgba[0] = 255;
+            rgba[1] = 255;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_GREEN:
+            rgba[0] = 51;
+            rgba[1] = 255;
+            rgba[2] = 51;
+            rgba[3] = 255;
+            break;
+        case SABER_BLUE:
+            rgba[0] = 51;
+            rgba[2] = 102;
+            rgba[3] = 255;
+            rgba[3] = 255;
+            break;
+        case SABER_PURPLE:
+            rgba[0] = 230;
+            rgba[1] = 51;
+            rgba[2] = 255;
+            rgba[3] = 255;
+            break;
+        default://SABER_RGB
+            if (whichSaber == 1)
+            {
+                rgba[0] = ui_rgb_saber2_red.integer;
+                rgba[1] = ui_rgb_saber2_green.integer;
+                rgba[2] = ui_rgb_saber2_blue.integer;
+                rgba[3] = 255;
+            }
+            else
+            {
+                rgba[0] = ui_rgb_saber_red.integer;
+                rgba[1] = ui_rgb_saber_green.integer;
+                rgba[2] = ui_rgb_saber_blue.integer;
+                rgba[3] = 255;
+            }
+            break;
+    }
+}
 
 void Item_Model_Paint(itemDef_t *item)
 {
@@ -7265,6 +7487,10 @@ void Item_Model_Paint(itemDef_t *item)
 				break;
 			}
 		}
+		if (Cvar_VariableString( "ui_char_head_model" )[0])
+		{
+			DC->g2hilev_SetAnim(&item->ghoul2[1], "model_root", modelPtr->g2anim, qtrue);
+		}
 	}
 
 	// setup the refdef
@@ -7349,10 +7575,47 @@ void Item_Model_Paint(itemDef_t *item)
 			ent.shaderRGBA[1] = ui_char_color_green.integer;
 			ent.shaderRGBA[2] = ui_char_color_blue.integer;
 			ent.shaderRGBA[3] = 255;
+			ent.newShaderRGBA[TINT_NEW_ENT][0] = ui_char_color_2_red.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][1] = ui_char_color_2_green.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][2] = ui_char_color_2_blue.integer;
+			ent.newShaderRGBA[TINT_NEW_ENT][3] = 255;
 			UI_TalkingHead(item);
 		}
 		if ( item->flags&ITF_ISANYSABER )
 		{//UGH, draw the saber blade!
+            if ( item->flags&ITF_ISCHARACTER )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                ent.newShaderRGBA[TINT_HILT2][0] = ui_hilt2_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT2][1] = ui_hilt2_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT2][2] = ui_hilt2_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT2][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 0);
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE2], 1);
+            }
+            else if ( item->flags&ITF_ISSABER )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 0);
+            }
+            else if ( item->flags&ITF_ISSABER2 )
+            {
+                ent.newShaderRGBA[TINT_HILT1][0] = ui_hilt2_color_red.integer;
+                ent.newShaderRGBA[TINT_HILT1][1] = ui_hilt2_color_green.integer;
+                ent.newShaderRGBA[TINT_HILT1][2] = ui_hilt2_color_blue.integer;
+                ent.newShaderRGBA[TINT_HILT1][3] = 255;
+                
+                UI_RGBForSaber(ent.newShaderRGBA[TINT_BLADE1], 1);
+            }
 			UI_SaberDrawBlades( item, origin, curYaw );
 		}
 	}
@@ -8361,6 +8624,7 @@ static qboolean Item_Paint(itemDef_t *item, qboolean bDraw)
 			Item_Bind_Paint(item);
 			break;
 		case ITEM_TYPE_SLIDER:
+		case ITEM_TYPE_SLIDER_INTEGER:
 			Item_Slider_Paint(item);
 			break;
 		default:
@@ -10601,6 +10865,45 @@ int Item_Slider_OverSlider(itemDef_t *item, float x, float y)
 }
 
 /*
+ =================
+ Scroll_Slider_Integer_ThumbFunc
+ =================
+ */
+static void Scroll_Slider_Integer_ThumbFunc(void *p)
+{
+	float x, value, cursorx;
+	int intValue;
+	scrollInfo_t *si = (scrollInfo_t*)p;
+	editFieldDef_t *editDef = (struct editFieldDef_s *) si->item->typeData;
+	
+	if (si->item->text)
+	{
+		x = si->item->textRect.x + si->item->textRect.w + 8;
+	}
+	else
+	{
+		x = si->item->window.rect.x;
+	}
+	
+	cursorx = DC->cursorx;
+	
+	if (cursorx < x)
+	{
+		cursorx = x;
+	}
+	else if (cursorx > x + SLIDER_WIDTH)
+	{
+		cursorx = x + SLIDER_WIDTH;
+	}
+	value = cursorx - x;
+	value /= SLIDER_WIDTH;
+	value *= (editDef->maxVal - editDef->minVal);
+	value += editDef->minVal;
+	intValue = (int) value;
+	DC->setCVar(si->item->cvar, va("%d", intValue));
+}
+
+/*
 =================
 Scroll_Slider_ThumbFunc
 =================
@@ -10714,6 +11017,21 @@ void Item_StartCapture(itemDef_t *item, int key)
 				scrollInfo.yStart = DC->cursory;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_Slider_ThumbFunc;
+				itemCapture = item;
+			}
+			break;
+		}
+		case ITEM_TYPE_SLIDER_INTEGER:
+		{
+			flags = Item_Slider_OverSlider(item, DC->cursorx, DC->cursory);
+			if (flags & WINDOW_LB_THUMB)
+			{
+				scrollInfo.scrollKey = key;
+				scrollInfo.item = item;
+				scrollInfo.xStart = DC->cursorx;
+				scrollInfo.yStart = DC->cursory;
+				captureData = &scrollInfo;
+				captureFunc = &Scroll_Slider_Integer_ThumbFunc;
 				itemCapture = item;
 			}
 			break;
@@ -11001,6 +11319,64 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down)
 }
 
 /*
+ =================
+ Item_Slider_HandleKey
+ =================
+ */
+qboolean Item_Slider_Integer_HandleKey(itemDef_t *item, int key, qboolean down)
+{
+	//DC->Print("slider handle key\n");
+	//JLF MPMOVED
+	
+	float x, value, width, work;
+	
+	if (item->window.flags & WINDOW_HASFOCUS && item->cvar && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
+	{
+		
+		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
+		{
+			editFieldDef_t *editDef = (editFieldDef_s *) item->typeData;
+			if (editDef)
+			{
+				rectDef_t testRect;
+				width = SLIDER_WIDTH;
+				if (item->text)
+				{
+					x = item->textRect.x + item->textRect.w + 8;
+				}
+				else
+				{
+					x = item->window.rect.x;
+				}
+				
+				testRect = item->window.rect;
+				testRect.x = x;
+				value = (float)SLIDER_THUMB_WIDTH / 2;
+				testRect.x -= value;
+				//DC->Print("slider x: %f\n", testRect.x);
+				testRect.w = (SLIDER_WIDTH + (float)SLIDER_THUMB_WIDTH / 2);
+				//DC->Print("slider w: %f\n", testRect.w);
+				if (Rect_ContainsPoint(&testRect, DC->cursorx, DC->cursory))
+				{
+					work = DC->cursorx - x;
+					value = work / width;
+					value *= (editDef->maxVal - editDef->minVal);
+					// vm fuckage
+					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
+					value += editDef->minVal;
+					int intValue = (int) value;
+					DC->setCVar(item->cvar, va("%d", intValue));
+					return qtrue;
+				}
+			}
+		}
+	}
+	
+	//DC->Print("slider handle key exit\n");
+	return qfalse;
+}
+
+/*
 =================
 Item_HandleKey
 =================
@@ -11067,6 +11443,9 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down)
 			break;
 		case ITEM_TYPE_SLIDER:
 			return Item_Slider_HandleKey(item, key, down);
+			break;
+		case ITEM_TYPE_SLIDER_INTEGER:
+			return Item_Slider_Integer_HandleKey(item, key, down);
 			break;
 //JLF MPMOVED
 		case ITEM_TYPE_TEXT:
@@ -11345,7 +11724,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down)
 	should just process the action and not support the accept functionality.
 */
 //JLFACCEPT
-				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER)
+				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER || item->type == ITEM_TYPE_SLIDER_INTEGER )
 				{
 
 					if (Item_HandleAccept(item))

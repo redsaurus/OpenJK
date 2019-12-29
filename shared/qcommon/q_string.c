@@ -433,3 +433,66 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 	return retval;
 }
 #endif
+
+//ent's colour parsing
+//Can either parse xAABBCC hex or associate letter to colour
+int Q_parseSaberColor( const char *p, float *color ) {
+    char c = *p++;
+    if ( ( c >= 'a' && c < 'u') || (c >= 'A' && c < 'U') ) {
+        int deg;
+        float angle, v;
+        if (!color)
+            return 1;
+        deg = (((c|32) - 'a') * 360) / 24;
+        angle = (DEG2RAD(deg % 120));
+        v = ((cos(angle) / cos((M_PI / 3) - angle)) + 1) / 3;
+        if ( deg <= 120) {
+            color[0] = v;
+            color[1] = 1-v;
+            color[2] = 0;
+        } else if ( deg <= 240) {
+            color[0] = 0;
+            color[1] = v;
+            color[2] = 1-v;
+        } else {
+            color[0] = 1-v;
+            color[1] = 0;
+            color[2] = v;
+        }
+        return 1;
+    } else if ( c == 'u' || c == 'U' || c == 'v' || c == 'V'
+               || c == 'w' || c == 'W' || c == 'x' || c == 'X'
+               || c == 'y' || c == 'Y' || c == 'z' || c == 'Z') {
+        int i;
+        int val;
+        for (i = 0;i<6;i++) {
+            int readHex;
+            c = p[i];
+            if ( c >= '0' && c<= '9') {
+                readHex = c - '0';
+            } else if ( c >= 'a' && c<= 'f') {
+                readHex = 0xa + c - 'a';
+            } else if ( c >= 'A' && c<= 'F') {
+                readHex = 0xa + c - 'A';
+            } else {
+                if (color) {
+                    color[0] = color[1] = color[2] = 1.0f;
+                }
+                return 1;
+            }
+            if (!color)
+                continue;
+            if ( i & 1) {
+                val|= readHex;
+                color[i >> 1] = val * (1 / 255.0f);
+            } else {
+                val = readHex << 4;
+            }
+        }
+        return 7;
+    }
+    if (color) {
+        color[0] = color[1] = color[2] = 1.0f;
+    }
+    return 0;
+}

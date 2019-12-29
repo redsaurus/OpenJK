@@ -207,7 +207,7 @@ NPC_BSGrenadier_Patrol
 
 void NPC_BSGrenadier_Patrol( void )
 {//FIXME: pick up on bodies of dead buddies?
-	if ( NPCInfo->confusionTime < level.time )
+	if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 	{
 		//Look for any enemies
 		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )

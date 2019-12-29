@@ -215,6 +215,24 @@ cvar_t	*g_saber_color;
 cvar_t	*g_saber2_color;
 cvar_t	*g_saberDarkSideSaberColor;
 
+cvar_t	*g_char_head_model;
+cvar_t	*g_char_head_skin;
+
+cvar_t	*g_char_color_2_red;
+cvar_t	*g_char_color_2_green;
+cvar_t	*g_char_color_2_blue;
+
+cvar_t  *g_hilt_color_red;
+cvar_t  *g_hilt_color_green;
+cvar_t  *g_hilt_color_blue;
+
+cvar_t  *g_hilt2_color_red;
+cvar_t  *g_hilt2_color_green;
+cvar_t  *g_hilt2_color_blue;
+
+cvar_t	*g_saber_skin[MAX_SABER_PARTS];
+cvar_t	*g_saber2_skin[MAX_SABER_PARTS];
+
 
 // kef -- used with DebugTraceForNPC
 cvar_t	*g_npcdebug;
@@ -225,6 +243,10 @@ cvar_t	*g_navSafetyChecks;
 cvar_t	*g_broadsword;
 
 cvar_t	*g_allowBunnyhopping;
+cvar_t	*g_flippedHolsters;
+cvar_t	*g_noIgniteTwirl;
+
+cvar_t	*g_forceRegenTime;
 
 //new cvars - Dusty
 cvar_t  *g_autoRoll;
@@ -443,7 +465,7 @@ static void G_DynamicMusicUpdate( void )
 		}
 
 		LOScalced = clearLOS = qfalse;
-		if ( (ent->enemy==player&&(!ent->NPC||ent->NPC->confusionTime<level.time)) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
+		if ( (ent->enemy==player&&(!ent->NPC||((ent->NPC->confusionTime<level.time)&&(ent->NPC->insanityTime<level.time)))) || (ent->client&&ent->client->ps.weaponTime) || (!ent->client&&ent->attackDebounceTime>level.time))
 		{//mad
 			if ( ent->health > 0 )
 			{//alive
@@ -768,6 +790,28 @@ void G_InitCvars( void ) {
 	g_saber2_color = gi.cvar( "g_saber2_color", "yellow", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
 	g_saberDarkSideSaberColor = gi.cvar( "g_saberDarkSideSaberColor", "0", CVAR_ARCHIVE );	//when you turn evil, it turns your saber red!
 
+	g_char_head_model = gi.cvar( "g_char_head_model", "", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	g_char_head_skin = gi.cvar( "g_char_head_skin", "", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	
+	g_char_color_2_red = gi.cvar( "g_char_color_2_red", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	g_char_color_2_green = gi.cvar( "g_char_color_2_green", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	g_char_color_2_blue = gi.cvar( "g_char_color_2_blue", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	
+    g_hilt_color_red = gi.cvar( "g_hilt_color_red", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    g_hilt_color_green = gi.cvar( "g_hilt_color_green", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    g_hilt_color_blue = gi.cvar( "g_hilt_color_blue", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    
+    g_hilt2_color_red = gi.cvar( "g_hilt2_color_red", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    g_hilt2_color_green = gi.cvar( "g_hilt2_color_green", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    g_hilt2_color_blue = gi.cvar( "g_hilt2_color_blue", "255", CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+    
+	for (int i = 0; i < MAX_SABER_PARTS; i++)
+	{
+		g_saber_skin[i] = gi.cvar( va("g_saber_skin%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+		g_saber2_skin[i] = gi.cvar( va("g_saber2_skin%d", (i+1)), "",  CVAR_ARCHIVE|CVAR_SAVEGAME|CVAR_NORESTART );
+	}
+	
+
 	g_broadsword = gi.cvar( "broadsword", "1", 0);
 
 	g_allowBunnyhopping = gi.cvar( "g_allowBunnyhopping", "0", 0 );
@@ -780,7 +824,8 @@ void G_InitCvars( void ) {
 
 	gi.cvar( "g_clearstats", "1", CVAR_ROM|CVAR_NORESTART);
 
-	//new cvars yay - Dusty
+  
+  //new cvars yay - Dusty
 	g_autoRoll = gi.cvar("g_autoRoll", "1", CVAR_ARCHIVE);
 	g_saberNewCombat = gi.cvar("g_saberNewCombat", "1", CVAR_ARCHIVE | CVAR_CHEAT);
 	g_saberLocksEnabled = gi.cvar("g_saberLocksEnabled", "1", CVAR_ARCHIVE | CVAR_CHEAT);
@@ -797,7 +842,6 @@ void G_InitCvars( void ) {
 	g_char_breakParryBonus = gi.cvar("g_char_breakParryBonus", "0", CVAR_CHEAT | CVAR_SAVEGAME);
 	g_weaponVelocity = gi.cvar("g_weaponVelocity", "1.0", CVAR_ARCHIVE | CVAR_CHEAT);
 	g_weaponAltVelocity = gi.cvar("g_weaponAltVelocity", "1.0", CVAR_ARCHIVE | CVAR_CHEAT);
-
 	//g_handicap_hp = gi.cvar("handicap_hp", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART | CVAR_USERINFO);
 	//g_handicap_armor = gi.cvar("handicap_armor", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART | CVAR_USERINFO);
 	g_handicap_maxArmor = gi.cvar("handicap_maxArmor", "100", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_NORESTART);
@@ -805,8 +849,10 @@ void G_InitCvars( void ) {
 	g_saberDeflectAutoAim = gi.cvar("g_saberDeflectAutoAim", "0", CVAR_SAVEGAME);
 	g_playerCheatPowers = gi.cvar("g_playerCheatPowers", "0", CVAR_ARCHIVE | CVAR_SAVEGAME | CVAR_CHEAT);
 	g_moonJump = gi.cvar("g_moonJump", "0", CVAR_ARCHIVE | CVAR_CHEAT);
-	g_saberNewThrows = gi.cvar("g_saberNewThrows", "1", CVAR_ARCHIVE);
-	
+	g_saberNewThrows = gi.cvar("g_saberNewThrows", "1", CVAR_ARCHIVE);	
+	g_flippedHolsters = gi.cvar( "g_flippedHolsters", "0", CVAR_ARCHIVE );//if 1, saber faces up when holstered not down	
+	g_noIgniteTwirl = gi.cvar( "g_noIgniteTwirl", "0", CVAR_ARCHIVE );//if 1, don't do ignite twirl	
+	g_forceRegenTime = gi.cvar( "g_forceRegenTime", "100", CVAR_ARCHIVE );//Force regen time cvar similar to MP
 }
 /*
 ============
@@ -821,6 +867,7 @@ InitGame
 int giMapChecksum;
 SavedGameJustLoaded_e g_eSavedGameJustLoaded;
 qboolean g_qbLoadTransition = qfalse;
+void G_LoadExtraEntitiesFile( void );
 void InitGame(  const char *mapname, const char *spawntarget, int checkSum, const char *entities, int levelTime, int randomSeed, int globalTime, SavedGameJustLoaded_e eSavedGameJustLoaded, qboolean qbLoadTransition )
 {
 	//rww - default this to 0, we will auto-set it to 1 if we run into a terrain ent
@@ -895,6 +942,8 @@ void InitGame(  const char *mapname, const char *spawntarget, int checkSum, cons
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString( entities );
+	
+	G_LoadExtraEntitiesFile();
 
 	// general initialization
 	G_FindTeams();
@@ -1246,6 +1295,11 @@ static void G_Animate ( gentity_t *self )
 
 		gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->playerModel], self->rootBone,
 									self->startFrame, self->endFrame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1 );
+		if ( self->headModel > 0)
+		{
+			gi.G2API_SetBoneAnimIndex( &self->ghoul2[self->headModel], self->headRootBone,
+									  self->startFrame, self->endFrame, BONE_ANIM_OVERRIDE_FREEZE, 1.0f, cg.time, -1, -1 );
+		}
 		return;
 	}
 
@@ -2029,6 +2083,8 @@ void G_RunFrame( int levelTime ) {
 
 	//Look to clear out old events
 	ClearPlayerAlertEvents();
+    
+    WorkshopThink();
 
 	//Run the frame for all entities
 //	for ( i = 0, ent = &g_entities[0]; i < globals.num_entities ; i++, ent++)

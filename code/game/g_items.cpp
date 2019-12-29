@@ -146,13 +146,13 @@ int Add_Ammo2 (gentity_t *ent, int ammoType, int count)
 		switch( ammoType )
 		{
 		case AMMO_THERMAL:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_THERMAL );
+			ent->client->ps.weapons[WP_THERMAL] = 1;
 			break;
 		case AMMO_DETPACK:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_DET_PACK );
+			ent->client->ps.weapons[WP_DET_PACK] = 1;
 			break;
 		case AMMO_TRIPMINE:
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_TRIP_MINE );
+			ent->client->ps.weapons[WP_TRIP_MINE] = 1;
 			break;
 		}
 
@@ -280,7 +280,16 @@ gentity_t *G_DropSaberItem( const char *saberType, saber_colors_t saberColor, ve
 			newItem->spawnflags |= 64;/*ITMSF_NOGLOW*/
 			newItem->NPC_type = G_NewString( saberType );//saberType
 			//FIXME: transfer per-blade color somehow?
-			newItem->NPC_targetname = (char *)saberColorStringForColor[saberColor];
+			if (saberColor >= SABER_RGB)
+			{
+				char rgbColor[8];
+				Com_sprintf(rgbColor, 8, "x%02x%02x%02x", saberColor & 0xff, (saberColor >> 8) & 0xff, (saberColor >> 16) & 0xff);
+				newItem->NPC_targetname = rgbColor;
+			}
+			else
+			{
+				newItem->NPC_targetname = (char *)saberColorStringForColor[saberColor];
+			}
 			newItem->count = 1;
 			newItem->flags = FL_DROPPED_ITEM;
 			G_SpawnItem( newItem, FindItemForWeapon( WP_SABER ) );
@@ -473,11 +482,11 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	}
 
 	// add the weapon
-	if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+	if ( other->client->ps.weapons[ent->item->giTag] )
 	{
 		hadWeapon = qtrue;
 	}
-	other->client->ps.stats[STAT_WEAPONS] |= ( 1 << ent->item->giTag );
+	other->client->ps.weapons[ent->item->giTag] = 1;
 
 	if ( ent->item->giTag == WP_SABER && (!hadWeapon || ent->NPC_type != NULL) )
 	{//didn't have a saber or it is specifying a certain kind of saber to use
@@ -500,10 +509,12 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 			{
 				other->client->ps.SaberActivate();
 				WP_SaberAddG2SaberModels( other );
+				G_RemoveHolsterModels( ent );
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].weaponMdl, other->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( other, weaponData[ent->item->giTag].worldModel, other->handRBolt, 0 );
+				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 		}
 	}
@@ -814,6 +825,15 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			return;
 		}
 	}
+	
+	if ( ent->item->giType == IT_WEAPON
+		&& ent->item->giTag == WP_EMPLACED_GUN )
+	{//portable eweb
+		if ( ent->delay > level.time )
+		{//just picked it up, don't pick up again right away
+			return;
+		}
+	}
 
 	if ( other->s.number < MAX_CLIENTS
 		&& (ent->spawnflags&ITMSF_USEPICKUP) )
@@ -839,7 +859,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 			TIMER_Set( other, "attackDelay", 600 );
 			respawn = 0;
 		}
-		if ( other->client->ps.stats[STAT_WEAPONS] & ( 1 << ent->item->giTag ) )
+		if ( other->client->ps.weapons[ent->item->giTag] )
 		{
 			bHadWeapon = qtrue;
 		}
@@ -1096,6 +1116,7 @@ free fall from their spawn points
 */
 extern int delayedShutDown;
 extern cvar_t	*g_saber;
+extern cvar_t	*g_saber_skin[MAX_SABER_PARTS];
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
@@ -1148,6 +1169,39 @@ void FinishSpawningItem( gentity_t *ent ) {
 			&& Q_stricmp( "NULL", g_saber->string ) )
 		{//player's saber
 			WP_SaberParseParms( g_saber->string, &itemSaber );
+			//Custom saber stuff!
+			if (Q_stristr(itemSaber.name, "saberbuilder"))
+			{
+				char skinRoot[MAX_QPATH] = {0};
+				Q_strncpyz(skinRoot, itemSaber.model, MAX_QPATH);
+				int l = strlen(skinRoot);
+				while (l > 0 && skinRoot[l] != '/')
+				{ //parse back to first /
+					l--;
+				}
+				
+				if (skinRoot[l] == '/')
+				{
+					l++;
+					skinRoot[l] = 0;
+					
+					Q_strcat(skinRoot, MAX_QPATH, "|_");
+					
+					for (int j = 0; j < MAX_SABER_PARTS; j++)
+					{
+						Q_strcat(skinRoot, MAX_QPATH, "|");
+						if (g_saber_skin[j] && g_saber_skin[j]->string && g_saber_skin[j]->string[0])
+						{
+							Q_strcat(skinRoot, MAX_QPATH, g_saber_skin[j]->string);
+						}
+					}
+					
+					if(itemSaber.skin && gi.bIsFromZone(itemSaber.skin, TAG_G_ALLOC) ) {
+						gi.Free(itemSaber.skin);
+					}
+					itemSaber.skin = G_NewString(skinRoot);
+				}
+			}
 		}
 		else
 		{//specific saber
@@ -1155,7 +1209,20 @@ void FinishSpawningItem( gentity_t *ent ) {
 		}
 		//NOTE:  should I keep this string around for any reason?  Will I ever need it later?
 		//ent->??? = G_NewString( itemSaber.model );
-		gi.G2API_InitGhoul2Model( ent->ghoul2, itemSaber.model, G_ModelIndex( itemSaber.model ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+		int g2Model = gi.G2API_InitGhoul2Model( ent->ghoul2, itemSaber.model, G_ModelIndex( itemSaber.model ), NULL_HANDLE, NULL_HANDLE, 0, 0);
+		
+		if ( itemSaber.skin != NULL )
+		{//if this saber has a customSkin, use it
+			// lets see if it's out there
+			int saberSkin = gi.RE_RegisterSkin( itemSaber.skin );
+			if ( saberSkin )
+			{
+				// put it in the config strings
+				// and set the ghoul2 model to use it
+				gi.G2API_SetSkin( &ent->ghoul2[g2Model], G_SkinIndex( itemSaber.skin ), saberSkin );
+			}
+		}
+
 		WP_SaberFreeStrings(itemSaber);
 	}
 	else

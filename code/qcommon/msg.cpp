@@ -990,7 +990,7 @@ static const netField_t	playerStateFields[] =
 { PSF(externalEvent), 8 },
 { PSF(externalEventParm), 8 },
 { PSF(clientNum), 32 },
-{ PSF(weapon), 5 },
+{ PSF(weapon), 6 },
 { PSF(weaponstate),	  4 },
 { PSF(batteryCharge),	16 },
 { PSF(viewangles[0]), 0 },
@@ -1026,6 +1026,8 @@ static const netField_t	playerStateFields[] =
 
 #ifndef JK2_MODE
 { PSF(forceRageRecoveryTime), 32 },
+
+{ PSF(stasisTime), 32 },
 #endif // !JK2_MODE
 };
 
@@ -1036,11 +1038,12 @@ MSG_WriteDeltaPlayerstate
 =============
 */
 void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *to ) {
-	int				i;
+	int				i, j;
 	playerState_t	dummy;
 	int				statsbits;
 	int				persistantbits;
 	int				ammobits;
+	int				weaponbits[MAX_WEAPONBITS];
 	int				powerupbits;
 	int				numFields;
 	int				c;
@@ -1122,6 +1125,26 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 	} else {
 		MSG_WriteBits( msg, 0, 1 );	// no change
 	}
+	
+	for ( j = 0; j < MAX_WEAPONBITS; j++ )
+	{
+		weaponbits[j] = 0;
+		for ( i = 32*j; i < MAX_WEAPONS; i++ ) {
+			if (to->weapons[i] != from->weapons[i]) {
+				weaponbits[j] |= 1<<(i - 32*j);
+			}
+		}
+		if ( weaponbits[j] )
+		{
+			MSG_WriteBits( msg, 1, 1 );	// changed
+			MSG_WriteLong( msg, weaponbits[j] );
+			for (i = 32*j; i < MAX_WEAPONS; i++)
+				if (weaponbits[j] & (1<<(i - 32*j)) )
+					MSG_WriteSShort (msg, to->weapons[i]);
+		} else {
+			MSG_WriteBits( msg, 0, 1 );	// no change
+		}
+	}
 
 	powerupbits = 0;
 	for (i=0 ; i<MAX_POWERUPS ; i++) {
@@ -1131,7 +1154,7 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 	}
 	if ( powerupbits ) {
 		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteShort( msg, powerupbits );
+		MSG_WriteLong( msg, powerupbits );
 		for (i=0 ; i<MAX_POWERUPS ; i++)
 			if (powerupbits & (1<<i) )
 				MSG_WriteLong( msg, to->powerups[i] );
@@ -1173,7 +1196,7 @@ MSG_ReadDeltaPlayerstate
 ===================
 */
 void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *to ) {
-	int			i;
+	int			i, j;
 	int			bits;
 	const netField_t	*field;
 	int			numFields;
@@ -1250,11 +1273,24 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 			}
 		}
 	}
+	
+	for ( j = 0; j < MAX_WEAPONBITS; j++ )
+	{
+		if ( MSG_ReadBits( msg, 1 ) ) {
+			LOG("PS_WEAPONS");
+			bits = MSG_ReadLong (msg);
+			for (i=j*32 ; i<MAX_WEAPONS ; i++) {
+				if (bits & (1<<(i-j*32)) ) {
+					to->weapons[i] = MSG_ReadSShort(msg);
+				}
+			}
+		}
+	}
 
 	// parse powerups
 	if ( MSG_ReadBits( msg, 1 ) ) {
 		LOG("PS_POWERUPS");
-		bits = MSG_ReadShort (msg);
+		bits = MSG_ReadLong (msg);
 		for (i=0 ; i<MAX_POWERUPS ; i++) {
 			if (bits & (1<<i) ) {
 				to->powerups[i] = MSG_ReadLong(msg);

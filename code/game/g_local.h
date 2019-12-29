@@ -34,10 +34,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "anims.h"
 #include "dmstates.h"
 
+#include <vector>
+#include <string>
+
 //==================================================================
 
 // the "gameversion" client command will print this plus compile date
 #define	GAMEVERSION	"OpenJK-DP"
+//#define	GAMEVERSION	"Jedi Academy: Enhanced"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -415,6 +419,7 @@ void SaveRegisteredItems( void );
 //
 int G_ModelIndex( const char *name );
 int	G_SoundIndex( const char *name );
+int	G_IconIndex( const char* name );
 /*
 Ghoul2 Insert Start
 */
@@ -543,6 +548,7 @@ void player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 void AddScore( gentity_t *ent, int score );
 qboolean SpotWouldTelefrag( gentity_t *spot, team_t checkteam );
 void G_RemoveWeaponModels( gentity_t *ent );
+void G_RemoveHolsterModels( gentity_t *ent );
 
 //
 // g_svcmds.c
@@ -654,6 +660,13 @@ void G_InitSessionData( gclient_t *client, char *userinfo );
 void G_InitWorldSession( void );
 void G_WriteSessionData( void );
 
+//
+// jke_aiworkshop.cpp
+//
+extern qboolean inAIWorkshop;
+void WorkshopToggle();
+void WorkshopThink();
+qboolean TryWorkshopCommand(gentity_t* ent);
 
 //
 // NPC_senses.cpp
@@ -724,6 +737,7 @@ qboolean	TIMER_Start( gentity_t *self, const char *identifier, int duration );
 qboolean	TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove = qfalse );
 qboolean	TIMER_Exists( gentity_t *ent, const char *identifier );
 void		TIMER_Remove( gentity_t *ent, const char *identifier );
+std::vector<std::pair<std::string, int> > TIMER_List(gentity_t* ent);
 
 float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV );
 float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV );

@@ -76,7 +76,13 @@ void WP_FireBryarPistol( gentity_t *ent, qboolean alt_fire )
 	gentity_t	*missile = CreateMissile( start, forwardVec, velocity, 10000, ent, alt_fire );
 
 	missile->classname = "bryar_proj";
-	if ( ent->s.weapon == WP_BLASTER_PISTOL
+	
+	if ( ent->s.weapon == WP_DC15A_RIFLE )
+	{
+		missile->s.weapon = WP_DC15A_RIFLE;
+		damage = weaponData[WP_DC15A_RIFLE].damage;
+	}
+	else if ( ent->s.weapon == WP_BLASTER_PISTOL
 		|| ent->s.weapon == WP_JAWA )
 	{//*SIGH*... I hate our weapon system...
 		missile->s.weapon = ent->s.weapon;
@@ -85,6 +91,7 @@ void WP_FireBryarPistol( gentity_t *ent, qboolean alt_fire )
 	{
 		missile->s.weapon = WP_BRYAR_PISTOL;
 	}
+	
 
 	if ( alt_fire )
 	{

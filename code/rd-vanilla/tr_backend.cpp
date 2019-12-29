@@ -654,6 +654,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	trRefEntity_t	*curEnt;
 	postRender_t	*pRender;
 	bool			didShadowPass = false;
+    g2Tints_t       tintType, oldTintType;
 
 	if (g_bRenderGlowingObjects)
 	{ //only shadow on initial passes
@@ -674,18 +675,21 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	oldDepthRange = qfalse;
 	oldDlighted = qfalse;
 	oldSort = (unsigned int) -1;
+    oldTintType = G2_TINT_DEFAULT;
 	depthRange = qfalse;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
 	for (i = 0, drawSurf = drawSurfs ; i < numDrawSurfs ; i++, drawSurf++) {
-		if ( drawSurf->sort == oldSort ) {
+		if ( drawSurf->sort == oldSort && drawSurf->tintType == oldTintType ) {
 			// fast path, same as previous sort
 			rb_surfaceTable[ *drawSurf->surface ]( drawSurf->surface );
 			continue;
 		}
 		R_DecomposeSort( drawSurf->sort, &entityNum, &shader, &fogNum, &dlighted );
 
+        tintType = drawSurf->tintType;
+        
 		// If we're rendering glowing objects, but this shader has no stages with glow, skip it!
 		if ( g_bRenderGlowingObjects && !shader->hasGlow )
 		{
@@ -743,6 +747,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				entityNum = oldEntityNum;
 				fogNum = oldFogNum;
 				dlighted = oldDlighted;
+                tintType = oldTintType;
 
 				oldSort = (unsigned int)-1; //invalidate this thing, cause we may want to postrender more surfs of the same sort
 
@@ -751,7 +756,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			}
 		}
 
-		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
+		if (tintType != oldTintType || shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
 			|| ( entityNum != oldEntityNum && !shader->entityMergable ) )
 		{
 			if (oldShader != NULL) {
@@ -767,6 +772,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			oldShader = shader;
 			oldFogNum = fogNum;
 			oldDlighted = dlighted;
+            oldTintType = tintType;
 		}
 
 		//

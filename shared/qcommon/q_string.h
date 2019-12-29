@@ -46,6 +46,8 @@ void Q_strstrip( char *string, const char *strip, const char *repl );
 #else // not using MSVC
 	#define Q_vsnprintf vsnprintf
 #endif
+    
+int Q_parseSaberColor( const char *p, float *color );
 
 #if defined(__cplusplus)
 } // extern "C"

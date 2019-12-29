@@ -126,6 +126,27 @@ static void IN_UseGivenForce(void)
 	case FP_HEAL:
 		genCmdNum = GENCMD_FORCE_HEAL;
 		break;
+	case FP_DESTRUCTION:
+		genCmdNum = GENCMD_FORCE_DESTRUCTION;
+		break;
+	case FP_INSANITY:
+		genCmdNum = GENCMD_FORCE_INSANITY;
+		break;
+	case FP_STASIS:
+		genCmdNum = GENCMD_FORCE_STASIS;
+		break;
+	case FP_BLINDING:
+		genCmdNum = GENCMD_FORCE_BLINDING;
+		break;
+	case FP_DEADLYSIGHT:
+		genCmdNum = GENCMD_FORCE_DEADLYSIGHT;
+		break;
+	case FP_REPULSE:
+		genCmdNum = GENCMD_FORCE_REPULSE;
+		break;
+	case FP_INVULNERABILITY:
+		genCmdNum = GENCMD_FORCE_INVULNERABILITY;
+		break;
 	default:
 		assert(0);
 		break;
@@ -993,6 +1014,11 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("+block", IN_Button8Down);//manual blocking
 	Cmd_AddCommand ("-block", IN_Button8Up);
 #endif
+	Cmd_AddCommand ("+saber_throw", IN_Button9Down);
+	Cmd_AddCommand ("-saber_throw", IN_Button9Up);
+	
+	Cmd_AddCommand ("+force_repulse", IN_Button10Down);
+	Cmd_AddCommand ("-force_repulse", IN_Button10Up);
 
 	Cmd_AddCommand ("+button0", IN_Button0Down);
 	Cmd_AddCommand ("-button0", IN_Button0Up);

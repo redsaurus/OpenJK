@@ -48,6 +48,7 @@ extern void Mark1_dying( gentity_t *self );
 extern void NPC_BSCinematic( void );
 extern int GetTime ( int lastTime );
 extern void G_CheckCharmed( gentity_t *self );
+extern void G_CheckInsanity( gentity_t *self );
 extern qboolean Boba_Flying( gentity_t *self );
 extern qboolean RT_Flying( gentity_t *self );
 extern qboolean Jedi_CultistDestroyer( gentity_t *self );
@@ -188,6 +189,8 @@ qboolean NPC_JediClassBoss(int className) {
 	}
 }
 
+extern void GM_Dying( gentity_t *self );
+
 void CorpsePhysics( gentity_t *self )
 {
 	// run the bot through the server like it was a real client
@@ -195,6 +198,10 @@ void CorpsePhysics( gentity_t *self )
 	ClientThink( self->s.number, &ucmd );
 	VectorCopy( self->s.origin, self->s.origin2 );
 
+	if ( self->client->NPC_class == CLASS_GALAKMECH )
+	{
+		GM_Dying( self );
+	}
 	//FIXME: match my pitch and roll for the slope of my groundPlane
 	if ( self->client->ps.groundEntityNum != ENTITYNUM_NONE && !(self->flags&FL_DISINTEGRATED) )
 	{//on the ground
@@ -1081,7 +1088,7 @@ void NPC_ApplyScriptFlags (void)
 {
 	if ( NPCInfo->scriptFlags & SCF_CROUCHED )
 	{
-		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
+		if ( (NPCInfo->charmedTime > level.time || NPCInfo->darkCharmedTime > level.time) && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the crouched command
 		}
 		else
@@ -1096,7 +1103,7 @@ void NPC_ApplyScriptFlags (void)
 	}
 	else if(NPCInfo->scriptFlags & SCF_WALKING)
 	{
-		if ( NPCInfo->charmedTime > level.time && (ucmd.forwardmove || ucmd.rightmove) )
+		if ( (NPCInfo->charmedTime > level.time || NPCInfo->darkCharmedTime > level.time) && (ucmd.forwardmove || ucmd.rightmove) )
 		{//ugh, if charmed and moving, ignore the walking command
 		}
 		else
@@ -1957,6 +1964,7 @@ extern void NPC_BSSD_Default( void );
 extern void NPC_BehaviorSet_Trooper( int bState );
 extern bool NPC_IsTrooper( gentity_t *ent );
 extern bool Pilot_MasterUpdate();
+extern void NPC_BSGM_Default( void );
 
 void NPC_RunBehavior( int team, int bState )
 {
@@ -1982,6 +1990,7 @@ void NPC_RunBehavior( int team, int bState )
 	{
 		NPC_BSEmplaced();
 		G_CheckCharmed( NPC );
+		G_CheckInsanity( NPC );
 		return;
 	}
 	else if ( NPC->client->NPC_class == CLASS_HOWLER )
@@ -2041,6 +2050,7 @@ void NPC_RunBehavior( int team, int bState )
 			NPC_BehaviorSet_Stormtrooper( bState );
 		}
 		G_CheckCharmed( NPC );
+		G_CheckInsanity( NPC );
 	}
 	else if ( NPC->client->NPC_class == CLASS_RANCOR )
 	{
@@ -2054,6 +2064,7 @@ void NPC_RunBehavior( int team, int bState )
 	{
 		NPC_BehaviorSet_Wampa( bState );
 		G_CheckCharmed( NPC );
+		G_CheckInsanity( NPC );
 	}
 	else if ( NPCInfo->scriptFlags & SCF_FORCED_MARCH )
 	{//being forced to march
@@ -2065,12 +2076,14 @@ void NPC_RunBehavior( int team, int bState )
 		{
 			NPC_BehaviorSet_Sniper( bState );
 			G_CheckCharmed( NPC );
+			G_CheckInsanity( NPC );
 			return;
 		}
 		else
 		{
 			NPC_BehaviorSet_Tusken( bState );
 			G_CheckCharmed( NPC );
+			G_CheckInsanity( NPC );
 			return;
 		}
 	}
@@ -2078,15 +2091,18 @@ void NPC_RunBehavior( int team, int bState )
 	{
 		NPC_BehaviorSet_Tusken( bState );
 		G_CheckCharmed( NPC );
+		G_CheckInsanity( NPC );
 		return;
 	}
 	else if ( NPC->client->ps.weapon == WP_NOGHRI_STICK )
 	{
 		NPC_BehaviorSet_Stormtrooper( bState );
 		G_CheckCharmed( NPC );
+		G_CheckInsanity( NPC );
 	}
 	else
 	{
+		G_CheckInsanity( NPC );
 		switch( team )
 		{
 
@@ -2132,6 +2148,9 @@ void NPC_RunBehavior( int team, int bState )
 				return;
 			case CLASS_MARK2:
 				NPC_BehaviorSet_Mark2( bState );
+				return;
+			case CLASS_GALAKMECH:
+				NPC_BSGM_Default();
 				return;
 			default:
 				break;
@@ -2228,7 +2247,7 @@ void NPC_RunBehavior( int team, int bState )
 			}
 			else
 			{
-				if ( NPCInfo->charmedTime > level.time )
+				if ( (NPCInfo->charmedTime > level.time || NPCInfo->darkCharmedTime > level.time) )
 				{
 					NPC_BehaviorSet_Charmed( bState );
 				}
@@ -2496,7 +2515,7 @@ void NPC_Think ( gentity_t *self)//, int msec )
 	VectorCopy( self->client->ps.moveDir, oldMoveDir );
 	VectorClear( self->client->ps.moveDir );
 	// see if NPC ai is frozen
-	if ( debugNPCFreeze->integer || (NPC->svFlags&SVF_ICARUS_FREEZE) )
+	if ( debugNPCFreeze->integer || (NPC->svFlags&SVF_ICARUS_FREEZE) || (self && self->client && self->client->ps.stasisTime > level.time))
 	{
 		NPC_UpdateAngles( qtrue, qtrue );
 		ClientThink(self->s.number, &ucmd);
@@ -2745,6 +2764,11 @@ void NPC_SetAnim(gentity_t	*ent,int setAnimParts,int anim,int setAnimFlags, int 
 	}
 
 	if ( !setAnimParts )
+	{
+		return;
+	}
+	
+	if ( ent->client->ps.stasisTime > level.time )
 	{
 		return;
 	}

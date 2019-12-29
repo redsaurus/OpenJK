@@ -671,6 +671,7 @@ public:
 	shader_t		*gore_shader;
 	CGoreSet		*gore_set;
 #endif
+    g2Tints_t       tintType;
 
 	CRenderSurface(
 		int				initsurfaceNum,
@@ -703,10 +704,11 @@ public:
 #ifdef _G2_GORE
 	boltList(initboltList),
 	gore_shader(initgore_shader),
-	gore_set(initgore_set)
+	gore_set(initgore_set),
 #else
-	boltList(initboltList)
+	boltList(initboltList),
 #endif
+    tintType(G2_TINT_DEFAULT)
 	{}
 };
 
@@ -2342,7 +2344,8 @@ void RenderSurfaces(CRenderSurface &RS)
 			CRenderableSurface *newSurf = AllocRS();
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, shader, RS.fogNum, qfalse );
+            newSurf->tintType = RS.tintType;
+			R_AddDrawSurf( (surfaceType_t *)newSurf, shader, RS.fogNum, qfalse, RS.tintType );
 
 #ifdef _G2_GORE
 			if (RS.gore_set && drawGore)
@@ -2649,7 +2652,11 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				cust_shader = NULL;
 				// figure out the custom skin thing
-				if (ent->e.customSkin)
+				if (ent->e.customSkin&& ghoul2[i].mCustomSkin)
+				{
+					skin = R_GetSkinByHandle(ghoul2[i].mCustomSkin );
+				}
+				else if (ent->e.customSkin)
 				{
 					skin = R_GetSkinByHandle(ent->e.customSkin );
 				}
@@ -2698,6 +2705,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 			{
 				RS.renderfx |= RF_NOSHADOW;
 			}
+            RS.tintType = ghoul2[i].tintType;
 			RenderSurfaces(RS);
 		}
 	}
@@ -2789,6 +2797,8 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 	glIndex_t		*tessIndexes;
 	mdxmVertexTexCoord_t *pTexCoords;
 	int				*piBoneReferences;
+
+    tess.tintType = surf->tintType;
 
 #ifdef _G2_GORE
 	if (surf->alternateTex)

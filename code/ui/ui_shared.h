@@ -218,6 +218,10 @@ typedef struct {
 	qboolean	(*g2_GetBoltMatrix)(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix,
 									const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, const vec3_t scale);
 	void		(*g2_GiveMeVectorFromMatrix)(mdxaBone_t &boltMatrix, Eorientations flags, vec3_t &vec);
+	
+	qboolean		(*g2_SetSurfaceOnOff)(CGhoul2Info *ghlInfo, const char *surfaceName, const int flags);
+	
+	qboolean	(*g2_SetRootSurface)(CGhoul2Info_v &ghlInfo, const int modelIndex, const char *surfaceName);
 
 	//Utility functions that don't immediately redirect to ghoul2 functions
 	int			(*g2hilev_SetAnim)(CGhoul2Info *ghlInfo, const char *boneName, int animNum, const qboolean freeze);
@@ -339,6 +343,7 @@ typedef struct modelDef_s {
 //Transition extras
 	vec3_t g2mins2, g2maxs2, g2minsEffect, g2maxsEffect;
 	float fov_x2, fov_y2, fov_Effectx, fov_Effecty;
+	int g2skin2;
 } modelDef_t;
 
 #define ITF_G2VALID			0x0001					// indicates whether or not g2 instance is valid.

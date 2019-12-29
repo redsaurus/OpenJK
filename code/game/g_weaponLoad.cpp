@@ -83,6 +83,11 @@ void FX_TuskenShotProjectileThink( centity_t *cent, const struct weaponInfo_s *w
 //Noghri projectile
 void FX_NoghriShotProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
 
+//Clone projectile
+void FX_CloneBlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_CloneBlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon );
+
+
 // Table used to attach an extern missile function string to the actual cgame function
 func_t	funcs[] = {
 	{"bryar_func",			FX_BryarProjectileThink},
@@ -90,6 +95,8 @@ func_t	funcs[] = {
 	{"blaster_func",		FX_BlasterProjectileThink},
 	{"blaster_alt_func",	FX_BlasterAltFireThink},
 	{"bowcaster_func",		FX_BowcasterProjectileThink},
+	{"cloneblaster_func",		FX_CloneBlasterProjectileThink},
+	{"cloneblaster_alt_func",	FX_CloneBlasterAltFireThink},
 	{"repeater_func",		FX_RepeaterProjectileThink},
 	{"repeater_alt_func",	FX_RepeaterAltProjectileThink},
 	{"demp2_func",			FX_DEMP2_ProjectileThink},
@@ -107,6 +114,65 @@ func_t	funcs[] = {
 	{"tusk_shot_func",		FX_TuskenShotProjectileThink},
 	{"noghri_shot_func",	FX_NoghriShotProjectileThink},
 	{NULL,					NULL}
+};
+
+qboolean playerUsableWeapons[WP_NUM_WEAPONS] =
+{
+	qtrue,//WP_NONE,
+	
+	// Player weapons
+	qtrue,//WP_SABER,
+	qtrue,//WP_BLASTER_PISTOL,	// player and NPC weapon
+	qtrue,//WP_BLASTER,			// player and NPC weapon
+	qtrue,//WP_DISRUPTOR,		// player and NPC weapon
+	qtrue,//WP_BOWCASTER,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_REPEATER,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_DEMP2,			// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_FLECHETTE,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_ROCKET_LAUNCHER,	// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_THERMAL,			// player and NPC weapon
+	qtrue,//WP_TRIP_MINE,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_DET_PACK,		// NPC weapon - player can pick this up, but never starts with them
+	qtrue,//WP_CONCUSSION,		// NPC weapon - player can pick this up, but never starts with them
+	
+	//extras
+	qtrue,//WP_MELEE,			// player and NPC weapon - Any ol' melee attack
+	
+	//when in atst
+	qtrue,//WP_ATST_MAIN,
+	qtrue,//WP_ATST_SIDE,
+	
+	// These can never be gotten directly by the player
+	qtrue,//WP_STUN_BATON,		// stupid weapon, should remove
+	
+	//NPC weapons
+	qtrue,//WP_BRYAR_PISTOL,	// NPC weapon - player can pick this up, but never starts with them
+	
+	qfalse,//WP_EMPLACED_GUN,
+	
+	qfalse,//WP_BOT_LASER,		// Probe droid	- Laser blast
+	
+	qfalse,//WP_TURRET,			// turret guns
+	
+	qfalse,//WP_TIE_FIGHTER,
+	
+	qfalse,//WP_RAPID_FIRE_CONC,
+	
+	qfalse,//WP_JAWA,
+	qtrue,//WP_TUSKEN_RIFLE,
+	qfalse,//WP_TUSKEN_STAFF,
+	qfalse,//WP_SCEPTER,
+	qtrue,//WP_NOGHRI_STICK,
+	
+	qtrue,//WP_SONIC_BLASTER,
+	
+	qtrue,//WP_E5_CARBINE,
+	qtrue,//WP_DC15S_CARBINE,
+	qtrue,//WP_DC15A_RIFLE,
+	qtrue,//WP_Z6_ROTARY,
+
+	//# #eol
+	//WP_NUM_WEAPONS
 };
 
 //qboolean COM_ParseInt( char **data, int *i );
@@ -170,6 +236,10 @@ void WPN_NPCDmgMult(const char **holdBuf);
 void WPN_NPCDmgAltMult(const char **holdBuf);
 
 
+void WPN_WorldModel(const char **holdBuf);
+void WPN_NoHandModel(const char **holdBuf);
+void WPN_SkinFile(const char **holdBuf);
+
 // Legacy weapons.dat force fields
 void WPN_FuncSkip(const char **holdBuf);
 
@@ -215,6 +285,12 @@ const int defaultDamage[] = {
 	0,							// WP_TUSKEN_STAFF
 	0,							// WP_SCEPTER
 	0,							// WP_NOGHRI_STICK
+	DISRUPTOR_MAIN_DAMAGE,		// WP_SONIC_BLASTER,
+	
+	BLASTER_DAMAGE,				// WP_E5_CARBINE,
+	BLASTER_DAMAGE,				// WP_DC15S_CARBINE,
+	BRYAR_PISTOL_DAMAGE,		// WP_DC15A_RIFLE,
+	REPEATER_DAMAGE,			// WP_Z6_ROTARY,
 };
 
 const int defaultAltDamage[] = {
@@ -252,6 +328,12 @@ const int defaultAltDamage[] = {
 	0,						// WP_TUSKEN_STAFF
 	0,						// WP_SCEPTER
 	0,						// WP_NOGHRI_STICK
+	0,						// WP_SONIC_BLASTER,
+	
+	BLASTER_DAMAGE,			// WP_E5_CARBINE,
+	BLASTER_DAMAGE,			// WP_DC15S_CARBINE,
+	0,						// WP_DC15A_RIFLE,
+	0,						// WP_Z6_ROTARY,
 };
 
 const int defaultSplashDamage[] = {
@@ -289,6 +371,12 @@ const int defaultSplashDamage[] = {
 	0,								// WP_TUSKEN_STAFF
 	0,								// WP_SCEPTER
 	0,								// WP_NOGHRI_STICK
+	0,								// WP_SONIC_BLASTER,
+	
+	0,								// WP_E5_CARBINE,
+	0,								// WP_DC15S_CARBINE,
+	0,								// WP_DC15A_RIFLE,
+	0,								// WP_Z6_ROTARY,
 };
 
 const float defaultSplashRadius[] = {
@@ -326,6 +414,12 @@ const float defaultSplashRadius[] = {
 	0.0f,							// WP_TUSKEN_STAFF
 	0.0f,							// WP_SCEPTER
 	0.0f,							// WP_NOGHRI_STICK
+	0.0f,							// WP_SONIC_BLASTER,
+	
+	0.0f,							// WP_E5_CARBINE,
+	0.0f,							// WP_DC15S_CARBINE,
+	0.0f,							// WP_DC15A_RIFLE,
+	0.0f,							// WP_Z6_ROTARY,
 };
 
 const int defaultAltSplashDamage[] = {
@@ -363,6 +457,12 @@ const int defaultAltSplashDamage[] = {
 	0,								// WP_TUSKEN_STAFF
 	0,								// WP_SCEPTER
 	0,								// WP_NOGHRI_STICK
+	0,								// WP_SONIC_BLASTER,
+	
+	0,								// WP_E5_CARBINE,
+	0,								// WP_DC15S_CARBINE,
+	0,								// WP_DC15A_RIFLE,
+	0,								// WP_Z6_ROTARY,
 };
 
 const float defaultAltSplashRadius[] = {
@@ -400,6 +500,12 @@ const float defaultAltSplashRadius[] = {
 	0.0f,							// WP_TUSKEN_STAFF
 	0.0f,							// WP_SCEPTER
 	0.0f,							// WP_NOGHRI_STICK
+	0.0f,							// WP_SONIC_BLASTER,
+	
+	0.0f,							// WP_E5_CARBINE,
+	0.0f,							// WP_DC15S_CARBINE,
+	0.0f,							// WP_DC15A_RIFLE,
+	0.0f,							// WP_Z6_ROTARY,
 };
 
 const int defaultVelocity[WP_NUM_WEAPONS] =
@@ -518,7 +624,9 @@ wpnParms_t WpnParms[] =
 	{ "altSplashRadius",	WPN_AltSplashRadius },
 	{ "velocity", WPN_Velocity },
 	{ "altVelocity", WPN_AltVelocity },
-
+	{ "noHandModel",		WPN_NoHandModel },
+	{ "skinFile",			WPN_SkinFile },
+	{ "worldModel",			WPN_WorldModel },
 
 	// Old legacy files contain these, so we skip them to shut up warnings
 	{ "firingforce",		WPN_FuncSkip },
@@ -603,6 +711,16 @@ void WPN_WeaponType( const char **holdBuf)
 		weaponNum = WP_SCEPTER;
 	else if (!Q_stricmp(tokenStr,"WP_NOGHRI_STICK"))
 		weaponNum = WP_NOGHRI_STICK;
+	else if (!Q_stricmp(tokenStr,"WP_SONIC_BLASTER"))
+		weaponNum = WP_SONIC_BLASTER;
+	else if (!Q_stricmp(tokenStr,"WP_E5_CARBINE"))
+		weaponNum = WP_E5_CARBINE;
+	else if (!Q_stricmp(tokenStr,"WP_DC15S_CARBINE"))
+		weaponNum = WP_DC15S_CARBINE;
+	else if (!Q_stricmp(tokenStr,"WP_DC15A_RIFLE"))
+		weaponNum = WP_DC15A_RIFLE;
+	else if (!Q_stricmp(tokenStr,"WP_Z6_ROTARY"))
+		weaponNum = WP_Z6_ROTARY;
 	else
 	{
 		weaponNum = 0;
@@ -655,6 +773,28 @@ void WPN_WeaponModel(const char **holdBuf)
 	}
 
 	Q_strncpyz(weaponData[wpnParms.weaponNum].weaponMdl,tokenStr,len);
+}
+
+//--------------------------------------------
+void WPN_WorldModel(const char **holdBuf)
+{
+	int len;
+	const char	*tokenStr;
+	
+	if ( COM_ParseString(holdBuf,&tokenStr))
+	{
+		return;
+	}
+	
+	len = strlen(tokenStr);
+	len++;
+	if (len > 64)
+	{
+		len = 64;
+		gi.Printf(S_COLOR_YELLOW"WARNING: worldModel too long in external WEAPONS.DAT '%s'\n", tokenStr);
+	}
+	
+	Q_strncpyz(weaponData[wpnParms.weaponNum].worldModel,tokenStr,len);
 }
 
 //--------------------------------------------
@@ -1518,13 +1658,26 @@ void WPN_Velocity(const char **holdBuf)
 {
 	float	tokenFlt;
 
-	if (COM_ParseFloat(holdBuf, &tokenFlt))
+	if( COM_ParseInt(holdBuf,&tokenInt))
 	{
 		SkipRestOfLine(holdBuf);
 		return;
 	}
+    
+  weaponData[wpnParms.weaponNum].velocity = tokenFlt;
+}
 
-	weaponData[wpnParms.weaponNum].velocity = tokenFlt;
+void WPN_NoHandModel(const char **holdBuf)
+{
+	int		tokenInt;
+	
+	if( COM_ParseInt(holdBuf,&tokenInt))
+	{
+		SkipRestOfLine(holdBuf);
+		return;
+	}
+	
+	weaponData[wpnParms.weaponNum].bNoHandModel = tokenInt ? true : false;
 }
 
 //--------------------------------------------
@@ -1541,6 +1694,27 @@ void WPN_AltVelocity(const char **holdBuf)
 
 	weaponData[wpnParms.weaponNum].altVelocity = tokenFlt;
 }
+
+void WPN_SkinFile(const char **holdBuf)
+{
+	const char	*tokenStr;
+	
+	if ( COM_ParseString(holdBuf,&tokenStr))
+	{
+		return;
+	}
+	size_t len = strlen( tokenStr );
+	
+	len++;
+	if (len > MAX_QPATH)
+	{
+		len = MAX_QPATH;
+		gi.Printf(S_COLOR_YELLOW"WARNING: SkinFile '%s' too long in external WEAPONS.DAT\n", tokenStr);
+	}
+	
+	Q_strncpyz(weaponData[wpnParms.weaponNum].skinPath,tokenStr,len);
+}
+
 
 //--------------------------------------------
 static void WP_ParseParms(const char *buffer)

@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern void G_NextTestAxes( void );
 extern void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
+extern void G_ChangeHeadModel( gentity_t *ent, const char *newModel );
 extern void G_InitPlayerFromCvars( gentity_t *ent );
 extern void Q3_SetViewEntity(int entID, const char *name);
 extern qboolean G_ClearViewEntity( gentity_t *ent );
@@ -40,6 +41,8 @@ extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 extern saber_colors_t TranslateSaberColor( const char *name );
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern qboolean WP_UseFirstValidSaberStyle( gentity_t *ent, int *saberAnimLevel );
+
+extern void G_SetSabersFromCVars( gentity_t *ent );
 
 extern void G_SetWeapon( gentity_t *self, int wp );
 extern stringID_table_t WPTable[];
@@ -129,7 +132,7 @@ void	Svcmd_EntityList_f (void) {
 //---------------------------
 extern void G_StopCinematicSkip( void );
 extern void G_StartCinematicSkip( void );
-extern void ExitEmplacedWeapon( gentity_t *ent );
+extern void ExitEmplacedWeapon( gentity_t *ent, qboolean detach = qfalse );
 static void Svcmd_ExitView_f( void )
 {
 extern cvar_t	*g_skippingcin;
@@ -299,6 +302,33 @@ static void Svcmd_SaberColor_f()
 	}
 }
 
+static void Svcmd_SaberCrystal_f()
+{
+	int saberNum = atoi(gi.argv(1));
+	
+	saberNum--;
+	
+	gentity_t *self = G_GetSelfForPlayerCmd();
+	
+	if ( saberNum == 0 || saberNum == 1 )
+	{
+		if (!Q_stricmp(gi.argv(2), "black"))
+		{
+			self->client->ps.saber[saberNum].crystals = (saber_crystals_t)(self->client->ps.saber[saberNum].crystals^SABER_CRYSTAL_BLACK);
+			return;
+		}
+		else if (!Q_stricmp(gi.argv(2), "unstable"))
+		{
+			self->client->ps.saber[saberNum].crystals = (saber_crystals_t)(self->client->ps.saber[saberNum].crystals^SABER_CRYSTAL_UNSTABLE);
+			return;
+		}
+	}
+	
+	gi.Printf( "Usage:  saberCrystal <saberNum> <crystal> \n" );
+	gi.Printf( "valid saberNums:  1 or 2\n" );
+	gi.Printf( "valid crystals:  black and unstable\n" );
+}
+
 struct SetForceCmd {
 	const char *desc;
 	const char *cmdname;
@@ -322,6 +352,13 @@ SetForceCmd SetForceTable[NUM_FORCE_POWERS] = {
 	{ "forceAbsorb",		"setForceAbsorb",		FORCE_LEVEL_3			},
 	{ "forceDrain",			"setForceDrain",		FORCE_LEVEL_3			},
 	{ "forceSight",			"setForceSight",		FORCE_LEVEL_3			},
+	{ "forceDestruction",	"setForceDestruction",	FORCE_LEVEL_3			},
+	{ "forceInsanity",		"setForceInsanity",		FORCE_LEVEL_3			},
+	{ "forceStasis",		"setForceStasis",		FORCE_LEVEL_3			},
+	{ "forceBlinding",		"setForceBlinding",		FORCE_LEVEL_3			},
+	{ "forceDeadlySight",	"setForceDeadlySight",	FORCE_LEVEL_3			},
+	{ "forceRepulse",		"setForceRepulse",		FORCE_LEVEL_3			},
+	{ "forceInvulnerability",	"setForceInvulnerability",	FORCE_LEVEL_3	},
 };
 
 static void Svcmd_ForceSetLevel_f( int forcePower )
@@ -410,16 +447,38 @@ void Svcmd_SaberAttackCycle_f( void )
 						G_SoundIndexOnEnt( self, CHAN_WEAPON, self->client->ps.saber[1].soundOff );
 					}
 				}
+				if (!self->client->ps.saber[1].Active())
+				{
+					G_RemoveWeaponModels( self );
+					G_RemoveHolsterModels( self );
+					if ( !self->client->ps.saberInFlight )
+					{
+						WP_SaberAddG2SaberModels( self, qfalse );
+					}
+					WP_SaberAddHolsteredG2SaberModels( self, qtrue );
+				}
 			}
 			else if ( !self->client->ps.saber[0].ActiveManualOnly() )
 			{//first one is off, too, so just turn that one on
 				if ( !self->client->ps.saberInFlight )
 				{//but only if it's in your hand!
+					if (!self->client->ps.saber[1].Active())
+					{
+						G_RemoveWeaponModels( self );
+						G_RemoveHolsterModels( self );
+						if ( !self->client->ps.saberInFlight )
+						{
+							WP_SaberAddG2SaberModels( self, qfalse );
+						}
+						WP_SaberAddHolsteredG2SaberModels( self, qtrue );
+					}
 					self->client->ps.saber[0].Activate();
 				}
 			}
 			else
 			{//turn on the second one
+				G_RemoveHolsterModels( self );
+				WP_SaberAddG2SaberModels( self, qtrue );
 				self->client->ps.saber[1].Activate();
 			}
 			return;
@@ -574,6 +633,10 @@ void Svcmd_SaberAttackCycle_f( void )
 		break;
 	case SS_TAVION:
 		gi.Printf( S_COLOR_MAGENTA "Lightsaber Combat Style: Tavion\n" );
+		//LIGHTSABERCOMBATSTYLE_TAVION
+		break;
+	case SS_KATARN:
+		gi.Printf( S_COLOR_MAGENTA"Lightsaber Combat Style: Katarn\n" );
 		//LIGHTSABERCOMBATSTYLE_TAVION
 		break;
 	case SS_DUAL:
@@ -885,6 +948,92 @@ static void Svcmd_Difficulty_f(void)
 	}
 }
 
+static void Svcmd_HeadPlayerModel_f(void)
+{
+    if ( gi.argc() == 2 )
+    {
+        //this is debug type option!
+        G_ChangeHeadModel(&g_entities[0], gi.argv(1));
+    }
+    else if ( gi.argc() == 3 )
+    {
+        gi.cvar_set("g_char_head_model", gi.argv(1) );
+        gi.cvar_set("g_char_head_skin", gi.argv(2) );
+        G_InitPlayerFromCvars( &g_entities[0] );
+    }
+    else
+    {
+        gi.Printf( S_COLOR_RED"USAGE: headPlayerModel <g2model> <skin>" );
+    }
+}
+
+static void Svcmd_NewPlayerTint_f(void)
+{
+	if ( gi.argc() == 5 && ((unsigned int)atoi(gi.argv(1)) < MAX_CVAR_TINT))
+	{
+		unsigned int tintIndex = atoi(gi.argv(1));
+		g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][0] = atoi(gi.argv(2));
+		g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][1] = atoi(gi.argv(3));
+		g_entities[0].client->renderInfo.newCustomRGBA[tintIndex][2] = atoi(gi.argv(4));
+		if (tintIndex == TINT_NEW_ENT)
+		{
+			gi.cvar_set("g_char_color_2_red", gi.argv(2) );
+			gi.cvar_set("g_char_color_2_green", gi.argv(3) );
+			gi.cvar_set("g_char_color_2_blue", gi.argv(4) );
+		}
+		else if (tintIndex == TINT_HILT1)
+		{
+			gi.cvar_set("g_hilt_color_red", gi.argv(2) );
+			gi.cvar_set("g_hilt_color_green", gi.argv(3) );
+			gi.cvar_set("g_hilt_color_blue", gi.argv(4) );
+		}
+		else if (tintIndex == TINT_HILT2)
+		{
+			gi.cvar_set("g_hilt2_color_red", gi.argv(2) );
+			gi.cvar_set("g_hilt2_color_green", gi.argv(3) );
+			gi.cvar_set("g_hilt2_color_blue", gi.argv(4) );
+		}
+	}
+	else
+	{
+		gi.Printf( S_COLOR_RED"USAGE: newPlayerTint <index 0 - 2> <red 0 - 255> <green 0 - 255> <blue 0 - 255>\n" );
+	}
+}
+
+static void Svcmd_CustomSaber_f(void)
+{
+    if ( gi.argc() == 1 )
+    {
+        gi.Printf( S_COLOR_RED"USAGE: customSaber <sabernum> <skin> <skin> <skin> <skin> <skin>\n" );
+    }
+    else if ( gi.argc() == 7 )
+    {
+        if (atoi(gi.argv(1)) == 1)
+        {
+            gi.cvar_set("g_saber2_skin1", gi.argv(2) );
+            gi.cvar_set("g_saber2_skin2", gi.argv(3) );
+            gi.cvar_set("g_saber2_skin3", gi.argv(4) );
+            gi.cvar_set("g_saber2_skin4", gi.argv(5) );
+            gi.cvar_set("g_saber2_skin5", gi.argv(6) );
+        }
+        else
+        {
+            gi.cvar_set("g_saber_skin1", gi.argv(2) );
+            gi.cvar_set("g_saber_skin2", gi.argv(3) );
+            gi.cvar_set("g_saber_skin3", gi.argv(4) );
+            gi.cvar_set("g_saber_skin4", gi.argv(5) );
+            gi.cvar_set("g_saber_skin5", gi.argv(6) );
+        }
+        
+        G_SetSabersFromCVars(&g_entities[0]);
+
+        if ((&g_entities[0])->client->ps.weapon == WP_SABER)
+        {
+            WP_SaberAddG2SaberModels(&g_entities[0]);
+        }
+    }
+}
+
 #define CMD_NONE				(0x00000000u)
 #define CMD_CHEAT				(0x00000001u)
 #define CMD_ALIVE				(0x00000002u)
@@ -929,6 +1078,13 @@ static svcmd_t svcmds[] = {
 	{ "setForceProtect",			Svcmd_ForceSetLevel_f<FP_PROTECT>,			CMD_CHEAT },
 	{ "setForceAbsorb",				Svcmd_ForceSetLevel_f<FP_ABSORB>,			CMD_CHEAT },
 	{ "setForceSight",				Svcmd_ForceSetLevel_f<FP_SEE>,				CMD_CHEAT },
+	{ "setForceDestruction",		Svcmd_ForceSetLevel_f<FP_DESTRUCTION>,		CMD_CHEAT },
+	{ "setForceInsanity",			Svcmd_ForceSetLevel_f<FP_INSANITY>,			CMD_CHEAT },
+	{ "setForceStasis",				Svcmd_ForceSetLevel_f<FP_STASIS>,			CMD_CHEAT },
+	{ "setForceBlinding",			Svcmd_ForceSetLevel_f<FP_BLINDING>,			CMD_CHEAT },
+	{ "setForceDeadlySight",		Svcmd_ForceSetLevel_f<FP_DEADLYSIGHT>,		CMD_CHEAT },
+	{ "setForceRepulse",			Svcmd_ForceSetLevel_f<FP_REPULSE>,			CMD_CHEAT },
+	{ "setForceInvulnerability",	Svcmd_ForceSetLevel_f<FP_INVULNERABILITY>,	CMD_CHEAT },
 	{ "setForceAll",				Svcmd_SetForceAll_f,						CMD_CHEAT },
 	{ "setSaberAll",				Svcmd_SetSaberAll_f,						CMD_CHEAT },
 	
@@ -952,6 +1108,14 @@ static svcmd_t svcmds[] = {
 	
 	{ "secrets",					Svcmd_Secrets_f,							CMD_NONE },
 	{ "difficulty",					Svcmd_Difficulty_f,							CMD_NONE },
+    
+    { "headPlayerModel",            Svcmd_HeadPlayerModel_f,                    CMD_NONE },
+    
+    { "newPlayerTint",              Svcmd_NewPlayerTint_f,                      CMD_NONE },
+
+	{ "customSaber",				Svcmd_CustomSaber_f,						CMD_NONE },
+
+	{ "saberCrystal",				Svcmd_SaberCrystal_f,						CMD_CHEAT },
 	
 	//{ "say",						Svcmd_Say_f,						qtrue },
 	//{ "toggleallowvote",			Svcmd_ToggleAllowVote_f,			qfalse },
@@ -980,7 +1144,7 @@ qboolean	ConsoleCommand( void ) {
 	else if ( (command->flags & CMD_ALIVE)
 		&& (g_entities[0].health <= 0) )
 	{
-		gi.Printf( "You must be alive to use this command.\n" );
+        gi.Printf( "You must be alive to use this command.\n" );
 		return qtrue;
 	}
 	else

@@ -864,7 +864,7 @@ void AnimateRiders( Vehicle_t *pVeh )
 		{
 			if (pVeh->m_pPilot->s.number<MAX_CLIENTS)
 			{
-				pVeh->m_pPilot->client->ps.stats[ STAT_WEAPONS ] |= 1;					// Riding means you get WP_NONE
+				pVeh->m_pPilot->client->ps.weapons[WP_NONE] = 1;					// Riding means you get WP_NONE
 				CG_ChangeWeapon(WP_NONE);
 			}
 

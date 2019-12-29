@@ -59,7 +59,8 @@ typedef enum //# rank_e
 	RANK_LT,
 	RANK_LT_COMM,
 	RANK_COMMANDER,
-	RANK_CAPTAIN
+	RANK_CAPTAIN,
+    RANK_MAX
 } rank_t;
 
 qboolean NPC_CheckPlayerTeamStealth( void );

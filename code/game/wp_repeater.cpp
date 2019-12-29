@@ -66,6 +66,12 @@ static void WP_RepeaterMainFire( gentity_t *ent, vec3_t dir )
 
 		damage = weaponData[WP_REPEATER].npcDmgMult;
 	}
+	
+	if ( ent->s.weapon == WP_Z6_ROTARY )
+	{
+		missile->s.weapon = WP_Z6_ROTARY;
+		damage = weaponData[WP_Z6_ROTARY].damage;
+	}
 
 //	if ( ent->client && ent->client->ps.powerups[PW_WEAPON_OVERCHARGE] > 0 && ent->client->ps.powerups[PW_WEAPON_OVERCHARGE] > cg.time )
 //	{

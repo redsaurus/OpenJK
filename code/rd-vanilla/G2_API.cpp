@@ -1284,9 +1284,9 @@ qboolean G2API_StopBoneAnim(CGhoul2Info *ghlInfo, const char *boneName)
 	return ret;
 }
 
-qboolean G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
-							 const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
-							 qhandle_t *, int blendTime, int AcurrentTime)
+qboolean G2API_SetBoneAnglesOffsetIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
+								  const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
+								  qhandle_t *, int blendTime, int AcurrentTime, const vec3_t offset )
 {
 	//rww - RAGDOLL_BEGIN
 	if (ghlInfo && ghlInfo->mFlags & GHOUL2_RAG_STARTED)
@@ -1294,7 +1294,7 @@ qboolean G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const v
 		return qfalse;
 	}
 	//rww - RAGDOLL_END
-
+	
 	qboolean ret=qfalse;
 	if (G2_SetupModelPointers(ghlInfo))
 	{
@@ -1304,16 +1304,23 @@ qboolean G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const v
 		G2ERROR(index>=0&&index<(int)ghlInfo->mBlist.size(),"G2API_SetBoneAnglesIndex:Invalid bone index");
 		if (index>=0&&index<(int)ghlInfo->mBlist.size())
 		{
-			ret=G2_Set_Bone_Angles_Index(ghlInfo, ghlInfo->mBlist, index, angles, flags, yaw, pitch, roll,blendTime, currentTime);
+			ret=G2_Set_Bone_Angles_Index(ghlInfo, ghlInfo->mBlist, index, angles, flags, yaw, pitch, roll,blendTime, currentTime, offset);
 		}
 	}
 	G2WARNING(ret,"G2API_SetBoneAnglesIndex Failed");
 	return ret;
 }
 
-qboolean G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
-							 const Eorientations up, const Eorientations left, const Eorientations forward,
+qboolean G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
+							 const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
 							 qhandle_t *, int blendTime, int AcurrentTime )
+{
+	return G2API_SetBoneAnglesOffsetIndex(ghlInfo, index, angles, flags, yaw, pitch, roll, 0, blendTime, AcurrentTime, NULL);
+}
+
+qboolean G2API_SetBoneAnglesOffset(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+							 const Eorientations up, const Eorientations left, const Eorientations forward,
+							 qhandle_t *, int blendTime, int AcurrentTime, const vec3_t offset )
 {
 	//rww - RAGDOLL_BEGIN
 	if (ghlInfo && ghlInfo->mFlags & GHOUL2_RAG_STARTED)
@@ -1321,18 +1328,25 @@ qboolean G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, const v
 		return qfalse;
 	}
 	//rww - RAGDOLL_END
-
+	
 	qboolean ret=qfalse;
 	G2ERROR(boneName,"NULL boneName");
 	if (boneName&&G2_SetupModelPointers(ghlInfo))
 	{
 		int currentTime=G2API_GetTime(AcurrentTime);
-			// ensure we flush the cache
+		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
-		ret=G2_Set_Bone_Angles(ghlInfo, ghlInfo->mBlist, boneName, angles, flags, up, left, forward, blendTime, currentTime);
+		ret=G2_Set_Bone_Angles(ghlInfo, ghlInfo->mBlist, boneName, angles, flags, up, left, forward, blendTime, currentTime, offset);
 	}
 	G2WARNING(ret,"G2API_SetBoneAngles Failed");
 	return ret;
+}
+
+qboolean G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+							 const Eorientations up, const Eorientations left, const Eorientations forward,
+							 qhandle_t *, int blendTime, int AcurrentTime)
+{
+	return G2API_SetBoneAnglesOffset(ghlInfo, boneName, angles, flags, up, left, forward, 0, blendTime, AcurrentTime, NULL);
 }
 
 qboolean G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
@@ -2339,6 +2353,14 @@ bool G2_SetupModelPointers(CGhoul2Info_v &ghoul2) // returns true if any model i
 		ret=ret||r;
 	}
 	return ret;
+}
+
+void G2API_SetTintType(CGhoul2Info *ghlInfo, g2Tints_t tintType)
+{
+    if (G2_SetupModelPointers(ghlInfo))
+    {
+        ghlInfo->tintType = tintType;
+    }
 }
 
 

@@ -367,11 +367,11 @@ enum SearchPathFlag
 {
 	SEARCH_PATH_MOD		= 1 << 0,
 	SEARCH_PATH_BASE	= 1 << 1,
-	SEARCH_PATH_OPENJK	= 1 << 2,
+	SEARCH_PATH_JKE		= 1 << 2,
 	SEARCH_PATH_ROOT	= 1 << 3
 };
 
-static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char **searchPaths,
+static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, const char *jkedir, const char **searchPaths,
 									size_t numPaths, uint32_t searchFlags, const char *callerName )
 {
 	char *fn;
@@ -411,7 +411,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	if ( searchFlags & SEARCH_PATH_OPENJK )
+	if ( searchFlags & SEARCH_PATH_JKE )
 	{
 		for ( size_t i = 0; i < numPaths; i++ )
 		{
@@ -419,7 +419,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 			if ( !libDir[0] )
 				continue;
 
-			fn = FS_BuildOSPath( libDir, OPENJKGAME, filename );
+			fn = FS_BuildOSPath( libDir, jkedir, filename );
 			libHandle = Sys_LoadLibrary( fn );
 			if ( libHandle )
 				return libHandle;
@@ -496,6 +496,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 				char *homepath = Cvar_VariableString( "fs_homepath" );
 				char *cdpath = Cvar_VariableString( "fs_cdpath" );
 				char *gamedir = Cvar_VariableString( "fs_game" );
+				char *jkedir = Cvar_VariableString( "fs_basegame" );
 		#ifdef MACOS_X
 				char *apppath = Cvar_VariableString( "fs_apppath" );
 		#endif
@@ -510,7 +511,7 @@ void *Sys_LoadLegacyGameDll( const char *name, VMMainProc **vmMain, SystemCallPr
 				};
 				size_t numPaths = ARRAY_LEN( searchPaths );
 
-				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
+				libHandle = Sys_LoadDllFromPaths( filename, gamedir, jkedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
 					return NULL;
 			}
@@ -554,6 +555,7 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 		char *homepath = Cvar_VariableString( "fs_homepath" );
 		char *cdpath = Cvar_VariableString( "fs_cdpath" );
 		char *gamedir = Cvar_VariableString( "fs_game" );
+		char *jkedir = Cvar_VariableString( "fs_basegame" );
 #ifdef MACOS_X
         char *apppath = Cvar_VariableString( "fs_apppath" );
 #endif
@@ -568,8 +570,8 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 		};
 		size_t numPaths = ARRAY_LEN( searchPaths );
 
-		libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths,
-											SEARCH_PATH_BASE | SEARCH_PATH_MOD | SEARCH_PATH_OPENJK | SEARCH_PATH_ROOT,
+		libHandle = Sys_LoadDllFromPaths( filename, gamedir, jkedir, searchPaths, numPaths,
+											SEARCH_PATH_BASE | SEARCH_PATH_MOD | SEARCH_PATH_JKE | SEARCH_PATH_ROOT,
 											__FUNCTION__ );
 		if ( !libHandle )
 			return NULL;
@@ -627,6 +629,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 				char *homepath = Cvar_VariableString( "fs_homepath" );
 				char *cdpath = Cvar_VariableString( "fs_cdpath" );
 				char *gamedir = Cvar_VariableString( "fs_game" );
+				char *jkedir = Cvar_VariableString( "fs_basegame" );
 #ifdef MACOS_X
 				char *apppath = Cvar_VariableString( "fs_apppath" );
 #endif
@@ -641,7 +644,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 				};
 				size_t numPaths = ARRAY_LEN( searchPaths );
 
-				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
+				libHandle = Sys_LoadDllFromPaths( filename, gamedir, jkedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
 					return NULL;
 			}

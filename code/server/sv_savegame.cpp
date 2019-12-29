@@ -422,6 +422,14 @@ static void WriteGame(qboolean autosave)
 			INT_ID('C', 'V', 'S', 'V'),
 			s);
 
+        // write weapons...
+        //
+        memset(s,0,sizeof(s));
+        Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+        saved_game.write_chunk(
+            INT_ID('W', 'E', 'A', 'P'),
+            s);
+
 		// write ammo...
 		//
 		memset(s,0,sizeof(s));
@@ -476,6 +484,14 @@ static qboolean ReadGame (void)
 
 		Cvar_Set( sCVARNAME_PLAYERSAVE, s );
 
+        // read weapons...
+        //
+        memset(s,0,sizeof(s));
+        saved_game.read_chunk(
+            INT_ID('W', 'E', 'A', 'P'),
+            s);
+        Cvar_Set( "playerweaps", s );
+        
 		// read ammo...
 		//
 		memset(s,0,sizeof(s));

@@ -39,6 +39,13 @@ extern void ForceRage( gentity_t *self );
 extern void ForceProtect( gentity_t *self );
 extern void ForceAbsorb( gentity_t *self );
 extern void ForceSeeing( gentity_t *self );
+extern void ForceDestruction( gentity_t *self );
+extern void ForceInsanity( gentity_t *self );
+extern void ForceStasis( gentity_t *self );
+extern void ForceBlinding( gentity_t *self );
+extern void ForceDeadlySight( gentity_t *self );
+extern void ForceRepulse( gentity_t *self );
+extern void ForceInvulnerability( gentity_t *self );
 extern void G_CreateG2AttachedWeaponModel( gentity_t *ent, const char *psWeaponModel, int boltNum, int weaponNum );
 extern void G_StartMatrixEffect( gentity_t *ent, int meFlags = 0, int length = 1000, float timeScale = 0.0f, int spinTime = 0 );
 extern void ItemUse_Bacta(gentity_t *ent);
@@ -206,20 +213,26 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 
 	if ( give_all || !Q_stricmp( name, "weapons" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (1 << (WP_MELEE)) - ( 1 << WP_NONE );
+		for ( int i = 0; i < WP_MELEE; i++ )
+		{
+			ent->client->ps.weapons[i] = 1;
+		}
 		if ( !give_all )
 			return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "weaponnum" ) )
 	{
-		ent->client->ps.stats[STAT_WEAPONS] |= (1 << atoi( args ));
+		ent->client->ps.weapons[ atoi(args) ] = 1;
 		return;
 	}
 
 	if ( !give_all && !Q_stricmp( name, "eweaps" ) )	//for developing, gives you all the weapons, including enemy
 	{
-		ent->client->ps.stats[STAT_WEAPONS] = (unsigned)(1 << WP_NUM_WEAPONS) - ( 1 << WP_NONE ); // NOTE: this wasn't giving the last weapon in the list
+		for ( int i = 0; i < WP_NUM_WEAPONS; i++ )
+		{
+			ent->client->ps.weapons[i] = 1;
+		}
 		return;
 	}
 
@@ -611,8 +624,8 @@ UserSpawn
 */
 
 extern qboolean G_CallSpawn( gentity_t *ent );
-
-void UserSpawn( gentity_t *ent, const char *name )
+extern void G_ParseField( const char *key, const char *value, gentity_t *ent );
+void UserSpawn( gentity_t *ent, const char *name, int numargs )
 {
 	vec3_t		origin;
 	vec3_t		vf;
@@ -621,6 +634,14 @@ void UserSpawn( gentity_t *ent, const char *name )
 
 	//Spawn the ent
 	ent2 = G_Spawn();
+	
+	int numSpawnVars = numargs / 2;
+	
+	//entity keys now supported
+	for ( int i = 0 ; i < numSpawnVars ; i++ ) {
+		G_ParseField( gi.argv(2 + i * 2), gi.argv(3 + i * 2), ent2 );
+	}
+
 	ent2->classname = G_NewString( name );
 
 	//TODO: This should ultimately make sure this is a safe spawn!
@@ -654,13 +675,23 @@ Cmd_Spawn
 
 void Cmd_Spawn( gentity_t *ent )
 {
+	int numArgs;
 	char	*name;
-
-	name = ConcatArgs( 1 );
-
+	
+	numArgs = gi.argc();
+	
+	if (numArgs > 1)
+	{
+		name = gi.argv(1);
+	}
+	else
+	{
+		name = "";
+	}
+	
 	gi.SendServerCommand( ent-g_entities, "print \"Spawning '%s'\n\"", name );
 
-	UserSpawn( ent, name );
+	UserSpawn( ent, name, numArgs - 2 );
 }
 
 /*
@@ -1102,6 +1133,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 				case SS_MEDIUM:
 				case SS_STRONG:
 				case SS_DESANN:
+				case SS_KATARN:
 					anim = BOTH_ENGAGETAUNT;
 					break;
 				case SS_DUAL:
@@ -1196,6 +1228,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					{
 					case SS_FAST:
 					case SS_TAVION:
+					case SS_KATARN:
 						anim = BOTH_SHOWOFF_FAST;
 						break;
 					case SS_MEDIUM:
@@ -1233,6 +1266,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 					{
 					case SS_FAST:
 					case SS_TAVION:
+					case SS_KATARN:
 						anim = BOTH_VICTORY_FAST;
 						break;
 					case SS_MEDIUM:
@@ -1346,7 +1380,7 @@ void Cmd_SaberDrop_f( gentity_t *ent, int saberNum )
 		&& ent->weaponModel[1] <= 0 )
 	{//no sabers left!
 		//remove saber from inventory
-		ent->client->ps.stats[STAT_WEAPONS] &= ~(1<<WP_SABER);
+		ent->client->ps.weapons[WP_SABER] = 0;
 		//change weapons
 		if ( ent->s.number < MAX_CLIENTS )
 		{//player
@@ -1462,6 +1496,36 @@ void ClientCommand( int clientNum ) {
 		ent = G_GetSelfForPlayerCmd();
 		ForceSeeing(ent);
 	}
+	else if (Q_stricmp (cmd, "force_destruction") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceDestruction(ent);
+	}
+	else if (Q_stricmp (cmd, "force_insanity") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceInsanity(ent);
+	}
+	else if (Q_stricmp (cmd, "force_stasis") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceStasis(ent);
+	}
+	else if (Q_stricmp (cmd, "force_blinding") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceBlinding(ent);
+	}
+	else if (Q_stricmp (cmd, "force_deadlysight") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceDeadlySight(ent);
+	}
+	else if (Q_stricmp (cmd, "force_invulnerability") == 0)
+	{
+		ent = G_GetSelfForPlayerCmd();
+		ForceInvulnerability(ent);
+	}
 	else if (Q_stricmp (cmd, "addsaberstyle") == 0)
 	{
 		ent = G_GetSelfForPlayerCmd();
@@ -1472,7 +1536,7 @@ void ClientCommand( int clientNum ) {
 		if ( gi.argc() < 2 )
 		{
 			gi.SendServerCommand( ent-g_entities, va("print \"usage: addsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_KATARN, SS_DUAL and SS_STAFF\n\""));
 			return;
 		}
 
@@ -1492,7 +1556,7 @@ void ClientCommand( int clientNum ) {
 		if ( gi.argc() < 2 )
 		{
 			gi.SendServerCommand( ent-g_entities, va("print \"usage: setsaberstyle <saber style>\n\""));
-			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_DUAL and SS_STAFF\n\""));
+			gi.SendServerCommand( ent-g_entities, va("print \"Valid styles: SS_FAST, SS_MEDIUM, SS_STRONG, SS_DESANN, SS_TAVION, SS_KATARN, SS_DUAL and SS_STAFF\n\""));
 			return;
 		}
 
@@ -1612,6 +1676,7 @@ void ClientCommand( int clientNum ) {
 			Cmd_SaberDrop_f( ent, saberNum );
 		}
 	}
+    else if (TryWorkshopCommand(ent)) {}
 	else
 	{
 		gi.SendServerCommand( clientNum, va("print \"Unknown command %s\n\"", cmd ) );

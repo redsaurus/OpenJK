@@ -2202,6 +2202,12 @@ void SP_func_static( gentity_t *ent )
 	{								   // yes this is very very evil, but for now (pre-alpha) it's a solution
 		ent->svFlags |= SVF_BROADCAST; // I need to rotate something that is huge and it's touching too many area portals...
 	}
+	
+	if ( ent->radarIcon && ent->radarIcon[0] )
+	{
+		ent->s.eFlags2 |= EF2_RADAROBJECT;
+		ent->s.radarIcon = G_IconIndex(ent->radarIcon);
+	}
 
 	if ( ent->spawnflags & 4/*SWITCH_SHADER*/ )
 	{
@@ -2218,6 +2224,15 @@ void SP_func_static( gentity_t *ent )
 			ent->damage = 2;
 		}
 	}
+	
+	int test;
+	G_SpawnInt( "hyperspace", "0", &test );
+	if ( test )
+	{
+		//ent->r.svFlags |= SVF_BROADCAST; // I need to rotate something that is huge and it's touching too many area portals...
+	//	ent->s.eFlags2 |= EF2_HYPERSPACE;
+	}
+
 	gi.linkentity( ent );
 
 	if (level.mBSPInstanceDepth)

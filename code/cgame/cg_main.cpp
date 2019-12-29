@@ -340,7 +340,6 @@ vmCvar_t	cg_fovViewmodel;
 vmCvar_t	cg_fovViewmodelAdjust;
 
 vmCvar_t	cg_scaleVehicleSensitivity;
-
 vmCvar_t	cg_lightningBlockEffect;
 
 //new cvars - Dusty
@@ -353,6 +352,33 @@ vmCvar_t	cg_pullBlurSpeed;
 vmCvar_t	cg_pullBlurSize;
 */
 
+vmCvar_t	cg_SFXSabers;
+vmCvar_t	cg_SFXSabersGlowSize;
+vmCvar_t	cg_SFXSabersCoreSize;
+
+vmCvar_t	cg_ignitionFlare;
+vmCvar_t    cg_ignitionSpeed;
+
+vmCvar_t    cg_gunMomentumDamp;
+vmCvar_t    cg_gunMomentumFall;
+vmCvar_t    cg_gunMomentumEnable;
+vmCvar_t    cg_gunMomentumInterval;
+
+
+vmCvar_t	cg_trueguns;
+vmCvar_t	cg_fpls;
+
+vmCvar_t	cg_drawRadar;
+
+vmCvar_t		cg_trueroll;
+vmCvar_t		cg_trueflip;
+vmCvar_t		cg_truespin;
+vmCvar_t		cg_truemoveroll;
+vmCvar_t		cg_truesaberonly;
+vmCvar_t		cg_trueeyeposition;
+vmCvar_t		cg_trueinvertsaber;
+vmCvar_t		cg_truefov;
+vmCvar_t        cg_truebobbing;
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -473,6 +499,36 @@ static cvarTable_t cvarTable[] = {
 
 	{ &cg_scaleVehicleSensitivity, "cg_scaleVehicleSensitivity", "1", CVAR_ARCHIVE },
 	{ &cg_lightningBlockEffect, "cg_lightningBlockEffect", "force/lightning", CVAR_ARCHIVE },
+	
+	{ &cg_SFXSabers,	"cg_SFXSabers",	"1", CVAR_ARCHIVE },
+	{ &cg_SFXSabersGlowSize,	"cg_SFXSabersGlowSize",	"1.0", CVAR_ARCHIVE },
+	{ &cg_SFXSabersCoreSize,	"cg_SFXSabersCoreSize",	"1.0", CVAR_ARCHIVE },
+
+	{ &cg_ignitionFlare,	"cg_ignitionFlare",	"1", CVAR_ARCHIVE },
+    { &cg_ignitionSpeed,	"cg_ignitionSpeed",	"1.0", CVAR_ARCHIVE },
+	
+    { &cg_ignitionSpeed,	"cg_ignitionSpeed",	"1.0", CVAR_ARCHIVE },
+    
+    { &cg_gunMomentumDamp, "cg_gunMomentumDamp", "0.001", CVAR_ARCHIVE },
+    { &cg_gunMomentumFall, "cg_gunMomentumFall", "0.5", CVAR_ARCHIVE },
+    { &cg_gunMomentumEnable, "cg_gunMomentumEnable", "0", CVAR_ARCHIVE },
+    { &cg_gunMomentumInterval, "cg_gunMomentumInterval", "75", CVAR_ARCHIVE },
+
+    
+	{ &cg_drawRadar,	"cg_drawRadar", "1", CVAR_ARCHIVE },
+	
+	//True View Control cvars
+	{ &cg_trueguns, "cg_trueguns", "0", CVAR_ARCHIVE },
+	{ &cg_fpls, "cg_fpls", "0", CVAR_ARCHIVE },
+	{ &cg_trueroll,	"cg_trueroll",	"0", CVAR_ARCHIVE },
+	{ &cg_trueflip,	"cg_trueflip",	"0", CVAR_ARCHIVE },
+	{ &cg_truespin,	"cg_truespin",	"0", CVAR_ARCHIVE },
+	{ &cg_truemoveroll,	"cg_truemoveroll",	"0", CVAR_ARCHIVE },
+	{ &cg_truesaberonly,	"cg_truesaberonly",	"0", CVAR_ARCHIVE },
+	{ &cg_trueeyeposition,	"cg_trueeyeposition",	"0.0", 0},
+	{ &cg_trueinvertsaber,	"cg_trueinvertsaber",	"0", CVAR_ARCHIVE},
+	{ &cg_truefov,	"cg_truefov",	"80", CVAR_ARCHIVE},
+    { &cg_truebobbing,	"cg_truebobbing",	"1", CVAR_ARCHIVE},
 };
 
 static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
@@ -553,6 +609,12 @@ int CG_GetCameraPos( vec3_t camerapos ) {
 	}
 	else if (cg.snap && (cg.snap->ps.weapon == WP_SABER||cg.snap->ps.weapon == WP_MELEE) )//implied: !cg.renderingThirdPerson
 	{//first person saber hack
+		VectorCopy( cg.refdef.vieworg, camerapos );
+		return 1;
+	}
+	else if ( cg_trueguns.integer && !cg.zoomMode )
+	{//in third person
+		//FIXME: what about hacks that render in third person regardless of this value?
 		VectorCopy( cg.refdef.vieworg, camerapos );
 		return 1;
 	}
@@ -1138,7 +1200,7 @@ static void CG_RegisterEffects( void )
 
 		cgi_R_WorldEffectCommand( effectName );
 	}
-
+	
 	// Set up the glass effects mini-system.
 	CG_InitGlass();
 
@@ -1280,6 +1342,66 @@ HUDMenuItem_t otherHUDBits[] =
 	"gfx/mp/f_icon_saber_throw"		//FP_SABERTHROW
 };
 */
+
+extern int BG_SiegeGetPairedValue(char *buf, char *key, char *outbuf);
+
+void CG_LoadMinimapImages( void )
+{
+	int len = 0;
+	fileHandle_t f;
+	char minimapData[1024];
+	char readBuffer[MAX_QPATH];
+	char fileName[MAX_QPATH];
+	
+	cgs.radarMap.numMinimapImages = 0;
+
+	const char	*info	= CG_ConfigString( CS_SERVERINFO );
+	const char	*s		= Info_ValueForKey( info, "mapname" );
+
+	Com_sprintf(fileName, sizeof(fileName), "minimaps/%s.mmp", s);
+	
+	len = gi.FS_FOpenFile(fileName, &f, FS_READ);
+	
+	if (!f)
+	{
+		return;
+	}
+	
+	if (len >= 1024)
+	{
+		gi.FS_FCloseFile( f );
+		return;
+	}
+	
+	gi.FS_Read(minimapData, len, f);
+	gi.FS_FCloseFile( f );
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "bottomRight", readBuffer) )
+	{
+		return;
+	}
+	sscanf( readBuffer, "%f %f", &cgs.radarMap.bottomRight[0], &cgs.radarMap.bottomRight[1]);
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "topLeft", readBuffer) )
+	{
+		return;
+	}
+	sscanf( readBuffer, "%f %f", &cgs.radarMap.topLeft[0], &cgs.radarMap.topLeft[1]);
+	
+	if ( !BG_SiegeGetPairedValue(minimapData, "image", readBuffer) )
+	{
+		return;
+	}
+	cgs.radarMap.minimapImage[0] = cgi_R_RegisterShaderNoMip( readBuffer );
+	
+	if ( BG_SiegeGetPairedValue(minimapData, "height", readBuffer) )
+	{
+		cgs.radarMap.minimapHeights[0] = atof(readBuffer);
+	}
+	
+	cgs.radarMap.numMinimapImages = 1;	
+}
+
 extern void CG_NPC_Precache ( gentity_t *spawner );
 qboolean NPCsPrecached = qfalse;
 /*
@@ -1350,6 +1472,8 @@ static void CG_RegisterGraphics( void ) {
 	CG_LoadingString( cgs.mapname );
 
 	cgi_R_LoadWorldMap( cgs.mapname );
+	
+	CG_LoadMinimapImages();
 
 	cg.loadLCARSStage = 4;
 	CG_LoadingString( "game media shaders" );
@@ -1360,6 +1484,11 @@ static void CG_RegisterGraphics( void ) {
 		cgs.media.smallnumberShaders[i]		= cgi_R_RegisterShaderNoMip( sb_t_nums[i] );
 		cgs.media.chunkyNumberShaders[i]	= cgi_R_RegisterShaderNoMip( sb_c_nums[i] );
 	}
+	
+	cgs.media.radarShader			= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/radar.png" );
+	cgs.media.siegeItemShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/goalitem_new" );
+	cgs.media.mAutomapPlayerIcon	= cgi_R_RegisterShaderNoMip ( "gfx/menus/radar/arrow_w_new" );
+	cgs.media.radarMaskShader		= cgi_R_RegisterShaderNoMip ( "gfx/menus/spradar/mask" );
 
 	// FIXME: conditionally do this??  Something must be wrong with inventory item caching..?
 	cgi_R_RegisterModel( "models/items/remote.md3" );
@@ -1382,7 +1511,7 @@ static void CG_RegisterGraphics( void ) {
 	// FIXME: do these conditionally
 	cgi_R_RegisterShader( "gfx/2d/workingCamera" );
 	cgi_R_RegisterShader( "gfx/2d/brokenCamera" );
-	//cgi_R_RegisterShader( "gfx/effects/irid_shield" ); // for galak, but he doesn't have his own weapon so I can't register the shader there.
+	cgi_R_RegisterShader( "gfx/effects/irid_shield" ); // for galak, but he doesn't have his own weapon so I can't register the shader there.
 
 	//interface
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
@@ -1398,7 +1527,18 @@ static void CG_RegisterGraphics( void ) {
 	//gore decal shaders -rww
 	cgs.media.bdecal_burnmark1		= cgi_R_RegisterShader( "gfx/damage/burnmark1" );
 	cgs.media.bdecal_saberglowmark	= cgi_R_RegisterShader( "gfx/damage/saberglowmark" );
-
+	
+	cgs.media.SaberTrailShader = cgi_R_RegisterShader( "SFX_Sabers/saber_trail" );
+	cgs.media.SaberBladeShader = cgi_R_RegisterShader( "SFX_Sabers/saber_blade" );
+	cgs.media.SaberEndShader = cgi_R_RegisterShader( "SFX_Sabers/saber_end" );
+	
+	cgs.media.blackSaberTrailShader = cgi_R_RegisterShader( "SFX_Sabers/black_trail" );
+	cgs.media.blackSaberBladeShader = cgi_R_RegisterShader( "SFX_Sabers/black_blade" );
+	cgs.media.blackSaberEndShader = cgi_R_RegisterShader( "SFX_Sabers/black_end" );
+	
+	cgs.media.ignitionFlare = cgi_R_RegisterShader( "gfx/effects/flare1" );
+	cgs.media.blackIgnitionFlare = cgi_R_RegisterShader( "gfx/effects/sabers/flare1black" );
+	
 	cg.loadLCARSStage = 5;
 	CG_LoadingString( "game media models" );
 
@@ -1655,6 +1795,22 @@ Ghoul2 Insert End
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].g2WeaponMarkShader2 );
 						}
+						if ( g_entities[i].client->ps.saber[0].ignitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].ignitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[0].ignitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].ignitionFlare2 );
+						}
+						if ( g_entities[i].client->ps.saber[0].blackIgnitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].blackIgnitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[0].blackIgnitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[0].blackIgnitionFlare2 );
+						}
 						if ( g_entities[i].client->ps.saber[1].g2MarksShader[0] )
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].g2MarksShader );
@@ -1670,6 +1826,22 @@ Ghoul2 Insert End
 						if ( g_entities[i].client->ps.saber[1].g2WeaponMarkShader2[0] )
 						{
 							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].g2WeaponMarkShader2 );
+						}
+						if ( g_entities[i].client->ps.saber[1].ignitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].ignitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[1].ignitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].ignitionFlare2 );
+						}
+						if ( g_entities[i].client->ps.saber[1].blackIgnitionFlare[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].blackIgnitionFlare );
+						}
+						if ( g_entities[i].client->ps.saber[1].blackIgnitionFlare2[0] )
+						{
+							cgi_R_RegisterShader( g_entities[i].client->ps.saber[1].blackIgnitionFlare2 );
 						}
 						CG_RegisterNPCCustomSounds( &g_entities[i].client->clientInfo );
 						//CG_RegisterNPCEffects( g_entities[i].client->playerTeam );
@@ -1770,6 +1942,21 @@ Ghoul2 Insert End
 		// Send off the terrainInfo to the renderer
 		cgi_RE_InitRendererTerrain( terrainInfo );
 	}
+	
+	const char *iconName;
+	
+	for ( i = 1 ; i < MAX_ICONS ; i++ )
+	{
+		iconName = ( char *)CG_ConfigString( CS_ICONS + i );
+		
+		if ( !iconName[0] )
+		{
+			break;
+		}
+		
+		cgs.media.radarIcons[i] = cgi_R_RegisterShaderNoMip( iconName );
+	}
+
 }
 
 //===========================================================================
@@ -2153,6 +2340,13 @@ void CG_Init( int serverCommandSequence ) {
 		"gfx/mp/f_icon_lt_absorb",		//FP_ABSORB,
 		"gfx/mp/f_icon_dk_drain",		//FP_DRAIN,
 		"gfx/mp/f_icon_sight",			//FP_SEE,
+		"gfx/mp/f_icon_dk_destruction",	//FP_DESTRUCTION,
+		"gfx/mp/f_icon_dk_insanity",		//FP_INSANITY,
+		"gfx/mp/f_icon_lt_stasis",			//FP_STASIS,
+		"gfx/mp/f_icon_lt_blinding",		//FP_BLINDING,
+		"gfx/mp/f_icon_dk_deadlysight",	//FP_DEADLYSIGHT
+		"gfx/mp/f_icon_repulse",		//FP_REPULSE
+		"gfx/mp/f_icon_lt_invulnerability",	//FP_INVULNERABILITY
 	};
 
 	// Precache inventory icons
@@ -2178,6 +2372,8 @@ void CG_Init( int serverCommandSequence ) {
 	CG_GameStateReceived();
 
 	CG_InitConsoleCommands();
+	
+	CG_TrueViewInit();
 
 	cg.weaponPickupTextTime = 0;
 
@@ -2199,6 +2395,10 @@ void CG_Shutdown( void )
 {
 	in_camera = false;
 	FX_Free();
+	
+	for (int i = 0; i < WP_NUM_WEAPONS; i++) {
+		CG_DeregisterWeapon(i);
+	}
 }
 
 //// DEBUG STUFF
@@ -3419,6 +3619,17 @@ void CG_DrawInventorySelect( void )
 
 					cgi_R_Font_DrawString( x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
 				}
+				else
+				{
+					Com_sprintf( itemName, sizeof(itemName), "SPMOD_INGAME_%s",	item->classname );
+					if ( cgi_SP_GetStringTextString( itemName, data, sizeof( data )))
+					{
+						int w = cgi_R_Font_StrLenPixels( data, cgs.media.qhFontSmall, 1.0f );
+						int x = ( SCREEN_WIDTH - w ) / 2;
+						
+						cgi_R_Font_DrawString( x, (SCREEN_HEIGHT - 24), data, textColor, cgs.media.qhFontSmall, -1, 1.0f);
+					}
+				}
 			}
 		}
 	}
@@ -3637,7 +3848,10 @@ void CG_DrawDataPadInventorySelect( void )
 	// draw the weapon description
 	if ((cg.DataPadInventorySelect>=0) && (cg.DataPadInventorySelect<13))
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",inventoryDesc[cg.DataPadInventorySelect]), text, sizeof(text) );
+		}
 
 		if (text[0])
 		{
@@ -3676,16 +3890,27 @@ int showPowers[MAX_SHOWPOWERS] =
 	FP_HEAL,
 	FP_PROTECT,
 	FP_TELEPATHY,
+	
+	FP_STASIS,
+	FP_BLINDING,
+	FP_INVULNERABILITY,
 
 	FP_SPEED,
 	FP_PUSH,
 	FP_PULL,
 	FP_SEE,
+	FP_REPULSE,
 
 	FP_DRAIN,
 	FP_LIGHTNING,
 	FP_RAGE,
 	FP_GRIP,
+	
+	FP_DESTRUCTION,
+	FP_INSANITY,
+	FP_DEADLYSIGHT,
+	
+	FP_SABERTHROW,
 };
 
 const char *showPowersName[MAX_SHOWPOWERS] =
@@ -3694,16 +3919,27 @@ const char *showPowersName[MAX_SHOWPOWERS] =
 	"SP_INGAME_HEAL2",
 	"SP_INGAME_PROTECT2",
 	"SP_INGAME_MINDTRICK2",
+	
+	"SPMOD_INGAME_STASIS2",
+	"SPMOD_INGAME_BLINDING2",
+	"SPMOD_INGAME_INVULNERABILITY2",
 
 	"SP_INGAME_SPEED2",
 	"SP_INGAME_PUSH2",
 	"SP_INGAME_PULL2",
 	"SP_INGAME_SEEING2",
+	"SPMOD_INGAME_REPULSE2",
 
 	"SP_INGAME_DRAIN2",
 	"SP_INGAME_LIGHTNING2",
 	"SP_INGAME_DARK_RAGE2",
 	"SP_INGAME_GRIP2",
+	
+	"SPMOD_INGAME_DESTRUCTION2",
+	"SPMOD_INGAME_INSANITY2",
+	"SPMOD_INGAME_DEADLYSIGHT2",
+	
+	"SP_INGAME_SABER_THROW2",
 };
 
 // Keep these with groups light side, core, and dark side
@@ -3714,6 +3950,10 @@ int showDataPadPowers[MAX_DPSHOWPOWERS] =
 	FP_HEAL,
 	FP_PROTECT,
 	FP_TELEPATHY,
+	
+	FP_STASIS,
+	FP_BLINDING,
+	FP_INVULNERABILITY,
 
 	// Core Powers
 	FP_LEVITATION,
@@ -3724,12 +3964,17 @@ int showDataPadPowers[MAX_DPSHOWPOWERS] =
 	FP_SABER_DEFENSE,
 	FP_SABER_OFFENSE,
 	FP_SEE,
+	FP_REPULSE,
 
 	//Dark Side
 	FP_DRAIN,
 	FP_LIGHTNING,
 	FP_RAGE,
 	FP_GRIP,
+	
+	FP_DESTRUCTION,
+	FP_INSANITY,
+	FP_DEADLYSIGHT,
 };
 
 /*
@@ -4090,6 +4335,10 @@ const char *forcepowerDesc[NUM_FORCE_POWERS] =
 "FORCE_HEAL_DESC",
 "FORCE_PROTECT_DESC",
 "FORCE_MIND_TRICK_DESC",
+	
+"FORCE_STASIS_DESC",
+"FORCE_BLINDING_DESC",
+"FORCE_INVULNERABILITY_DESC",
 
 "FORCE_JUMP_DESC",
 "FORCE_SPEED_DESC",
@@ -4099,11 +4348,16 @@ const char *forcepowerDesc[NUM_FORCE_POWERS] =
 "FORCE_SABER_DEFENSE_DESC",
 "FORCE_SABER_OFFENSE_DESC",
 "FORCE_SENSE_DESC",
+"FORCE_REPULSE_DESC",
 
 "FORCE_DRAIN_DESC",
 "FORCE_LIGHTNING_DESC",
 "FORCE_RAGE_DESC",
 "FORCE_GRIP_DESC",
+	
+"FORCE_DESTRUCTION_DESC",
+"FORCE_INSANITY_DESC",
+"FORCE_DEADLYSIGHT_DESC",
 };
 
 
@@ -4114,6 +4368,10 @@ const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 "FORCE_PROTECT_LVL1_DESC",
 "FORCE_MIND_TRICK_LVL1_DESC",
 
+"FORCE_STASIS_LVL1_DESC",
+"FORCE_BLINDING_LVL1_DESC",
+"FORCE_INVULNERABILITY_LVL1_DESC",
+
 "FORCE_JUMP_LVL1_DESC",
 "FORCE_SPEED_LVL1_DESC",
 "FORCE_PUSH_LVL1_DESC",
@@ -4122,11 +4380,16 @@ const char *forcepowerLvl1Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_DEFENSE_LVL1_DESC",
 "FORCE_SABER_OFFENSE_LVL1_DESC",
 "FORCE_SENSE_LVL1_DESC",
+"FORCE_REPULSE_LVL1_DESC",
 
 "FORCE_DRAIN_LVL1_DESC",
 "FORCE_LIGHTNING_LVL1_DESC",
 "FORCE_RAGE_LVL1_DESC",
 "FORCE_GRIP_LVL1_DESC",
+	
+"FORCE_DESTRUCTION_LVL1_DESC",
+"FORCE_INSANITY_LVL1_DESC",
+"FORCE_DEADLYSIGHT_LVL1_DESC",
 };
 
 const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
@@ -4135,6 +4398,10 @@ const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 "FORCE_HEAL_LVL2_DESC",
 "FORCE_PROTECT_LVL2_DESC",
 "FORCE_MIND_TRICK_LVL2_DESC",
+	
+"FORCE_STASIS_LVL2_DESC",
+"FORCE_BLINDING_LVL2_DESC",
+"FORCE_INVULNERABILITY_LVL2_DESC",
 
 "FORCE_JUMP_LVL2_DESC",
 "FORCE_SPEED_LVL2_DESC",
@@ -4144,11 +4411,16 @@ const char *forcepowerLvl2Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_DEFENSE_LVL2_DESC",
 "FORCE_SABER_OFFENSE_LVL2_DESC",
 "FORCE_SENSE_LVL2_DESC",
+"FORCE_REPULSE_LVL2_DESC",
 
 "FORCE_DRAIN_LVL2_DESC",
 "FORCE_LIGHTNING_LVL2_DESC",
 "FORCE_RAGE_LVL2_DESC",
 "FORCE_GRIP_LVL2_DESC",
+	
+"FORCE_DESTRUCTION_LVL2_DESC",
+"FORCE_INSANITY_LVL2_DESC",
+"FORCE_DEADLYSIGHT_LVL2_DESC",
 };
 
 const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
@@ -4158,6 +4430,10 @@ const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
 "FORCE_PROTECT_LVL3_DESC",
 "FORCE_MIND_TRICK_LVL3_DESC",
 
+"FORCE_STASIS_LVL3_DESC",
+"FORCE_BLINDING_LVL3_DESC",
+"FORCE_INVULNERABILITY_LVL3_DESC",
+
 "FORCE_JUMP_LVL3_DESC",
 "FORCE_SPEED_LVL3_DESC",
 "FORCE_PUSH_LVL3_DESC",
@@ -4166,11 +4442,16 @@ const char *forcepowerLvl3Desc[NUM_FORCE_POWERS] =
 "FORCE_SABER_DEFENSE_LVL3_DESC",
 "FORCE_SABER_OFFENSE_LVL3_DESC",
 "FORCE_SENSE_LVL3_DESC",
+"FORCE_REPULSE_LVL3_DESC",
 
 "FORCE_DRAIN_LVL3_DESC",
 "FORCE_LIGHTNING_LVL3_DESC",
 "FORCE_RAGE_LVL3_DESC",
 "FORCE_GRIP_LVL3_DESC",
+	
+"FORCE_DESTRUCTION_LVL3_DESC",
+"FORCE_INSANITY_LVL3_DESC",
+"FORCE_DEADLYSIGHT_LVL3_DESC",
 };
 
 /*
@@ -4343,19 +4624,31 @@ void CG_DrawDataPadForceSelect( void )
 		}
 	}
 
-	cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
+	if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) ))
+	{
+		cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerDesc[cg.DataPadforcepowerSelect]), text, sizeof(text) );
+	}
 
 	if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==1)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl1Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 	else if (player->client->ps.forcePowerLevel[showDataPadPowers[cg.DataPadforcepowerSelect]]==2)
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl2Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 	else
 	{
-		cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		if (!cgi_SP_GetStringTextString( va("SP_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) ))
+		{
+			cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",forcepowerLvl3Desc[cg.DataPadforcepowerSelect]), text2, sizeof(text2) );
+		}
 	}
 
 	if (text[0])

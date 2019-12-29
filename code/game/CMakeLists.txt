@@ -62,7 +62,9 @@ set(SPGameGameFiles
 	"${SPDir}/game/AI_Stormtrooper.cpp"
 	"${SPDir}/game/AI_Tusken.cpp"
 	"${SPDir}/game/AI_Utils.cpp"
+	"${SPDir}/game/AI_Vehicle.cpp"
 	"${SPDir}/game/AI_Wampa.cpp"
+	"${SPDir}/game/fp_repulse.cpp"
 	"${SPDir}/game/g_active.cpp"
 	"${SPDir}/game/g_breakable.cpp"
 	"${SPDir}/game/g_camera.cpp"
@@ -132,6 +134,7 @@ set(SPGameGameFiles
 	"${SPDir}/game/wp_rocket_launcher.cpp"
 	"${SPDir}/game/wp_saber.cpp"
 	"${SPDir}/game/wp_saberLoad.cpp"
+	"${SPDir}/game/wp_sonic_blaster.cpp"
 	"${SPDir}/game/wp_stun_baton.cpp"
 	"${SPDir}/game/wp_thermal.cpp"
 	"${SPDir}/game/wp_trip_mine.cpp"
@@ -182,6 +185,7 @@ set(SPGameGameFiles
 	"${SPDir}/game/w_local.h"
 	"${SPDir}/game/wp_saber.h"
 	"${SPDir}/game/g_vehicles.h"
+	"${SPDir}/game/jke_aiworkshop.cpp"
 	)
 source_group("game" FILES ${SPGameGameFiles})
 set(SPGameFiles ${SPGameFiles} ${SPGameGameFiles})
@@ -209,13 +213,16 @@ set(SPGameCGameFiles
 	"${SPDir}/cgame/cg_snapshot.cpp"
 	"${SPDir}/cgame/cg_syscalls.cpp"
 	"${SPDir}/cgame/cg_text.cpp"
+	"${SPDir}/cgame/cg_trueview.cpp"
 	"${SPDir}/cgame/cg_view.cpp"
 	"${SPDir}/cgame/cg_weapons.cpp"
 	"${SPDir}/cgame/FX_ATSTMain.cpp"
 	"${SPDir}/cgame/FX_Blaster.cpp"
 	"${SPDir}/cgame/FX_Bowcaster.cpp"
 	"${SPDir}/cgame/FX_BryarPistol.cpp"
+	"${SPDir}/cgame/FX_Clone.cpp"
 	"${SPDir}/cgame/FX_Concussion.cpp"
+	"${SPDir}/cgame/FX_Destruction.cpp"
 	"${SPDir}/cgame/FX_DEMP2.cpp"
 	"${SPDir}/cgame/FX_Disruptor.cpp"
 	"${SPDir}/cgame/FX_Emplaced.cpp"
@@ -385,18 +392,18 @@ endif()
 if(WIN32)
 	install(TARGETS ${SPGame}
 		RUNTIME
-		DESTINATION "${JKAInstallDir}/OpenJK"
+		DESTINATION "${JKAInstallDir}/jaenhanced"
 		COMPONENT ${JKASPClientComponent})
 else(WIN32)
 	if(MakeApplicationBundles AND BuildSPEngine)
 		install(TARGETS ${SPGame}
 			LIBRARY
-			DESTINATION "${JKAInstallDir}/${SPEngine}.app/Contents/MacOS/OpenJK"
+			DESTINATION "${JKAInstallDir}/${SPEngine}.app/Contents/MacOS/jaenhanced"
 			COMPONENT ${JKASPClientComponent})
 	else()
 		install(TARGETS ${SPGame}
 			LIBRARY
-			DESTINATION "${JKAInstallDir}/OpenJK"
+			DESTINATION "${JKAInstallDir}/jaenhanced"
 			COMPONENT ${JKASPClientComponent})
 	endif()
 endif()

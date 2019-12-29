@@ -229,7 +229,7 @@ qboolean G2_Stop_Bone_Index( boneInfo_v &blist, int index, int flags)
 
 // generate a matrix for a given bone given some new angles for it.
 void G2_Generate_Matrix(const model_t *mod, boneInfo_v &blist, int index, const float *angles, int flags,
-						const Eorientations up, const Eorientations left, const Eorientations forward)
+						const Eorientations up, const Eorientations left, const Eorientations forward, const vec3_t offset = NULL)
 {
 	mdxaSkel_t		*skel;
 	mdxaSkelOffsets_t *offsets;
@@ -319,6 +319,13 @@ void G2_Generate_Matrix(const model_t *mod, boneInfo_v &blist, int index, const 
 		}
 
 		Create_Matrix(newAngles, boneOverride);
+		
+		if (offset)
+		{
+			boneOverride->matrix[0][3] = offset[0];
+			boneOverride->matrix[1][3] = offset[1];
+			boneOverride->matrix[2][3] = offset[2];
+		}
 
 		// figure out where the bone hirearchy info is
 		offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
@@ -339,6 +346,13 @@ void G2_Generate_Matrix(const model_t *mod, boneInfo_v &blist, int index, const 
 		}
 
 		Create_Matrix(newAngles, &temp1);
+		
+		if (offset)
+		{
+			temp1.matrix[0][3] = offset[0];
+			temp1.matrix[1][3] = offset[1];
+			temp1.matrix[2][3] = offset[2];
+		}
 
 		permutation.matrix[0][0] = permutation.matrix[0][1] = permutation.matrix[0][2] = permutation.matrix[0][3] = 0;
 		permutation.matrix[1][0] = permutation.matrix[1][1] = permutation.matrix[1][2] = permutation.matrix[1][3] = 0;
@@ -450,7 +464,7 @@ qboolean G2_Remove_Bone (CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *bo
 qboolean G2_Set_Bone_Angles_Index(CGhoul2Info *ghlInfo, boneInfo_v &blist, const int index,
 							const float *angles, const int flags, const Eorientations yaw,
 							const Eorientations pitch, const Eorientations roll,
-							const int blendTime, const int currentTime)
+							const int blendTime, const int currentTime, const vec3_t offset)
 {
 
 	if (index<0||(index >= (int)blist.size()) || (blist[index].boneNumber == -1))
@@ -466,7 +480,7 @@ qboolean G2_Set_Bone_Angles_Index(CGhoul2Info *ghlInfo, boneInfo_v &blist, const
 #if DEBUG_PCJ
 	OutputDebugString(va("%8x  %2d %6d   (%6.2f,%6.2f,%6.2f) %d %d %d %d\n",(int)ghlInfo,index,currentTime,angles[0],angles[1],angles[2],yaw,pitch,roll,flags));
 #endif
-	G2_Generate_Matrix(ghlInfo->animModel, blist, index, angles, flags, yaw, pitch, roll);
+	G2_Generate_Matrix(ghlInfo->animModel, blist, index, angles, flags, yaw, pitch, roll, offset);
 	return qtrue;
 
 }
@@ -474,7 +488,7 @@ qboolean G2_Set_Bone_Angles_Index(CGhoul2Info *ghlInfo, boneInfo_v &blist, const
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 qboolean G2_Set_Bone_Angles(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName, const float *angles,
 							const int flags, const Eorientations up, const Eorientations left, const Eorientations forward,
-							const int blendTime, const int currentTime)
+							const int blendTime, const int currentTime, const vec3_t offset)
 {
 	int			index = G2_Find_Bone(ghlInfo, blist, boneName);
 	if (index == -1)
@@ -488,7 +502,7 @@ qboolean G2_Set_Bone_Angles(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char 
 		blist[index].boneBlendStart = currentTime;
 		blist[index].boneBlendTime = blendTime;
 
-		G2_Generate_Matrix(ghlInfo->animModel, blist, index, angles, flags, up, left, forward);
+		G2_Generate_Matrix(ghlInfo->animModel, blist, index, angles, flags, up, left, forward, offset);
 		return qtrue;
 	}
 	return qfalse;

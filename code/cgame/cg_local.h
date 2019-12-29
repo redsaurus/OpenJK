@@ -158,6 +158,7 @@ struct centity_s
 	qboolean		currentValid;	// true if cg.frame holds this entity
 
 	int				muzzleFlashTime;	// move to playerEntity?
+	int				muzzleFlashWeapon;
 	qboolean		altFire;			// move to playerEntity?
 
 	int				previousEvent;
@@ -513,15 +514,17 @@ Ghoul2 Insert Start
 Ghoul2 Insert End
 */
 	overrides_t	overrides;	//for overriding certain third-person camera properties
-
+	
+	short		radarEntityCount;
+	short		radarEntities[32];
 } cg_t;
 
 
-#define MAX_SHOWPOWERS 12
+#define MAX_SHOWPOWERS 20
 extern int showPowers[MAX_SHOWPOWERS];
 extern const char *showPowersName[MAX_SHOWPOWERS];
 extern int force_icons[NUM_FORCE_POWERS];
-#define MAX_DPSHOWPOWERS 16
+#define MAX_DPSHOWPOWERS 23
 
 //==============================================================================
 
@@ -657,6 +660,20 @@ extern	vmCvar_t		cg_fovViewmodelAdjust;
 
 extern	vmCvar_t		cg_scaleVehicleSensitivity;
 extern	vmCvar_t		cg_lightningBlockEffect;
+
+extern	vmCvar_t		cg_trueguns;
+extern	vmCvar_t		cg_fpls;
+extern	vmCvar_t		cg_drawRadar;
+
+extern	vmCvar_t		cg_trueroll;
+extern	vmCvar_t		cg_trueflip;
+extern	vmCvar_t		cg_truespin;
+extern	vmCvar_t		cg_truemoveroll;
+extern  vmCvar_t		cg_truesaberonly;
+extern	vmCvar_t		cg_trueeyeposition;
+extern	vmCvar_t		cg_trueinvertsaber;
+extern	vmCvar_t		cg_truefov;
+extern  vmCvar_t        cg_truebobbing;
 
 void CG_NewClientinfo( int clientNum );
 //
@@ -825,6 +842,7 @@ void CG_DPPrevForcePower_f( void );
 
 
 void CG_RegisterWeapon( int weaponNum );
+void CG_DeregisterWeapon( int weaponNum );
 void CG_RegisterItemVisuals( int itemNum );
 void CG_RegisterItemSounds( int itemNum );
 
@@ -1165,6 +1183,15 @@ void FX_NoghriShotProjectileThink( centity_t *cent, const struct weaponInfo_s *w
 void FX_NoghriShotWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_NoghriShotWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, qboolean humanoid );
 
+void FX_CloneBlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_CloneBlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_CloneBlasterWeaponHitWall( vec3_t origin, vec3_t normal );
+void FX_CloneBlasterWeaponHitPlayer( gentity_t *hit, vec3_t origin, vec3_t normal, qboolean humanoid );
+
+void FX_DestructionProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon );
+void FX_DestructionHitWall( vec3_t origin, vec3_t normal );
+void FX_DestructionHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
+
 void CG_BounceEffect( centity_t *cent, int weapon, vec3_t origin, vec3_t normal );
 void CG_MissileStick( centity_t *cent, int weapon, vec3_t origin );
 
@@ -1233,5 +1260,9 @@ void CG_PlayEffectID( const int fxID, vec3_t origin, const vec3_t fwd );
 void	CG_ClearLightStyles( void );
 void	CG_RunLightStyles( void );
 void	CG_SetLightstyle( int i );
+
+//trueview stuff
+void CG_TrueViewInit( void );
+void CG_AdjustEyePos (const char *modelName);
 
 #endif	//__CG_LOCAL_H__
