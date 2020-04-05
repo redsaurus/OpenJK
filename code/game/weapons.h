@@ -78,6 +78,14 @@ typedef enum //# weapon_e
 	WP_TUSKEN_STAFF,
 	WP_SCEPTER,
 	WP_NOGHRI_STICK,
+	
+	WP_SONIC_BLASTER,
+	
+	WP_E5_CARBINE,
+	WP_DC15S_CARBINE,
+	WP_DC15A_RIFLE,
+	WP_Z6_ROTARY,
+	
 
 	//# #eol
 	WP_NUM_WEAPONS
@@ -94,7 +102,8 @@ typedef enum {
 } weaponGroup;
 
 #define FIRST_WEAPON		WP_SABER		// this is the first weapon for next and prev weapon switching
-#define MAX_PLAYER_WEAPONS	WP_STUN_BATON	// this is the max you can switch to and get with the give all. - FIXME: it's actually this one *minus* one... why?
+
+extern qboolean playerUsableWeapons[WP_NUM_WEAPONS];
 
 // AMMO_NONE must be first and AMMO_MAX must be last, cause weapon load validates based off of these vals
 typedef enum //# ammo_e
@@ -116,15 +125,16 @@ typedef enum //# ammo_e
 typedef struct weaponData_s
 {
 	char	classname[32];		// Spawning name
-	char	weaponMdl[64];		// Weapon Model
-	char	firingSnd[64];		// Sound made when fired
-	char	altFiringSnd[64];	// Sound made when alt-fired
+	char	weaponMdl[MAX_QPATH];		// Weapon Model
+	char	worldModel[MAX_QPATH];		// World Model
+	char	firingSnd[MAX_QPATH];		// Sound made when fired
+	char	altFiringSnd[MAX_QPATH];	// Sound made when alt-fired
 //	char	flashSnd[64];		// Sound made by flash
 //	char	altFlashSnd[64];	// Sound made by an alt-flash
-	char	stopSnd[64];		// Sound made when weapon stops firing
-	char	chargeSnd[64];		// sound to start when the weapon initiates the charging sequence
-	char	altChargeSnd[64];	// alt sound to start when the weapon initiates the charging sequence
-	char	selectSnd[64];		// the sound to play when this weapon gets selected
+	char	stopSnd[MAX_QPATH];		// Sound made when weapon stops firing
+	char	chargeSnd[MAX_QPATH];		// sound to start when the weapon initiates the charging sequence
+	char	altChargeSnd[MAX_QPATH];	// alt sound to start when the weapon initiates the charging sequence
+	char	selectSnd[MAX_QPATH];		// the sound to play when this weapon gets selected
 
 	int		ammoIndex;			// Index to proper ammo slot
 	int		ammoLow;			// Count when ammo is low
@@ -137,27 +147,27 @@ typedef struct weaponData_s
 	int		altFireTime;		// Amount of time between alt-firings
 	int		altRange;			// Range of alt-fire
 
-	char	weaponIcon[64];		// Name of weapon icon file
+	char	weaponIcon[MAX_QPATH];		// Name of weapon icon file
 	int		numBarrels;			// how many barrels should we expect for this weapon?
 
-	char	missileMdl[64];		// Missile Model
-	char	missileSound[64];	// Missile flight sound
+	char	missileMdl[MAX_QPATH];		// Missile Model
+	char	missileSound[MAX_QPATH];	// Missile flight sound
 	float  	missileDlight;		// what is says
 	vec3_t 	missileDlightColor;	// ditto
 
-	char	alt_missileMdl[64];		// Missile Model
-	char	alt_missileSound[64];	// Missile sound
+	char	alt_missileMdl[MAX_QPATH];		// Missile Model
+	char	alt_missileSound[MAX_QPATH];	// Missile sound
 	float  	alt_missileDlight;		// what is says
 	vec3_t 	alt_missileDlightColor;	// ditto
 
-	char	missileHitSound[64];	// Missile impact sound
-	char	altmissileHitSound[64];	// alt Missile impact sound
+	char	missileHitSound[MAX_QPATH];	// Missile impact sound
+	char	altmissileHitSound[MAX_QPATH];	// alt Missile impact sound
 	void	*func;
 	void	*altfunc;
 
-	char	mMuzzleEffect[64];
+	char	mMuzzleEffect[MAX_QPATH];
 	int		mMuzzleEffectID;
-	char	mAltMuzzleEffect[64];
+	char	mAltMuzzleEffect[MAX_QPATH];
 	int		mAltMuzzleEffectID;
 
 	//values are self-explanatory except for WP_MELEE
@@ -174,13 +184,15 @@ typedef struct weaponData_s
 	float	npcFireTimeMult;
 	float	npcAltFireTimeMult;
 	
+	bool	bNoHandModel;
+	char	skinPath[MAX_QPATH];
 
 } weaponData_t;
 
 
 typedef struct ammoData_s
 {
-	char	icon[64];	// Name of ammo icon file
+	char	icon[MAX_QPATH];	// Name of ammo icon file
 	int		max;		// Max amount player can hold of ammo
 } ammoData_t;
 

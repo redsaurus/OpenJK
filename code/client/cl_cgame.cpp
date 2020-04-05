@@ -70,7 +70,7 @@ qboolean CL_InitCGameVM( void *gameLibrary )
 #ifdef JK2_MODE
 		const char *gamename = "jospgame";
 #else
-		const char *gamename = "jagame";
+		const char *gamename = "jaenhancedgame";
 #endif
 
 		Com_Printf( "CL_InitCGameVM: client game entry point not found in %s" ARCH_STRING DLL_EXT ": %s\n",

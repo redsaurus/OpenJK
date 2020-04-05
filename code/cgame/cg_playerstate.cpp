@@ -46,40 +46,6 @@ void CG_CheckAmmo( void )
 	int		previous;
 //	int		weapons;
 
-#if 0
-
-	// see about how many seconds of ammo we have remaining
-	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
-	total = 0;
-
-	for ( i = WP_SABER; i < WP_NUM_WEAPONS  i++ )
-	{
-		if ( ! ( weapons & ( 1 << i ) ) )
-			continue;
-
-		/*
-		switch ( i )
-		{
-		case WP_ROCKET_LAUNCHER:
-		case WP_GRENADE_LAUNCHER:
-		case WP_RAILGUN:
-		case WP_SHOTGUN:
-			total += cg.snap->ps.ammo[i] * 1000;
-			break;
-		default:
-			total += cg.snap->ps.ammo[i] * 200;
-			break;
-		}
-		*/
-
-		if ( total >= 5000 )
-		{
-			cg.lowAmmoWarning = 0;
-			return;
-		}
-	}
-#endif
-
 	// Don't bother drawing the ammo warning when have no weapon selected
 	if ( cg.weaponSelect == WP_NONE )
 	{

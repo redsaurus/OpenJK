@@ -123,6 +123,7 @@ typedef enum {
 #define PMF_BUMPED			(1<<17)//131072	// Bumped into something
 #define PMF_FORCE_FOCUS_HELD	(1<<18)//262144	// Holding down the saberthrow/kick button
 #define PMF_FIX_MINS		(1<<19)//524288	// Mins raised for dual forward jump, fix them
+#define PMF_SABERTHROW_HELD	(1<<20)
 #define	PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK|PMF_TIME_NOFRICTION)
 
 #define	MAXTOUCH	32
@@ -241,6 +242,10 @@ typedef enum {
 #define EF_FORCE_DRAINED		0x40000000	// Force drained effect
 #define EF_BLOCKED_MOVER		0x80000000	// for movers that are blocked - shared with previous
 
+//These new EF2_??? flags were added for NPCs, they really should not be used often. Taken from MP.
+#define EF2_RADAROBJECT			(1<<0)		// Show entity in radar / minimap
+#define	EF2_HYPERSPACE			(1<<5)		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
+
 typedef enum {
 	PW_NONE,
 	PW_QUAD,// This can go away
@@ -258,6 +263,9 @@ typedef enum {
 	PW_INVINCIBLE,
 	PW_FORCE_PUSH,
 	PW_FORCE_PUSH_RHAND,
+	PW_REFRACT_MUZZLE,
+	PW_FORCE_REPULSE,
+	PW_FORCE_PROJECTILE,
 
 	PW_NUM_POWERUPS
 } powerup_t;
@@ -634,6 +642,8 @@ typedef enum {
 	MOD_SUICIDE,
 	MOD_TRIGGER_HURT,
 	MOD_GAS,
+	
+	MOD_DESTRUCTION,
 
 	NUM_MODS,
 
@@ -761,5 +771,10 @@ int	CurrentPlayerstateEvent( playerState_t *ps );
 void PlayerStateToEntityState( playerState_t *ps, entityState_t *s );
 
 qboolean	BG_PlayerTouchesItem( playerState_t *ps, entityState_t *item, int atTime );
+
+#define	HYPERSPACE_TIME				4000 //For hyperspace triggers
+#define	HYPERSPACE_TELEPORT_FRAC	0.75f
+#define	HYPERSPACE_SPEED			10000.0f//was 30000
+#define	HYPERSPACE_TURN_RATE		45.0f
 
 #endif//#ifndef __BG_PUBLIC_H__

@@ -244,6 +244,9 @@ extern void	Vehicle_Register(gentity_t *ent);
 extern void RT_FlyStart( gentity_t *self );
 extern void SandCreature_ClearTimers( gentity_t *ent );
 void NPC_SetMiscDefaultData(gentity_t *ent)
+extern void NPC_GalakMech_Init( gentity_t *ent );
+
+void NPC_SetMiscDefaultData( gentity_t *ent )
 {
 	if (ent->spawnflags & SFB_CINEMATIC)
 	{//if a cinematic guy, default us to wait bState
@@ -388,7 +391,8 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 		WP_SaberInitBladeData(ent);
 		if (ent->client->ps.weapon == WP_SABER)
 		{//this is our current weapon, add the models now
-			WP_SaberAddG2SaberModels(ent);
+			WP_SaberAddG2SaberModels( ent );
+			G_RemoveHolsterModels( ent );
 		}
 		Jedi_ClearTimers(ent);
 	}
@@ -491,7 +495,8 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 				&& ent->client->ps.weapon != WP_SABER //sabers done above
 				&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 			{
-				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 			switch ( ent->client->ps.weapon )
 			{
@@ -524,6 +529,10 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 					//ent->NPC->scriptFlags |= SCF_ALT_FIRE;
 				}
 				break;
+			}
+			if ( !Q_stricmp( "galak_mech", ent->NPC_type ) )
+			{//starts with armor
+				NPC_GalakMech_Init( ent );
 			}
 		}
 		if ( ent->client->NPC_class == CLASS_PLAYER
@@ -598,7 +607,8 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 					&& ent->client->ps.weapon != WP_SABER//sabers done above
 					&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 				{
-					G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+					G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+					WP_SaberAddHolsteredG2SaberModels( ent );
 				}
 				switch ( ent->client->ps.weapon )
 				{
@@ -610,7 +620,7 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 						&& ent->NPC->rank >= RANK_LT_COMM
 						&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 					{//dual blaster pistols, so add the left-hand one, too
-						G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handLBolt, 1 );
+						G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handLBolt, 1 );
 					}
 					else if (ent->flags&FL_DUALPISTOLS
 						&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON) || !ent->weaponModel[0]))//they do this themselves
@@ -680,7 +690,8 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 			&& ent->client->ps.weapon != WP_SABER//sabers done above
 			&& (!(ent->NPC->aiFlags&NPCAI_MATCHPLAYERWEAPON)||!ent->weaponModel[0]) )//they do this themselves
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 		break;
 	}
@@ -711,11 +722,11 @@ void NPC_SetMiscDefaultData(gentity_t *ent)
 		Vehicle_Register(ent);
 	}
 
-	if ( ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SCEPTER) )
+	if ( ent->client->ps.weapons[WP_SCEPTER] )
 	{
 		if ( !ent->weaponModel[1] )
 		{//we have the scepter, so put it in our left hand if we don't already have a second weapon
-			G_CreateG2AttachedWeaponModel( ent, weaponData[WP_SCEPTER].weaponMdl, ent->handLBolt, 1 );
+			G_CreateG2AttachedWeaponModel( ent, weaponData[WP_SCEPTER].worldModel, ent->handLBolt, 1 );
 		}
 		ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->weaponModel[1]], "*flash");
 	}
@@ -976,12 +987,15 @@ void NPC_SetWeapons( gentity_t *ent )
 	int			bestWeap = WP_NONE;
 	int			weapons = NPC_WeaponsForTeam( ent->client->playerTeam, ent->spawnflags, ent->NPC_type );
 
-	ent->client->ps.stats[STAT_WEAPONS] = 0;
+	for ( int i = 0; i < MAX_WEAPONS; i++ )
+	{
+		ent->client->ps.weapons[i] = 0;
+	}
 	for ( int curWeap = WP_SABER; curWeap < WP_NUM_WEAPONS; curWeap++ )
 	{
 		if ( (weapons & ( 1 << curWeap )) )
 		{
-			ent->client->ps.stats[STAT_WEAPONS] |= ( 1 << curWeap );
+			ent->client->ps.weapons[curWeap] = 1;
 			RegisterItem( FindItemForWeapon( (weapon_t)(curWeap) ) );	//precache the weapon
 			ent->NPC->currentAmmo = ent->client->ps.ammo[weaponData[curWeap].ammoIndex] = 100;//FIXME: max ammo
 
@@ -1605,6 +1619,13 @@ gentity_t *NPC_Spawn_Do( gentity_t *ent, qboolean fullSpawnNow )
 		newent->message = G_NewString(ent->message);//copy the key name
 		newent->flags |= FL_NO_KNOCKBACK;//don't fall off ledges
 	}
+	
+	if ( ent->radarIcon && ent->radarIcon[0] )
+	{
+		newent->svFlags |= SVF_BROADCAST;
+		newent->s.eFlags2 |= EF2_RADAROBJECT;
+		newent->s.radarIcon = G_IconIndex(ent->radarIcon);
+	}
 
 	// If this is a vehicle we need to see what kind it is so we properlly allocate it.
 	if ( Q_stricmp( ent->classname, "NPC_Vehicle" ) == 0 )
@@ -2089,6 +2110,11 @@ void SP_NPC_spawner( gentity_t *self)
 	if ( self->delay > 0 )
 	{
 		self->svFlags |= SVF_NPC_PRECACHE;
+	}
+	
+	if ( self->radarIcon && self->radarIcon[0] )
+	{
+		G_IconIndex(self->radarIcon);
 	}
 
 	//We have to load the animation.cfg now because spawnscripts are going to want to set anims and we need to know their length and if they're valid

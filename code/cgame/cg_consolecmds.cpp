@@ -146,7 +146,7 @@ void CG_ToggleBinoculars( void )
 		cg.zoomTime = cg.time;
 		cgi_S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_AUTO, cgs.media.zoomEnd );
 
-		if( cg.weaponSelect == WP_NONE && cg.snap->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ) )
+		if( cg.weaponSelect == WP_NONE && cg.snap->ps.weapons[WP_SABER] )
 		{
 			// FIXME: this is pretty damn ugly but whatever
 			cg.weaponSelect = WP_SABER;
@@ -280,22 +280,30 @@ qboolean CG_ConsoleCommand( void ) {
 
 static const char *gcmds[] = {
 	"bow",
+	"customsaber",
 	"entitylist",
 	"difficulty",
 	"flourish",
 	"force_absorb",
+	"force_blinding",
+	"force_deadlysight",
+	"force_destruction",
 	"force_distract",
 	"force_grip",
 	"force_heal",
+	"force_insanity",
+	"force_invulnerability",
 	"force_protect",
 	"force_pull",
 	"force_rage",
 	"force_sight",
 	"force_speed",
+	"force_stasis",
 	"force_throw",
 	"give",
 	"gloat",
 	"god",
+    "headplayermodel",
 	"invuse",
 	"kill",
 	"meditate",
@@ -310,6 +318,7 @@ static const char *gcmds[] = {
 	"saber",
 	"saberAttackCycle",
 	"saberColor",
+	"saberCrystal",
 	"saberblade",
 	"secrets",
 	"setForceAll",

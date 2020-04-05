@@ -418,10 +418,11 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 		//G_SetG2PlayerModel( pEnt, pEnt->NPC_type, NULL, NULL, NULL );
 
 		//FIXME: reset/4 their weapon
-		pEnt->client->ps.stats[STAT_WEAPONS] &= ~(( 1 << WP_ATST_MAIN )|( 1 << WP_ATST_SIDE ));
+		pEnt->client->ps.weapons[WP_ATST_MAIN] = 0;
+		pEnt->client->ps.weapons[WP_ATST_SIDE] = 0;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = 0;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = 0;
-		if ( pEnt->client->ps.stats[STAT_WEAPONS] & (1<<WP_BLASTER) )
+		if ( pEnt->client->ps.weapons[WP_BLASTER] )
 		{
 			CG_ChangeWeapon( WP_BLASTER );
 			//camera
@@ -476,7 +477,8 @@ void G_DriveATST( gentity_t *pEnt, gentity_t *atst )
 		item = FindItemForWeapon( WP_ATST_SIDE );	//precache the weapon
 		CG_RegisterItemSounds( (item-bg_itemlist) );
 		CG_RegisterItemVisuals( (item-bg_itemlist) );
-		pEnt->client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_ATST_MAIN )|( 1 << WP_ATST_SIDE );
+		pEnt->client->ps.weapons[WP_ATST_MAIN] = 1;
+		pEnt->client->ps.weapons[WP_ATST_SIDE] = 1;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_MAIN].ammoIndex] = ammoData[weaponData[WP_ATST_MAIN].ammoIndex].max;
 		pEnt->client->ps.ammo[weaponData[WP_ATST_SIDE].ammoIndex] = ammoData[weaponData[WP_ATST_SIDE].ammoIndex].max;
 		CG_ChangeWeapon( WP_ATST_MAIN );
@@ -806,7 +808,7 @@ bool Board( Vehicle_t *pVeh, bgEntity_t *pEnt )
 #ifndef _JK2MP //rwwFIXMEFIXMEFIXME
 		if (ent->s.number<MAX_CLIENTS)
 		{// Riding means you get WP_NONE
-			ent->client->ps.stats[ STAT_WEAPONS ] |= (1<<WP_NONE);
+			ent->client->ps.weapons[WP_NONE] = 1;
 		}
 		if ( (ent->client->ps.weapon != WP_SABER
 			&& ent->client->ps.weapon != WP_BLASTER) || !(pVeh->m_pVehicleInfo->type == VH_ANIMAL || pVeh->m_pVehicleInfo->type == VH_SPEEDER))
@@ -1632,7 +1634,7 @@ bool Initialize( Vehicle_t *pVeh )
 	//initialize to blaster, just since it's a basic weapon and there's no lightsaber crap...?
 	parent->client->ps.weapon = WP_BLASTER;
 	parent->client->ps.weaponstate = WEAPON_READY;
-	parent->client->ps.stats[STAT_WEAPONS] |= (1<<WP_BLASTER);
+	parent->client->ps.weapons[WP_BLASTER] = 1;
 
 	//Initialize to landed (wings closed, gears down) animation
 	{

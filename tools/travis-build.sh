@@ -5,6 +5,7 @@ set -x
 
 host="$1"
 flavour="$2"
+INSTALL_DIR=install
 shift 2
 
 mkdir deps build
@@ -36,13 +37,9 @@ esac
 
 set -- -D CMAKE_BUILD_TYPE="$flavour" "$@"
 
-# Build JK2, so that the CI build is testing everything
 ( cd build && cmake \
-	-D BuildJK2SPEngine=ON \
-	-D BuildJK2SPGame=ON \
-	-D BuildJK2SPRdVanilla=ON \
-	-D CMAKE_INSTALL_PREFIX=/prefix \
+	-D CMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
 	"$@" .. )
 make -C build
-make -C build install DESTDIR=$(pwd)/build/DESTDIR
-( cd $(pwd)/build/DESTDIR && find . -ls )
+make -C build install
+( cd $(pwd)/build/${INSTALL_DIR} && find . -ls )

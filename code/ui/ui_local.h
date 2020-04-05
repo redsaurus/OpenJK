@@ -123,11 +123,17 @@ typedef struct {
 } modInfo_t;
 
 #define SKIN_LENGTH			16
+#define MODEL_LENGTH		32
 #define ACTION_BUFFER_SIZE	128
 
 typedef struct {
 	char name[SKIN_LENGTH];
 } skinName_t;
+
+typedef struct {
+	char model[MODEL_LENGTH];
+	char skin[SKIN_LENGTH];
+} headSwap_t;
 
 typedef struct {
 	char shader[MAX_QPATH];
@@ -147,8 +153,32 @@ typedef struct {
 	skinName_t	*SkinLeg;
 	int			ColorMax;
 	int			ColorCount;
+	int			Color2Max;
+	int			Color2Count;
 	playerColor_t	*Color;
+	playerColor_t	*Color2;
+	headSwap_t	*HeadSwap;
 } playerSpeciesInfo_t;
+
+typedef struct {
+	char name[32];
+	char desc[64];
+	int	count;
+	int max;
+	skinName_t *skins;
+} saberPartSkin_t;
+
+typedef struct {
+	char		SaberName[64];
+	char		SaberLongName[64];
+	char		FolderName[MAX_QPATH];
+	saberPartSkin_t	Skin1;
+	saberPartSkin_t Skin2;
+	saberPartSkin_t Skin3;
+	saberPartSkin_t Skin4;
+	saberPartSkin_t Skin5;
+	qboolean	isStaff;
+} customSaberInfo_t;
 
 typedef struct {
 	displayContextDef_t uiDC;
@@ -164,6 +194,12 @@ typedef struct {
 	int					playerSpeciesCount;
 	playerSpeciesInfo_t	*playerSpecies;
 	int					playerSpeciesIndex;
+	
+	int					customSabersMax;
+	int					customSabersCount;
+	customSaberInfo_t	*customSabers;
+	int					customSabersIndex;
+	int					customSabers2Index;
 
 
 	char		deferredScript [ MAX_DEFERRED_SCRIPT ];

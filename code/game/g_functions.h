@@ -141,6 +141,9 @@ typedef enum
 
 	//rww - added for sky portals
 	thinkF_G_PortalifyEntities,
+	
+	thinkF_shipboundary_think,
+	thinkF_asteroid_field_think,
 
 } thinkFunc_t;
 
@@ -249,6 +252,9 @@ extern void misc_weapon_shooter_fire( gentity_t *self );
 
 extern void beacon_think			( gentity_t *self );
 
+extern void shipboundary_think		( gentity_t *ent );
+extern void asteroid_field_think	( gentity_t *self );
+
 
 //	void		(*clThink)(centity_s *cent);	//Think func for equivalent centity
 typedef enum
@@ -327,6 +333,9 @@ typedef enum
 	touchF_prox_mine_stick,
 	touchF_func_rotating_touch,
 	touchF_TouchTieBomb,
+	touchF_space_touch,
+	touchF_shipboundary_touch,
+	touchF_hyperspace_touch,
 } touchFunc_t;
 
 // TOUCH functions...
@@ -350,6 +359,9 @@ extern void prox_mine_stick( gentity_t *self, gentity_t *other, trace_t *trace )
 extern void func_rotating_touch				(gentity_t *self, gentity_t *other, trace_t *trace);
 extern void TouchTieBomb( gentity_t *self, gentity_t *other, trace_t *trace );
 extern void TieFighterUse( gentity_t *self, gentity_t *other, gentity_t *activator );
+extern void space_touch( gentity_t *self, gentity_t *other, trace_t *trace );
+extern void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace );
+extern void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace );
 
 //	void		(*use)(gentity_t *self, gentity_t *other, gentity_t *activator);
 typedef enum
@@ -434,6 +446,7 @@ typedef enum
 	useF_misc_weapon_shooter_use,
 	useF_eweb_use,
 	useF_TieFighterUse,
+	useF_radar_icon_use,
 } useFunc_t;
 
 // USE functions...
@@ -516,6 +529,7 @@ extern void item_spawn_use			( gentity_t *self, gentity_t *other, gentity_t *act
 extern void NPC_VehicleSpawnUse		( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void misc_weapon_shooter_use	( gentity_t *self, gentity_t *other, gentity_t *activator );
 extern void eweb_use				( gentity_t *self, gentity_t *other, gentity_t *activator );
+extern void radar_icon_use			( gentity_t *self, gentity_t *other, gentity_t *activator );
 
 //	void		(*pain)(gentity_t *self, gentity_t *attacker, int damage,int mod,int hitLoc);
 typedef enum
@@ -572,6 +586,7 @@ extern void NPC_Seeker_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t
 extern void NPC_Remote_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void emplaced_gun_pain			(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Mark1_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
+extern void NPC_GM_Pain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Sentry_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void NPC_Mark2_Pain				(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);
 extern void PlayerPain					(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, const vec3_t point, int damage, int mod,int hitLoc=HL_NONE);

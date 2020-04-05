@@ -79,11 +79,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define CLIENT_CONSOLE_TITLE "OpenJK (DP) Console"
 #define HOMEPATH_NAME_UNIX "dp"
 #define HOMEPATH_NAME_WIN "OpenJK-DP"
+
+#define PRODUCT_NAME			"jaenhanced_sp"
+
+//#define CLIENT_WINDOW_TITLE "Jedi Academy: Enhanced"
+//#define CLIENT_CONSOLE_TITLE "Jedi Academy: Enhanced Console"
+//#define HOMEPATH_NAME_UNIX "jaenhanced"
+//#define HOMEPATH_NAME_WIN "JAEnhanced"
+
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 #endif
 
 #define	BASEGAME "base"
 #define OPENJKGAME "OpenJK-DP"
+//#define OPENJKGAME "jaenhanced"
 
 #define Q3CONFIG_NAME PRODUCT_NAME ".cfg"
 
@@ -328,8 +337,8 @@ typedef enum
 	SABER_YELLOW,
 	SABER_GREEN,
 	SABER_BLUE,
-	SABER_PURPLE
-
+	SABER_PURPLE,
+	SABER_RGB = (1 << 24)
 } saber_colors_t;
 
 #define MAX_BATTERIES	2500
@@ -651,6 +660,8 @@ typedef struct {
 #define MAX_WORLD_FX		66		// was 16 // was 4
 #endif // JK2_MODE
 
+#define MAX_ICONS			32
+
 /*
 Ghoul2 Insert Start
 */
@@ -723,7 +734,8 @@ Ghoul2 Insert End
 */
 #define CS_DYNAMIC_MUSIC_STATE	(CS_CHARSKINS + MAX_CHARSKINS)
 #define CS_WORLD_FX				(CS_DYNAMIC_MUSIC_STATE + 1)
-#define CS_MAX					(CS_WORLD_FX + MAX_WORLD_FX)
+#define CS_ICONS				(CS_WORLD_FX + MAX_WORLD_FX)
+#define CS_MAX					(CS_ICONS + MAX_ICONS)
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -758,6 +770,14 @@ typedef enum
 	FP_ABSORB,//duration - protect against dark force powers (grip, lightning, drain - maybe push/pull, too?)
 	FP_DRAIN,//hold/duration - drain force power for health
 	FP_SEE,//duration - detect/see hidden enemies
+	//extra powers!
+	FP_DESTRUCTION,//instant
+	FP_INSANITY,//instant
+	FP_STASIS,//duration + instant?
+	FP_BLINDING,//instant
+	FP_DEADLYSIGHT,//duration
+	FP_REPULSE,//hold/duration
+	FP_INVULNERABILITY,//duration
 #endif // !JK2_MODE
 
 	NUM_FORCE_POWERS
@@ -791,9 +811,10 @@ typedef enum
 //
 #define	MAX_PERSISTANT			16
 
-#define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				32
-#define MAX_AMMO				10
+#define	MAX_POWERUPS			32
+#define	MAX_WEAPONS				64
+#define MAX_WEAPONBITS			1 + (MAX_WEAPONS - 1)/32
+#define MAX_AMMO				10		
 #define MAX_INVENTORY			15		// See INV_MAX
 #define MAX_SECURITY_KEYS		5
 #define MAX_SECURITY_KEY_MESSSAGE		24
@@ -824,8 +845,8 @@ typedef struct
 	int		inAction;	// controls whether should we even consider starting one
 	int		duration;	// how long each trail seg stays in existence
 	int		lastTime;	// time a saber segement was last stored
-	vec3_t	base;
-	vec3_t	tip;
+	vec3_t	base, dualbase;
+	vec3_t	tip, dualtip;
 
 	// Marks stuff
 	qboolean	haveOldPos[2];
@@ -841,7 +862,9 @@ typedef struct
 		saved_game.write<int32_t>(duration);
 		saved_game.write<int32_t>(lastTime);
 		saved_game.write<float>(base);
+        saved_game.write<float>(dualbase);
 		saved_game.write<float>(tip);
+        saved_game.write<float>(dualtip);
 		saved_game.write<int32_t>(haveOldPos);
 		saved_game.write<float>(oldPos);
 		saved_game.write<float>(oldNormal);
@@ -854,7 +877,9 @@ typedef struct
 		saved_game.read<int32_t>(duration);
 		saved_game.read<int32_t>(lastTime);
 		saved_game.read<float>(base);
+        saved_game.read<float>(dualbase);
 		saved_game.read<float>(tip);
+        saved_game.read<float>(dualtip);
 		saved_game.read<int32_t>(haveOldPos);
 		saved_game.read<float>(oldPos);
 		saved_game.read<float>(oldNormal);
@@ -932,10 +957,27 @@ typedef enum
 	SS_STRONG,
 	SS_DESANN,
 	SS_TAVION,
+	SS_KATARN,
 	SS_DUAL,
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
 } saber_styles_t;
+
+typedef enum
+{
+	SABER_CRYSTAL_DEFAULT = 0,
+	SABER_CRYSTAL_BLACK	= (1 << 0),
+	SABER_CRYSTAL_UNSTABLE = (1 << 1)
+} saber_crystals_t;
+
+typedef enum
+{
+	HOLSTER_INVALID = -1,
+	HOLSTER_NONE = 0,
+	HOLSTER_HIPS,
+	HOLSTER_BACK,
+	HOLSTER_LHIP
+} holster_locations_t;
 
 //SABER FLAGS
 //Old bools converted to a flag now
@@ -1043,6 +1085,14 @@ typedef struct
 	int	meditateAnim;			//-1 - anim to use when hit "meditate"
 	int	flourishAnim;			//-1 - anim to use when hit "flourish"
 	int	gloatAnim;				//-1 - anim to use when hit "gloat"
+	
+	saber_crystals_t crystals;
+	
+	holster_locations_t holsterPlace;
+	char		ignitionFlare[MAX_QPATH];
+	char		ignitionFlare2[MAX_QPATH];
+	char		blackIgnitionFlare[MAX_QPATH];
+	char		blackIgnitionFlare2[MAX_QPATH];
 
 	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
 	int			bladeStyle2Start;			//0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
@@ -1258,6 +1308,12 @@ typedef struct
 		saved_game.write<int32_t>(meditateAnim);
 		saved_game.write<int32_t>(flourishAnim);
 		saved_game.write<int32_t>(gloatAnim);
+        saved_game.write<int32_t>(crystals);
+        saved_game.write<int32_t>(holsterPlace);
+        saved_game.write<int8_t>(ignitionFlare);
+        saved_game.write<int8_t>(ignitionFlare2);
+        saved_game.write<int8_t>(blackIgnitionFlare);
+        saved_game.write<int8_t>(blackIgnitionFlare2);
 		saved_game.write<int32_t>(bladeStyle2Start);
 		saved_game.write<int32_t>(trailStyle);
 		saved_game.write<int8_t>(g2MarksShader);
@@ -1339,6 +1395,12 @@ typedef struct
 		saved_game.read<int32_t>(meditateAnim);
 		saved_game.read<int32_t>(flourishAnim);
 		saved_game.read<int32_t>(gloatAnim);
+        saved_game.read<int32_t>(crystals);
+        saved_game.read<int32_t>(holsterPlace);
+        saved_game.read<int8_t>(ignitionFlare);
+        saved_game.read<int8_t>(ignitionFlare2);
+        saved_game.read<int8_t>(blackIgnitionFlare);
+        saved_game.read<int8_t>(blackIgnitionFlare2);
 		saved_game.read<int32_t>(bladeStyle2Start);
 		saved_game.read<int32_t>(trailStyle);
 		saved_game.read<int8_t>(g2MarksShader);
@@ -1606,6 +1668,7 @@ public:
 								// used to twist the legs during strafing
 
 	int			eFlags;			// copied to entityState_t->eFlags
+	int			eFlags2;
 
 	int			eventSequence;	// pmove generated events
 	int			events[MAX_PS_EVENTS];
@@ -1637,6 +1700,7 @@ public:
 	int			ammo[MAX_AMMO];
 	int			inventory[MAX_INVENTORY];							// Count of each inventory item.
 	char  		security_key_message[MAX_SECURITY_KEYS][MAX_SECURITY_KEY_MESSSAGE];	// Security key types
+	char		weapons[MAX_WEAPONS];
 
 	vec3_t		serverViewOrg;
 
@@ -1831,12 +1895,8 @@ public:
 
 #ifndef JK2_MODE
 	int			saberStylesKnown;
-<<<<<<< HEAD
-	
-=======
 #endif // !JK2_MODE
 
->>>>>>> refs/remotes/JACoders/master
 #ifdef JK2_MODE
 	char		*saberModel;
 #endif
@@ -1902,8 +1962,15 @@ public:
 	//NOTE: not really used in SP, just for Fighter Vehicle damage stuff
 	int			brokenLimbs;
 	int			electrifyTime;
+	
+	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
+	int			hyperSpaceTime;
+	vec3_t		hyperSpaceAngles;
+	
+	int			stasisTime;
+	int			deadlySightLastChecked;
+	int			repulseChargeStart;
 #endif // !JK2_MODE
-
 
 	void sg_export(
 		ojk::SavedGameHelper& saved_game) const
@@ -1930,6 +1997,7 @@ public:
 		saved_game.write<int32_t>(torsoAnimTimer);
 		saved_game.write<int32_t>(movementDir);
 		saved_game.write<int32_t>(eFlags);
+        saved_game.write<int32_t>(eFlags2);
 		saved_game.write<int32_t>(eventSequence);
 		saved_game.write<int32_t>(events);
 		saved_game.write<int32_t>(eventParms);
@@ -1953,6 +2021,7 @@ public:
 		saved_game.write<int32_t>(ammo);
 		saved_game.write<int32_t>(inventory);
 		saved_game.write<int8_t>(security_key_message);
+		saved_game.write<int8_t>(weapons);
 		saved_game.write<float>(serverViewOrg);
 		saved_game.write<int32_t>(saberInFlight);
 
@@ -2071,6 +2140,13 @@ public:
 		saved_game.write<int32_t>(vehTurnaroundTime);
 		saved_game.write<int32_t>(brokenLimbs);
 		saved_game.write<int32_t>(electrifyTime);
+        
+        saved_game.write<int32_t>(hyperSpaceTime);
+        saved_game.write<float>(hyperSpaceAngles);
+
+        saved_game.write<int32_t>(stasisTime);
+        saved_game.write<int32_t>(deadlySightLastChecked);
+        saved_game.write<int32_t>(repulseChargeStart);
 #endif // !JK2_MODE
 	}
 
@@ -2099,6 +2175,7 @@ public:
 		saved_game.read<int32_t>(torsoAnimTimer);
 		saved_game.read<int32_t>(movementDir);
 		saved_game.read<int32_t>(eFlags);
+        saved_game.read<int32_t>(eFlags2);
 		saved_game.read<int32_t>(eventSequence);
 		saved_game.read<int32_t>(events);
 		saved_game.read<int32_t>(eventParms);
@@ -2122,6 +2199,7 @@ public:
 		saved_game.read<int32_t>(ammo);
 		saved_game.read<int32_t>(inventory);
 		saved_game.read<int8_t>(security_key_message);
+		saved_game.read<int8_t>(weapons);
 		saved_game.read<float>(serverViewOrg);
 		saved_game.read<int32_t>(saberInFlight);
 
@@ -2240,6 +2318,13 @@ public:
 		saved_game.read<int32_t>(vehTurnaroundTime);
 		saved_game.read<int32_t>(brokenLimbs);
 		saved_game.read<int32_t>(electrifyTime);
+        
+        saved_game.read<int32_t>(hyperSpaceTime);
+        saved_game.read<float>(hyperSpaceAngles);
+
+        saved_game.read<int32_t>(stasisTime);
+        saved_game.read<int32_t>(deadlySightLastChecked);
+        saved_game.read<int32_t>(repulseChargeStart);
 #endif // !JK2_MODE
 	}
 }; // PlayerStateBase
@@ -2268,6 +2353,10 @@ using playerState_t = PlayerStateBase<saberInfo_t>;
 
 #define	BUTTON_FORCE_FOCUS	256			// any key whatsoever
 
+#define BUTTON_SABERTHROW	512			// set to 128 for base behaviour!
+
+#define BUTTON_REPULSE		1024
+
 #define	MOVE_RUN			120			// if forwardmove or rightmove are >= MOVE_RUN,
 										// then BUTTON_WALKING should be set
 
@@ -2286,6 +2375,13 @@ typedef enum
 	GENCMD_FORCE_ABSORB,
 	GENCMD_FORCE_DRAIN,
 	GENCMD_FORCE_SEEING,
+	GENCMD_FORCE_DESTRUCTION,
+	GENCMD_FORCE_INSANITY,
+	GENCMD_FORCE_STASIS,
+	GENCMD_FORCE_BLINDING,
+	GENCMD_FORCE_DEADLYSIGHT,
+	GENCMD_FORCE_REPULSE,
+	GENCMD_FORCE_INVULNERABILITY,
 } genCmds_t;
 
 
@@ -2385,6 +2481,7 @@ typedef struct entityState_s {// !!!!!!!!!!! LOADSAVE-affecting struct !!!!!!!!!
 	int		number;			// entity index
 	int		eType;			// entityType_t
 	int		eFlags;
+	int		eFlags2;
 
 	trajectory_t	pos;	// for calculating position
 	trajectory_t	apos;	// for calculating angles
@@ -2455,6 +2552,7 @@ Ghoul2 Insert End
 
 #ifndef JK2_MODE
 	qboolean	isPortalEnt;
+	int radarIcon;
 #endif // !JK2_MODE
 
 
@@ -2464,6 +2562,7 @@ Ghoul2 Insert End
 		saved_game.write<int32_t>(number);
 		saved_game.write<int32_t>(eType);
 		saved_game.write<int32_t>(eFlags);
+//        saved_game.write<int32_t>(eFlags2);
 		saved_game.write<>(pos);
 		saved_game.write<>(apos);
 		saved_game.write<int32_t>(time);
@@ -2511,6 +2610,7 @@ Ghoul2 Insert End
 
 #ifndef JK2_MODE
 		saved_game.write<int32_t>(isPortalEnt);
+		saved_game.write<int32_t>(radarIcon);
 #endif // !JK2_MODE
 	}
 
@@ -2520,6 +2620,7 @@ Ghoul2 Insert End
 		saved_game.read<int32_t>(number);
 		saved_game.read<int32_t>(eType);
 		saved_game.read<int32_t>(eFlags);
+//        saved_game.read<int32_t>(eFlags2);
 		saved_game.read<>(pos);
 		saved_game.read<>(apos);
 		saved_game.read<int32_t>(time);
@@ -2567,6 +2668,7 @@ Ghoul2 Insert End
 
 #ifndef JK2_MODE
 		saved_game.read<int32_t>(isPortalEnt);
+		saved_game.read<int32_t>(radarIcon);
 #endif // !JK2_MODE
 	}
 } entityState_t;

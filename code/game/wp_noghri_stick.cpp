@@ -38,8 +38,17 @@ void WP_FireNoghriStick( gentity_t *ent )
 	{//force sight 2+ gives perfect aim
 		//FIXME: maybe force sight level 3 autoaims some?
 		// add some slop to the main-fire direction
-		angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
-		angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
+		if (ent->NPC)
+		{
+			angs[PITCH] += ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
+			angs[YAW]	+= ( Q_flrand(-1.0f, 1.0f) * (BLASTER_NPC_SPREAD+(6-ent->NPC->currentAim)*0.25f));//was 0.5f
+		}
+		else
+		{
+			// add some slop to the main-fire direction
+			angs[PITCH] += Q_flrand(-1.0f, 1.0f) * BLASTER_MAIN_SPREAD;
+			angs[YAW]	+= Q_flrand(-1.0f, 1.0f) * BLASTER_MAIN_SPREAD;
+		}
 	}
 
 	AngleVectors( angs, dir, NULL, NULL );
@@ -76,6 +85,10 @@ void WP_FireNoghriStick( gentity_t *ent )
 	}
 	else {
 		missile->damage = weaponData[WP_NOGHRI_STICK].damage;
+	}
+	else
+	{
+		missile->damage = 10;
 	}
 
 //	if ( ent->client )

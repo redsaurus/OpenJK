@@ -51,6 +51,24 @@ extern cvar_t	*g_saber2_color;
 extern cvar_t	*g_saberDarkSideSaberColor;
 extern cvar_t	*g_playerCheatPowers;
 
+extern cvar_t	*g_char_head_model;
+extern cvar_t	*g_char_head_skin;
+
+extern cvar_t	*g_char_color_2_red;
+extern cvar_t	*g_char_color_2_green;
+extern cvar_t	*g_char_color_2_blue;
+
+extern cvar_t	*g_hilt_color_red;
+extern cvar_t	*g_hilt_color_green;
+extern cvar_t	*g_hilt_color_blue;
+
+extern cvar_t	*g_hilt2_color_red;
+extern cvar_t	*g_hilt2_color_green;
+extern cvar_t	*g_hilt2_color_blue;
+
+extern cvar_t	*g_saber_skin[MAX_SABER_PARTS];
+extern cvar_t	*g_saber2_skin[MAX_SABER_PARTS];
+
 // g_client.c -- client functions that don't happen every frame
 
 float DEFAULT_MINS_0 = -16;
@@ -636,28 +654,20 @@ Player_CacheFromPrevLevel
 void Player_CacheFromPrevLevel(void)
 {
 	char	s[MAX_STRING_CHARS];
+	const char	*var;
 	int i;
 
 	gi.Cvar_VariableStringBuffer( sCVARNAME_PLAYERSAVE, s, sizeof(s) );
 
 	if (s[0])	// actually this would be safe anyway because of the way sscanf() works, but this is clearer
 	{
-		int iDummy, bits, ibits;
+		int iDummy, ibits;
 
-		sscanf( s, "%i %i %i %i",
+		sscanf( s, "%i %i %i",
 			&iDummy,//client->ps.stats[STAT_HEALTH],
 			&iDummy,//client->ps.stats[STAT_ARMOR],
-			&bits,	//client->ps.stats[STAT_WEAPONS]
 			&ibits	//client->ps.stats[STAT_ITEMS]
 			);
-
-		for ( i = 1 ; i < 16 ; i++ )
-		{
-			if ( bits & ( 1 << i ) )
-			{
-				RegisterItem( FindItemForWeapon( (weapon_t)i ) );
-			}
-		}
 
 extern gitem_t	*FindItemForInventory( int inv );
 
@@ -669,6 +679,31 @@ extern gitem_t	*FindItemForInventory( int inv );
 			}
 		}
 	}
+	
+	gi.Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+	i=0;
+    if (s[0])
+    {
+        var = strtok( s, " " );
+        while( var != NULL )
+        {
+            /* While there are tokens in "s" */
+            if ( atoi(var) > 0 )
+            {
+                if (i == WP_NONE) //don't register!
+                {
+                    i++;
+                }
+                else
+                {
+                    RegisterItem( FindItemForWeapon( (weapon_t)i++ ) );
+                }
+            }
+            /* Get next token: */
+            var = strtok( NULL, " " );
+        }
+        assert (i==WP_NUM_WEAPONS);
+    }
 }
 
 /*
@@ -700,11 +735,12 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 			int saber2BladeActive[8];
 			unsigned int saber1BladeColor[8];
 			unsigned int saber2BladeColor[8];
+            int saber1Crystals;
+            int saber2Crystals;
 
-			sscanf( s, "%i %i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %i %i %i",
+			sscanf( s, "%i %i %i %i %i %i %f %f %f %i %i %i %i %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %s %i %i %i %i %i %i %i %i %u %u %u %u %u %u %u %u %i %i %i %i %i",
 								&client->ps.stats[STAT_HEALTH],
 								&client->ps.stats[STAT_ARMOR],
-								&client->ps.stats[STAT_WEAPONS],
 								&client->ps.stats[STAT_ITEMS],
 								&client->ps.weapon,
 								&client->ps.weaponstate,
@@ -736,6 +772,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&saber1BladeColor[5],
 								&saber1BladeColor[6],
 								&saber1BladeColor[7],
+                                &saber1Crystals,
 								//saber 2 data
 								saber1Name,
 								&saber2BladeActive[0],
@@ -754,6 +791,7 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 								&saber2BladeColor[5],
 								&saber2BladeColor[6],
 								&saber2BladeColor[7],
+                                &saber2Crystals,
 								//general saber data
 								&client->ps.saberStylesKnown,
 								&client->ps.saberAnimLevel,
@@ -767,6 +805,9 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 				client->ps.saber[1].blade[j].active = saber2BladeActive[j] ? qtrue : qfalse;
 				client->ps.saber[1].blade[j].color = (saber_colors_t)saber2BladeColor[j];
 			}
+            
+            client->ps.saber[0].crystals = (saber_crystals_t)saber1Crystals;
+            client->ps.saber[1].crystals = (saber_crystals_t)saber2Crystals;
 
 			ent->health = client->ps.stats[STAT_HEALTH];
 
@@ -801,6 +842,19 @@ static void Player_RestoreFromPrevLevel(gentity_t *ent, SavedGameJustLoaded_e eS
 //
 //			SetClientViewAngle( ent, ent->client->ps.viewangles);
 
+			//weapons
+			gi.Cvar_VariableStringBuffer( "playerweaps", s, sizeof(s) );
+			i=0;
+			var = strtok( s, " " );
+			while( var != NULL )
+			{
+				/* While there are tokens in "s" */
+				client->ps.weapons[i++] = atoi(var);
+				/* Get next token: */
+				var = strtok( NULL, " " );
+			}
+			assert (i==WP_NUM_WEAPONS);
+			
 			//ammo
 			gi.Cvar_VariableStringBuffer( "playerammo", s, sizeof(s) );
 			i=0;
@@ -890,6 +944,36 @@ static void G_SetSkin( gentity_t *ent )
 		ent->client->renderInfo.customRGBA[2] = g_char_color_blue->integer;
 		ent->client->renderInfo.customRGBA[3] = 255;
 	}
+	
+	if ( g_char_color_2_red->integer
+		|| g_char_color_2_green->integer
+		|| g_char_color_2_blue->integer )
+	{
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
+	}
+    
+    if ( g_hilt_color_red->integer
+        || g_hilt_color_green->integer
+        || g_hilt_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][0] = g_hilt_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][1] = g_hilt_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][2] = g_hilt_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][3] = 255;
+    }
+    
+    if ( g_hilt2_color_red->integer
+        || g_hilt2_color_green->integer
+        || g_hilt2_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][0] = g_hilt2_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][1] = g_hilt2_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][2] = g_hilt2_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][3] = 255;
+    }
 }
 
 qboolean G_StandardHumanoid( gentity_t *self )
@@ -1291,6 +1375,16 @@ qboolean G_SetG2PlayerModelInfo( gentity_t *ent, const char *modelName, const ch
 			else if ( !Q_stricmp( "minemonster", modelName ))
 			{
 				ent->handRBolt = ent->headBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*head_f1");
+			}
+			else if ( !Q_stricmp( "galak_mech", modelName ))
+			{
+				ent->genericBolt1 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*antenna_effect");
+				ent->headBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*head_eyes");
+				ent->torsoBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "torso");
+				ent->crotchBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "hips");
+				ent->handRBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*flasha");
+				ent->genericBolt3 = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*flashb");
+				ent->handLBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->playerModel], "*flashc");
 			}
 			else if ( !Q_stricmp( "rancor", modelName )
 					|| !Q_stricmp( "mutant_rancor", modelName ))
@@ -1801,6 +1895,15 @@ void G_SetG2PlayerModel( gentity_t * const ent, const char *modelName, const cha
 Ghoul2 Insert End
 */
 
+void G_RemoveHeadModel( gentity_t *ent )
+{
+	if ( ent->headModel >= 0 && ent->headModel != ent->playerModel && ent->ghoul2.size() )
+	{
+		gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->headModel );
+		ent->headModel = -1;
+	}
+}
+
 void G_RemovePlayerModel( gentity_t *ent )
 {
 	if ( ent->playerModel >= 0 && ent->ghoul2.size() )
@@ -1827,6 +1930,23 @@ void G_RemoveWeaponModels( gentity_t *ent )
 	}
 }
 
+void G_RemoveHolsterModels( gentity_t *ent )
+{
+	if ( ent->ghoul2.size() )
+	{
+		if ( ent->holsterModel[0] > 0 )
+		{
+			gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->holsterModel[0] );
+			ent->holsterModel[0] = -1;
+		}
+		if ( ent->holsterModel[1] > 0 )
+		{
+			gi.G2API_RemoveGhoul2Model( ent->ghoul2, ent->holsterModel[1] );
+			ent->holsterModel[1] = -1;
+		}
+	}
+}
+
 void G_AddWeaponModels( gentity_t *ent )
 {
 	if ( !ent || !ent->client )
@@ -1838,10 +1958,19 @@ void G_AddWeaponModels( gentity_t *ent )
 		if ( ent->client->ps.weapon == WP_SABER )
 		{
 			WP_SaberAddG2SaberModels( ent );
+			G_RemoveHolsterModels( ent );
 		}
 		else if ( ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			if ( ent->client->ps.weapon == WP_EMPLACED_GUN && !(ent->client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+			{
+				G_CreateG2AttachedWeaponModel( ent, "models/map_objects/hoth/eweb_model.glm", ent->handRBolt, 0 );
+			}
+			else
+			{
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			}
+			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
 	}
 }
@@ -1849,6 +1978,7 @@ void G_AddWeaponModels( gentity_t *ent )
 extern saber_colors_t TranslateSaberColor( const char *name );
 extern void WP_RemoveSaber( gentity_t *ent, int saberNum );
 void G_ChangePlayerModel( gentity_t *ent, const char *newModel );
+void G_ChangeHeadModel( gentity_t *ent, const char *newModel );
 void G_SetSabersFromCVars( gentity_t *ent )
 {
 	if ( g_saber->string
@@ -1864,6 +1994,39 @@ void G_SetSabersFromCVars( gentity_t *ent )
 		if ( ent->client->ps.saber[0].singleBladeStyle )
 		{
 			ent->client->ps.saberStylesKnown |= ent->client->ps.saber[0].singleBladeStyle;
+		}
+		//Custom saber stuff!
+		if (ent->client->ps.saber[0].name && ent->client->ps.saber[0].name[0] && Q_stristr(ent->client->ps.saber[0].name, "saberbuilder") && ent->client->ps.saber[0].model)
+		{
+			char skinRoot[MAX_QPATH] = {0};
+			Q_strncpyz(skinRoot, ent->client->ps.saber[0].model, MAX_QPATH);
+			int l = strlen(skinRoot);
+			while (l > 0 && skinRoot[l] != '/')
+			{ //parse back to first /
+				l--;
+			}
+			
+			if (skinRoot[l] == '/')
+			{
+				l++;
+				skinRoot[l] = 0;
+				
+				Q_strcat(skinRoot, MAX_QPATH, "|_");
+				
+				for (int j = 0; j < MAX_SABER_PARTS; j++)
+				{
+					Q_strcat(skinRoot, MAX_QPATH, "|");
+					if (g_saber_skin[j] && g_saber_skin[j]->string && g_saber_skin[j]->string[0])
+					{
+						Q_strcat(skinRoot, MAX_QPATH, g_saber_skin[j]->string);
+					}
+				}
+				
+				if(ent->client->ps.saber[0].skin && gi.bIsFromZone(ent->client->ps.saber[0].skin, TAG_G_ALLOC) ) {
+					gi.Free(ent->client->ps.saber[0].skin);
+				}
+				ent->client->ps.saber[0].skin = G_NewString(skinRoot);
+			}
 		}
 	}
 
@@ -1902,6 +2065,41 @@ void G_SetSabersFromCVars( gentity_t *ent )
 			{
 				ent->client->ps.saberStylesKnown |= ent->client->ps.saber[1].singleBladeStyle;
 			}
+			
+			//Custom saber stuff!
+			if (ent->client->ps.saber[1].name && ent->client->ps.saber[1].name[0] && Q_stristr(ent->client->ps.saber[1].name, "saberbuilder") && ent->client->ps.saber[1].model)
+			{
+				char skinRoot[MAX_QPATH] = {0};
+				Q_strncpyz(skinRoot, ent->client->ps.saber[1].model, MAX_QPATH);
+				int l = strlen(skinRoot);
+				while (l > 0 && skinRoot[l] != '/')
+				{ //parse back to first /
+					l--;
+				}
+				
+				if (skinRoot[l] == '/')
+				{
+					l++;
+					skinRoot[l] = 0;
+					
+					Q_strcat(skinRoot, MAX_QPATH, "|_");
+					
+					for (int j = 0; j < MAX_SABER_PARTS; j++)
+					{
+						Q_strcat(skinRoot, MAX_QPATH, "|");
+						if (g_saber2_skin[j] && g_saber2_skin[j]->string && g_saber2_skin[j]->string[0])
+						{
+							Q_strcat(skinRoot, MAX_QPATH, g_saber2_skin[j]->string);
+						}
+					}
+					
+					if(ent->client->ps.saber[1].skin && gi.bIsFromZone(ent->client->ps.saber[1].skin, TAG_G_ALLOC) ) {
+						gi.Free(ent->client->ps.saber[1].skin);
+					}
+					ent->client->ps.saber[1].skin = G_NewString(skinRoot);
+				}
+			}
+
 			if ( (ent->client->ps.saber[1].saberFlags&SFL_TWO_HANDED) )
 			{//tsk tsk, can't use a twoHanded saber as second saber
 				WP_RemoveSaber( ent, 1 );
@@ -1941,6 +2139,11 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 	else
 		G_ChangePlayerModel( ent, va("%s|%s|%s|%s", g_char_model->string, g_char_skin_head->string, g_char_skin_torso->string, g_char_skin_legs->string) );
 
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		G_ChangeHeadModel( ent, va("%s|%s", g_char_head_model->string, g_char_head_skin->string) );
+	}
+	
 	//FIXME: parse these 2 from some cvar or require playermodel to be in a *.npc?
 	if( ent->NPC_type && gi.bIsFromZone(ent->NPC_type, TAG_G_ALLOC) ) {
 		gi.Free(ent->NPC_type);
@@ -1981,6 +2184,198 @@ void G_InitPlayerFromCvars( gentity_t *ent )
 		ent->client->renderInfo.customRGBA[2] = g_char_color_blue->integer;
 		ent->client->renderInfo.customRGBA[3] = 255;
 	}
+	
+	if ( g_char_color_2_red->integer
+		|| g_char_color_2_green->integer
+		|| g_char_color_2_blue->integer )
+	{
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][0] = g_char_color_2_red->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][1] = g_char_color_2_green->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][2] = g_char_color_2_blue->integer;
+		ent->client->renderInfo.newCustomRGBA[TINT_NEW_ENT][3] = 255;
+	}
+    
+    if ( g_hilt_color_red->integer
+        || g_hilt_color_green->integer
+        || g_hilt_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][0] = g_hilt_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][1] = g_hilt_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][2] = g_hilt_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT1][3] = 255;
+    }
+    
+    if ( g_hilt2_color_red->integer
+        || g_hilt2_color_green->integer
+        || g_hilt2_color_blue->integer )
+    {
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][0] = g_hilt2_color_red->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][1] = g_hilt2_color_green->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][2] = g_hilt2_color_blue->integer;
+        ent->client->renderInfo.newCustomRGBA[TINT_HILT2][3] = 255;
+    }
+}
+
+void G_SetHeadSkin( gentity_t *ent )
+{
+	
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		if (g_char_head_skin->string && g_char_head_skin->string[0])
+		{
+			G_ChangeHeadModel( ent, va("%s|%s", g_char_head_model->string, g_char_head_skin->string) );
+		}
+		else
+		{
+			G_ChangeHeadModel( ent, va("%s|default", g_char_head_model->string) );
+		}
+	}
+
+/*	char	skinName[MAX_QPATH];
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		if (g_char_head_skin->string && g_char_head_skin->string[0])
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", g_char_head_model->string, g_char_head_skin->string );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", g_char_head_model->string );
+		}
+	
+	}
+	
+	// lets see if it's out there
+	int skin = gi.RE_RegisterSkin( skinName );
+	
+	//What if it's a 3-parter or one part of a 3-parter?
+	if (!skin && g_char_head_skin->string && g_char_head_skin->string[0])
+	{
+		if (strchr(g_char_head_skin->string, '|'))
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/|%s", g_char_head_model->string, g_char_head_skin->string );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/%s.skin", g_char_head_model->string, g_char_head_skin->string );
+		}
+		skin = gi.RE_RegisterSkin( skinName );
+	}
+
+	if ( skin )
+	{//what if this returns 0 because *one* part of a multi-skin didn't load?
+		// put it in the config strings
+		// and set the ghoul2 model to use it
+		gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );
+	}*/
+}
+
+void G_SetHeadSurfaceOnOff( gentity_t *ent )
+{
+	if (g_char_head_model->string && g_char_head_model->string[0])
+	{
+		gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "head", G2SURFACEFLAG_NODESCENDANTS);
+		gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->playerModel], "torso_cap_head", 0x00);
+	}
+}
+
+void G_ChangeHeadModel( gentity_t *ent, const char *newModel )
+{
+	if ( !ent || !ent->client || !newModel )
+	{
+		return;
+	}
+	
+	G_RemoveHeadModel( ent );
+	
+	char name[MAX_QPATH];
+	strcpy(name, newModel);
+	char *p = strchr(name, '|');
+	
+	if ( p )
+	{
+		*p = 0;
+		p++;
+	}
+	
+	char	skinName[MAX_QPATH];
+	vec3_t	angles = {0,0,0};
+	
+	if ( p && p[0] )
+	{
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_%s.skin", name, p );
+	}
+	else
+	{
+		Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/model_default.skin", name );
+	}
+	
+	int skin = gi.RE_RegisterSkin( skinName );
+	
+	//What if it's a 3-parter or one part of a 3-parter?
+	if (!skin && p && p[0])
+	{
+		if (strchr(p, '|'))
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/|%s", name, p );
+		}
+		else
+		{
+			Com_sprintf( skinName, sizeof( skinName ), "models/players/%s/%s.skin", name, p );
+		}
+		skin = gi.RE_RegisterSkin( skinName );
+	}
+	
+	if (!skin) {
+		return;
+	}
+	
+	//now generate the ghoul2 model this client should be.
+		//NOTE: it still loads the default skin's tga's because they're referenced in the .glm.
+	ent->headModel = gi.G2API_InitGhoul2Model( ent->ghoul2, va("models/players/%s/model.glm", name), G_ModelIndex( va("models/players/%s/model.glm", name) ), G_SkinIndex( skinName ), NULL_HANDLE, 0, 0 );
+	
+	if (ent->headModel == -1)
+	{
+		return;
+	}
+	
+	gi.G2API_SetSkin( &ent->ghoul2[ent->headModel], G_SkinIndex( skinName ), skin );//this is going to set the surfs on/off matching the skin file
+	
+//	int getBolt = gi.G2API_AddBolt(&ent->ghoul2[ent->headModel], "cranium");
+	gi.G2API_SetRootSurface(ent->ghoul2, ent->headModel, "head");
+//	gi.G2API_AttachG2Model(&ent->ghoul2[ent->headModel], &ent->ghoul2[ent->playerModel], ent->motionBone, ent->playerModel);
+	
+	ent->headRootBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "model_root", qtrue );
+	
+	ent->headMotionBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "Motion", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headMotionBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_X, NEGATIVE_Y, NULL, 0, 0 );
+	
+	ent->headLowerLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "lower_lumbar", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headLowerLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headFaceBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "face", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headFaceBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headHipsBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "pelvis", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headHipsBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headUpperLumbarBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "upper_lumbar", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headUpperLumbarBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headCraniumBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "cranium", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headCraniumBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headCervicalBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "cervical", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headCervicalBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+	
+	ent->headThoracicBone = gi.G2API_GetBoneIndex( &ent->ghoul2[ent->headModel], "thoracic", qtrue );
+	gi.G2API_SetBoneAnglesIndex( &ent->ghoul2[ent->headModel], ent->headThoracicBone, angles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, 0 );
+
+
+//	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "hips", G2SURFACEFLAG_NODESCENDANTS);
+//	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head", 0x0);
+	G_SetHeadSurfaceOnOff( ent );
+	gi.G2API_SetSurfaceOnOff( &ent->ghoul2[ent->headModel], "head_cap_torso", 0x00);//show caps so don't get such bad seams
 }
 
 void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
@@ -1991,6 +2386,8 @@ void G_ChangePlayerModel( gentity_t *ent, const char *newModel )
 	}
 
 	G_RemovePlayerModel( ent );
+	G_RemoveHeadModel( ent );
+	
 	if ( Q_stricmp( "player", newModel ) == 0 )
 	{
 		G_InitPlayerFromCvars( ent );
@@ -2177,6 +2574,8 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		{
 			G_LoadAnimFileSet( ent, ent->NPC_type );
 			G_SetSkin( ent );
+			G_SetHeadSurfaceOnOff( ent );
+			G_SetHeadSkin( ent );
 		}
 
 		//setup sabers
@@ -2267,27 +2666,31 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 
 		// give default weapons
 		//these are precached in g_items, ClearRegisteredItems()
-		client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+		for ( int i = 0; i < MAX_WEAPONS; i++ )
+		{
+			client->ps.weapons[i] = 0;
+		}
+		client->ps.weapons[WP_NONE] = 1;
 		//client->ps.inventory[INV_ELECTROBINOCULARS] = 1;
 		//ent->client->ps.inventory[INV_BACTA_CANISTER] = 1;
 
 		// give EITHER the saber or the stun baton..never both
 		if ( spawnPoint->spawnflags & 32 ) // STUN_BATON
 		{
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_STUN_BATON );
+			client->ps.weapons[WP_STUN_BATON] = 1;
 			client->ps.weapon = WP_STUN_BATON;
 		}
 		else
 		{	// give the saber because most test maps will not have the STUN BATON flag set
-			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_SABER );	//this is precached in SP_info_player_deathmatch
+			client->ps.weapons[WP_SABER] = 1;	//this is precached in SP_info_player_deathmatch
 			client->ps.weapon = WP_SABER;
 		}
 		// force the base weapon up
 		client->ps.weaponstate = WEAPON_READY;
 
-		for ( i = FIRST_WEAPON; i < MAX_PLAYER_WEAPONS; i++ ) // don't give ammo for explosives
+		for ( i = FIRST_WEAPON; i < WP_NUM_WEAPONS; i++ ) // don't give ammo for explosives
 		{
-			if ( (client->ps.stats[STAT_WEAPONS]&(1<<i)) )
+			if ( playerUsableWeapons[i] && (client->ps.weapons[i]) )
 			{//if starting with this weapon, gimme max ammo for it
 				client->ps.ammo[weaponData[i].ammoIndex] = ammoData[weaponData[i].ammoIndex].max;
 			}
@@ -2380,6 +2783,8 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 			{
 				G_LoadAnimFileSet( ent, ent->NPC_type );
 				G_SetSkin( ent );
+				G_SetHeadSurfaceOnOff( ent );
+				G_SetHeadSkin( ent );
 			}
 			G_ReloadSaberData( ent );
 			//force power levels should already be set
@@ -2413,27 +2818,40 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 
 		if ( spawnPoint->spawnflags & 64 )	//NOWEAPON
 		{//player starts with absolutely no weapons
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << WP_NONE );
+			for ( int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				ent->client->ps.weapons[i] = 0;
+			}
+			ent->client->ps.weapons[WP_NONE] = 1;
 			ent->client->ps.ammo[weaponData[WP_NONE].ammoIndex] = 32000;
 			ent->client->ps.weapon = WP_NONE;
 			ent->client->ps.weaponstate = WEAPON_READY;
 			ent->client->ps.dualSabers = qfalse;
 		}
 
-		if ( ent->client->ps.stats[STAT_WEAPONS] & ( 1 << WP_SABER ) )
+		if ( ent->client->ps.weapons[WP_SABER] )
 		{//set up so has lightsaber
 			WP_SaberInitBladeData( ent );
 			if ( (ent->weaponModel[0] <= 0 || (ent->weaponModel[1]<=0&&ent->client->ps.dualSabers)) //one or both of the saber models is not initialized
 				&& ent->client->ps.weapon == WP_SABER )//current weapon is saber
 			{//add the proper models
 				WP_SaberAddG2SaberModels( ent );
+				G_RemoveHolsterModels( ent );
 			}
 		}
 		if ( ent->weaponModel[0] == -1 && ent->client->ps.weapon != WP_NONE )
 		{
-			G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].weaponMdl, ent->handRBolt, 0 );
+			if ( ent->client->ps.weapon == WP_EMPLACED_GUN && !(ent->client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+			{
+				G_CreateG2AttachedWeaponModel( ent, "models/map_objects/hoth/eweb_model.glm", ent->handRBolt, 0 );
+			}
+			else
+			{
+				G_CreateG2AttachedWeaponModel( ent, weaponData[ent->client->ps.weapon].worldModel, ent->handRBolt, 0 );
+			}
+			WP_SaberAddHolsteredG2SaberModels( ent );
 		}
-
+		
 		{
 			// fire the targets of the spawn point
 			G_UseTargets( spawnPoint, ent );
@@ -2467,7 +2885,7 @@ qboolean ClientSpawn(gentity_t *ent, SavedGameJustLoaded_e eSavedGameJustLoaded 
 		G_CheckPlayerDarkSide();
 	}
 
-	if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER))
+	if ( (ent->client->ps.weapons[WP_SABER])
 		&& !ent->client->ps.saberStylesKnown )
 	{//um, if you have a saber, you need at least 1 style to use it with...
 		ent->client->ps.saberStylesKnown |= (1<<SS_MEDIUM);

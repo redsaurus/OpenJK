@@ -87,6 +87,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define RDF_doFullbright	64		// Light Amp goggles
 #define RDF_ForceSightOn	128		// using force sight
 
+typedef enum
+{
+    TINT_NEW_ENT,
+    TINT_HILT1,
+    TINT_HILT2,
+    MAX_CVAR_TINT,
+    TINT_BLADE1 = MAX_CVAR_TINT,
+    TINT_BLADE2,
+    MAX_NEW_ENT_RGB
+} rgbTintsNew_t;
 
 extern int	skyboxportal;
 extern int	drawskyboxportal;
@@ -175,6 +185,7 @@ Ghoul2 Insert Start
 /*
 Ghoul2 Insert End
 */
+	byte		newShaderRGBA[MAX_NEW_ENT_RGB][4];		// colors used by colorSrc=vertex shaders
 
 } refEntity_t;
 

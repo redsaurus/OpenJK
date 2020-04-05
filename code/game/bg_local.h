@@ -78,6 +78,8 @@ void PM_AddEvent( int newEvent );
 qboolean	PM_SlideMove( float gravity );
 void		PM_StepSlideMove( float gravity );
 
+extern	qboolean BG_AllowThirdPersonSpecialMove( playerState_t *ps );
+
 #endif
 
 

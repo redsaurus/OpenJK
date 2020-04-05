@@ -30,7 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../ghoul2/G2.h"
 #include "../ghoul2/ghoul2_gore.h"
 
-#define	REF_API_VERSION		17
+#define JAE_REF_API_OFFSET	128
+#define	REF_API_VERSION		17 + JAE_REF_API_OFFSET
 
 typedef struct {
 	void				(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
@@ -342,6 +343,9 @@ typedef struct {
 	qboolean	(*G2API_SetBoneAngles)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
 					const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
 					int blendTime, int AcurrentTime);
+	qboolean	(*G2API_SetBoneAnglesOffset)(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+									   const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList,
+									   int blendTime, int AcurrentTime, const vec3_t offset);
 	qboolean	(*G2API_SetBoneAnglesIndex)(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
 					const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
 					int blendTime, int AcurrentTime);
@@ -370,6 +374,8 @@ typedef struct {
 	void		(*G2API_AddSkinGore)(CGhoul2Info_v &ghoul2, SSkinGoreData &gore);
 	void		(*G2API_ClearSkinGore)(CGhoul2Info_v &ghoul2);
 #endif
+    
+    void        (*G2API_SetTintType)(CGhoul2Info *ghlInfo, g2Tints_t tintType);
 
 	// Performance analysis (perform anal)
 	void		(*G2Time_ResetTimers)(void);

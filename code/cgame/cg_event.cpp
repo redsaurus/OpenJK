@@ -106,6 +106,11 @@ void CG_ItemPickup( int itemNum, qboolean bHadItem ) {
 				cgi_Cvar_Set( "cg_WeaponPickupText", va("%s %s\n", text, data));
 				cg.weaponPickupTextTime	= cg.time + 5000;
 			}
+			else if ( cgi_SP_GetStringTextString( va("SPMOD_INGAME_%s",bg_itemlist[itemNum].classname ), data, sizeof( data )))
+			{
+				cgi_Cvar_Set( "cg_WeaponPickupText", va("%s %s\n", text, data));
+				cg.weaponPickupTextTime	= cg.time + 5000;
+			}
 		}
 	}
 
@@ -115,7 +120,7 @@ void CG_ItemPickup( int itemNum, qboolean bHadItem ) {
 		const int nCurWpn = cg.predicted_player_state.weapon;
 		const int nNewWpn = bg_itemlist[itemNum].giTag;
 
-		if ( nCurWpn == WP_SABER || bHadItem)
+		if ( (nCurWpn == WP_SABER && nNewWpn != WP_EMPLACED_GUN) || bHadItem)
 		{//never switch away from the saber!
 			return;
 		}
@@ -129,7 +134,12 @@ void CG_ItemPickup( int itemNum, qboolean bHadItem ) {
 		// NOTE: automatically switching to any weapon you pick up is stupid and annoying and we won't do it.
 		//
 
-		if ( nNewWpn == WP_SABER )
+		if ( nNewWpn == WP_EMPLACED_GUN )
+		{
+			SetWeaponSelectTime();
+			cg.weaponSelect = nNewWpn;
+		}
+		else if ( nNewWpn == WP_SABER )
 		{//always switch to saber
 			SetWeaponSelectTime();
 			cg.weaponSelect = nNewWpn;
@@ -536,7 +546,14 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 	case EV_DISRUPTOR_MAIN_SHOT:
 		DEBUGNAME("EV_DISRUPTOR_MAIN_SHOT");
-		FX_DisruptorMainShot( cent->currentState.origin2, cent->lerpOrigin );
+		if ( cent->currentState.weapon == WP_SONIC_BLASTER )
+		{
+			FX_KothosBeam( cent->currentState.origin2, cent->lerpOrigin );
+		}
+		else
+		{
+			FX_DisruptorMainShot( cent->currentState.origin2, cent->lerpOrigin );
+		}
 		break;
 
 	case EV_DISRUPTOR_SNIPER_SHOT:

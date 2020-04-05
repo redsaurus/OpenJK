@@ -138,7 +138,10 @@ void GEntity_ThinkFunc(gentity_t *self)
 	THINKCASE( misc_weapon_shooter_fire )
 
 	THINKCASE( beacon_think )
-
+			
+	THINKCASE( shipboundary_think )
+	THINKCASE( asteroid_field_think )
+	
 	default:
 		Com_Error(ERR_DROP, "GEntity_ThinkFunc: case %d not handled!\n",self->e_ThinkFunc);
 		break;
@@ -234,7 +237,10 @@ void GEntity_TouchFunc(gentity_t *self, gentity_t *other, trace_t *trace)
 	TOUCHCASE( prox_mine_stick )
 	TOUCHCASE( func_rotating_touch )
 	TOUCHCASE( TouchTieBomb )
-
+	TOUCHCASE( space_touch )
+	TOUCHCASE( shipboundary_touch )
+	TOUCHCASE( hyperspace_touch )
+	
 	default:
 		Com_Error(ERR_DROP, "GEntity_TouchFunc: case %d not handled!\n",self->e_TouchFunc);
 	}
@@ -330,6 +336,7 @@ void GEntity_UseFunc(gentity_t *self, gentity_t *other, gentity_t *activator)
 	USECASE( misc_weapon_shooter_use )
 	USECASE( eweb_use )
 	USECASE( TieFighterUse );
+	USECASE( radar_icon_use );
 
 	default:
 		Com_Error(ERR_DROP, "GEntity_UseFunc: case %d not handled!\n",self->e_UseFunc);
@@ -371,6 +378,7 @@ void GEntity_PainFunc(gentity_t *self, gentity_t *inflictor, gentity_t *attacker
 	PAINCASE( CrystalCratePain )
 	PAINCASE( TurretPain )
 	PAINCASE( eweb_pain )
+	PAINCASE( NPC_GM_Pain )
 
 	default:
 		Com_Error(ERR_DROP, "GEntity_PainFunc: case %d not handled!\n",self->e_PainFunc);

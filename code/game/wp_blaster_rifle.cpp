@@ -90,6 +90,17 @@ void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean a
 
 		damage *= weaponData[WP_BLASTER].npcDmgMult;
 	}
+	
+	if ( ent->s.weapon == WP_E5_CARBINE )
+	{
+		damage = altFire ? weaponData[WP_E5_CARBINE].altDamage : weaponData[WP_E5_CARBINE].damage;
+		missile->s.weapon = WP_E5_CARBINE;
+	}
+	else if ( ent->s.weapon == WP_DC15S_CARBINE )
+	{
+		damage = altFire ? weaponData[WP_DC15S_CARBINE].altDamage : weaponData[WP_DC15S_CARBINE].damage;
+		missile->s.weapon = WP_DC15S_CARBINE;
+	}
 
 //	if ( ent->client )
 //	{

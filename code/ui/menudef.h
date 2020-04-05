@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ITEM_TYPE_MULTI				12		// multiple list setting, enumerated
 #define ITEM_TYPE_BIND				13		// multiple list setting, enumerated
 #define ITEM_TYPE_TEXTSCROLL		14		// scrolling text
+#define ITEM_TYPE_SLIDER_INTEGER	15
 
 
 #define ITEM_ALIGN_LEFT 0                 // left alignment
@@ -97,6 +98,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FEEDER_MOVES						0x15			// moves for the data pad moves screen
 #define FEEDER_MOVES_TITLES					0x16			// move titles for the data pad moves screen
 #define FEEDER_LANGUAGES					0x17			// the list of languages
+#define FEEDER_COLORCHOICES2				0x18			// more text/actions from playerchoice2.txt!
+
+#define FEEDER_SABER_SKIN_1					0x19
+#define FEEDER_SABER_SKIN_2					0x1a
+#define FEEDER_SABER_SKIN_3					0x1b
+#define FEEDER_SABER_SKIN_4					0x1c
+#define FEEDER_SABER_SKIN_5					0x1d
+
+#define FEEDER_SABER2_SKIN_1				0x1e
+#define FEEDER_SABER2_SKIN_2				0x1f
+#define FEEDER_SABER2_SKIN_3				0x20
+#define FEEDER_SABER2_SKIN_4				0x21
+#define FEEDER_SABER2_SKIN_5				0x22
 
 
 #define UI_VERSION				200

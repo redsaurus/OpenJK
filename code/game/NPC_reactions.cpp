@@ -488,7 +488,7 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 			}
 			else if ( self->NPC && !other->s.number )//should be assumed, but...
 			{//dammit, stop that!
-				if ( self->NPC->charmedTime > level.time )
+				if ( self->NPC->charmedTime > level.time || self->NPC->darkCharmedTime > level.time )
 				{//mindtricked
 					return;
 				}
@@ -542,9 +542,20 @@ void NPC_Pain( gentity_t *self, gentity_t *inflictor, gentity_t *other, const ve
 	if ( NPCInfo->ignorePain == qfalse )
 	{
 		NPCInfo->confusionTime = 0;//clear any charm or confusion, regardless
+		if (NPCInfo->insanityTime && NPCInfo->insanityTime > level.time)
+		{
+			NPCInfo->insanityTime = 0;
+			NPC->client->ps.torsoAnimTimer = 0;
+			NPC->client->ps.weaponTime -= level.time - NPCInfo->insanityTime;
+			if (NPC->client->ps.weaponTime < 0)
+			{
+				NPC->client->ps.weaponTime = 0;
+			}
+		}
 		if ( NPC->ghoul2.size() && NPC->headBolt != -1 )
 		{
 			G_StopEffect("force/confusion", NPC->playerModel, NPC->headBolt, NPC->s.number );
+			G_StopEffect("force/drain_hand", NPC->playerModel, NPC->headBolt, NPC->s.number );
 		}
 		if ( damage != -1 )
 		{//-1 == don't play pain anim

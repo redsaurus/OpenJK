@@ -403,7 +403,6 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 	playerState_t *parentPS = &parent->client->ps;
 #endif
 
-#ifdef _JK2MP
 	if ( parentPS->hyperSpaceTime
 		&& curTime - parentPS->hyperSpaceTime < HYPERSPACE_TIME )
 	{//Going to Hyperspace
@@ -442,7 +441,6 @@ static void ProcessMoveCommands( Vehicle_t *pVeh )
 		}
 		return;
 	}
-#endif
 
 	if ( pVeh->m_iDropTime >= curTime )
 	{//no speed, just drop
@@ -1231,7 +1229,6 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 	isDead = (qboolean)(parentPS->stats[STAT_HEALTH] <= 0 );
 #endif
 
-#ifdef _JK2MP
 	if ( parentPS->hyperSpaceTime
 		&& (curTime - parentPS->hyperSpaceTime) < HYPERSPACE_TIME )
 	{//Going to Hyperspace
@@ -1239,7 +1236,6 @@ static void ProcessOrientCommands( Vehicle_t *pVeh )
 		VectorCopy( riderPS->viewangles, parentPS->viewangles );
 		return;
 	}
-#endif
 
 	if ( pVeh->m_iDropTime >= curTime )
 	{//you can only YAW during this

@@ -390,6 +390,9 @@ public:
 	int			controlledTime;	//controlled by player
 	int			surrenderTime;	//Hands up
 	int			kneelTime;		//kneeling (for troopers)
+	
+	int			insanityTime;	//Insanity!
+	int			darkCharmedTime;	//Charmed to enemy team (dark version)
 
 	//Lagging enemy position - FIXME: seems awful wasteful...
 	vec3_t		enemyLaggedPos[ENEMY_POS_LAG_STEPS];
@@ -515,6 +518,8 @@ public:
 		saved_game.write<int32_t>(controlledTime);
 		saved_game.write<int32_t>(surrenderTime);
 		saved_game.write<int32_t>(kneelTime);
+        saved_game.write<int32_t>(insanityTime);
+        saved_game.write<int32_t>(darkCharmedTime);
 		saved_game.write<float>(enemyLaggedPos);
 		saved_game.write<int32_t>(watchTarget);
 		saved_game.write<int32_t>(ffireCount);
@@ -637,6 +642,8 @@ public:
 		saved_game.read<int32_t>(controlledTime);
 		saved_game.read<int32_t>(surrenderTime);
 		saved_game.read<int32_t>(kneelTime);
+        saved_game.read<int32_t>(insanityTime);
+        saved_game.read<int32_t>(darkCharmedTime);
 		saved_game.read<float>(enemyLaggedPos);
 		saved_game.read<int32_t>(watchTarget);
 		saved_game.read<int32_t>(ffireCount);

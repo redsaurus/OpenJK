@@ -199,7 +199,7 @@ qboolean	PM_SlideMove( float gravMod ) {
 			continue;
 		}
 
-		if (pm->gent->client &&
+		if (pm->gent && pm->gent->client &&
 			pm->gent->client->NPC_class == CLASS_VEHICLE &&
 			trace.plane.normal[2]<pm->gent->m_pVehicle->m_pVehicleInfo->maxSlope
 			)

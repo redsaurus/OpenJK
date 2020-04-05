@@ -112,6 +112,8 @@ extern qboolean PM_LockedAnim( int anim );
 extern qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode );
 extern qboolean G_JediInNormalAI( gentity_t *ent );
 
+extern qboolean PlayerAffectedByStasis( void );
+
 extern bool		in_camera;
 extern qboolean	player_locked;
 extern qboolean	stop_icarus;
@@ -426,7 +428,8 @@ void G_ChooseLookEnemy( gentity_t *self, usercmd_t *ucmd )
 		{
 			if ( (ucmd->buttons&BUTTON_ATTACK)
 				|| (ucmd->buttons&BUTTON_ALT_ATTACK)
-				|| (ucmd->buttons&BUTTON_FORCE_FOCUS) )
+				|| (ucmd->buttons&BUTTON_FORCE_FOCUS)
+                || (ucmd->buttons&BUTTON_SABERTHROW) )
 			{//if attacking, don't consider dead enemies
 				continue;
 			}
@@ -1658,7 +1661,11 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 		if ( newWeap != WP_NONE && ent->client->ps.weapon != newWeap )
 		{
 			G_RemoveWeaponModels( ent );
-			ent->client->ps.stats[STAT_WEAPONS] = ( 1 << newWeap );
+			for ( int i = 0; i < MAX_WEAPONS; i++ )
+			{
+				ent->client->ps.weapons[i] = 0;
+			}
+			ent->client->ps.weapons[newWeap] = 1;
 			ent->client->ps.ammo[weaponData[newWeap].ammoIndex] = 999;
 			ChangeWeapon( ent, newWeap );
 			ent->client->ps.weapon = newWeap;
@@ -1668,6 +1675,7 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 				//FIXME: AddSound/Sight Event
 				int numSabers = WP_SaberInitBladeData( ent );
 				WP_SaberAddG2SaberModels( ent );
+				G_RemoveHolsterModels( ent );
 				for ( int saberNum = 0; saberNum < numSabers; saberNum++ )
 				{
 					//G_CreateG2AttachedWeaponModel( ent, ent->client->ps.saber[saberNum].model, ent->handRBolt, 0 );
@@ -1683,7 +1691,8 @@ void G_MatchPlayerWeapon( gentity_t *ent )
 			}
 			else
 			{
-				G_CreateG2AttachedWeaponModel( ent, weaponData[newWeap].weaponMdl, ent->handRBolt, 0 );
+				G_CreateG2AttachedWeaponModel( ent, weaponData[newWeap].worldModel, ent->handRBolt, 0 );
+				WP_SaberAddHolsteredG2SaberModels( ent );
 			}
 		}
 	}
@@ -2598,7 +2607,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 	if ( (ent->client->ps.forcePowersActive&(1<<FP_DRAIN)) )
 	{//draining
 		ucmd->forwardmove = ucmd->rightmove = ucmd->upmove = 0;
-		ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS);
+		ucmd->buttons &= ~(BUTTON_ATTACK|BUTTON_ALT_ATTACK|BUTTON_FORCE_FOCUS|BUTTON_SABERTHROW);
 		if ( ent->NPC )
 		{
 			VectorClear( ent->client->ps.moveDir );
@@ -2608,7 +2617,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 	if ( ent->client->ps.saberMove == LS_A_LUNGE )
 	{//can't move during lunge
 		ucmd->rightmove = ucmd->upmove = 0;
-		if ( ent->client->ps.legsAnimTimer > 500 && (ent->s.number || !player_locked) )
+		if ( ent->client->ps.legsAnimTimer > 500 && (ent->s.number || (!player_locked && !PlayerAffectedByStasis())) )
 		{
 			ucmd->forwardmove = 127;
 		}
@@ -2639,7 +2648,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 
 	if ( ent->client->ps.saberMove == LS_A_JUMP_T__B_ )
 	{//can't move during leap
-		if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE || (!ent->s.number && player_locked) )
+		if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE || (!ent->s.number && (player_locked || PlayerAffectedByStasis())) )
 		{//hit the ground
 			ucmd->forwardmove = 0;
 		}
@@ -3980,6 +3989,8 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			|| (ucmd->buttons&BUTTON_FORCEGRIP)
 			|| (ucmd->buttons&BUTTON_FORCE_LIGHTNING)
 			|| (ucmd->buttons&BUTTON_FORCE_DRAIN)
+			|| (ucmd->buttons&BUTTON_REPULSE)
+            || (ucmd->buttons&BUTTON_SABERTHROW)
 			|| ucmd->upmove )
 		{//stop the anim
 			if ( ent->client->ps.legsAnim == BOTH_MEDITATE
@@ -4056,7 +4067,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 
 	if ( PM_InRoll( &ent->client->ps ) )
 	{
-		if ( ent->s.number >= MAX_CLIENTS || !player_locked )
+		if ( ent->s.number >= MAX_CLIENTS || (!player_locked && !PlayerAffectedByStasis()) )
 		{
 			//FIXME: NPCs should try to face us during this roll, so they roll around us...?
 			PM_CmdForRoll( &ent->client->ps, ucmd );
@@ -4084,7 +4095,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			{//invalid now
 				VectorClear( ent->client->ps.moveDir );
 			}
-			if ( ent->s.number || !player_locked )
+			if ( ent->s.number || (!player_locked && !PlayerAffectedByStasis()) )
 			{
 				switch ( ent->client->ps.legsAnim )
 				{
@@ -4116,7 +4127,7 @@ qboolean G_CheckClampUcmd( gentity_t *ent, usercmd_t *ucmd )
 			{//invalid now
 				VectorClear( ent->client->ps.moveDir );
 			}
-			if ( ent->s.number || !player_locked )
+			if ( ent->s.number || (!player_locked && !PlayerAffectedByStasis()) )
 			{
 				if ( ent->client->ps.legsAnimTimer > 450 )
 				{
@@ -4379,7 +4390,11 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 	{
 		return;
 	}
-	if ( !ent->s.number && ( !cg.renderingThirdPerson || cg.zoomMode ) )
+	if ( !ent->s.number && (cg_trueguns.integer || (!cg.renderingThirdPerson && (ent->client->ps.weapon == WP_SABER || ent->client->ps.weapon == WP_MELEE)) ) )
+	{
+		return;
+	}
+	if ( !ent->s.number && ( /*!cg.renderingThirdPerson ||*/ cg.zoomMode ) )
 	{
 		if ( ent->client->idleTime < level.time )
 		{
@@ -4760,6 +4775,15 @@ void	ClientAlterSpeed(gentity_t *ent, usercmd_t *ucmd, qboolean	controlledByPlay
 		{
 			client->ps.speed *= 0.75;
 		}
+		
+		if ( client->ps.weapon == WP_EMPLACED_GUN && !(client->ps.eFlags & EF_LOCKED_TO_WEAPON) )
+		{
+			if (!(ucmd->buttons & BUTTON_WALKING))
+			{
+				ucmd->buttons |= BUTTON_WALKING;
+				client->ps.speed *= 0.5;
+			}
+		}
 
 		if ( client->ps.weapon == WP_SABER )
 		{
@@ -4787,6 +4811,14 @@ extern void ForceSeeing(gentity_t *ent);
 extern void ForceTelepathy(gentity_t *ent);
 extern void ForceAbsorb(gentity_t *ent);
 extern void ForceHeal(gentity_t *ent);
+extern void ForceDestruction( gentity_t *ent );
+extern void ForceInsanity( gentity_t *ent );
+extern void ForceStasis( gentity_t *ent );
+extern void ForceBlinding( gentity_t *ent );
+extern void ForceDeadlySight( gentity_t *ent );
+extern void ForceRepulse( gentity_t *ent );
+extern void ForceInvulnerability( gentity_t *ent );
+
 static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 {
 	switch(cmd) {
@@ -4827,6 +4859,27 @@ static void ProcessGenericCmd(gentity_t *ent, byte cmd)
 		break;
 	case GENCMD_FORCE_SEEING:
 		ForceSeeing(ent);
+		break;
+	case GENCMD_FORCE_DESTRUCTION:
+		ForceDestruction(ent);
+		break;
+	case GENCMD_FORCE_INSANITY:
+		ForceInsanity(ent);
+		break;
+	case GENCMD_FORCE_STASIS:
+		ForceStasis(ent);
+		break;
+	case GENCMD_FORCE_BLINDING:
+		ForceBlinding(ent);
+		break;
+	case GENCMD_FORCE_DEADLYSIGHT:
+		ForceDeadlySight(ent);
+		break;
+	case GENCMD_FORCE_REPULSE:
+		ForceRepulse(ent);
+		break;
+	case GENCMD_FORCE_INVULNERABILITY:
+		ForceInvulnerability(ent);
 		break;
 	}
 }
@@ -4984,6 +5037,7 @@ extern cvar_t	*g_skippingcin;
 		}
 
 		if ( (player_locked
+				|| PlayerAffectedByStasis()
 				|| (ent->client->ps.eFlags&EF_FORCE_GRIPPED)
 				|| (ent->client->ps.eFlags&EF_FORCE_DRAINED)
 				|| (ent->client->ps.legsAnim==BOTH_PLAYER_PA_1)
@@ -4991,7 +5045,7 @@ extern cvar_t	*g_skippingcin;
 				|| (ent->client->ps.legsAnim==BOTH_PLAYER_PA_3))
 			&& ent->client->ps.pm_type < PM_DEAD ) // unless dead
 		{//lock out player control
-			if ( !player_locked )
+			if ( !player_locked && !PlayerAffectedByStasis() )
 			{
 				VectorClearM( ucmd->angles );
 			}
@@ -5307,7 +5361,7 @@ extern cvar_t	*g_skippingcin;
 	//FIXME: if global gravity changes this should update everyone's personal gravity...
 	if ( !(ent->svFlags & SVF_CUSTOM_GRAVITY) )
 	{
-		if (ent->client->inSpaceIndex)
+		if (ent->client->inSpaceIndex && ent->client->inSpaceIndex != ENTITYNUM_NONE)
 		{ //in space, so no gravity...
 			client->ps.gravity = 0.0f;
 		}

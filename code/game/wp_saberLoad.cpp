@@ -144,6 +144,18 @@ stringID_table_t SaberMoveTable[] =
 	{ "",	-1 }
 };
 
+stringID_table_t HolsterTable[] =
+{
+	ENUM2STRING(HOLSTER_NONE),
+	ENUM2STRING(HOLSTER_HIPS),
+	ENUM2STRING(HOLSTER_BACK),
+	{ "none", HOLSTER_NONE },
+	{ "hips", HOLSTER_HIPS },
+	{ "back", HOLSTER_BACK },
+	{ "lhip", HOLSTER_LHIP },
+	{ "",	-1 }
+};
+
 
 saber_styles_t TranslateSaberStyle( const char *name ) {
 	if ( !Q_stricmp( name, "fast" ) )		return SS_FAST;
@@ -151,6 +163,7 @@ saber_styles_t TranslateSaberStyle( const char *name ) {
 	if ( !Q_stricmp( name, "strong" ) ) 	return SS_STRONG;
 	if ( !Q_stricmp( name, "desann" ) ) 	return SS_DESANN;
 	if ( !Q_stricmp( name, "tavion" ) ) 	return SS_TAVION;
+	if ( !Q_stricmp( name, "katarn" ) ) 	return SS_KATARN;
 	if ( !Q_stricmp( name, "dual" ) )		return SS_DUAL;
 	if ( !Q_stricmp( name, "staff" ) )		return SS_STAFF;
 
@@ -476,7 +489,14 @@ void WP_SaberSetDefaults( saberInfo_t *saber, qboolean setColors = qtrue )
 	saber->splashDamage2 = 0;				//0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
 	saber->splashKnockback2 = 0.0f;			//0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 //=========================================================================================================================================
+	saber->holsterPlace = HOLSTER_INVALID;
+	saber->ignitionFlare[0] = 0;
+	saber->ignitionFlare2[0] = 0;
+	saber->blackIgnitionFlare[0] = 0;
+	saber->blackIgnitionFlare2[0] = 0;
 }
+
+qboolean forcedRGBColours[MAX_BLADES];
 
 static void Saber_ParseName( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -551,7 +571,12 @@ static void Saber_ParseSaberColor( saberInfo_t *saber, const char **p ) {
 
 	color = TranslateSaberColor( value );
 	for ( i=0; i<MAX_BLADES; i++ )
-		saber->blade[i].color = color;
+	{
+		if (!forcedRGBColours[i])
+		{
+			saber->blade[i].color = color;
+		}
+	}
 }
 static void Saber_ParseSaberColor2( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -566,7 +591,10 @@ static void Saber_ParseSaberColor2( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[1].color = color;
+	if (!forcedRGBColours[1])
+	{
+		saber->blade[1].color = color;
+	}
 }
 static void Saber_ParseSaberColor3( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -581,7 +609,10 @@ static void Saber_ParseSaberColor3( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[2].color = color;
+	if (!forcedRGBColours[2])
+	{
+		saber->blade[2].color = color;
+	}
 }
 static void Saber_ParseSaberColor4( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -596,7 +627,10 @@ static void Saber_ParseSaberColor4( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[3].color = color;
+	if (!forcedRGBColours[3])
+	{
+		saber->blade[3].color = color;
+	}
 }
 static void Saber_ParseSaberColor5( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -611,7 +645,10 @@ static void Saber_ParseSaberColor5( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[4].color = color;
+	if (!forcedRGBColours[4])
+	{
+		saber->blade[4].color = color;
+	}
 }
 static void Saber_ParseSaberColor6( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -626,7 +663,10 @@ static void Saber_ParseSaberColor6( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[5].color = color;
+	if (!forcedRGBColours[5])
+	{
+		saber->blade[5].color = color;
+	}
 }
 static void Saber_ParseSaberColor7( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -641,8 +681,128 @@ static void Saber_ParseSaberColor7( saberInfo_t *saber, const char **p ) {
 		return;
 
 	color = TranslateSaberColor( value );
-	saber->blade[6].color = color;
+	if (!forcedRGBColours[6])
+	{
+		saber->blade[6].color = color;
+	}
 }
+static void Saber_ParseSaberRGBColor( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	int i=0;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	for ( i=0; i<MAX_BLADES; i++ )
+	{
+		saber->blade[i].color = color;
+	}
+	forcedRGBColours[0] = qtrue;
+}
+static void Saber_ParseSaberRGBColor2( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[1].color = color;
+	forcedRGBColours[1] = qtrue;
+}
+static void Saber_ParseSaberRGBColor3( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[2].color = color;
+	forcedRGBColours[2] = qtrue;
+}
+static void Saber_ParseSaberRGBColor4( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[3].color = color;
+	forcedRGBColours[3] = qtrue;
+}
+static void Saber_ParseSaberRGBColor5( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[4].color = color;
+	forcedRGBColours[4] = qtrue;
+}
+static void Saber_ParseSaberRGBColor6( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[5].color = color;
+	forcedRGBColours[5] = qtrue;
+}
+static void Saber_ParseSaberRGBColor7( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	saber_colors_t color;
+	
+	if ( COM_ParseString( p, &value ) )
+		return;
+	
+	// don't actually want to set the colors
+	// read the color out anyway just to advance the *p pointer
+	if ( !Saber_SetColor )
+		return;
+	
+	color = TranslateSaberColor( value );
+	saber->blade[6].color = color;
+	forcedRGBColours[6] = qtrue;
+}
+
 static void Saber_ParseSaberLength( saberInfo_t *saber, const char **p ) {
 	int i=0;
 	float f;
@@ -1769,6 +1929,51 @@ static void Saber_ParseNoClashFlare2( saberInfo_t *saber, const char **p ) {
 	if ( n )
 		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE2;
 }
+static void Saber_ParseHolsterPlace( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	int holsterType;
+	if ( COM_ParseString( p, &value ) )
+		return;
+	holsterType = GetIDForString( HolsterTable, value );
+	if ( holsterType >= HOLSTER_NONE && holsterType <= HOLSTER_BACK )
+		saber->holsterPlace = (holster_locations_t)holsterType;
+}
+static void Saber_ParseIgnitionFlare( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->ignitionFlare, value, sizeof( saber->ignitionFlare ) );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlare2( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->ignitionFlare2, value, sizeof( saber->ignitionFlare2 ) );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlareBlack( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->blackIgnitionFlare, value, sizeof( saber->blackIgnitionFlare ) );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
+static void Saber_ParseIgnitionFlareBlack2( saberInfo_t *saber, const char **p ) {
+	const char *value;
+	if ( COM_ParseString( p, &value ) ) {
+		SkipRestOfLine( p );
+		return;
+	}
+	Q_strncpyz( saber->blackIgnitionFlare2, value, sizeof( saber->blackIgnitionFlare2 ) );
+	//NOTE: registers this on cgame side where it registers all client assets
+}
 
 /*
 ===============
@@ -1835,6 +2040,13 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "saberColor5",			Saber_ParseSaberColor5,			NULL	},
 	{ "saberColor6",			Saber_ParseSaberColor6,			NULL	},
 	{ "saberColor7",			Saber_ParseSaberColor7,			NULL	},
+	{ "saberColorRGB",			Saber_ParseSaberRGBColor,			NULL	},
+	{ "saberColorRGB2",			Saber_ParseSaberRGBColor2,			NULL	},
+	{ "saberColorRGB3",			Saber_ParseSaberRGBColor3,			NULL	},
+	{ "saberColorRGB4",			Saber_ParseSaberRGBColor4,			NULL	},
+	{ "saberColorRGB5",			Saber_ParseSaberRGBColor5,			NULL	},
+	{ "saberColorRGB6",			Saber_ParseSaberRGBColor6,			NULL	},
+	{ "saberColorRGB7",			Saber_ParseSaberRGBColor7,			NULL	},
 	{ "saberLength",			Saber_ParseSaberLength,			NULL	},
 	{ "saberLength2",			Saber_ParseSaberLength2,		NULL	},
 	{ "saberLength3",			Saber_ParseSaberLength3,		NULL	},
@@ -1971,6 +2183,11 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "bladeEffect2",			Saber_ParseBladeEffect2,		NULL	},
 	{ "noClashFlare",			Saber_ParseNoClashFlare,		NULL	},
 	{ "noClashFlare2",			Saber_ParseNoClashFlare2,		NULL	},
+	{ "holsterPlace",			Saber_ParseHolsterPlace,		NULL	},
+	{ "ignitionFlare",			Saber_ParseIgnitionFlare,		NULL	},
+	{ "ignitionFlare2",			Saber_ParseIgnitionFlare2,		NULL	},
+	{ "ignitionFlareBlack",		Saber_ParseIgnitionFlareBlack,		NULL	},
+	{ "ignitionFlareBlack2",	Saber_ParseIgnitionFlareBlack2,		NULL	},
 	{ NULL,						NULL,							NULL	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];
@@ -1991,6 +2208,11 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 	const char	*token;
 	const char	*p;
 	keywordHash_t *key;
+	
+	for ( int i = 0; i < MAX_BLADES; i++ )
+	{
+		forcedRGBColours[i] = qfalse;
+	}
 
 	// make sure the hash table has been setup
 	if ( !hashSetup )
@@ -2058,6 +2280,18 @@ qboolean WP_SaberParseParms( const char *SaberName, saberInfo_t *saber, qboolean
 	if ( saber->type == SABER_SITH_SWORD )
 	{//precache all the sith sword sounds
 		Saber_SithSwordPrecache();
+	}
+	
+	if ( saber->holsterPlace == HOLSTER_INVALID )
+	{
+		if ( saber->type == SABER_SITH_SWORD )
+		{
+			saber->holsterPlace = HOLSTER_BACK;
+		}
+		else
+		{
+			saber->holsterPlace = HOLSTER_HIPS;
+		}
 	}
 	return qtrue;
 }
@@ -2143,9 +2377,17 @@ void WP_SetSaber( gentity_t *ent, int saberNum, const char *saberName )
 		}
 	}
 	*/
-	WP_SaberAddG2SaberModels( ent, saberNum );
-	ent->client->ps.saber[saberNum].SetLength( 0.0f );
-	ent->client->ps.saber[saberNum].Activate();
+	if (ent->client->ps.weapon == WP_SABER)
+	{
+		WP_SaberAddG2SaberModels( ent, saberNum );
+		ent->client->ps.saber[saberNum].SetLength( 0.0f );
+		ent->client->ps.saber[saberNum].Activate();
+	}
+	else
+	{
+		G_RemoveHolsterModels( ent );
+		WP_SaberAddHolsteredG2SaberModels( ent );
+	}
 
 	if ( ent->client->ps.saber[saberNum].stylesLearned )
 	{//change to the style we're supposed to be using

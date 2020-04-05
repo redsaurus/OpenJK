@@ -1,61 +1,27 @@
 version: 1.0.{build}
 
 branches:
-  except:
-    - release/1.0
-
-clone_depth: 1 #clone entire repository history if not defined
-shallow_clone: true #GitHub specific (ignores clone_depth)
-
-#do not build on tags
-skip_tags: true
-
+  only:
+  - master
+  
 os: Visual Studio 2013
 
-environment:
-  VisualStudioVersion: "12.0"
-  CMAKE_GENERATOR: "Visual Studio 12 2013"
+configuration: Release
 
-matrix:
-  fast_finish: false #finish build once one of the jobs fails
+install:
+- cmd: >-
+    if not exist build mkdir build
+    
+    cd build
+    
+    cmake -G "Visual Studio 12" -T v120_xp -DCMAKE_INSTALL_PREFIX=DESTDIR ..
+    
+build_script:
+- cmd: cmake --build . --target ALL_BUILD --config Release
 
-platform:
-  - Win32
-  - x64
-
-configuration:
-  - Debug
-  - Release
-
-#scripts that are called at very beginning, before repo cloning
-init:
-  - ps: Update-AppveyorBuild -Version "1.0-git-$($env:appveyor_repo_commit.substring(0,8))"
-  - cmake --version
-  - msbuild /version
-  #- cmake --help #debug: view available generators
-  - python --version #for tests, todo (try starting the built executables)
-
-#where to clone the git repository to
-clone_folder: C:\projects\OpenJK
-
-#scripts to run before build
-before_build:
-  - cmd: cd %APPVEYOR_BUILD_FOLDER%
-  #- set #debug: view all environment variables
-  - cmd: if "%Platform%"=="x64" set "CMAKE_GENERATOR=%CMAKE_GENERATOR% Win64"
-  - cmd: echo "Generator='%CMAKE_GENERATOR%'"
-  - cmd: echo "Platform='%Platform%'"
-  - cmd: if exist build rmdir /q /s build #remove build dir
-  - cmd: mkdir build
-  - cmd: cd build
-  - cmd: cmake -DCMAKE_INSTALL_PREFIX=install -G "%CMAKE_GENERATOR%" "%APPVEYOR_BUILD_FOLDER%"
-  - cmd: ls
-
-build:
-  parallel: true
-  project: C:\projects\OpenJK\build\OpenJK.sln
-  verbosity: normal
-
-#scripts to run after build
 after_build:
-  - cmd: cmake --build . --target INSTALL
+  - cmd: cmake --build . --target INSTALL --config Release
+  - cmd: 7z a jaenhanced-win32.zip DESTDIR/JediAcademy/*.exe DESTDIR/JediAcademy/jaenhanced/*.dll DESTDIR/JediAcademy/*.dll
+    
+artifacts:
+ - path: build/jaenhanced-win32.zip

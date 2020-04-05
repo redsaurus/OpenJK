@@ -78,6 +78,12 @@ float weaponSpeed[WP_NUM_WEAPONS][2] =
 	{ 0,0 },//WP_TUSKEN_STAFF,
 	{ 0,0 },//WP_SCEPTER,
 	{ 0,0 },//WP_NOGHRI_STICK,
+	{ Q3_INFINITE,Q3_INFINITE },//WP_SONIC_BLASTER,
+	{ BLASTER_VELOCITY,BLASTER_VELOCITY },//WP_E5_CARBINE,
+	{ BLASTER_VELOCITY,BLASTER_VELOCITY },//WP_DC15S_CARBINE,
+	{ BRYAR_PISTOL_VEL,BRYAR_PISTOL_VEL },//WP_DC15A_RIFLE,
+	{ REPEATER_VELOCITY,REPEATER_VELOCITY },//WP_Z6_ROTARY,
+
 };
 
 float WP_SpeedOfMissileForWeapon( int wp, qboolean alt_fire )
@@ -1537,7 +1543,37 @@ void FireWeapon( gentity_t *ent, qboolean alt_fire )
 		{
 			WP_FireNoghriStick( ent );
 		}
-		//else does melee attack/damage/func
+		else
+		{
+			WP_Melee( ent );
+		}
+		break;
+			
+	case WP_E5_CARBINE:
+		WP_FireBlaster( ent, alt_fire );
+		break;
+			
+	case WP_DC15S_CARBINE:
+		WP_FireBlaster( ent, alt_fire );
+		break;
+			
+	case WP_Z6_ROTARY:
+		WP_FireRepeater( ent, qfalse );
+		break;
+			
+	case WP_DC15A_RIFLE:
+		WP_FireBryarPistol( ent, qfalse );
+		break;
+			
+	case WP_SONIC_BLASTER:
+		if ( !alt_fire )
+		{
+			WP_FireDisruptor( ent, qfalse );
+		}
+		else
+		{
+			WP_SonicBlast( ent );
+		}
 		break;
 
 	case WP_TUSKEN_STAFF:

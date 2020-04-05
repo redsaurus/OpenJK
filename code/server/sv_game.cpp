@@ -711,6 +711,13 @@ static qboolean SV_G2API_SetBoneAngles(CGhoul2Info *ghlInfo, const char *boneNam
 		modelList, blendTime, AcurrentTime );
 }
 
+static qboolean	SV_G2API_SetBoneAnglesOffset(CGhoul2Info *ghlInfo, const char *boneName, const vec3_t angles, const int flags,
+										  const Eorientations up, const Eorientations right, const Eorientations forward, qhandle_t *modelList,
+										  int blendTime, int currentTime, const vec3_t offset)
+{
+	return re.G2API_SetBoneAnglesOffset( ghlInfo, boneName, angles, flags, up, right, forward, modelList, blendTime, currentTime, offset);
+}
+
 static qboolean SV_G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
     const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
     int blendTime, int AcurrentTime)
@@ -822,6 +829,12 @@ static void SV_G2API_ClearSkinGore(
     static_cast<void>(ghoul2);
 }
 #endif
+
+static void SV_G2API_SetTintType( CGhoul2Info *ghlInfo, g2Tints_t tintType )
+{
+    return re.G2API_SetTintType( ghlInfo, tintType );
+}
+
 
 static IGhoul2InfoArray& SV_TheGhoul2InfoArray( void )
 {
@@ -969,6 +982,7 @@ void SV_InitGameProgs (void) {
 	import.G2API_HaveWeGhoul2Models = SV_G2API_HaveWeGhoul2Models;
 	import.G2API_InitGhoul2Model = SV_G2API_InitGhoul2Model;
 	import.G2API_SetBoneAngles = SV_G2API_SetBoneAngles;
+	import.G2API_SetBoneAnglesOffset = SV_G2API_SetBoneAnglesOffset;
 	import.G2API_SetBoneAnglesMatrix = SV_G2API_SetBoneAnglesMatrix;
 	import.G2API_SetBoneAnim = SV_G2API_SetBoneAnim;
 	import.G2API_SetSkin = SV_G2API_SetSkin;
@@ -1034,6 +1048,8 @@ void SV_InitGameProgs (void) {
 	import.G2API_AddSkinGore = SV_G2API_AddSkinGore;
 	import.G2API_ClearSkinGore = SV_G2API_ClearSkinGore;
 
+    import.G2API_SetTintType = SV_G2API_SetTintType;
+    
 	import.SetActiveSubBSP = SV_SetActiveSubBSP;
 
 	import.RE_RegisterSkin = SV_RE_RegisterSkin;
@@ -1051,7 +1067,7 @@ void SV_InitGameProgs (void) {
 #ifdef JK2_MODE
 	const char *gamename = "jospgame";
 #else
-	const char *gamename = "jagame";
+	const char *gamename = "jaenhancedgame";
 #endif
 
 	GetGameAPIProc *GetGameAPI;

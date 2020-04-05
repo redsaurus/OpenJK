@@ -24,7 +24,7 @@ This file is part of Jedi Academy.
 #define VERSION_INTERNAL_BUILD		1
 
 #define VERSION_STRING				"1, 0, 1, 1"
-#define VERSION_STRING_DOTTED		"1.0.1.1"
+#define VERSION_STRING_DOTTED		"1.0"
 
 #define VERSION_BUILD_NUMBER		80
 

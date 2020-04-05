@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_navigator.h"
 #include "../cgame/cg_local.h"
 #include "g_nav.h"
+#include "g_functions.h"
 
 extern Vehicle_t *G_IsRidingVehicle( gentity_t *pEnt );
 
@@ -280,7 +281,12 @@ qboolean NPC_UpdateAngles ( qboolean doPitch, qboolean doYaw )
 			NPC->s.weapon==WP_REPEATER ||
 			NPC->s.weapon==WP_FLECHETTE ||
 			NPC->s.weapon==WP_BRYAR_PISTOL ||
-			NPC->s.weapon==WP_NOGHRI_STICK)
+			NPC->s.weapon==WP_NOGHRI_STICK ||
+			NPC->s.weapon==WP_SONIC_BLASTER ||
+			NPC->s.weapon==WP_E5_CARBINE ||
+			NPC->s.weapon==WP_DC15S_CARBINE ||
+			NPC->s.weapon==WP_DC15A_RIFLE ||
+			NPC->s.weapon==WP_Z6_ROTARY)
 		{
 			yawSpeed *= 10.0f;
 		}
@@ -1269,6 +1275,12 @@ qboolean NPC_FindEnemy( qboolean checkAlerts = qfalse )
 		G_ClearEnemy( NPC );
 		return qfalse;
 	}
+	
+	if( NPCInfo->insanityTime > level.time )
+	{
+		G_ClearEnemy( NPC );
+		return qfalse;
+	}
 
 	//Don't want a new enemy
 	if ( ( NPC_ValidEnemy( NPC->enemy ) ) && ( NPC->svFlags & SVF_LOCKEDENEMY ) )
@@ -1521,6 +1533,7 @@ NPC_CheckCharmed
 -------------------------
 */
 extern void G_AddVoiceEvent( gentity_t *self, int event, int speakDebounceTime );
+extern qboolean PM_HasAnimation( gentity_t *ent, int animation );
 void G_CheckCharmed( gentity_t *self )
 {
 	if ( self
@@ -1546,6 +1559,49 @@ void G_CheckCharmed( gentity_t *self )
 			//say something to let player know you've snapped out of it
 			G_AddVoiceEvent( self, Q_irand(EV_CONFUSE1, EV_CONFUSE3), 2000 );
 		}
+	}
+	else if ( self
+		&& self->client
+		&& self->client->playerTeam == TEAM_PLAYER
+		&& self->NPC
+		&& self->NPC->darkCharmedTime
+		&& (self->NPC->darkCharmedTime < level.time ||self->health <= 0) )
+	{//we were charmed, set us back!
+		//NOTE: presumptions here...
+		team_t	savTeam = self->client->enemyTeam;
+		self->client->enemyTeam = self->client->playerTeam;
+		self->client->playerTeam = savTeam;
+		self->client->leader = NULL;
+		self->NPC->darkCharmedTime = 0;
+		if ( self->health > 0 )
+		{
+			if ( self->NPC->tempBehavior == BS_FOLLOW_LEADER )
+			{
+				self->NPC->tempBehavior = BS_DEFAULT;
+			}
+			G_ClearEnemy( self );
+		}
+		if (self->health > 0)
+		{
+			self->health = 0;
+			GEntity_DieFunc( self, self, self, self->max_health, MOD_DESTRUCTION);
+		}
+	}
+}
+
+void G_CheckInsanity( gentity_t *self )
+{
+	if ( self
+		 && self->client
+		 && self->NPC
+		 && self->NPC->insanityTime
+		 && self->NPC->insanityTime > level.time
+		 && (self->client->ps.torsoAnim != BOTH_SONICPAIN_HOLD)
+		 && PM_HasAnimation( self, BOTH_SONICPAIN_HOLD ) )
+	{
+			NPC_SetAnim( self, SETANIM_LEGS, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_NORMAL|SETANIM_FLAG_RESTART );
+			NPC_SetAnim( self, SETANIM_TORSO, BOTH_SONICPAIN_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART );
+			self->client->ps.torsoAnimTimer += self->NPC->insanityTime - level.time;
 	}
 
 }

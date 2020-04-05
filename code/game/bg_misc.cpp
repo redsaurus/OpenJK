@@ -348,7 +348,7 @@ qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps 
 
 	case IT_WEAPON:
 		// See if we already have this weapon.
-		if ( !(ps->stats[ STAT_WEAPONS ] & ( 1 << item->giTag )))
+		if ( !(ps->weapons[item->giTag]) )
 		{
 			// Don't have this weapon yet, so pick it up.
 			return qtrue;
@@ -375,19 +375,19 @@ qboolean	BG_CanItemBeGrabbed( const entityState_t *ent, const playerState_t *ps 
 			switch( item->giTag )
 			{
 			case AMMO_THERMAL:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_THERMAL ) ) )
+				if( !(ps->weapons[WP_THERMAL] ) )
 				{
 					return qtrue;
 				}
 				break;
 			case AMMO_DETPACK:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_DET_PACK ) ) )
+				if( !(ps->weapons[WP_DET_PACK] ) )
 				{
 					return qtrue;
 				}
 				break;
 			case AMMO_TRIPMINE:
-				if( !(ps->stats[STAT_WEAPONS] & ( 1 << WP_TRIP_MINE ) ) )
+				if( !(ps->weapons[WP_TRIP_MINE] ) )
 				{
 					return qtrue;
 				}

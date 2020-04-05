@@ -214,7 +214,7 @@ void NPC_BSSniper_Patrol( void )
 {//FIXME: pick up on bodies of dead buddies?
 	NPC->count = 0;
 
-	if ( NPCInfo->confusionTime < level.time )
+	if ( (NPCInfo->confusionTime<level.time)&&(NPCInfo->insanityTime<level.time) )
 	{
 		//Look for any enemies
 		if ( NPCInfo->scriptFlags&SCF_LOOK_FOR_ENEMIES )

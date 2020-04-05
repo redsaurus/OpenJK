@@ -99,10 +99,111 @@ stringID_table_t BSTable[] =
 	ENUM2STRING(BS_CINEMATIC),//# Does nothing but face it's angles and move to a goal if it has one
 	ENUM2STRING(BS_FLEE),//# Run toward the nav goal, avoiding danger
 	//the rest are internal only
+    // ... but we should list them anyway, otherwise workshop behavior will screw up
+    ENUM2STRING(BS_WAIT),
+    ENUM2STRING(BS_STAND_GUARD),
+    ENUM2STRING(BS_PATROL),
+    ENUM2STRING(BS_INVESTIGATE),
+    ENUM2STRING(BS_HUNT_AND_KILL),
+    ENUM2STRING(BS_FLEE),
 	{ "",				-1 }
 };
 
+stringID_table_t NPCClassTable[] =
+{
+    ENUM2STRING(CLASS_NONE),
+    ENUM2STRING(CLASS_ATST),
+    ENUM2STRING(CLASS_BARTENDER),
+    ENUM2STRING(CLASS_BESPIN_COP),
+    ENUM2STRING(CLASS_CLAW),
+    ENUM2STRING(CLASS_COMMANDO),
+    ENUM2STRING(CLASS_DESANN),
+    ENUM2STRING(CLASS_FISH),
+    ENUM2STRING(CLASS_FLIER2),
+    ENUM2STRING(CLASS_GALAK),
+    ENUM2STRING(CLASS_GLIDER),
+    ENUM2STRING(CLASS_GONK),
+    ENUM2STRING(CLASS_GRAN),
+    ENUM2STRING(CLASS_HOWLER),
+    ENUM2STRING(CLASS_RANCOR),
+    ENUM2STRING(CLASS_SAND_CREATURE),
+    ENUM2STRING(CLASS_WAMPA),
+    ENUM2STRING(CLASS_IMPERIAL),
+    ENUM2STRING(CLASS_IMPWORKER),
+    ENUM2STRING(CLASS_INTERROGATOR),
+    ENUM2STRING(CLASS_JAN),
+    ENUM2STRING(CLASS_JEDI),
+    ENUM2STRING(CLASS_KYLE),
+    ENUM2STRING(CLASS_LANDO),
+    ENUM2STRING(CLASS_LIZARD),
+    ENUM2STRING(CLASS_LUKE),
+    ENUM2STRING(CLASS_MARK1),
+    ENUM2STRING(CLASS_MARK2),
+    ENUM2STRING(CLASS_GALAKMECH),
+    ENUM2STRING(CLASS_MINEMONSTER),
+    ENUM2STRING(CLASS_MONMOTHA),
+    ENUM2STRING(CLASS_MORGANKATARN),
+    ENUM2STRING(CLASS_MOUSE),
+    ENUM2STRING(CLASS_MURJJ),
+    ENUM2STRING(CLASS_PRISONER),
+    ENUM2STRING(CLASS_PROBE),
+    ENUM2STRING(CLASS_PROTOCOL),
+    ENUM2STRING(CLASS_R2D2),
+    ENUM2STRING(CLASS_R5D2),
+    ENUM2STRING(CLASS_REBEL),
+    ENUM2STRING(CLASS_REBORN),
+    ENUM2STRING(CLASS_REELO),
+    ENUM2STRING(CLASS_REMOTE),
+    ENUM2STRING(CLASS_RODIAN),
+    ENUM2STRING(CLASS_SEEKER),
+    ENUM2STRING(CLASS_SENTRY),
+    ENUM2STRING(CLASS_SHADOWTROOPER),
+    ENUM2STRING(CLASS_SABOTEUR),
+    ENUM2STRING(CLASS_STORMTROOPER),
+    ENUM2STRING(CLASS_SWAMP),
+    ENUM2STRING(CLASS_SWAMPTROOPER),
+    ENUM2STRING(CLASS_NOGHRI),
+    ENUM2STRING(CLASS_TAVION),
+    ENUM2STRING(CLASS_ALORA),
+    ENUM2STRING(CLASS_TRANDOSHAN),
+    ENUM2STRING(CLASS_UGNAUGHT),
+    ENUM2STRING(CLASS_JAWA),
+    ENUM2STRING(CLASS_WEEQUAY),
+    ENUM2STRING(CLASS_TUSKEN),
+    ENUM2STRING(CLASS_BOBAFETT),
+    ENUM2STRING(CLASS_ROCKETTROOPER),
+    ENUM2STRING(CLASS_SABER_DROID),
+    ENUM2STRING(CLASS_ASSASSIN_DROID),
+    ENUM2STRING(CLASS_HAZARD_TROOPER),
+    ENUM2STRING(CLASS_PLAYER),
+    ENUM2STRING(CLASS_VEHICLE),
 
+    
+    { "", -1 },
+};
+
+stringID_table_t RankTable[] =
+{
+    ENUM2STRING(RANK_CIVILIAN),
+    ENUM2STRING(RANK_CREWMAN),
+    ENUM2STRING(RANK_ENSIGN),
+    ENUM2STRING(RANK_LT_JG),
+    ENUM2STRING(RANK_LT),
+    ENUM2STRING(RANK_LT_COMM),
+    ENUM2STRING(RANK_COMMANDER),
+    ENUM2STRING(RANK_CAPTAIN),
+    
+    { "", -1 },
+};
+
+stringID_table_t MoveTypeTable[] =
+{
+    ENUM2STRING(MT_STATIC),
+    ENUM2STRING(MT_WALK),
+    ENUM2STRING(MT_RUNJUMP),
+    ENUM2STRING(MT_FLYSWIM),
+    { "", -1 }
+};
 
 stringID_table_t BSETTable[] =
 {
@@ -161,6 +262,11 @@ stringID_table_t WPTable[] =
 	ENUM2STRING(WP_TUSKEN_STAFF),
 	ENUM2STRING(WP_SCEPTER),
 	ENUM2STRING(WP_NOGHRI_STICK),
+	ENUM2STRING(WP_SONIC_BLASTER),
+	ENUM2STRING(WP_E5_CARBINE),
+	ENUM2STRING(WP_DC15S_CARBINE),
+	ENUM2STRING(WP_DC15A_RIFLE),
+	ENUM2STRING(WP_Z6_ROTARY),
 	{ "", 0 }
 };
 
@@ -419,6 +525,13 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_FORCE_ABSORB_LEVEL),
 	ENUM2STRING(SET_FORCE_DRAIN_LEVEL),
 	ENUM2STRING(SET_FORCE_SIGHT_LEVEL),
+	ENUM2STRING(SET_FORCE_DESTRUCTION_LEVEL),
+	ENUM2STRING(SET_FORCE_INSANITY_LEVEL),
+	ENUM2STRING(SET_FORCE_STASIS_LEVEL),
+	ENUM2STRING(SET_FORCE_BLINDING_LEVEL),
+	ENUM2STRING(SET_FORCE_DEADLYSIGHT_LEVEL),
+	ENUM2STRING(SET_FORCE_REPULSE_LEVEL),
+	ENUM2STRING(SET_FORCE_INVULNERABILITY_LEVEL),
 	ENUM2STRING(SET_SABER1_COLOR1),
 	ENUM2STRING(SET_SABER1_COLOR2),
 	ENUM2STRING(SET_SABER2_COLOR1),
@@ -485,10 +598,19 @@ stringID_table_t setTable[] =
 	ENUM2STRING(SET_FORCE_PROTECT),
 	ENUM2STRING(SET_FORCE_ABSORB),
 	ENUM2STRING(SET_FORCE_DRAIN),
+	ENUM2STRING(SET_FORCE_DESTRUCTION),
+	ENUM2STRING(SET_FORCE_INSANITY),
+	ENUM2STRING(SET_FORCE_STASIS),
+	ENUM2STRING(SET_FORCE_BLINDING),
+	ENUM2STRING(SET_FORCE_DEADLYSIGHT),
+	ENUM2STRING(SET_FORCE_REPULSE),
+	ENUM2STRING(SET_FORCE_INVULNERABILITY),
 	ENUM2STRING(SET_WINTER_GEAR),
 	ENUM2STRING(SET_NO_ANGLES),
 	ENUM2STRING(SET_SABER_ORIGIN),
 	ENUM2STRING(SET_SKIN),
+	ENUM2STRING(SET_RADAR_ICON),
+	ENUM2STRING(SET_RADAR_OBJECT),
 
 	{ "",	SET_ }
 };
@@ -1670,7 +1792,7 @@ Q3_Lerp2Origin
 Lerps the origin to the destination value
 =============
 */
-static void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
+void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 {
 	gentity_t	*ent = &g_entities[entID];
 
@@ -3234,13 +3356,17 @@ void G_SetWeapon( gentity_t *self, int wp )
 	gitem_t *item = FindItemForWeapon( (weapon_t) wp);
 	RegisterItem( item );	//make sure the weapon is cached in case this runs at startup
 
-	if ( self->client->ps.stats[STAT_WEAPONS]&( 1 << wp ) )
+	if ( self->client->ps.weapons[wp] )
 	{
 		hadWeapon = qtrue;
 	}
 	if ( self->NPC )
 	{//Should NPCs have only 1 weapon at a time?
-		self->client->ps.stats[STAT_WEAPONS] = ( 1 << wp );
+		for ( int i = 0; i < MAX_WEAPONS; i++ )
+		{
+			self->client->ps.weapons[i] = 0;
+		}
+		self->client->ps.weapons[wp] = 1;
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = 999;
 
 		ChangeWeapon( self, wp );
@@ -3250,7 +3376,7 @@ void G_SetWeapon( gentity_t *self, int wp )
 	}
 	else
 	{
-		self->client->ps.stats[STAT_WEAPONS] |= ( 1 << wp );
+		self->client->ps.weapons[wp] = 1;
 		self->client->ps.ammo[weaponData[wp].ammoIndex] = ammoData[weaponData[wp].ammoIndex].max;
 
 		G_AddEvent( self, EV_ITEM_PICKUP, (item - bg_itemlist) );
@@ -3267,10 +3393,12 @@ void G_SetWeapon( gentity_t *self, int wp )
 			WP_SaberInitBladeData( self );
 		}
 		WP_SaberAddG2SaberModels( self );
+		G_RemoveHolsterModels( self );
 	}
 	else
 	{
-		G_CreateG2AttachedWeaponModel( self, weaponData[wp].weaponMdl, self->handRBolt, 0 );
+		G_CreateG2AttachedWeaponModel( self, weaponData[wp].worldModel, self->handRBolt, 0 );
+		WP_SaberAddHolsteredG2SaberModels( self );
 	}
 }
 
@@ -4815,9 +4943,11 @@ static void Q3_SetNoMindTrick( int entID, qboolean add)
 	{
 		ent->NPC->scriptFlags |= SCF_NO_MIND_TRICK;
 		ent->NPC->confusionTime = 0;
+		ent->NPC->insanityTime = 0;
 		if ( ent->ghoul2.size() && ent->headBolt != -1 )
 		{
 			G_StopEffect("force/confusion", ent->playerModel, ent->headBolt, ent->s.number );
+			G_StopEffect("force/drain_hand", ent->playerModel, ent->headBolt, ent->s.number );
 		}
 	}
 	else
@@ -6408,7 +6538,7 @@ static void Q3_SetSaberActive( int entID, qboolean active )
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.weapons[WP_SABER]) )
 		{//change to it right now
 			if ( ent->NPC )
 			{
@@ -6472,7 +6602,7 @@ static void Q3_SetSaberBladeActive( int entID, int iSaber, int iBlade, qboolean 
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
-		if ( (ent->client->ps.stats[STAT_WEAPONS]&(1<<WP_SABER)) )
+		if ( (ent->client->ps.weapons[WP_SABER]) )
 		{//change to it right now
 			if ( ent->NPC )
 			{
@@ -9440,6 +9570,13 @@ extern void LockDoors(gentity_t *const ent);
 	case SET_FORCE_ABSORB_LEVEL:
 	case SET_FORCE_DRAIN_LEVEL:
 	case SET_FORCE_SIGHT_LEVEL:
+	case SET_FORCE_DESTRUCTION_LEVEL:
+	case SET_FORCE_INSANITY_LEVEL:
+	case SET_FORCE_STASIS_LEVEL:
+	case SET_FORCE_BLINDING_LEVEL:
+	case SET_FORCE_DEADLYSIGHT_LEVEL:
+	case SET_FORCE_REPULSE_LEVEL:
+	case SET_FORCE_INVULNERABILITY_LEVEL:
 		int_data = atoi((char *) data);
 		Q3_SetForcePowerLevel( entID, (toSet-SET_FORCE_HEAL_LEVEL), int_data );
 		break;
@@ -9528,11 +9665,36 @@ extern void Saboteur_Cloak( gentity_t *self );
 	case SET_FORCE_DRAIN:
 		Q3_SetForcePower( entID, FP_DRAIN, (qboolean)(Q_stricmp("true",(char*)data)==0) );
 		break;
+	case SET_FORCE_DESTRUCTION:
+		Q3_SetForcePower( entID, FP_DESTRUCTION, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_INSANITY:
+		Q3_SetForcePower( entID, FP_INSANITY, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_STASIS:
+		Q3_SetForcePower( entID, FP_STASIS, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_BLINDING:
+		Q3_SetForcePower( entID, FP_BLINDING, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_DEADLYSIGHT:
+		Q3_SetForcePower( entID, FP_DEADLYSIGHT, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_REPULSE:
+		Q3_SetForcePower( entID, FP_REPULSE, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+	case SET_FORCE_INVULNERABILITY:
+		Q3_SetForcePower( entID, FP_INVULNERABILITY, (qboolean)(Q_stricmp("true",(char*)data)==0) );
+		break;
+
 
 extern cvar_t	*g_char_model;
 extern cvar_t	*g_char_skin_head;
 extern cvar_t	*g_char_skin_torso;
 extern cvar_t	*g_char_skin_legs;
+extern void G_SetHeadSurfaceOnOff( gentity_t *ent );
+extern void G_SetHeadSkin( gentity_t *ent );
+		
 	case SET_WINTER_GEAR:	// Created: 03/26/03 by AReis.
 	{
 		// If this is a (fake) Player NPC or this IS the Player...
@@ -9557,6 +9719,9 @@ extern cvar_t	*g_char_skin_legs;
 			{
 				gi.G2API_SetSkin( &ent->ghoul2[ent->playerModel], G_SkinIndex( strSkin ), iSkinID );
 			}
+			
+			G_SetHeadSurfaceOnOff( ent );
+			G_SetHeadSkin( ent );
 		}
 		break;
 	}
@@ -9587,7 +9752,25 @@ extern cvar_t	*g_char_skin_legs;
 			}
 		}
 		break;
-
+	case SET_RADAR_OBJECT:
+		if ( entID >= 0 && entID < ENTITYNUM_WORLD )
+		{
+			if ( (Q_stricmp("true",(char*)data)==0) )
+			{
+				g_entities[entID].s.eFlags2 |= EF2_RADAROBJECT;
+			}
+			else
+			{
+				g_entities[entID].s.eFlags2 &= ~EF2_RADAROBJECT;
+			}
+		}
+		break;
+	case SET_RADAR_ICON:
+		if ( entID >= 0 && entID < ENTITYNUM_WORLD )
+		{
+			ent->s.radarIcon = G_IconIndex((char*)data);
+		}
+		break;
 	default:
 		//DebugPrint( WL_ERROR, "Set: '%s' is not a valid set field\n", type_name );
 		SetVar( taskID, entID, type_name, data );
